@@ -1,27 +1,27 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { map, distinctUntilChanged } from "rxjs";
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { map, distinctUntilChanged } from 'rxjs';
 import {
   NetworkId,
   setupWalletSelector,
   Wallet,
-} from "@near-wallet-selector/core";
-import type { WalletSelector, AccountState } from "@near-wallet-selector/core";
-import { setupModal } from "@near-wallet-selector/modal-ui";
-import type { WalletSelectorModal } from "@near-wallet-selector/modal-ui";
-import { setupNearWallet } from "@near-wallet-selector/near-wallet";
-import { setupMathWallet } from "@near-wallet-selector/math-wallet";
-import { setupNightly } from "@near-wallet-selector/nightly";
-import { setupLedger } from "@near-wallet-selector/ledger";
-import { setupHereWallet } from "@near-wallet-selector/here-wallet";
-import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet";
-import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet";
-import { setupCoin98Wallet } from "@near-wallet-selector/coin98-wallet";
+} from '@near-wallet-selector/core';
+import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
+import { setupModal } from '@near-wallet-selector/modal-ui';
+import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
+import { setupNearWallet } from '@near-wallet-selector/near-wallet';
+import { setupMathWallet } from '@near-wallet-selector/math-wallet';
+import { setupNightly } from '@near-wallet-selector/nightly';
+import { setupLedger } from '@near-wallet-selector/ledger';
+import { setupHereWallet } from '@near-wallet-selector/here-wallet';
+import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
+import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
+import { setupCoin98Wallet } from '@near-wallet-selector/coin98-wallet';
 //import { WALLET_CONNECT_PROJECT_ID } from "../constants";
-import { store } from "../stores/walletSelector.store";
-import { setupXDEFI } from "@near-wallet-selector/xdefi";
-import { setupOptoWallet } from "@near-wallet-selector/opto-wallet";
-import { setupWalletConnect } from "@near-wallet-selector/wallet-connect";
-import { getConfig } from "@/configs/config";
+import { store } from '../stores/walletSelector.store';
+import { setupXDEFI } from '@near-wallet-selector/xdefi';
+import { setupOptoWallet } from '@near-wallet-selector/opto-wallet';
+import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
+import { getConfig } from '@/configs/config';
 
 declare global {
   interface Window {
@@ -40,20 +40,20 @@ interface WalletSelectorContextValue {
 }
 
 enum Wallets {
-  Near = "near",
-  MyNearWallet = "mynearwallet",
-  Sender = "sender",
-  Math = "math",
-  Nightly = "nightly",
-  WalletConnect = "walletconnect",
-  NightlyConnect = "nightlyconnect",
-  Ledger = "ledger",
-  Here = "here",
-  Meteor = "meteor",
-  Coin98 = "coin98",
-  Narwallets = "narwallets",
-  XDefi = "xdefi",
-  Opto = "opto"
+  Near = 'near',
+  MyNearWallet = 'mynearwallet',
+  Sender = 'sender',
+  Math = 'math',
+  Nightly = 'nightly',
+  WalletConnect = 'walletconnect',
+  NightlyConnect = 'nightlyconnect',
+  Ledger = 'ledger',
+  Here = 'here',
+  Meteor = 'meteor',
+  Coin98 = 'coin98',
+  Narwallets = 'narwallets',
+  XDefi = 'xdefi',
+  Opto = 'opto',
 }
 
 const WalletSelectorContext =
@@ -66,17 +66,17 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
   const [modal, setModal] = useState<WalletSelectorModal | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
   const DEFAULT_ENABLE_WALLETS = [
-    "narwallets",
-    "meteor",
-    "near",
-    "mynearwallet",
-    "xdefi",
-    "opto",
-    "math",
-    "nightly",
-    "walletconnect",
-    "here",
-    "coin98"
+    'narwallets',
+    'meteor',
+    'near',
+    'mynearwallet',
+    'xdefi',
+    'opto',
+    'math',
+    'nightly',
+    'walletconnect',
+    'here',
+    'coin98',
   ];
 
   const setupWallets = () => {
@@ -92,7 +92,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
           modules.push(
             setupNearWallet({
               walletUrl: config.walletUrl,
-              iconUrl: "/assets/near-wallet-icon.png",
+              iconUrl: '/assets/near-wallet-icon.png',
             })
           );
           break;
@@ -100,7 +100,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
         case Wallets.MyNearWallet: {
           modules.push(
             setupMyNearWallet({
-              iconUrl: "/assets/my-near-wallet-icon.png",
+              iconUrl: '/assets/my-near-wallet-icon.png',
             })
           );
           break;
@@ -115,7 +115,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
         }
         case Wallets.Math: {
           modules.push(
-            setupMathWallet({ iconUrl: "/assets/math-wallet-icon.png" })
+            setupMathWallet({ iconUrl: '/assets/math-wallet-icon.png' })
           );
           break;
         }
@@ -130,16 +130,15 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
         case Wallets.WalletConnect: {
           modules.push(
             setupWalletConnect({
-              projectId:
-                "",//WALLET_CONNECT_PROJECT_ID || "",
+              projectId: '', //WALLET_CONNECT_PROJECT_ID || "",
               metadata: {
-                name: "Bonds Market",
-                description: "Wallet Connect integration for Bonds Market",
-                url: "https://bondmarket.app/",
-                icons: ["https://avatars.githubusercontent.com/u/37784886"],
+                name: 'Bonds Market',
+                description: 'Wallet Connect integration for Bonds Market',
+                url: 'https://bondmarket.app/',
+                icons: ['https://avatars.githubusercontent.com/u/37784886'],
               },
               chainId: `near:${NETWORK_ID}`,
-              iconUrl: "/assets/wallet-connect-icon.png",
+              iconUrl: '/assets/wallet-connect-icon.png',
             })
           );
           break;
@@ -169,7 +168,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
     });
 
     const _modal = setupModal(_selector, {
-      contractId: "",
+      contractId: '',
     });
     const state = _selector.store.getState();
     setAccounts(state.accounts);
@@ -183,7 +182,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
         : null,
       wallet: _selector.isSignedIn() ? await _selector.wallet() : null,
     });
-    
+
     // keep window global variables
     window.selector = _selector;
     window.modal = _modal;
@@ -200,7 +199,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
   useEffect(() => {
     init().catch((err) => {
       console.error(err);
-      alert("Failed to initialise wallet selector");
+      alert('Failed to initialise wallet selector');
     });
   }, [init]);
 
@@ -247,7 +246,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
         selector,
         modal,
         accounts,
-        accountId
+        accountId,
       }}
     >
       {children}
@@ -260,7 +259,7 @@ export function useWalletSelector() {
 
   if (!context) {
     throw new Error(
-      "useWalletSelector must be used within a WalletSelectorContextProvider"
+      'useWalletSelector must be used within a WalletSelectorContextProvider'
     );
   }
 
