@@ -1,3 +1,14 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": ["next/core-web-vitals", "plugin:prettier/recommended"],
+  "no-console": "warn",
+  "no-shadow": "error",
+  "import/order": [
+    "error",
+    {
+      "newlinesBetween": "always",
+      "groups": ["module", "/^@shared/", ["parent", "sibling", "index"]],
+      "alphabetize": { "order": "asc", "ignoreCase": true }
+    }
+  ],
+  "sort-keys": ["error", "asc", { "caseSensitive": false, "natural": true }]
 }

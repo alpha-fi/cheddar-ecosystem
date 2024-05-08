@@ -1,0 +1,121 @@
+class RNG {
+
+  state: number
+  m: number = 0x80000000
+  a: number = 1103515245
+  c: number = 12345
+
+  constructor(seed: number) {
+    this.state = seed ? seed : Math.floor(Math.random() * (this.m - 1));
+  }
+
+  nextInt() {
+    this.state = (this.a * this.state + this.c) % this.m;
+    return this.state;  
+  }
+
+  nextFloat() {
+    return this.nextInt() / (this.m - 1);
+  }
+
+  nextRange(start, end) {
+    // returns in range [start, end): including start, excluding end
+    // can't modulu nextInt because of weak randomness in lower bits
+    var rangeSize = end - start;
+    var randomUnder1 = this.nextInt() / this.m;
+    return start + Math.floor(randomUnder1 * rangeSize);
+  }
+
+  choice(array) {
+    return array[this.nextRange(0, array.length)];
+  }
+
+}
+
+var rng = new RNG(20);
+
+const generateMazeData = (rows, cols) => {
+  const maze = Array.from({ length: rows }, () =>
+    Array.from({ length: cols }, () => ({
+      isPath: false,
+      isActive: false,
+      hasCheese: false,
+      hasEnemy: false,
+      hasExit: false,
+      enemyWon: false,
+      hasCartel: false,
+    }))
+  );
+
+  // Choose a random starting position on the outer border
+  const startEdge = rng.nextRange(0, 4); // 0: top, 1: right, 2: bottom, 3: left
+  let x, y;
+
+  switch (startEdge) {
+    case 0: // Top edge
+      x = rng.nextRange(1, cols - 2);
+      y = 0;
+      break;
+    case 1: // Right edge
+      x = cols - 1;
+      y = rng.nextRange(1, rows - 2);
+      break;
+    case 2: // Bottom edge
+      x = rng.nextRange(1, cols - 2);
+      y = rows - 1;
+      break;
+    case 3: // Left edge
+      x = 0;
+      y = rng.nextRange(1, rows - 2);
+      break;
+  }
+
+  maze[y][x].isPath = true;
+  const stack = [[x, y]];
+
+  while (stack.length) {
+    const [cx, cy] = stack[stack.length - 1];
+    const directions = [];
+
+    // Check all possible directions
+    [
+      [2, 0], // Increase step to 2 for wider paths
+      [-2, 0], // Increase step to 2 for wider paths
+      [0, 2], // Increase step to 2 for wider paths
+      [0, -2], // Increase step to 2 for wider paths
+    ].forEach(([dx, dy]) => {
+      const nx = cx + dx,
+        ny = cy + dy;
+      if (
+        nx >= 0 &&
+        nx < cols &&
+        ny >= 0 &&
+        ny < rows &&
+        !maze[ny][nx].isPath
+      ) {
+        directions.push([nx, ny, cx + dx / 2, cy + dy / 2]); // Adjust coordinates for wider paths
+      }
+    });
+
+    if (directions.length) {
+      const [nx, ny, px, py] =
+        directions[rng.nextRange(0, directions.length)];
+      maze[ny][nx].isPath = true;
+      maze[py][px].isPath = true;
+      stack.push([nx, ny]);
+    } else {
+      stack.pop();
+    }
+  }
+
+  return maze;
+};
+
+
+const maze = generateMazeData(11, 9)
+const mapped = maze.map((rows) => {
+  return rows.map((cols) => {
+    return cols.isPath ? 1 : 0
+  })
+})
+console.log(mapped)
