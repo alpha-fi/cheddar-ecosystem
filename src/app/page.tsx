@@ -2,6 +2,8 @@
 import Image from 'next/image';
 import styles from './page.module.css';
 import { useEffect, useState } from 'react';
+import { Maze2 } from '@/components/Maze2';
+import { Maze1 } from '@/components/Maze1';
 
 export default function Home() {
   const [mazeData, setMazeData] = useState<any>([]);
@@ -215,8 +217,8 @@ export default function Home() {
         (lastCellX !== playerPosition.x || lastCellY !== playerPosition.y);
 
       // Update last player position
-      setLastCellX(playerPosition.x);
-      setLastCellY(playerPosition.y);
+      // setLastCellX(playerPosition.x);
+      // setLastCellY(playerPosition.y);
 
       return mazeData.map((row: any, rowIndex: number) => (
         <div key={rowIndex} style={styles.mazeRow}>
@@ -345,7 +347,17 @@ export default function Home() {
               )}
             </div>
           </div>
-          {renderMaze()}
+          <Maze2 
+            playerPosition={playerPosition}
+            lastCellX={lastCellX}
+            lastCellY={lastCellY}
+            mazeData={mazeData}
+            styles={styles}
+            calculateBlurRadius={calculateBlurRadius}
+            selectedColorSet={selectedColorSet}
+            direction={direction}
+          /> 
+          {/* {renderMaze()} */}
         </div>
 
         <div
@@ -474,7 +486,7 @@ export default function Home() {
     setTimeLimitInSeconds(120);
     setRemainingTime(120);
     setCheeseCooldown(false);
-    setEnemyCooldown(false);
+    // setEnemyCooldown(false);
     setMoves(0);
     setGameOverFlag(false);
     setWon(false);
@@ -682,10 +694,10 @@ export default function Home() {
               })
           );
           setMazeData(updatedMazeData);
-          setEnemyCooldown(true);
+          // setEnemyCooldown(true);
           setTimeout(
             () => {
-              setEnemyCooldown(false);
+              // setEnemyCooldown(false);
             },
             Math.floor(Math.random() * 5000) + 1000
           );
@@ -1035,7 +1047,7 @@ export default function Home() {
   return (
     <div>
       {initialized() && ( // Replace `condition` with your actual condition
-        <Maze
+        <Maze1
           mazeData={mazeData}
           playerPosition={playerPosition}
           score={score}
@@ -1055,6 +1067,13 @@ export default function Home() {
           handlePowerUpClick={handlePowerUpClick}
           handleBuyClick={handleBuyClick}
           isPowerUpOn={isPowerUpOn}
+          cellSize={cellSize}
+          lastCellX={lastCellX}
+          lastCellY={lastCellY}
+          calculateBlurRadius={calculateBlurRadius}
+          direction={direction}
+          setLastCellX={setLastCellX}
+          setLastCellY={setLastCellY}
         />
       )}
     </div>
