@@ -1,38 +1,55 @@
 'use client';
 import Image from 'next/image';
 import styles from './page.module.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { GameboardContainer } from './components/GameboardContainer';
 import { GameContextProvider } from '../contexts/GameContextProvider';
 
+import { GameContext } from '../contexts/GameContext';
+
 export default function Home() {
-  const [mazeData, setMazeData] = useState<any>([]);
-  const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
-  const [score, setScore] = useState(0);
+  const {
+    mazeData,
+    setMazeData,
+    playerPosition,
+    setPlayerPosition,
+    score,
+    setScore,
+    gameOverFlag,
+    setGameOverFlag,
+    gameOverMessage,
+    setGameOverMessage,
+    timerStarted,
+    setTimerStarted,
+    direction,
+    setDirection,
+    selectedColorSet,
+    setSelectedColorSet,
+    lastCellX,
+    setLastCellX,
+    lastCellY,
+    setLastCellY,
+    hasPowerUp,
+    setHasPowerUp,
+    isPowerUpOn,
+    setIsPowerUpOn,
+  } = useContext(GameContext);
+
   const [timeLimitInSeconds, setTimeLimitInSeconds] = useState(120);
-  const [timerId, setTimerId] = useState(null);
+  // const [timerId, setTimerId] = useState(null);
   const [cheeseCooldown, setCheeseCooldown] = useState(false);
   const [enemyCooldown, setEnemyCooldown] = useState(false);
   const [moves, setMoves] = useState(0);
-  const [gameOverFlag, setGameOverFlag] = useState(false);
   const [remainingTime, setRemainingTime] = useState(timeLimitInSeconds);
   const [remainingMinutes, setRemainingMinutes] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
-  const [gameOverMessage, setGameOverMessage] = useState('');
   const [playerStartY, setPlayerStartY] = useState(0);
-  const [timerStarted, setTimerStarted] = useState(false);
-  const [direction, setDirection] = useState('right');
-  const [selectedColorSet, setSelectedColorSet] = useState<any>(null);
   const [backgroundImage, setBackgroundImage] = useState('');
   const [rarity, setRarity] = useState('');
   const [won, setWon] = useState(false);
   const [touchStart, setTouchStart] = useState({ x: null, y: null });
   const [touchEnd, setTouchEnd] = useState({ x: null, y: null });
-  const [lastCellX, setLastCellX] = useState<any>(null);
-  const [lastCellY, setLastCellY] = useState<any>(null);
   const [coveredCells, setCoveredCells] = useState(0);
-  const [hasPowerUp, setHasPowerUp] = useState(false);
-  const [isPowerUpOn, setIsPowerUpOn] = useState(false);
 
   const mazeRows = 11;
   const mazeCols = 9;
@@ -250,6 +267,7 @@ export default function Home() {
   useEffect(() => {
     // Generate maze data and set it to the state
     const newMazeData = generateMazeData(mazeRows, mazeCols);
+    console.log('setMazeData: ', setMazeData);
     setMazeData(newMazeData);
 
     const randomColorSet = selectRandomColorSet();
@@ -695,6 +713,8 @@ export default function Home() {
     return (
       selectedColorSet !== null &&
       mazeData !== null &&
+      Array.isArray(mazeData) &&
+      mazeData[0] !== undefined &&
       playerPosition !== null &&
       score !== null &&
       remainingTime !== null &&

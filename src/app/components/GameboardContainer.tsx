@@ -1,4 +1,7 @@
 import { Gameboard } from './Gameboard';
+import { useContext } from 'react';
+
+import { GameContext } from '@/contexts/GameContext';
 
 interface Props {
   mazeData: any;
@@ -30,33 +33,35 @@ interface Props {
 }
 
 export function GameboardContainer({
-  mazeData,
-  playerPosition,
-  score,
-  timerStarted,
   remainingMinutes,
   remainingSeconds,
-  gameOverFlag,
-  gameOverMessage,
   startTimerOnTap,
   handleKeyPress,
   handleTouchMove,
   // handleMouseClick,
   restartGame,
-  selectedColorSet,
   // hasExit,
-  hasPowerUp,
   handlePowerUpClick,
   handleBuyClick,
-  isPowerUpOn,
   cellSize,
-  lastCellX,
-  lastCellY,
   calculateBlurRadius,
-  direction,
-  setLastCellX,
-  setLastCellY,
 }: Props) {
+  const {
+    mazeData,
+    playerPosition,
+    score,
+    gameOverFlag,
+    gameOverMessage,
+    direction,
+    selectedColorSet,
+    lastCellX,
+    setLastCellX,
+    lastCellY,
+    setLastCellY,
+    hasPowerUp,
+    isPowerUpOn,
+  } = useContext(GameContext);
+
   const styles: Record<string, any> = {
     gameContainer: {
       display: 'flex',
