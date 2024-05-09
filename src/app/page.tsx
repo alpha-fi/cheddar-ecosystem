@@ -3,6 +3,7 @@ import Image from 'next/image';
 import styles from './page.module.css';
 import { useEffect, useState } from 'react';
 import { GameboardContainer } from './components/GameboardContainer';
+import { GameContextProvider } from '../contexts/GameContextProvider';
 
 export default function Home() {
   const [mazeData, setMazeData] = useState<any>([]);
@@ -261,7 +262,11 @@ export default function Home() {
   }, []); // Empty dependency array to run this effect only once on component mount
 
   const movePlayer = (newX: number, newY: number) => {
-    if (!mazeData[newY][newX].isPath) {
+    if (
+      !mazeData[newY] ||
+      !mazeData[newY][newX] ||
+      !mazeData[newY][newX].isPath
+    ) {
       return; // Player cannot move to non-path cells
     }
 
@@ -704,37 +709,39 @@ export default function Home() {
   };
 
   return (
-    <div>
-      {initialized() && ( // Replace `condition` with your actual condition
-        <GameboardContainer
-          mazeData={mazeData}
-          playerPosition={playerPosition}
-          score={score}
-          timerStarted={false}
-          remainingMinutes={Math.floor(remainingTime / 60)}
-          remainingSeconds={remainingTime % 60}
-          gameOverFlag={gameOverFlag}
-          gameOverMessage={gameOverMessage}
-          startTimerOnTap={startTimer}
-          handleKeyPress={handleKeyPress}
-          handleTouchMove={handleTouchMove}
-          // handleMouseClick={handleMouseClick}
-          restartGame={restartGame}
-          selectedColorSet={selectedColorSet}
-          // hasExit={hasExit}
-          hasPowerUp={hasPowerUp}
-          handlePowerUpClick={handlePowerUpClick}
-          handleBuyClick={handleBuyClick}
-          isPowerUpOn={isPowerUpOn}
-          cellSize={cellSize}
-          lastCellX={lastCellX}
-          lastCellY={lastCellY}
-          calculateBlurRadius={calculateBlurRadius}
-          direction={direction}
-          setLastCellX={setLastCellX}
-          setLastCellY={setLastCellY}
-        />
-      )}
-    </div>
+    <GameContextProvider>
+      <div>
+        {initialized() && ( // Replace `condition` with your actual condition
+          <GameboardContainer
+            mazeData={mazeData}
+            playerPosition={playerPosition}
+            score={score}
+            timerStarted={false}
+            remainingMinutes={Math.floor(remainingTime / 60)}
+            remainingSeconds={remainingTime % 60}
+            gameOverFlag={gameOverFlag}
+            gameOverMessage={gameOverMessage}
+            startTimerOnTap={startTimer}
+            handleKeyPress={handleKeyPress}
+            handleTouchMove={handleTouchMove}
+            // handleMouseClick={handleMouseClick}
+            restartGame={restartGame}
+            selectedColorSet={selectedColorSet}
+            // hasExit={hasExit}
+            hasPowerUp={hasPowerUp}
+            handlePowerUpClick={handlePowerUpClick}
+            handleBuyClick={handleBuyClick}
+            isPowerUpOn={isPowerUpOn}
+            cellSize={cellSize}
+            lastCellX={lastCellX}
+            lastCellY={lastCellY}
+            calculateBlurRadius={calculateBlurRadius}
+            direction={direction}
+            setLastCellX={setLastCellX}
+            setLastCellY={setLastCellY}
+          />
+        )}
+      </div>
+    </GameContextProvider>
   );
 }
