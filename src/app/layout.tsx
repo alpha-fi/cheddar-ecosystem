@@ -5,6 +5,7 @@ import './globals.css';
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletSelectorContextProvider } from '@/contexts/WalletSelectorContext';
+import { GameContextProvider } from '../contexts/GameContextProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,7 +22,7 @@ export default function RootLayout({
         <WalletSelectorContextProvider>
           <ChakraProvider>
             <QueryClientProvider client={queryClient}>
-              {children}
+              <GameContextProvider>{children}</GameContextProvider>
             </QueryClientProvider>
           </ChakraProvider>
         </WalletSelectorContextProvider>

@@ -1,9 +1,9 @@
 import { GameContext } from './GameContext';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useState } from 'react';
 
 interface props {
-  children: JSX.Element | JSX.Element[];
+  children: ReactNode;
 }
 
 export const GameContextProvider = ({ children }: props) => {
