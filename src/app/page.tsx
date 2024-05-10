@@ -27,7 +27,6 @@ export default function Home() {
     setGameOverMessage,
     timerStarted,
     setTimerStarted,
-    direction,
     setDirection,
     selectedColorSet,
     setSelectedColorSet,
@@ -35,35 +34,25 @@ export default function Home() {
     setLastCellX,
     lastCellY,
     setLastCellY,
-    hasPowerUp,
-    setHasPowerUp,
     isPowerUpOn,
     setIsPowerUpOn,
     remainingTime,
     setRemainingTime,
-    timeLimitInSeconds,
     setTimeLimitInSeconds,
-    remainingMinutes,
     setRemainingMinutes,
-    remainingSeconds,
     setRemainingSeconds,
     cheeseCooldown,
     setCheeseCooldown,
     enemyCooldown,
-    setEnemyCooldown,
     moves,
     setMoves,
-    won,
     setWon,
     touchStart,
-    setTouchStart,
-    touchEnd,
-    setTouchEnd,
     coveredCells,
     setCoveredCells,
   } = useContext(GameContext);
 
-  const [playerStartY, setPlayerStartY] = useState(0);
+  // const [playerStartY, setPlayerStartY] = useState(0);
   const [backgroundImage, setBackgroundImage] = useState('');
   const [rarity, setRarity] = useState('');
 
@@ -78,7 +67,11 @@ export default function Home() {
 
   const handleBuyClick = () => {
     const popup = document.getElementById('buyPopup');
-    popup!.style.display = 'block';
+    if (popup!.style.display === 'block') {
+      popup!.style.display = 'none';
+    } else {
+      popup!.style.display = 'block';
+    }
   };
 
   // Function to select a random color set, background image, and rarity
@@ -519,53 +512,53 @@ export default function Home() {
   // };
 
   // Function to calculate the path from the current position to the target position
-  const calculatePath = (
-    currentX: number,
-    currentY: number,
-    targetX: number,
-    targetY: number
-  ) => {
-    console.log(
-      `Calculating path from (${currentX}, ${currentY}) to (${targetX}, ${targetY})`
-    );
-    const path = [];
+  // const calculatePath = (
+  //   currentX: number,
+  //   currentY: number,
+  //   targetX: number,
+  //   targetY: number
+  // ) => {
+  //   console.log(
+  //     `Calculating path from (${currentX}, ${currentY}) to (${targetX}, ${targetY})`
+  //   );
+  //   const path = [];
 
-    let deltaX = Math.sign(targetX - currentX);
-    let deltaY = Math.sign(targetY - currentY);
+  //   let deltaX = Math.sign(targetX - currentX);
+  //   let deltaY = Math.sign(targetY - currentY);
 
-    let x = currentX;
-    let y = currentY;
+  //   let x = currentX;
+  //   let y = currentY;
 
-    console.log('Delta X:', deltaX);
-    console.log('Delta Y:', deltaY);
+  //   console.log('Delta X:', deltaX);
+  //   console.log('Delta Y:', deltaY);
 
-    // Ensure that both x and y are not equal to their respective target values
-    while (x !== targetX || y !== targetY) {
-      path.push([x, y]);
+  //   // Ensure that both x and y are not equal to their respective target values
+  //   while (x !== targetX || y !== targetY) {
+  //     path.push([x, y]);
 
-      // Move along the x-axis towards the target
-      if (x !== targetX) x += deltaX;
+  //     // Move along the x-axis towards the target
+  //     if (x !== targetX) x += deltaX;
 
-      // Move along the y-axis towards the target
-      if (y !== targetY) y += deltaY;
-    }
+  //     // Move along the y-axis towards the target
+  //     if (y !== targetY) y += deltaY;
+  //   }
 
-    // Add the target position to the path
-    path.push([targetX, targetY]);
+  //   // Add the target position to the path
+  //   path.push([targetX, targetY]);
 
-    console.log('Calculated path:', path);
+  //   console.log('Calculated path:', path);
 
-    return path;
-  };
+  //   return path;
+  // };
 
   // Function to move the player along the calculated path
-  const moveAlongPath = (path: any) => {
-    console.log('Moving along path:', path);
-    path.forEach(([x, y]: number[]) => {
-      console.log(`Moving to cell (${x}, ${y})`);
-      movePlayer(x, y);
-    });
-  };
+  // const moveAlongPath = (path: any) => {
+  //   console.log('Moving along path:', path);
+  //   path.forEach(([x, y]: number[]) => {
+  //     console.log(`Moving to cell (${x}, ${y})`);
+  //     movePlayer(x, y);
+  //   });
+  // };
 
   // Function to extract cell coordinates from the id attribute
   const getCellCoordinates = (id: string) => {

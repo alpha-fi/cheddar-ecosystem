@@ -1,4 +1,5 @@
 import { Gameboard } from './Gameboard';
+import { Button } from '@chakra-ui/react';
 import {
   KeyboardEvent,
   MouseEventHandler,
@@ -18,7 +19,7 @@ interface Props {
   handleTouchMove: (e: TouchEvent) => void;
   restartGame: () => void;
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
-  handleBuyClick: MouseEventHandler<HTMLAnchorElement>;
+  handleBuyClick: MouseEventHandler<HTMLButtonElement>;
   cellSize: number;
   calculateBlurRadius: (cellX: number, cellY: number) => number;
 }
@@ -143,10 +144,11 @@ export function GameboardContainer({
     },
     tooltip: {
       position: 'relative',
-      display: 'inline-block',
+      display: 'flex',
       textAlign: 'right',
       alignItems: 'right',
       padding: '5px',
+      gap: '5px',
     },
     powerUpButton: {
       backgroundColor: isPowerUpOn ? '#007bff' : '#AAB8C2',
@@ -194,6 +196,7 @@ export function GameboardContainer({
       zIndex: '1',
       borderRadius: '5px',
       display: 'none',
+      right: '5px',
     },
   };
 
@@ -224,21 +227,25 @@ export function GameboardContainer({
       >
         <div style={styles.toolbar}>
           <div style={styles.tooltip}>
-            <button
-              style={styles.powerUpButton}
+            <Button
+              colorScheme="yellow"
               onClick={handlePowerUpClick}
               disabled={!hasPowerUp}
             >
               ⚡
-            </button>
+            </Button>
             <span style={styles.tooltipText}>
               Cheddy PowerUp NFT provides in-game features
             </span>
             {!hasPowerUp && (
               <span style={styles.buyPowerUp}>
-                <a href="#" style={styles.buyLink} onClick={handleBuyClick}>
+                <Button
+                  colorScheme="purple"
+                  onClick={handleBuyClick}
+                  disabled={!hasPowerUp}
+                >
                   buy
-                </a>
+                </Button>
                 <div id="buyPopup" style={styles.popup}>
                   This is the popup content.
                 </div>
