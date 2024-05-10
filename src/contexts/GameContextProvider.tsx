@@ -5,9 +5,20 @@ interface props {
   children: ReactNode;
 }
 
+export interface MazeData {
+    isPath: boolean
+    isActive: boolean
+    enemyWon: boolean
+
+    hasCheese: boolean
+    hasEnemy: boolean
+    hasExit: boolean
+    hasCartel: boolean
+}
+
 interface GameContextProps {
-  mazeData: any;
-  setMazeData: React.Dispatch<React.SetStateAction<any>>;
+  mazeData: MazeData[][];
+  setMazeData: React.Dispatch<React.SetStateAction<MazeData[][]>>;
 
   playerPosition: Coordinates;
   setPlayerPosition: React.Dispatch<React.SetStateAction<Coordinates>>;
@@ -24,8 +35,8 @@ interface GameContextProps {
   timerStarted: boolean;
   setTimerStarted: React.Dispatch<React.SetStateAction<boolean>>;
 
-  direction: string;
-  setDirection: React.Dispatch<React.SetStateAction<string>>;
+  direction: 'right'|'left'|'down'|'up';
+  setDirection: React.Dispatch<React.SetStateAction<'right'|'left'|'down'|'up'>>;
 
   selectedColorSet: any;
   setSelectedColorSet: React.Dispatch<React.SetStateAction<any>>;
@@ -47,13 +58,13 @@ export const GameContext = createContext<GameContextProps>(
 );
 
 export const GameContextProvider = ({ children }: props) => {
-  const [mazeData, setMazeData] = useState([]);
+  const [mazeData, setMazeData] = useState([[]] as MazeData[][]);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [timerStarted, setTimerStarted] = useState(false);
-  const [direction, setDirection] = useState('right');
+  const [direction, setDirection] = useState('right' as 'right'|'left'|'down'|'up');
   const [selectedColorSet, setSelectedColorSet] = useState(null);
   const [lastCellX, setLastCellX] = useState(null);
   const [lastCellY, setLastCellY] = useState(null);

@@ -1,33 +1,33 @@
 import { Gameboard } from './Gameboard';
-import { useContext } from 'react';
+import { KeyboardEvent, MouseEventHandler, TouchEvent, TouchEventHandler, useContext } from 'react';
 
-import { GameContext } from '@/contexts/GameContextProvider';
+import { GameContext, MazeData } from '@/contexts/GameContextProvider';
 
 interface Props {
-  mazeData: any;
+  mazeData: MazeData[][];
   playerPosition: any;
-  score: any;
+  score: number;
   timerStarted: any;
   remainingMinutes: any;
   remainingSeconds: any;
   gameOverFlag: any;
-  gameOverMessage: any;
+  gameOverMessage: string;
   startTimerOnTap: any;
-  handleKeyPress: any;
-  handleTouchMove: any;
+  handleKeyPress: (e: KeyboardEvent) => void;
+  handleTouchMove: (e: TouchEvent) => void;
   // handleMouseClick: any,
   restartGame: any;
   selectedColorSet: any;
   // hasExit: any,
-  hasPowerUp: any;
-  handlePowerUpClick: any;
-  handleBuyClick: any;
+  hasPowerUp: boolean;
+  handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
+  handleBuyClick: MouseEventHandler<HTMLAnchorElement>;
   isPowerUpOn: any;
   cellSize: any;
   lastCellX: any;
   lastCellY: any;
   calculateBlurRadius: any;
-  direction: any;
+  direction: 'right'|'left'|'down'|'up';
   setLastCellX: any;
   setLastCellY: any;
 }

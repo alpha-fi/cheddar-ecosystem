@@ -1,15 +1,18 @@
+import { MazeData } from "@/contexts/GameContextProvider";
+
 interface Props {
   playerPosition: any;
-  lastCellX: any;
-  lastCellY: any;
-  mazeData: any;
+  lastCellX: number;
+  lastCellY: number;
+  mazeData: MazeData[][];
   styles: any;
   calculateBlurRadius: any;
   selectedColorSet: any;
-  direction: any;
-  setLastCellX: any;
-  setLastCellY: any;
+  direction: 'right'|'left'|'down'|'up';
+  setLastCellX: Function;
+  setLastCellY: Function;
 }
+
 
 export function Gameboard({
   playerPosition,

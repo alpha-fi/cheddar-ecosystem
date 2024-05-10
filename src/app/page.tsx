@@ -1,10 +1,10 @@
 'use client';
 import Image from 'next/image';
 import styles from './page.module.css';
-import { useEffect, useState, useContext } from 'react';
-import { GameboardContainer } from './components/GameboardContainer';
+import { useEffect, useState, useContext, KeyboardEvent } from 'react';
+import { GameboardContainer } from '../components/GameboardContainer';
 
-import { GameContext } from '../contexts/GameContextProvider';
+import { GameContext, MazeData } from '../contexts/GameContextProvider';
 
 export default function Home() {
   const {
@@ -321,125 +321,111 @@ export default function Home() {
     setLastCellY(playerPosition.y);
   };
 
+  const doesCellHasArtifact = (x: number, y: number) => {
+    return (
+      mazeData[y][x].hasCheese ||
+      mazeData[y][x].hasEnemy ||
+      mazeData[y][x].hasCartel ||
+      mazeData[y][x].hasExit
+    );
+  };
+
+  const handleEnemyFound = (
+    clonedMazeData: MazeData[][],
+    x: number,
+    y: number
+  ) => {
+    // 30% chance of encountering an enemy
+    // Code for adding enemy artifact...
+
+    // Add logic for the enemy defeating the player
+    if (Math.random() < 0) {
+      // 0% chance of the enemy winning
+      console.log('enemy won');
+      clonedMazeData[y][x].enemyWon = true;
+      clonedMazeData[y][x].isActive = false;
+
+      setScore(0); // Set score to zero
+      gameOver('Enemy won! Game Over!');
+    } else {
+      clonedMazeData[y][x].hasEnemy = true;
+
+      // setEnemyCooldown(true);
+      setTimeout(
+        () => {
+          // setEnemyCooldown(false);
+        },
+        Math.floor(Math.random() * 5000) + 1000
+      );
+    }
+  };
+
+  const handleCheeseFound = (
+    clonedMazeData: MazeData[][],
+    x: number,
+    y: number
+  ) => {
+    // 5.5% chance of winning cheese
+    clonedMazeData[y][x].hasCheese = true;
+
+    setScore(score + 1);
+    setCheeseCooldown(true);
+    setTimeout(
+      () => {
+        setCheeseCooldown(false);
+      },
+      Math.floor(Math.random() * 5000) + 1000
+    );
+  };
+
+  const handleCartelFound = (
+    clonedMazeData: MazeData[][],
+    x: number,
+    y: number
+  ) => {
+    // 0.2% chance of hitting the "cartel" event
+    clonedMazeData[y][x].hasCartel = true;
+
+    setScore(0);
+    gameOver('You ran into the cartel! Game Over!');
+  };
+
+  const handleExitFound = (
+    clonedMazeData: MazeData[][],
+    x: number,
+    y: number
+  ) => {
+    clonedMazeData[y][x].hasExit = true;
+  }
+
   const addArtifacts = (
     newX: number,
     newY: number,
     newMazeData: any,
     moves: any
   ) => {
-    if (
-      !gameOverFlag &&
-      !newMazeData[newY][newX].hasEnemy &&
-      !newMazeData[newY][newX].hasCheese &&
-      moves >= 10
-    ) {
-      if (!enemyCooldown && Math.random() < 0.3) {
-        // 30% chance of encountering an enemy
-        // Code for adding enemy artifact...
-
-        // Add logic for the enemy defeating the player
-        if (Math.random() < 0) {
-          // 0% chance of the enemy winning
-          console.log('enemy won');
-          const updatedMazeData = newMazeData.map(
-            (row: any, rowIndex: number) =>
-              row.map((mazeCell: any, colIndex: number) => {
-                const isPlayerPosition = rowIndex === newY && colIndex === newX;
-                if (isPlayerPosition) {
-                  return {
-                    ...mazeCell,
-                    enemyWon: true, // Update enemyWon flag
-                    isActive: false, // Update isActive flag
-                  };
-                }
-                return mazeCell;
-              })
-          );
-          setMazeData(updatedMazeData);
-          setScore(0); // Set score to zero
-          gameOver('Enemy won! Game Over!');
-          stopTimer();
-        } else {
-          const updatedMazeData = newMazeData.map(
-            (row: any, rowIndex: number) =>
-              row.map((mazeCell: any, colIndex: number) => {
-                const isPlayerPosition = rowIndex === newY && colIndex === newX;
-                if (isPlayerPosition) {
-                  return {
-                    ...mazeCell,
-                    hasEnemy: true, // Update enemyWon flag
-                  };
-                }
-                return mazeCell;
-              })
-          );
-          setMazeData(updatedMazeData);
-          // setEnemyCooldown(true);
-          setTimeout(
-            () => {
-              // setEnemyCooldown(false);
-            },
-            Math.floor(Math.random() * 5000) + 1000
-          );
-        }
-      } else if (!cheeseCooldown && Math.random() < 0.055) {
-        // 5.5% chance of winning cheese
-        const updatedMazeData = newMazeData.map((row: any, rowIndex: number) =>
-          row.map((cell: any, colIndex: number) => {
-            if (rowIndex === newY && colIndex === newX) {
-              return {
-                ...cell,
-                hasCheese: true,
-              };
-            }
-            return cell;
-          })
-        );
-        setMazeData(updatedMazeData);
-        setScore(score + 1);
-        setCheeseCooldown(true);
-        setTimeout(
-          () => {
-            setCheeseCooldown(false);
-          },
-          Math.floor(Math.random() * 5000) + 1000
-        );
-      } else if (Math.random() < 0.002) {
-        // 0.2% chance of hitting the "cartel" event
-        const updatedMazeData = newMazeData.map((row: any, rowIndex: number) =>
-          row.map((cell: any, colIndex: number) => {
-            if (rowIndex === newY && colIndex === newX) {
-              return {
-                ...cell,
-                hasCartel: true,
-              };
-            }
-            return cell;
-          })
-        );
-        setMazeData(updatedMazeData);
-        setScore(0);
-        gameOver('You ran into the cartel! Game Over!');
-        stopTimer();
-      } else if (Math.random() < 1 && coveredCells >= 0.1 * totalCells) {
-        // 100% chance of finding the exit when 1% of the maze is covered
-        const updatedMazeData = newMazeData.map((row: any, rowIndex: number) =>
-          row.map((cell: any, colIndex: number) => {
-            if (rowIndex === newY && colIndex === newX) {
-              return {
-                ...cell,
-                hasExit: true,
-              };
-            }
-            return cell;
-          })
-        );
-        setMazeData(updatedMazeData);
-      }
-    } else if (newMazeData[newY][newX].hasExit) {
-      gameOver('Congrats! You found the Hidden Door.');
-      stopTimer();
+    if (gameOverFlag /* && moves >= 10*/) {
+      return;
     }
+    if (newMazeData[newY][newX].hasExit) {
+      gameOver('Congrats! You found the Hidden Door.');
+      return;
+    }
+    if(doesCellHasArtifact(newX, newY)) {
+      return
+    }
+
+    let clonedMazeData = [...newMazeData];
+    if (!enemyCooldown && Math.random() < 0.3) {
+      handleEnemyFound(clonedMazeData, newX, newY);
+    } else if (!cheeseCooldown && Math.random() < 0.055) {
+      handleCheeseFound(clonedMazeData, newX, newY);
+    } else if (Math.random() < 0.002) {
+      handleCartelFound(clonedMazeData, newX, newY);
+    } else if (Math.random() < 0.33 && coveredCells >= 0.75 * totalCells) {
+      handleExitFound(clonedMazeData, newX, newY);
+    }
+    setMazeData(clonedMazeData);
   };
 
   // Function to handle key press events
