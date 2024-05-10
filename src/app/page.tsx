@@ -1,10 +1,17 @@
 'use client';
 import Image from 'next/image';
 import styles from './page.module.css';
-import { useEffect, useState, useContext, KeyboardEvent } from 'react';
+import {
+  useEffect,
+  useState,
+  useContext,
+  KeyboardEvent,
+  TouchEvent,
+} from 'react';
 import { GameboardContainer } from '../components/GameboardContainer';
 
-import { GameContext, MazeData } from '../contexts/GameContextProvider';
+import { GameContext, MazeTileData } from '../contexts/GameContextProvider';
+import { Coordinates } from '@/entities/interfaces';
 
 export default function Home() {
   const {
@@ -32,23 +39,33 @@ export default function Home() {
     setHasPowerUp,
     isPowerUpOn,
     setIsPowerUpOn,
+    remainingTime,
+    setRemainingTime,
+    timeLimitInSeconds,
+    setTimeLimitInSeconds,
+    remainingMinutes,
+    setRemainingMinutes,
+    remainingSeconds,
+    setRemainingSeconds,
+    cheeseCooldown,
+    setCheeseCooldown,
+    enemyCooldown,
+    setEnemyCooldown,
+    moves,
+    setMoves,
+    won,
+    setWon,
+    touchStart,
+    setTouchStart,
+    touchEnd,
+    setTouchEnd,
+    coveredCells,
+    setCoveredCells,
   } = useContext(GameContext);
 
-  const [timeLimitInSeconds, setTimeLimitInSeconds] = useState(120);
-  // const [timerId, setTimerId] = useState(null);
-  const [cheeseCooldown, setCheeseCooldown] = useState(false);
-  const [enemyCooldown, setEnemyCooldown] = useState(false);
-  const [moves, setMoves] = useState(0);
-  const [remainingTime, setRemainingTime] = useState(timeLimitInSeconds);
-  const [remainingMinutes, setRemainingMinutes] = useState(0);
-  const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [playerStartY, setPlayerStartY] = useState(0);
   const [backgroundImage, setBackgroundImage] = useState('');
   const [rarity, setRarity] = useState('');
-  const [won, setWon] = useState(false);
-  const [touchStart, setTouchStart] = useState({ x: null, y: null });
-  const [touchEnd, setTouchEnd] = useState({ x: null, y: null });
-  const [coveredCells, setCoveredCells] = useState(0);
 
   const mazeRows = 11;
   const mazeCols = 9;
@@ -137,20 +154,15 @@ export default function Home() {
   //   };
   // }, [timerId]);
 
-  const getRandomPathCell = (mazeData: any) => {
-    const pathCells: any[] = [];
-    mazeData.map((row: any, rowIndex: number) => {
-      row.map((cell: any, colIndex: number) => {
+  const getRandomPathCell = (mazeData: MazeTileData[][]) => {
+    const pathCells: Coordinates[] = [];
+    mazeData.map((row: MazeTileData[], rowIndex: number) => {
+      row.map((cell: MazeTileData, colIndex: number) => {
         if (cell.isPath) {
           pathCells.push({ x: colIndex, y: rowIndex });
         }
       });
     });
-
-    if (pathCells.length === 0) {
-      console.error('No path cells found!'); // Log an error if no path cells are found
-      return null;
-    }
 
     return pathCells[Math.floor(Math.random() * pathCells.length)];
   };
@@ -178,14 +190,14 @@ export default function Home() {
     const playerStartCell = getRandomPathCell(newMazeData);
     console.log(playerStartCell.x + ' ' + playerStartCell.y);
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
-    setLastCellX(null);
-    setLastCellY(null);
+    setLastCellX(-1);
+    setLastCellY(-1);
 
     startTimer(); // Start the timer again after resetting the game
   };
 
   // Function to generate maze data
-  const generateMazeData = (rows: any, cols: any) => {
+  const generateMazeData = (rows: number, cols: number) => {
     const maze = Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => ({
         isPath: false,
@@ -226,7 +238,7 @@ export default function Home() {
 
     while (stack.length) {
       const [cx, cy] = stack[stack.length - 1];
-      const directions: any[] = [];
+      const directions: number[][] = [];
 
       // Check all possible directions
       [
@@ -292,8 +304,8 @@ export default function Home() {
       setTimerStarted(true);
     }
 
-    const newMazeData = mazeData.map((row: any, rowIndex: number) =>
-      row.map((cell: any, colIndex: number) => ({
+    const newMazeData = mazeData.map((row: MazeTileData[], rowIndex: number) =>
+      row.map((cell: MazeTileData, colIndex: number) => ({
         ...cell,
         isActive: rowIndex === newY && colIndex === newX,
       }))
@@ -331,7 +343,7 @@ export default function Home() {
   };
 
   const handleEnemyFound = (
-    clonedMazeData: MazeData[][],
+    clonedMazeData: MazeTileData[][],
     x: number,
     y: number
   ) => {
@@ -361,7 +373,7 @@ export default function Home() {
   };
 
   const handleCheeseFound = (
-    clonedMazeData: MazeData[][],
+    clonedMazeData: MazeTileData[][],
     x: number,
     y: number
   ) => {
@@ -379,7 +391,7 @@ export default function Home() {
   };
 
   const handleCartelFound = (
-    clonedMazeData: MazeData[][],
+    clonedMazeData: MazeTileData[][],
     x: number,
     y: number
   ) => {
@@ -391,18 +403,18 @@ export default function Home() {
   };
 
   const handleExitFound = (
-    clonedMazeData: MazeData[][],
+    clonedMazeData: MazeTileData[][],
     x: number,
     y: number
   ) => {
     clonedMazeData[y][x].hasExit = true;
-  }
+  };
 
   const addArtifacts = (
     newX: number,
     newY: number,
-    newMazeData: any,
-    moves: any
+    newMazeData: MazeTileData[][],
+    moves: number
   ) => {
     if (gameOverFlag /* && moves >= 10*/) {
       return;
@@ -411,8 +423,8 @@ export default function Home() {
       gameOver('Congrats! You found the Hidden Door.');
       return;
     }
-    if(doesCellHasArtifact(newX, newY)) {
-      return
+    if (doesCellHasArtifact(newX, newY)) {
+      return;
     }
 
     let clonedMazeData = [...newMazeData];
@@ -561,20 +573,22 @@ export default function Home() {
     return { newX: parseInt(x), newY: parseInt(y) };
   };
 
-  const handleTouchMove = (event: any) => {
+  const handleTouchMove = (event: TouchEvent) => {
     event.preventDefault(); // Prevent default touch move behavior
 
     if (/*!mazeContainerRef ||*/ !isMouseDown) return;
 
-    const { newX, newY } = getCellCoordinates(event.target!.id);
+    const inputTarget = event.target as HTMLElement;
+
+    const { newX, newY } = getCellCoordinates(inputTarget.id);
 
     // Update last cell coordinates
     setLastCellX(playerPosition.x);
     setLastCellY(playerPosition.y);
 
     // Call movePlayerDirection to move the player based on touch direction
-    const deltaX = newX - touchStart.x!;
-    const deltaY = newY - touchStart.y!;
+    const deltaX = newX - touchStart.x;
+    const deltaY = newY - touchStart.y;
     let direction = '';
 
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
@@ -598,7 +612,7 @@ export default function Home() {
 
   const calculateBlurRadius = (cellX: number, cellY: number) => {
     // Check if lastCellX and lastCellY are null or undefined
-    if (lastCellX === null || lastCellY === null) {
+    if (lastCellX === -1 || lastCellY === -1) {
       // Initialize lastCellX and lastCellY with initial player position
       setLastCellX(playerPosition.x);
       setLastCellY(playerPosition.y);
@@ -717,32 +731,22 @@ export default function Home() {
     <div>
       {initialized() && ( // Replace `condition` with your actual condition
         <GameboardContainer
-          mazeData={mazeData}
-          playerPosition={playerPosition}
-          score={score}
-          timerStarted={false}
+          // mazeData={mazeData}
+          // playerPosition={playerPosition}
+          // score={score}
+          // timerStarted={false}
           remainingMinutes={Math.floor(remainingTime / 60)}
           remainingSeconds={remainingTime % 60}
-          gameOverFlag={gameOverFlag}
-          gameOverMessage={gameOverMessage}
           startTimerOnTap={startTimer}
           handleKeyPress={handleKeyPress}
           handleTouchMove={handleTouchMove}
           // handleMouseClick={handleMouseClick}
           restartGame={restartGame}
-          selectedColorSet={selectedColorSet}
           // hasExit={hasExit}
-          hasPowerUp={hasPowerUp}
           handlePowerUpClick={handlePowerUpClick}
           handleBuyClick={handleBuyClick}
-          isPowerUpOn={isPowerUpOn}
           cellSize={cellSize}
-          lastCellX={lastCellX}
-          lastCellY={lastCellY}
           calculateBlurRadius={calculateBlurRadius}
-          direction={direction}
-          setLastCellX={setLastCellX}
-          setLastCellY={setLastCellY}
         />
       )}
     </div>

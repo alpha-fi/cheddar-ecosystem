@@ -1,35 +1,26 @@
 import { Gameboard } from './Gameboard';
-import { KeyboardEvent, MouseEventHandler, TouchEvent, TouchEventHandler, useContext } from 'react';
+import {
+  KeyboardEvent,
+  MouseEventHandler,
+  TouchEvent,
+  TouchEventHandler,
+  useContext,
+} from 'react';
 
-import { GameContext, MazeData } from '@/contexts/GameContextProvider';
+import { GameContext, MazeTileData } from '@/contexts/GameContextProvider';
+import { Coordinates } from '@/entities/interfaces';
 
 interface Props {
-  mazeData: MazeData[][];
-  playerPosition: any;
-  score: number;
-  timerStarted: any;
-  remainingMinutes: any;
-  remainingSeconds: any;
-  gameOverFlag: any;
-  gameOverMessage: string;
-  startTimerOnTap: any;
+  remainingMinutes: number;
+  remainingSeconds: number;
+  startTimerOnTap: () => void;
   handleKeyPress: (e: KeyboardEvent) => void;
   handleTouchMove: (e: TouchEvent) => void;
-  // handleMouseClick: any,
-  restartGame: any;
-  selectedColorSet: any;
-  // hasExit: any,
-  hasPowerUp: boolean;
+  restartGame: () => void;
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
   handleBuyClick: MouseEventHandler<HTMLAnchorElement>;
-  isPowerUpOn: any;
-  cellSize: any;
-  lastCellX: any;
-  lastCellY: any;
-  calculateBlurRadius: any;
-  direction: 'right'|'left'|'down'|'up';
-  setLastCellX: any;
-  setLastCellY: any;
+  cellSize: number;
+  calculateBlurRadius: (cellX: number, cellY: number) => number;
 }
 
 export function GameboardContainer({
@@ -47,6 +38,7 @@ export function GameboardContainer({
   calculateBlurRadius,
 }: Props) {
   const {
+    timerStarted,
     mazeData,
     playerPosition,
     score,

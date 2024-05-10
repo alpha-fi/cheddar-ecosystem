@@ -1,18 +1,25 @@
-import { MazeData } from "@/contexts/GameContextProvider";
+import { MazeTileData } from '@/contexts/GameContextProvider';
+import { Coordinates } from '@/entities/interfaces';
 
 interface Props {
-  playerPosition: any;
+  playerPosition: Coordinates | null;
   lastCellX: number;
   lastCellY: number;
-  mazeData: MazeData[][];
-  styles: any;
-  calculateBlurRadius: any;
-  selectedColorSet: any;
-  direction: 'right'|'left'|'down'|'up';
+  mazeData: MazeTileData[][];
+  styles: Record<string, any>;
+  calculateBlurRadius: (cellX: number, cellY: number) => number;
+  selectedColorSet: {
+    backgroundColor: string;
+    pathColor: string;
+    nonPathColor: string;
+    textColor: string;
+    rarity: string;
+    backgroundImage: string;
+  };
+  direction: 'right' | 'left' | 'down' | 'up';
   setLastCellX: Function;
   setLastCellY: Function;
 }
-
 
 export function Gameboard({
   playerPosition,
@@ -35,12 +42,12 @@ export function Gameboard({
     (lastCellX !== playerPosition.x || lastCellY !== playerPosition.y);
 
   // Update last player position
-  setLastCellX(playerPosition.x);
-  setLastCellY(playerPosition.y);
+  setLastCellX(playerPosition!.x);
+  setLastCellY(playerPosition!.y);
 
-  return mazeData.map((row: any, rowIndex: number) => (
+  return mazeData.map((row: MazeTileData[], rowIndex: number) => (
     <div key={rowIndex} style={styles.mazeRow}>
-      {row.map((cell: any, colIndex: number) => {
+      {row.map((cell: MazeTileData, colIndex: number) => {
         const blurRadius = playerMoved
           ? calculateBlurRadius(colIndex, rowIndex)
           : 0;
@@ -81,30 +88,31 @@ export function Gameboard({
             )}
 
             {/* Player icon */}
-            {playerPosition.x === colIndex && playerPosition.y === rowIndex && (
-              <div
-                className={`player-icon ${direction}`} // Apply dynamic CSS class based on the direction
-                style={{
-                  ...styles.mazeCell,
-                  ...styles.playerCell,
-                  ...styles[
-                    `playerMove${
-                      direction.charAt(0).toUpperCase() + direction.slice(1)
-                    }`
-                  ], // Applying the direction style dynamically
-                  // backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'center',
-                  backgroundSize: '70%',
-                  position: 'relative',
-                  zIndex: '2', // Ensure player is in the forefront
-                  backgroundImage:
-                    cell.enemyWon || cell.hasCartel || cell.hasExit
-                      ? 'none'
-                      : "url('https://lh3.googleusercontent.com/d/114_RLl18MAzX035svMyvNJpE3ArfLNCF=w500')",
-                }}
-              ></div>
-            )}
+            {playerPosition!.x === colIndex &&
+              playerPosition!.y === rowIndex && (
+                <div
+                  className={`player-icon ${direction}`} // Apply dynamic CSS class based on the direction
+                  style={{
+                    ...styles.mazeCell,
+                    ...styles.playerCell,
+                    ...styles[
+                      `playerMove${
+                        direction.charAt(0).toUpperCase() + direction.slice(1)
+                      }`
+                    ], // Applying the direction style dynamically
+                    // backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    backgroundSize: '70%',
+                    position: 'relative',
+                    zIndex: '2', // Ensure player is in the forefront
+                    backgroundImage:
+                      cell.enemyWon || cell.hasCartel || cell.hasExit
+                        ? 'none'
+                        : "url('https://lh3.googleusercontent.com/d/114_RLl18MAzX035svMyvNJpE3ArfLNCF=w500')",
+                  }}
+                ></div>
+              )}
           </div>
         );
       })}
