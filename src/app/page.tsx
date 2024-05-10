@@ -4,7 +4,7 @@ import styles from './page.module.css';
 import { useEffect, useState, useContext } from 'react';
 import { GameboardContainer } from './components/GameboardContainer';
 
-import { GameContext } from '../contexts/GameContext';
+import { GameContext } from '../contexts/GameContextProvider';
 
 export default function Home() {
   const {
@@ -338,8 +338,8 @@ export default function Home() {
         // Code for adding enemy artifact...
 
         // Add logic for the enemy defeating the player
-        if (Math.random() < 0.1) {
-          // 10% chance of the enemy winning
+        if (Math.random() < 0) {
+          // 0% chance of the enemy winning
           console.log('enemy won');
           const updatedMazeData = newMazeData.map(
             (row: any, rowIndex: number) =>
@@ -421,8 +421,8 @@ export default function Home() {
         setScore(0);
         gameOver('You ran into the cartel! Game Over!');
         stopTimer();
-      } else if (Math.random() < 0.33 && coveredCells >= 0.75 * totalCells) {
-        // 33% chance of finding the exit when 75% of the maze is covered
+      } else if (Math.random() < 1 && coveredCells >= 0.1 * totalCells) {
+        // 100% chance of finding the exit when 1% of the maze is covered
         const updatedMazeData = newMazeData.map((row: any, rowIndex: number) =>
           row.map((cell: any, colIndex: number) => {
             if (rowIndex === newY && colIndex === newX) {
@@ -434,6 +434,7 @@ export default function Home() {
             return cell;
           })
         );
+        setMazeData(updatedMazeData);
       }
     } else if (newMazeData[newY][newX].hasExit) {
       gameOver('Congrats! You found the Hidden Door.');

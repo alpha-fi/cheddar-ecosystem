@@ -1,10 +1,50 @@
-import { GameContext } from './GameContext';
-import React, { ReactNode } from 'react';
-import { useState } from 'react';
+import { Coordinates } from '@/entities/interfaces';
+import React, { ReactNode, createContext, useState } from 'react';
 
 interface props {
   children: ReactNode;
 }
+
+interface GameContextProps {
+  mazeData: any;
+  setMazeData: React.Dispatch<React.SetStateAction<any>>;
+
+  playerPosition: Coordinates;
+  setPlayerPosition: React.Dispatch<React.SetStateAction<Coordinates>>;
+
+  score: number;
+  setScore: React.Dispatch<React.SetStateAction<number>>;
+
+  gameOverFlag: boolean;
+  setGameOverFlag: React.Dispatch<React.SetStateAction<boolean>>;
+
+  gameOverMessage: string;
+  setGameOverMessage: React.Dispatch<React.SetStateAction<string>>;
+
+  timerStarted: boolean;
+  setTimerStarted: React.Dispatch<React.SetStateAction<boolean>>;
+
+  direction: string;
+  setDirection: React.Dispatch<React.SetStateAction<string>>;
+
+  selectedColorSet: any;
+  setSelectedColorSet: React.Dispatch<React.SetStateAction<any>>;
+
+  lastCellX: any;
+  setLastCellX: React.Dispatch<React.SetStateAction<any>>;
+  lastCellY: any;
+  setLastCellY: React.Dispatch<React.SetStateAction<any>>;
+
+  hasPowerUp: boolean;
+  setHasPowerUp: React.Dispatch<React.SetStateAction<boolean>>;
+
+  isPowerUpOn: boolean;
+  setIsPowerUpOn: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const GameContext = createContext<GameContextProps>(
+  {} as GameContextProps
+);
 
 export const GameContextProvider = ({ children }: props) => {
   const [mazeData, setMazeData] = useState([]);

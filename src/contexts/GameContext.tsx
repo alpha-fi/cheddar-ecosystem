@@ -1,12 +1,12 @@
 import React, { createContext } from 'react';
-import { coordinates } from '@/entities/interfaces';
+import { Coordinates } from '@/entities/interfaces';
 
 export interface GameContextProps {
   mazeData: any;
   setMazeData: React.Dispatch<React.SetStateAction<any>>;
 
-  playerPosition: coordinates;
-  setPlayerPosition: React.Dispatch<React.SetStateAction<coordinates>>;
+  playerPosition: Coordinates;
+  setPlayerPosition: React.Dispatch<React.SetStateAction<Coordinates>>;
 
   score: number;
   setScore: React.Dispatch<React.SetStateAction<number>>;
