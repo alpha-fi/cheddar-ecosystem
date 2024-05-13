@@ -1,38 +1,27 @@
 import { MazeTileData } from '@/contexts/GameContextProvider';
-import { Coordinates } from '@/entities/interfaces';
+import { useContext } from 'react';
+import { GameContext } from '@/contexts/GameContextProvider';
 
 interface Props {
-  playerPosition: Coordinates | null;
-  lastCellX: number;
-  lastCellY: number;
-  mazeData: MazeTileData[][];
   styles: Record<string, any>;
-  calculateBlurRadius: (cellX: number, cellY: number) => number;
-  selectedColorSet: {
-    backgroundColor: string;
-    pathColor: string;
-    nonPathColor: string;
-    textColor: string;
-    rarity: string;
-    backgroundImage: string;
-  };
-  direction: 'right' | 'left' | 'down' | 'up';
-  setLastCellX: Function;
-  setLastCellY: Function;
 }
 
-export function Gameboard({
-  playerPosition,
-  lastCellX,
-  lastCellY,
-  mazeData,
-  styles,
-  calculateBlurRadius,
-  selectedColorSet,
-  direction,
-  setLastCellX,
-  setLastCellY,
-}: Props) {
+export function Gameboard({ styles }: Props) {
+  const {
+    mazeData,
+    playerPosition,
+    direction,
+    selectedColorSet,
+    lastCellX,
+    setLastCellX,
+    lastCellY,
+    setLastCellY,
+    calculateBlurRadius,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+  } = useContext(GameContext);
+
   // Check if the game has started for the first time
   const gameStarted = playerPosition !== null;
 
@@ -73,7 +62,9 @@ export function Gameboard({
               filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
               position: 'relative', // Ensure relative positioning for absolute positioning of icons
             }}
-            // onClick={handleMouseClick}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             {/* Dynamic content based on cell */}
             {cellContent && (

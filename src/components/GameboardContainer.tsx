@@ -1,18 +1,9 @@
 import { Gameboard } from './Gameboard';
-import { Button } from '@chakra-ui/react';
-import {
-  KeyboardEvent,
-  KeyboardEventHandler,
-  MouseEventHandler,
-  TouchEvent,
-  TouchEventHandler,
-  useContext,
-} from 'react';
+import { Button, ListItem, OrderedList } from '@chakra-ui/react';
+import { MouseEventHandler, useContext } from 'react';
 
-import { GameContext, MazeTileData } from '@/contexts/GameContextProvider';
-import { Coordinates } from '@/entities/interfaces';
+import { GameContext } from '@/contexts/GameContextProvider';
 import { BuyNFTCard } from './BuyNFTCard';
-import { maxHeaderSize } from 'http';
 
 interface Props {
   remainingMinutes: number;
@@ -30,24 +21,16 @@ export function GameboardContainer({
   cellSize,
 }: Props) {
   const {
-    timerStarted,
     mazeData,
-    playerPosition,
     score,
     gameOverFlag,
     gameOverMessage,
-    direction,
     selectedColorSet,
-    lastCellX,
-    setLastCellX,
-    lastCellY,
-    setLastCellY,
     hasPowerUp,
     isPowerUpOn,
     handleKeyPress,
     handleTouchMove,
     restartGame,
-    calculateBlurRadius,
   } = useContext(GameContext);
 
   //TODO get actual data and modify it as needed
@@ -282,18 +265,7 @@ export function GameboardContainer({
             )}
           </div>
         </div>
-        <Gameboard
-          playerPosition={playerPosition}
-          lastCellX={lastCellX}
-          lastCellY={lastCellY}
-          mazeData={mazeData}
-          styles={styles}
-          calculateBlurRadius={calculateBlurRadius}
-          selectedColorSet={selectedColorSet}
-          direction={direction}
-          setLastCellX={setLastCellX}
-          setLastCellY={setLastCellY}
-        />
+        <Gameboard styles={styles} />
       </div>
 
       <div
@@ -302,13 +274,13 @@ export function GameboardContainer({
           padding: '10px',
         }}
       >
-        <ol>
-          <li>Click or Tap to Start</li>
-          <li>Navigate with Arrows or Tap</li>
-          <li>Collect Cheddar🧀</li>
-          <li>Battle Cartel to protect your Bag</li>
-          <li>Find the Hidden Door🚪 to Win!</li>
-        </ol>
+        <OrderedList>
+          <ListItem>Click or Tap to Start</ListItem>
+          <ListItem>Navigate with Arrows or Tap</ListItem>
+          <ListItem>Collect Cheddar🧀</ListItem>
+          <ListItem>Battle Cartel to protect your Bag</ListItem>
+          <ListItem>Find the Hidden Door🚪 to Win!</ListItem>
+        </OrderedList>
       </div>
     </div>
   );
