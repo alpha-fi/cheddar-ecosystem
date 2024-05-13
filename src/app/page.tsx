@@ -60,19 +60,19 @@ export default function Home() {
   const mazeCols = 9;
   const totalCells = mazeRows * mazeCols;
 
-  const handlePowerUpClick = () => {
+  function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);
     // Additional logic if needed
-  };
+  }
 
-  const handleBuyClick = () => {
+  function handleBuyClick() {
     const popup = document.getElementById('buyPopup');
     if (popup!.style.display === 'block') {
       popup!.style.display = 'none';
     } else {
       popup!.style.display = 'block';
     }
-  };
+  }
 
   // Function to select a random color set, background image, and rarity
   const selectRandomColorSet = () => {
@@ -147,7 +147,7 @@ export default function Home() {
   //   };
   // }, [timerId]);
 
-  const getRandomPathCell = (mazeData: MazeTileData[][]) => {
+  function getRandomPathCell(mazeData: MazeTileData[][]) {
     const pathCells: Coordinates[] = [];
     mazeData.map((row: MazeTileData[], rowIndex: number) => {
       row.map((cell: MazeTileData, colIndex: number) => {
@@ -158,10 +158,10 @@ export default function Home() {
     });
 
     return pathCells[Math.floor(Math.random() * pathCells.length)];
-  };
+  }
 
   // Function to restart the game
-  const restartGame = () => {
+  function restartGame() {
     // clearInterval(timerId);
     setScore(0);
     setTimeLimitInSeconds(120);
@@ -187,10 +187,10 @@ export default function Home() {
     setLastCellY(-1);
 
     startTimer(); // Start the timer again after resetting the game
-  };
+  }
 
   // Function to generate maze data
-  const generateMazeData = (rows: number, cols: number) => {
+  function generateMazeData(rows: number, cols: number) {
     const maze = Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => ({
         isPath: false,
@@ -265,7 +265,7 @@ export default function Home() {
     }
 
     return maze;
-  };
+  }
 
   // Inside the component where you're using the Maze component
   useEffect(() => {
@@ -282,7 +282,7 @@ export default function Home() {
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
   }, []); // Empty dependency array to run this effect only once on component mount
 
-  const movePlayer = (newX: number, newY: number) => {
+  function movePlayer(newX: number, newY: number) {
     if (
       !mazeData[newY] ||
       !mazeData[newY][newX] ||
@@ -324,22 +324,22 @@ export default function Home() {
     // Update last cell coordinates
     setLastCellX(playerPosition.x);
     setLastCellY(playerPosition.y);
-  };
+  }
 
-  const doesCellHasArtifact = (x: number, y: number) => {
+  function doesCellHasArtifact(x: number, y: number) {
     return (
       mazeData[y][x].hasCheese ||
       mazeData[y][x].hasEnemy ||
       mazeData[y][x].hasCartel ||
       mazeData[y][x].hasExit
     );
-  };
+  }
 
-  const handleEnemyFound = (
+  function handleEnemyFound(
     clonedMazeData: MazeTileData[][],
     x: number,
     y: number
-  ) => {
+  ) {
     // 30% chance of encountering an enemy
     // Code for adding enemy artifact...
 
@@ -363,13 +363,13 @@ export default function Home() {
         Math.floor(Math.random() * 5000) + 1000
       );
     }
-  };
+  }
 
-  const handleCheeseFound = (
+  function handleCheeseFound(
     clonedMazeData: MazeTileData[][],
     x: number,
     y: number
-  ) => {
+  ) {
     // 5.5% chance of winning cheese
     clonedMazeData[y][x].hasCheese = true;
 
@@ -381,34 +381,34 @@ export default function Home() {
       },
       Math.floor(Math.random() * 5000) + 1000
     );
-  };
+  }
 
-  const handleCartelFound = (
+  function handleCartelFound(
     clonedMazeData: MazeTileData[][],
     x: number,
     y: number
-  ) => {
+  ) {
     // 0.2% chance of hitting the "cartel" event
     clonedMazeData[y][x].hasCartel = true;
 
     setScore(0);
     gameOver('You ran into the cartel! Game Over!');
-  };
+  }
 
-  const handleExitFound = (
+  function handleExitFound(
     clonedMazeData: MazeTileData[][],
     x: number,
     y: number
-  ) => {
+  ) {
     clonedMazeData[y][x].hasExit = true;
-  };
+  }
 
-  const addArtifacts = (
+  function addArtifacts(
     newX: number,
     newY: number,
     newMazeData: MazeTileData[][],
     moves: number
-  ) => {
+  ) {
     if (gameOverFlag /* && moves >= 10*/) {
       return;
     }
@@ -431,10 +431,10 @@ export default function Home() {
       handleExitFound(clonedMazeData, newX, newY);
     }
     setMazeData(clonedMazeData);
-  };
+  }
 
   // Function to handle key press events
-  const handleKeyPress = (event: KeyboardEvent) => {
+  function handleKeyPress(event: KeyboardEvent) {
     if (gameOverFlag) return; // If game over, prevent further movement
 
     const key = event.key;
@@ -466,20 +466,20 @@ export default function Home() {
     // Update last cell coordinates
     setLastCellX(playerPosition.x);
     setLastCellY(playerPosition.y);
-  };
+  }
 
-  const isMobile = () => {
+  function isMobile() {
     const userAgent = navigator.userAgent;
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       userAgent
     );
-  };
+  }
 
   const cellSize = isMobile() ? 30 : 40;
 
-  const handleContainerClick = () => {
+  function handleContainerClick() {
     startTimerOnTap(); // Start the timer when the user clicks on the maze container
-  };
+  }
 
   let isMouseDown = false;
 
@@ -561,12 +561,12 @@ export default function Home() {
   // };
 
   // Function to extract cell coordinates from the id attribute
-  const getCellCoordinates = (id: string) => {
+  function getCellCoordinates(id: string) {
     const [_, y, x] = id.split('-');
     return { newX: parseInt(x), newY: parseInt(y) };
-  };
+  }
 
-  const handleTouchMove = (event: TouchEvent) => {
+  function handleTouchMove(event: TouchEvent) {
     event.preventDefault(); // Prevent default touch move behavior
 
     if (/*!mazeContainerRef ||*/ !isMouseDown) return;
@@ -601,9 +601,9 @@ export default function Home() {
 
     // Update touch start position for next move
     // setTouchStart({ x: touch.clientX, y: touch.clientY });
-  };
+  }
 
-  const calculateBlurRadius = (cellX: number, cellY: number) => {
+  function calculateBlurRadius(cellX: number, cellY: number) {
     // Check if lastCellX and lastCellY are null or undefined
     if (lastCellX === -1 || lastCellY === -1) {
       // Initialize lastCellX and lastCellY with initial player position
@@ -619,7 +619,7 @@ export default function Home() {
     // Define max blur radius and adjust based on distance
     const maxBlurRadius = 10; // Adjust as needed
     return Math.min(maxBlurRadius, distance);
-  };
+  }
 
   // const ControlPad = ({ movePlayerDirection }) => {
   //   return (
@@ -676,31 +676,31 @@ export default function Home() {
   // };
 
   // Function to start the timer
-  const startTimer = () => {
+  function startTimer() {
     if (!timerStarted && !gameOverFlag) {
       setTimerStarted(true);
     }
-  };
+  }
 
-  const startTimerOnTap = () => {
+  function startTimerOnTap() {
     if (!timerStarted) {
       startTimer();
     }
-  };
+  }
 
-  const stopTimer = () => {
+  function stopTimer() {
     // clearInterval(timerId);
     setTimerStarted(false);
-  };
+  }
 
   // Function to handle game over
-  const gameOver = (message: string) => {
+  function gameOver(message: string) {
     setGameOverFlag(true);
     setGameOverMessage(message);
     stopTimer();
-  };
+  }
 
-  const initialized = () => {
+  function initialized() {
     // Check if all necessary state variables are not null or undefined
     return (
       selectedColorSet !== null &&
@@ -718,7 +718,7 @@ export default function Home() {
       // handleMouseClick !== null &&
       restartGame !== null
     );
-  };
+  }
 
   return (
     <div>
