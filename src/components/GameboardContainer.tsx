@@ -2,6 +2,7 @@ import { Gameboard } from './Gameboard';
 import { Button } from '@chakra-ui/react';
 import {
   KeyboardEvent,
+  KeyboardEventHandler,
   MouseEventHandler,
   TouchEvent,
   TouchEventHandler,
@@ -16,29 +17,29 @@ import { maxHeaderSize } from 'http';
 interface Props {
   remainingMinutes: number;
   remainingSeconds: number;
-  startTimerOnTap: () => void;
-  handleKeyPress: (e: KeyboardEvent) => void;
-  handleTouchMove: (e: TouchEvent) => void;
-  restartGame: () => void;
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
   handleBuyClick: MouseEventHandler<HTMLButtonElement>;
   cellSize: number;
-  calculateBlurRadius: (cellX: number, cellY: number) => number;
+  // startTimerOnTap: () => void;
+  // handleKeyPress: (e: KeyboardEvent) => void;
+  // handleTouchMove: (e: TouchEvent) => void;
+  // restartGame: () => void;
+  // calculateBlurRadius: (cellX: number, cellY: number) => number;
 }
 
 export function GameboardContainer({
   remainingMinutes,
   remainingSeconds,
-  startTimerOnTap,
-  handleKeyPress,
-  handleTouchMove,
+  // startTimerOnTap,
+  // handleKeyPress,
+  // handleTouchMove,
+  // restartGame,
+  // calculateBlurRadius,
   // handleMouseClick,
-  restartGame,
   // hasExit,
   handlePowerUpClick,
   handleBuyClick,
   cellSize,
-  calculateBlurRadius,
 }: Props) {
   const {
     timerStarted,
@@ -55,6 +56,10 @@ export function GameboardContainer({
     setLastCellY,
     hasPowerUp,
     isPowerUpOn,
+    handleKeyPress,
+    handleTouchMove,
+    restartGame,
+    calculateBlurRadius,
   } = useContext(GameContext);
 
   //TODO get actual data and modify it as needed
