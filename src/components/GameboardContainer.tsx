@@ -20,23 +20,11 @@ interface Props {
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
   handleBuyClick: MouseEventHandler<HTMLButtonElement>;
   cellSize: number;
-  // startTimerOnTap: () => void;
-  // handleKeyPress: (e: KeyboardEvent) => void;
-  // handleTouchMove: (e: TouchEvent) => void;
-  // restartGame: () => void;
-  // calculateBlurRadius: (cellX: number, cellY: number) => number;
 }
 
 export function GameboardContainer({
   remainingMinutes,
   remainingSeconds,
-  // startTimerOnTap,
-  // handleKeyPress,
-  // handleTouchMove,
-  // restartGame,
-  // calculateBlurRadius,
-  // handleMouseClick,
-  // hasExit,
   handlePowerUpClick,
   handleBuyClick,
   cellSize,
@@ -265,7 +253,6 @@ export function GameboardContainer({
         tabIndex={0}
         onKeyDown={handleKeyPress}
         onTouchMove={handleTouchMove}
-        // onClick={handleMouseClick}
       >
         <div style={styles.toolbar}>
           <div style={styles.tooltip}>
