@@ -1,5 +1,5 @@
 import { Gameboard } from './Gameboard';
-import { Button, ListItem, OrderedList } from '@chakra-ui/react';
+import { Button, ListItem, OrderedList, background } from '@chakra-ui/react';
 import { MouseEventHandler, useContext } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
@@ -56,6 +56,7 @@ export function GameboardContainer({
     },
     mazeRow: {
       display: 'flex',
+      backgroundColor: 'white',
     },
     mazeCell: {
       display: 'flex',

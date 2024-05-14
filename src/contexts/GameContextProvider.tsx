@@ -681,7 +681,8 @@ export const GameContextProvider = ({ children }: props) => {
 
     const initialSquareId = getSquareIdFromTouch(initialTouch);
 
-    !gameOverFlag && moveIfValid(initialSquareId);
+    console.log(0, initialSquareId);
+    if (!gameOverFlag) moveIfValid(initialSquareId!);
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
@@ -694,6 +695,7 @@ export const GameContextProvider = ({ children }: props) => {
 
       const tileId = getSquareIdFromTouch(currentTouch);
 
+      console.log(1, tileId);
       if (!gameOverFlag && tileId) {
         moveIfValid(tileId);
       }
@@ -702,6 +704,11 @@ export const GameContextProvider = ({ children }: props) => {
 
   const getSquareIdFromTouch = (touch: Touch) => {
     const square = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    if (square?.id === 'player-icon') {
+      return square.parentElement?.id;
+    }
+
     return square?.id || '';
   };
 
