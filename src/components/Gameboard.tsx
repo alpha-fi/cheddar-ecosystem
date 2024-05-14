@@ -43,11 +43,67 @@ export function Gameboard({ styles }: Props) {
 
         // Define cell content based on cell type
         let cellContent = '';
+
+        //TODO choose best logos options
+
+        //====================================================== Start cheese logo options ======================================================
         if (cell.hasCheese) cellContent = '🧀';
-        else if (cell.hasEnemy) cellContent = '👾';
+        //====================================================== end cheese logo options ======================================================
+
+        //====================================================== Start bag logo options ======================================================
+        // else if(cell.hasBag) cellContent = '🤑';
+        // else if(cell.hasBag) cellContent = '👑';
+        // else if(cell.hasBag) cellContent = '💎';
+        else if(cell.hasBag) cellContent = '💰';
+        //====================================================== End bag logo options ======================================================
+
+
+        //====================================================== Start enemy logo options ======================================================
+        // else if (cell.hasEnemy) cellContent = '👾';
+        // else if (cell.hasEnemy) cellContent = '👹';
+        // else if (cell.hasEnemy) cellContent = '🤕';
+        // else if (cell.hasEnemy) cellContent = '🤺';
+        // else if (cell.hasEnemy) cellContent = '🦹‍♂️';
+        // else if (cell.hasEnemy) cellContent = '🧌';
+        // else if (cell.hasEnemy) cellContent = '🧙‍♂️';
+        // else if (cell.hasEnemy) cellContent = '🤖';
+        // else if (cell.hasEnemy) cellContent = '👽';
+        // else if (cell.hasEnemy) cellContent = '👺';
+        // else if (cell.hasEnemy) cellContent = '😈';
+        // else if (cell.hasEnemy) cellContent = '🐉';
+        else if (cell.hasEnemy) cellContent = '⚔️';
+        //====================================================== End enemy logo options ======================================================
+
+
+        //====================================================== Start exit logo options ======================================================
         else if (cell.hasExit) cellContent = '🚪';
-        else if (cell.hasCartel) cellContent = '🤮';
-        else if (cell.enemyWon) cellContent = '💢';
+        //====================================================== End exit logo options ======================================================
+        
+        
+        //====================================================== Start cartel logo options ======================================================
+        // else if (cell.hasCartel) cellContent = '👾';
+        // else if (cell.hasCartel) cellContent = '🤮';
+        // else if (cell.hasCartel) cellContent = '🤕';
+        // else if (cell.hasCartel) cellContent = '💣';
+        // else if (cell.hasCartel) cellContent = '💥';
+        // else if (cell.hasCartel) cellContent = '🤺';
+        // else if (cell.hasCartel) cellContent = '🧌';
+        // else if (cell.hasCartel) cellContent = '🧙‍♂️';
+        // else if (cell.hasCartel) cellContent = '🤖';
+        // else if (cell.hasCartel) cellContent = '👽';
+        // else if (cell.hasCartel) cellContent = '👺';
+        // else if (cell.hasCartel) cellContent = '🦹‍♂️';
+        // else if (cell.hasCartel) cellContent = '🐉';
+        else if (cell.hasCartel) cellContent = '😈';
+        //====================================================== End cartel logo options ======================================================
+        
+        
+        //====================================================== Start enemy won logo options ======================================================
+        // else if (cell.enemyWon) cellContent = '💢';
+        // else if (cell.enemyWon) cellContent = '😵';
+        // else if (cell.enemyWon) cellContent = '☠️';
+        else if (cell.enemyWon) cellContent = '💀';
+        //====================================================== End enemy won logo options ======================================================
 
         return (
           <div
