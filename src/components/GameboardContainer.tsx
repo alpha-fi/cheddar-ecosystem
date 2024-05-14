@@ -3,7 +3,7 @@ import { Button, ListItem, OrderedList } from '@chakra-ui/react';
 import { MouseEventHandler, useContext } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
-import { BuyNFTCard } from './BuyNFTCard';
+import { RenderBuyNFTSection } from './BuyNFTSection';
 
 interface Props {
   remainingMinutes: number;
@@ -32,38 +32,6 @@ export function GameboardContainer({
     handleTouchMove,
     restartGame,
   } = useContext(GameContext);
-
-  //TODO get actual data and modify it as needed
-  const NFTsDataTemplate = [
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 0.9,
-      name: 'CHEDDY 1',
-      id: 9999999,
-    },
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 0.8,
-      name: 'CHEDDY 2',
-      id: 9999998,
-    },
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 3,
-      name: 'CHEDDY 3',
-      id: 9999997,
-    },
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 0.9,
-      name: 'CHEDDY 4',
-      id: 9999996,
-    },
-  ];
 
   const styles: Record<string, any> = {
     gameContainer: {
@@ -259,7 +227,7 @@ export function GameboardContainer({
                   buy
                 </Button>
                 <div id="buyPopup" style={styles.popup}>
-                  {NFTsDataTemplate.map(BuyNFTCard)}
+                  {RenderBuyNFTSection()}
                 </div>
               </span>
             )}
