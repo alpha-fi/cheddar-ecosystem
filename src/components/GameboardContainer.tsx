@@ -46,6 +46,7 @@ export function GameboardContainer({
       backgroundImage: selectedColorSet.backgroundImage,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
+      touchAction: 'none',
     },
     mazeContainer: {
       marginBottom: '10px',
@@ -91,7 +92,7 @@ export function GameboardContainer({
       transform: '',
     },
     playerActive: {
-      zIndex: 0, // Ensure the active player appears above other elements
+      zIndex: 1, // Ensure the active player appears above other elements
     },
     debugInfo: {
       display: 'none', // Hide debug info by default

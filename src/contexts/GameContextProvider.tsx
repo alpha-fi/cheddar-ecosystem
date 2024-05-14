@@ -193,28 +193,28 @@ export const GameContextProvider = ({ children }: props) => {
         rarity: 'common',
         backgroundImage:
           "url('https://cheddar.farm/newFarmBackground.c6905a5e.png')",
-        playerBackgroundColor: "#FFF",
+        playerBackgroundColor: '#9d67ef88',
       },
-      {
-        backgroundColor: '#333333',
-        pathColor: 'gold',
-        nonPathColor: 'white',
-        textColor: '#333333',
-        rarity: 'rare',
-        backgroundImage:
-          "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
-        playerBackgroundColor: "#FFF",
-      },
-      {
-        backgroundColor: '#20d3fc',
-        pathColor: '#ff00ff',
-        nonPathColor: '#6600ff',
-        textColor: '#333333',
-        rarity: 'rare',
-        backgroundImage:
-          "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
-        playerBackgroundColor: "#FFF",
-      },
+      // {
+      //   backgroundColor: '#333333',
+      //   pathColor: 'gold',
+      //   nonPathColor: 'white',
+      //   textColor: '#333333',
+      //   rarity: 'rare',
+      //   backgroundImage:
+      //     "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
+      //   playerBackgroundColor: 'rgba(F,F,F,0)',
+      // },
+      // {
+      //   backgroundColor: '#20d3fc',
+      //   pathColor: '#ff00ff',
+      //   nonPathColor: '#6600ff',
+      //   textColor: '#333333',
+      //   rarity: 'rare',
+      //   backgroundImage:
+      //     "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
+      //   playerBackgroundColor: "#FFF6",
+      // },
       // Add more color sets as needed
     ];
 
@@ -591,7 +591,8 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   function calculateBlurRadius(cellX: number, cellY: number) {
-    return 1
+    return 0
+    // Check if it can be fixed. It looks bad even with maxBlurRadius=1
     // Check if lastCellX and lastCellY are null or undefined
     if (lastCellX === -1 || lastCellY === -1) {
       // Initialize lastCellX and lastCellY with initial player position
@@ -605,7 +606,7 @@ export const GameContextProvider = ({ children }: props) => {
     );
 
     // Define max blur radius and adjust based on distance
-    const maxBlurRadius = 10; // Adjust as needed
+    const maxBlurRadius = 0; // Adjust as needed
     return Math.min(maxBlurRadius, distance);
   }
 
@@ -701,7 +702,6 @@ export const GameContextProvider = ({ children }: props) => {
 
       const tileId = getSquareIdFromTouch(currentTouch);
 
-      console.log(1, tileId);
       if (!gameOverFlag && tileId) {
         moveIfValid(tileId);
       }
