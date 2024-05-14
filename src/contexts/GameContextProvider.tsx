@@ -122,8 +122,6 @@ interface GameContextProps {
   handleTouchStart: (event: React.TouchEvent<HTMLDivElement>) => void;
 
   handleTouchMove: (event: React.TouchEvent<HTMLDivElement>) => void;
-
-  handleTouchEnd: () => void;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -169,8 +167,6 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [backgroundImage, setBackgroundImage] = useState('');
   const [rarity, setRarity] = useState('');
-
-  const [touchedSquares, setTouchedSquares] = useState<string[]>([]);
 
   const mazeRows = 11;
   const mazeCols = 9;
@@ -575,8 +571,6 @@ export const GameContextProvider = ({ children }: props) => {
     setLastCellY(playerPosition.y);
   }
 
-  let isMouseDown = false;
-
   // Function to start the timer
   function startTimer() {
     if (!timerStarted && !gameOverFlag) {
@@ -589,52 +583,6 @@ export const GameContextProvider = ({ children }: props) => {
       startTimer();
     }
   }
-
-  function handleContainerClick() {
-    startTimerOnTap(); // Start the timer when the user clicks on the maze container
-  }
-
-  function getCellCoordinates(id: string) {
-    const [_, y, x] = id.split('-');
-    return { newX: parseInt(x), newY: parseInt(y) };
-  }
-
-  // function handleTouchMove(event: TouchEvent<HTMLDivElement>) {
-  //   event.preventDefault(); // Prevent default touch move behavior
-
-  //   if (/*!mazeContainerRef ||*/ !isMouseDown) return;
-
-  //   const inputTarget = event.target as HTMLElement;
-
-  //   const { newX, newY } = getCellCoordinates(inputTarget.id);
-
-  //   // Update last cell coordinates
-  //   setLastCellX(playerPosition.x);
-  //   setLastCellY(playerPosition.y);
-
-  //   // Call movePlayerDirection to move the player based on touch direction
-  //   const deltaX = newX - touchStart.x;
-  //   const deltaY = newY - touchStart.y;
-  //   let direction = '';
-
-  //   if (Math.abs(deltaX) > Math.abs(deltaY)) {
-  //     direction = deltaX > 0 ? 'right' : 'left';
-  //   } else {
-  //     direction = deltaY > 0 ? 'down' : 'up';
-  //   }
-
-  //   // Move the player in the determined direction
-  //   // for (let i = 0; i < Math.abs(cellsMovedX); i++) {
-  //   //   movePlayerDirection(direction);
-  //   // }
-
-  //   // for (let i = 0; i < Math.abs(cellsMovedY); i++) {
-  //   //   movePlayerDirection(direction);
-  //   // }
-
-  //   // Update touch start position for next move
-  //   // setTouchStart({ x: touch.clientX, y: touch.clientY });
-  // }
 
   function calculateBlurRadius(cellX: number, cellY: number) {
     // Check if lastCellX and lastCellY are null or undefined
@@ -654,13 +602,86 @@ export const GameContextProvider = ({ children }: props) => {
     return Math.min(maxBlurRadius, distance);
   }
 
+  function getCoordinatesFromTileId(id: string) {
+    const stringCoordinates = id.slice('cell-'.length);
+
+    const splitedStringCoordinates = stringCoordinates.split('-');
+
+    const finalCoorditane = {
+      y: Number(splitedStringCoordinates[0]),
+      x: Number(splitedStringCoordinates[1]),
+    };
+
+    return finalCoorditane as Coordinates;
+  }
+
+  function isValidTileToMove(coordinates: Coordinates) {
+    //If the coordinate is part of the path
+    const isPath = mazeData[coordinates.y][coordinates.x].isPath;
+
+    //If the coordinate is next to player ubication (discarding diagonals)
+    const isNextToPlayer =
+      ((playerPosition.y + 1 === coordinates.y ||
+        playerPosition.y - 1 === coordinates.y) &&
+        playerPosition.x === coordinates.x) ||
+      ((playerPosition.x + 1 === coordinates.x ||
+        playerPosition.x - 1 === coordinates.x) &&
+        playerPosition.y === coordinates.y);
+
+    return isPath && isNextToPlayer;
+  }
+
+  function moveIfValid(id: string) {
+    if (id) {
+      const touchedCoordinate = getCoordinatesFromTileId(id);
+
+      if (isValidTileToMove(touchedCoordinate)) {
+        let newX = playerPosition.x;
+        let dX = playerPosition.x - touchedCoordinate.x;
+
+        let newY = playerPosition.y;
+        let dY = playerPosition.y - touchedCoordinate.y;
+
+        let newDirection = '' as React.SetStateAction<
+          'right' | 'left' | 'down' | 'up'
+        >;
+
+        if (dX === 1) {
+          newDirection = 'left';
+          newX--;
+        } else if (dX === -1) {
+          newDirection = 'right';
+          newX++;
+        } else if (dY === 1) {
+          newDirection = 'up';
+          newY--;
+        } else if (dY === -1) {
+          newDirection = 'down';
+          newY++;
+        }
+
+        setDirection(newDirection);
+
+        movePlayer(newX, newY);
+        // Update last cell coordinates
+        setLastCellX(playerPosition.x);
+        setLastCellY(playerPosition.y);
+      }
+
+      // setTouchedSquares([id]);
+    }
+  }
+
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault(); // Prevent screen scroll
     const touches = event.touches;
     const initialTouch = touches[0] as Touch;
 
-    const initialSquare = getSquareIdFromTouch(initialTouch);
-    setTouchedSquares([initialSquare]);
+    startTimerOnTap();
+
+    const initialSquareId = getSquareIdFromTouch(initialTouch);
+
+    !gameOverFlag && moveIfValid(initialSquareId);
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
@@ -668,22 +689,15 @@ export const GameContextProvider = ({ children }: props) => {
     const touches = event.touches;
 
     // Calculate touchedSquares
-    const touched = [...touchedSquares]; // Copy current array
     for (let i = 0; i < touches.length; i++) {
       const currentTouch = touches[i] as Touch;
 
-      const squareId = getSquareIdFromTouch(currentTouch);
-      if (!touched.includes(squareId)) {
-        touched.push(squareId);
+      const tileId = getSquareIdFromTouch(currentTouch);
+
+      if (!gameOverFlag && tileId) {
+        moveIfValid(tileId);
       }
     }
-
-    setTouchedSquares(touched);
-  };
-
-  const handleTouchEnd = () => {
-    // Refresh touched squares
-    setTouchedSquares([]);
   };
 
   const getSquareIdFromTouch = (touch: Touch) => {
@@ -749,7 +763,6 @@ export const GameContextProvider = ({ children }: props) => {
         calculateBlurRadius,
         handleTouchStart,
         handleTouchMove,
-        handleTouchEnd,
       }}
     >
       {children}

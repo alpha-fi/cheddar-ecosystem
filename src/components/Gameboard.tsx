@@ -19,7 +19,6 @@ export function Gameboard({ styles }: Props) {
     calculateBlurRadius,
     handleTouchStart,
     handleTouchMove,
-    handleTouchEnd,
   } = useContext(GameContext);
 
   // Check if the game has started for the first time
@@ -64,7 +63,6 @@ export function Gameboard({ styles }: Props) {
             }}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
           >
             {/* Dynamic content based on cell */}
             {cellContent && (
