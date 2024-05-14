@@ -1,9 +1,13 @@
 import { Gameboard } from './Gameboard';
 import { Button, ListItem, OrderedList, background } from '@chakra-ui/react';
-import { MouseEventHandler, useContext } from 'react';
+import { MouseEventHandler, useContext, useEffect, useState } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
 import { RenderBuyNFTSection } from './BuyNFTSection';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
+
+
 
 interface Props {
   remainingMinutes: number;
@@ -32,6 +36,20 @@ export function GameboardContainer({
     handleTouchMove,
     restartGame,
   } = useContext(GameContext);
+
+  const [contract, setContract] = useState<NFTCheddarContract|undefined>()
+  const [nfts, setNFTs] = useState<NFT[]>([])
+
+  const { modal, selector } = useWalletSelector()
+
+  useEffect(() => {
+    selector.wallet().then(wallet => {
+      setContract(new NFTCheddarContract(wallet))
+      contract?.getNFTs("silkking.testnet").then((nfts) => {
+        setNFTs(nfts)
+      })
+    })
+  })
 
   const styles: Record<string, any> = {
     gameContainer: {
@@ -185,6 +203,11 @@ export function GameboardContainer({
 
   return (
     <div style={styles.gameContainer}>
+      {
+        selector.isSignedIn() ?
+        <div>Logged in with {nfts.length} NFTs!</div> :
+        <Button onClick={modal.show}>Login</Button>
+      }
       <h1>Cheddar Maze</h1>
       <div style={styles.gameInfo}>
         <div style={styles.score}>Score: {score}</div>

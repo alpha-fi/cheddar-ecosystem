@@ -60,8 +60,9 @@ const WalletSelectorContext =
   React.createContext<WalletSelectorContextValue | null>(null);
 
 export const WalletSelectorContextProvider: any = ({ children }: any) => {
-  const config = getConfig();
-  const NETWORK_ID = config.networkId;
+  const { networkData } = getConfig();
+
+  const NETWORK_ID = networkData.networkId;
   const [selector, setSelector] = useState<WalletSelector | null>(null);
   const [modal, setModal] = useState<WalletSelectorModal | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
@@ -91,7 +92,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
         case Wallets.Near: {
           modules.push(
             setupNearWallet({
-              walletUrl: config.walletUrl,
+              walletUrl: networkData.walletUrl,
               iconUrl: '/assets/near-wallet-icon.png',
             })
           );

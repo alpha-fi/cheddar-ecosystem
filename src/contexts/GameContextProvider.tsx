@@ -131,6 +131,7 @@ export const GameContext = createContext<GameContextProps>(
 );
 
 export const GameContextProvider = ({ children }: props) => {
+
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);

@@ -65,6 +65,7 @@ export default function Home() {
 
   return (
     <div>
+      
       {initialized() && ( // Replace `condition` with your actual condition
         <GameboardContainer
           remainingMinutes={Math.floor(remainingTime / 60)}
