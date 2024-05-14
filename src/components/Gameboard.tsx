@@ -58,7 +58,8 @@ export function Gameboard({ styles }: Props) {
               id={`cell-${rowIndex}-${colIndex}`}
               style={{
                 ...styles.mazeCell,
-                backgroundColor: cell.isPath
+                backgroundColor: matchTileWithPlayerUbication ? 'transparent' 
+                : cell.isPath
                   ? selectedColorSet.pathColor
                   : selectedColorSet.backgroundColor,
                 filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
@@ -98,7 +99,7 @@ export function Gameboard({ styles }: Props) {
                     backgroundPosition: 'center',
                     backgroundSize: '70%',
                     position: 'relative',
-                    zIndex: '2', // Ensure player is in the forefront
+                    zIndex: 0, // Ensure player is in the forefront
                     backgroundImage:
                       cell.enemyWon || cell.hasCartel || cell.hasExit
                         ? 'none'

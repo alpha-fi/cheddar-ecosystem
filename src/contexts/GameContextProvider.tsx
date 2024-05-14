@@ -54,6 +54,7 @@ interface GameContextProps {
     textColor: string;
     rarity: string;
     backgroundImage: string;
+    playerBackgroundColor: string;
   };
   setSelectedColorSet: React.Dispatch<
     React.SetStateAction<{
@@ -63,6 +64,7 @@ interface GameContextProps {
       textColor: string;
       rarity: string;
       backgroundImage: string;
+      playerBackgroundColor: string;
     }>
   >;
 
@@ -145,6 +147,7 @@ export const GameContextProvider = ({ children }: props) => {
     textColor: '',
     rarity: '',
     backgroundImage: '',
+    playerBackgroundColor: '',
   });
   const [lastCellX, setLastCellX] = useState(-1);
   const [lastCellY, setLastCellY] = useState(-1);
@@ -190,6 +193,7 @@ export const GameContextProvider = ({ children }: props) => {
         rarity: 'common',
         backgroundImage:
           "url('https://cheddar.farm/newFarmBackground.c6905a5e.png')",
+        playerBackgroundColor: "#FFF",
       },
       {
         backgroundColor: '#333333',
@@ -199,6 +203,7 @@ export const GameContextProvider = ({ children }: props) => {
         rarity: 'rare',
         backgroundImage:
           "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
+        playerBackgroundColor: "#FFF",
       },
       {
         backgroundColor: '#20d3fc',
@@ -208,6 +213,7 @@ export const GameContextProvider = ({ children }: props) => {
         rarity: 'rare',
         backgroundImage:
           "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
+        playerBackgroundColor: "#FFF",
       },
       // Add more color sets as needed
     ];
@@ -585,6 +591,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   function calculateBlurRadius(cellX: number, cellY: number) {
+    return 1
     // Check if lastCellX and lastCellY are null or undefined
     if (lastCellX === -1 || lastCellY === -1) {
       // Initialize lastCellX and lastCellY with initial player position
@@ -681,7 +688,6 @@ export const GameContextProvider = ({ children }: props) => {
 
     const initialSquareId = getSquareIdFromTouch(initialTouch);
 
-    console.log(0, initialSquareId);
     if (!gameOverFlag) moveIfValid(initialSquareId!);
   };
 
@@ -705,9 +711,9 @@ export const GameContextProvider = ({ children }: props) => {
   const getSquareIdFromTouch = (touch: Touch) => {
     const square = document.elementFromPoint(touch.clientX, touch.clientY);
 
-    if (square?.id === 'player-icon') {
-      return square.parentElement?.id;
-    }
+    // if (square?.id === 'player-icon') {
+    //   return square.parentElement?.id;
+    // }
 
     return square?.id || '';
   };

@@ -56,7 +56,6 @@ export function GameboardContainer({
     },
     mazeRow: {
       display: 'flex',
-      backgroundColor: 'white',
     },
     mazeCell: {
       display: 'flex',
@@ -76,7 +75,8 @@ export function GameboardContainer({
       justifyContent: 'center',
       alignItems: 'center',
       fontSize: '24px',
-      backgroundColor: 'transparent',
+      backgroundColor: selectedColorSet.playerBackgroundColor,
+      pointerEvents: 'none',
     },
     playerMoveUp: {
       transform: 'rotate(-90deg)',
@@ -91,7 +91,7 @@ export function GameboardContainer({
       transform: '',
     },
     playerActive: {
-      zIndex: 1, // Ensure the active player appears above other elements
+      zIndex: 0, // Ensure the active player appears above other elements
     },
     debugInfo: {
       display: 'none', // Hide debug info by default
@@ -148,7 +148,7 @@ export function GameboardContainer({
       borderRadius: '6px',
       padding: '5px',
       position: 'absolute',
-      zIndex: '1',
+      zIndex: 1,
       bottom: '125%',
       left: '50%',
       marginLeft: '-60px',
@@ -172,7 +172,7 @@ export function GameboardContainer({
       backgroundColor: '#f9f9f9',
       border: '1px solid #ccc',
       padding: '10px',
-      zIndex: '3',
+      zIndex: 3,
       borderRadius: '5px',
       display: 'none',
       right: '5px',
@@ -228,7 +228,7 @@ export function GameboardContainer({
                   buy
                 </Button>
                 <div id="buyPopup" style={styles.popup}>
-                  {RenderBuyNFTSection()}
+                  <RenderBuyNFTSection />
                 </div>
               </span>
             )}
