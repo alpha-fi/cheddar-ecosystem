@@ -195,26 +195,26 @@ export const GameContextProvider = ({ children }: props) => {
           "url('https://cheddar.farm/newFarmBackground.c6905a5e.png')",
         playerBackgroundColor: '#9d67ef88',
       },
-      // {
-      //   backgroundColor: '#333333',
-      //   pathColor: 'gold',
-      //   nonPathColor: 'white',
-      //   textColor: '#333333',
-      //   rarity: 'rare',
-      //   backgroundImage:
-      //     "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
-      //   playerBackgroundColor: 'rgba(F,F,F,0)',
-      // },
-      // {
-      //   backgroundColor: '#20d3fc',
-      //   pathColor: '#ff00ff',
-      //   nonPathColor: '#6600ff',
-      //   textColor: '#333333',
-      //   rarity: 'rare',
-      //   backgroundImage:
-      //     "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
-      //   playerBackgroundColor: "#FFF6",
-      // },
+      {
+        backgroundColor: '#333333',
+        pathColor: '#FFD700',
+        nonPathColor: 'white',
+        textColor: '#333333',
+        rarity: 'rare',
+        backgroundImage:
+          "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
+        playerBackgroundColor: '#FFD70088',
+      },
+      {
+        backgroundColor: '#20d3fc',
+        pathColor: '#ff00ff',
+        nonPathColor: '#6600ff',
+        textColor: '#333333',
+        rarity: 'rare',
+        backgroundImage:
+          "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
+        playerBackgroundColor: "#ff00ff88",
+      },
       // Add more color sets as needed
     ];
 
