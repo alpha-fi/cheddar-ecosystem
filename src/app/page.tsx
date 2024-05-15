@@ -21,6 +21,12 @@ export default function Home() {
     restartGame,
   } = useContext(GameContext);
 
+  const minCheddarRequired = 555;
+
+  function doesUserHaveEnoughBalance() {
+    return true;
+  }
+
   function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);
     // Additional logic if needed
@@ -65,15 +71,21 @@ export default function Home() {
 
   return (
     <div>
-      
-      {initialized() && ( // Replace `condition` with your actual condition
-        <GameboardContainer
-          remainingMinutes={Math.floor(remainingTime / 60)}
-          remainingSeconds={remainingTime % 60}
-          handlePowerUpClick={handlePowerUpClick}
-          handleBuyClick={handleBuyClick}
-          cellSize={cellSize}
-        />
+      {doesUserHaveEnoughBalance() ? (
+        initialized() && ( // Replace `condition` with your actual condition
+          <GameboardContainer
+            remainingMinutes={Math.floor(remainingTime / 60)}
+            remainingSeconds={remainingTime % 60}
+            handlePowerUpClick={handlePowerUpClick}
+            handleBuyClick={handleBuyClick}
+            cellSize={cellSize}
+          />
+        )
+      ) : (
+        <p>
+          You don't have enough cheddar to play (Min of {minCheddarRequired} is
+          required)
+        </p>
       )}
     </div>
   );
