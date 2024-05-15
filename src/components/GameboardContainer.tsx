@@ -44,12 +44,14 @@ export function GameboardContainer({
 
   useEffect(() => {
     selector.wallet().then(wallet => {
-      setContract(new NFTCheddarContract(wallet))
-      contract?.getNFTs("silkking.testnet").then((nfts) => {
+      const contract = new NFTCheddarContract(wallet)
+      setContract(contract)
+      contract.getNFTs("silkking.testnet").then((nfts) => {
+        console.log(nfts)
         setNFTs(nfts)
       })
     })
-  })
+  }, [selector])
 
   const styles: Record<string, any> = {
     gameContainer: {

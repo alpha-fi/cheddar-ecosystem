@@ -7,12 +7,26 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { ModalContainer } from './FeedbackModal';
+import { NFTCheddarContract } from '@/contracts/nftCheddarContract';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 
 //TODO get price and img calling the backend and processing the info
 const price = 0.5;
 
 export const RenderBuyNFTSection = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { selector } = useWalletSelector();
+
+  async function handlePurchase() {
+    try {
+      const wallet = await selector.wallet();
+      const nftContract = new NFTCheddarContract(wallet);
+      await nftContract.buyNFT(false);
+      onOpen();
+    } catch (err) {
+      // TODO: Display error on modal
+    }
+  }
 
   return (
     <>
@@ -57,7 +71,7 @@ export const RenderBuyNFTSection = () => {
             </svg>
           </Stack>
         </FormLabel>
-        <Button colorScheme="yellow" onClick={onOpen}>
+        <Button colorScheme="yellow" onClick={handlePurchase}>
           Purchase
         </Button>
       </form>
