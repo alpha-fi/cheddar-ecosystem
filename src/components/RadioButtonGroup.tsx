@@ -12,6 +12,7 @@ export const RadioCard = (props: any) => {
       <input {...input} />
       <Box
         {...checkbox}
+        userSelect="none"
         cursor="pointer"
         borderWidth="1px"
         borderRadius="md"
