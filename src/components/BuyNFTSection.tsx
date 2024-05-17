@@ -11,33 +11,37 @@ import { RadioButtonBroup } from './RadioButtonGroup';
 import { useState } from 'react';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { RenderNearIcon } from './RenderNearIcon';
+import { error } from 'console';
+
+const tokensStyles = {
+  marginLeft: '1rem',
+  width: '2rem',
+  minWidth: 'max-content',
+  height: '2rem',
+};
+
+//The first option is the default one
+const payingOptions = [
+  {
+    name: 'Cheddar',
+    price: 0.5,
+    icon: <RenderCheddarIcon styles={tokensStyles} />,
+  },
+  {
+    name: 'Near',
+    price: 0.5,
+    icon: <RenderNearIcon styles={tokensStyles} />,
+  },
+];
 
 export const RenderBuyNFTSection = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { selector } = useWalletSelector();
 
-  const tokensStyles = {
-    marginLeft: '1rem',
-    width: '2rem',
-    minWidth: 'max-content',
-    height: '2rem',
-  };
-
-  //The first option is the default one
-  const payingOptions = [
-    {
-      name: 'Cheddar',
-      price: 0.5,
-      icon: <RenderCheddarIcon styles={tokensStyles} />,
-    },
-    {
-      name: 'Near',
-      price: 0.5,
-      icon: <RenderNearIcon styles={tokensStyles} />,
-    },
-  ];
-
   const [tokenToPayWith, setTokenToPayWith] = useState(payingOptions[0].name);
+  const [errorMsg, setErrorMsg] = useState(undefined as undefined | string);
+
+  const modalTitle = errorMsg ? 'Something went wrong' : 'Success';
 
   async function handlePurchase() {
     try {
@@ -45,8 +49,9 @@ export const RenderBuyNFTSection = () => {
       const nftContract = new NFTCheddarContract(wallet);
       await nftContract.buyNFT(false);
       onOpen();
-    } catch (err) {
-      // TODO: Display error on modal
+    } catch (err: any) {
+      setErrorMsg(err);
+      onOpen();
     }
   }
 
@@ -78,8 +83,8 @@ export const RenderBuyNFTSection = () => {
           Purchase
         </Button>
       </form>
-      <ModalContainer title="Feedback" isOpen={isOpen} onClose={onClose}>
-        Hello
+      <ModalContainer title={modalTitle} isOpen={isOpen} onClose={onClose}>
+        {errorMsg ? errorMsg : 'Enjoy your purchase!'}
       </ModalContainer>
     </>
   );

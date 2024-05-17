@@ -23,6 +23,12 @@ export default function Home() {
 
   const minCheddarRequired = 555;
 
+  // async function getAccountBalance(accountId: string) {
+  //   const account = await nearConnection.account("example-account.testnet");
+  //   return await account.getAccountBalance();
+
+  // }
+
   function doesUserHaveEnoughBalance() {
     return true;
   }
