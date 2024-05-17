@@ -22,8 +22,6 @@ export function Gameboard() {
   // Check if the game has started for the first time
   const gameStarted = playerPosition !== null;
 
-  console.log('aaaa: ', direction.charAt(0).toUpperCase() + direction.slice(1));
-
   // Check if the player position has changed
   const playerMoved =
     gameStarted &&
