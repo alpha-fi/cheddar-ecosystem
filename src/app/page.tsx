@@ -26,15 +26,6 @@ export default function Home() {
     // Additional logic if needed
   }
 
-  function handleBuyClick() {
-    const popup = document.getElementById('buyPopup');
-    if (popup!.style.display === 'block') {
-      popup!.style.display = 'none';
-    } else {
-      popup!.style.display = 'block';
-    }
-  }
-
   function isMobile() {
     const userAgent = navigator.userAgent;
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -70,7 +61,6 @@ export default function Home() {
           remainingMinutes={Math.floor(remainingTime / 60)}
           remainingSeconds={remainingTime % 60}
           handlePowerUpClick={handlePowerUpClick}
-          handleBuyClick={handleBuyClick}
           cellSize={cellSize}
         />
       )}

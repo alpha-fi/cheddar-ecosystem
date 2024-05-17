@@ -2,11 +2,7 @@ import { MazeTileData } from '@/contexts/GameContextProvider';
 import { useContext } from 'react';
 import { GameContext } from '@/contexts/GameContextProvider';
 
-interface Props {
-  styles: Record<string, any>;
-}
-
-export function Gameboard({ styles }: Props) {
+export function Gameboard() {
   const {
     mazeData,
     playerPosition,
@@ -34,7 +30,7 @@ export function Gameboard({ styles }: Props) {
   setLastCellY(playerPosition!.y);
 
   return mazeData.map((row: MazeTileData[], rowIndex: number) => (
-    <div key={rowIndex} style={styles.mazeRow}>
+    <div key={rowIndex} className="mazeRow">
       {row.map((cell: MazeTileData, colIndex: number) => {
         const blurRadius = playerMoved
           ? calculateBlurRadius(colIndex, rowIndex)
@@ -53,8 +49,8 @@ export function Gameboard({ styles }: Props) {
           <div
             key={colIndex}
             id={`cell-${rowIndex}-${colIndex}`}
+            className="mazeCell"
             style={{
-              ...styles.mazeCell,
               backgroundColor: cell.isPath
                 ? selectedColorSet.pathColor
                 : selectedColorSet.backgroundColor,
@@ -80,16 +76,11 @@ export function Gameboard({ styles }: Props) {
             {playerPosition!.x === colIndex &&
               playerPosition!.y === rowIndex && (
                 <div
-                  className={`player-icon ${direction}`} // Apply dynamic CSS class based on the direction
+                  className={`mazeCell playerCell player-icon ${direction} playerMove${
+                    direction.charAt(0).toUpperCase() + direction.slice(1)
+                  }`} // Apply dynamic CSS class based on the direction
+                  // Applying the direction style dynamically
                   style={{
-                    ...styles.mazeCell,
-                    ...styles.playerCell,
-                    ...styles[
-                      `playerMove${
-                        direction.charAt(0).toUpperCase() + direction.slice(1)
-                      }`
-                    ], // Applying the direction style dynamically
-                    // backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
                     backgroundPosition: 'center',
                     backgroundSize: '70%',
