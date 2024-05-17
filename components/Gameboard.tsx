@@ -22,6 +22,8 @@ export function Gameboard() {
   // Check if the game has started for the first time
   const gameStarted = playerPosition !== null;
 
+  console.log('aaaa: ', direction.charAt(0).toUpperCase() + direction.slice(1));
+
   // Check if the player position has changed
   const playerMoved =
     gameStarted &&
@@ -30,6 +32,12 @@ export function Gameboard() {
   // Update last player position
   setLastCellX(playerPosition!.x);
   setLastCellY(playerPosition!.y);
+
+  function getPlayerImgDirection() {
+    return styles[
+      `playerMove${direction.charAt(0).toUpperCase() + direction.slice(1)}`
+    ];
+  }
 
   return mazeData.map((row: MazeTileData[], rowIndex: number) => (
     <div key={rowIndex} className={styles.mazeRow}>
@@ -78,14 +86,10 @@ export function Gameboard() {
             {playerPosition!.x === colIndex &&
               playerPosition!.y === rowIndex && (
                 <div
-                  className={
-                    (styles.mazeCell,
-                    styles.playerCell,
-                    // styles[direction],
-                    styles[
-                      `playerMove${direction.charAt(0).toUpperCase() + direction.slice(1)}`
-                    ])
-                  }
+                  className={`
+                    ${styles.mazeCell} ${styles.playerCell} ${getPlayerImgDirection()}
+                  `}
+                  // ${/*styles[direction]*/}
                   style={{
                     backgroundImage:
                       cell.enemyWon || cell.hasCartel || cell.hasExit
