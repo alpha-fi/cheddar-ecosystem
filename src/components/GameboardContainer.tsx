@@ -7,14 +7,13 @@ import { RenderBuyNFTSection } from './BuyNFTSection';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 
-
-
 interface Props {
   remainingMinutes: number;
   remainingSeconds: number;
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
   handleBuyClick: MouseEventHandler<HTMLButtonElement>;
   cellSize: number;
+  cheddarTokenImg: undefined | string;
 }
 
 export function GameboardContainer({
@@ -37,20 +36,20 @@ export function GameboardContainer({
     restartGame,
   } = useContext(GameContext);
 
-  const [contract, setContract] = useState<NFTCheddarContract|undefined>()
-  const [nfts, setNFTs] = useState<NFT[]>([])
+  const [contract, setContract] = useState<NFTCheddarContract | undefined>();
+  const [nfts, setNFTs] = useState<NFT[]>([]);
 
-  const { modal, selector, accountId } = useWalletSelector()
+  const { modal, selector, accountId } = useWalletSelector();
 
   useEffect(() => {
-    selector.wallet().then(wallet => {
-      const contract = new NFTCheddarContract(wallet)
-      setContract(contract)
+    selector.wallet().then((wallet) => {
+      const contract = new NFTCheddarContract(wallet);
+      setContract(contract);
       contract.getNFTs(accountId!).then((nfts) => {
-        setNFTs(nfts)
-      })
-    })
-  }, [selector])
+        setNFTs(nfts);
+      });
+    });
+  }, [selector]);
 
   const styles: Record<string, any> = {
     gameContainer: {
@@ -204,11 +203,11 @@ export function GameboardContainer({
 
   return (
     <div style={styles.gameContainer}>
-      {
-        selector.isSignedIn() ?
-        <div>Logged in with {nfts.length} NFTs!</div> :
+      {selector.isSignedIn() ? (
+        <div>Logged in with {nfts.length} NFTs!</div>
+      ) : (
         <Button onClick={modal.show}>Login</Button>
-      }
+      )}
       <h1>Cheddar Maze</h1>
       <div style={styles.gameInfo}>
         <div style={styles.score}>Score: {score}</div>

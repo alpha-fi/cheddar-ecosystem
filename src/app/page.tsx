@@ -29,6 +29,8 @@ export default function Home() {
     bigint | undefined | null
   >();
 
+  const [cheddarTokenImg, setCheddarTokenImg] = useState<undefined | string>();
+
   useEffect(() => {
     async function getCheddarBalance() {
       const wallet = await selector.wallet();
@@ -37,6 +39,9 @@ export default function Home() {
       if (accountId) {
         const balance = await cheddarTokenContract.getBalance(accountId);
         setUserCheddarBalance(balance);
+
+        const metadata = await cheddarTokenContract.getMetadata();
+        setCheddarTokenImg(metadata.icon);
       } else {
         setUserCheddarBalance(null);
       }
@@ -105,6 +110,7 @@ export default function Home() {
             handlePowerUpClick={handlePowerUpClick}
             handleBuyClick={handleBuyClick}
             cellSize={cellSize}
+            cheddarTokenImg={cheddarTokenImg}
           />
         )
       ) : (
