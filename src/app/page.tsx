@@ -1,8 +1,11 @@
 'use client';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { GameboardContainer } from '../components/GameboardContainer';
 
 import { GameContext } from '../contexts/GameContextProvider';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { CheddarToken } from '@/contracts/CheddarToken';
+import { ntoy } from '@/contracts/contractUtils';
 
 export default function Home() {
   const {
@@ -21,16 +24,33 @@ export default function Home() {
     restartGame,
   } = useContext(GameContext);
 
-  const minCheddarRequired = 555;
+  const { selector, accountId } = useWalletSelector();
+  const [userCheddarBalance, setUserCheddarBalance] = useState<
+    bigint | undefined | null
+  >();
 
-  // async function getAccountBalance(accountId: string) {
-  //   const account = await nearConnection.account("example-account.testnet");
-  //   return await account.getAccountBalance();
+  useEffect(() => {
+    async function getCheddarBalance() {
+      const wallet = await selector.wallet();
+      const cheddarTokenContract = new CheddarToken(wallet);
 
-  // }
+      if (accountId) {
+        const balance = await cheddarTokenContract.getBalance(accountId);
+        setUserCheddarBalance(balance);
+      } else {
+        setUserCheddarBalance(null);
+      }
+    }
+
+    getCheddarBalance();
+  }, [accountId]);
+
+  const minCheddarRequired = ntoy(555);
 
   function doesUserHaveEnoughBalance() {
-    return true;
+    if (!userCheddarBalance) return false;
+
+    return minCheddarRequired <= userCheddarBalance!;
   }
 
   function handlePowerUpClick() {

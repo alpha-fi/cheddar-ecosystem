@@ -40,14 +40,13 @@ export function GameboardContainer({
   const [contract, setContract] = useState<NFTCheddarContract|undefined>()
   const [nfts, setNFTs] = useState<NFT[]>([])
 
-  const { modal, selector } = useWalletSelector()
+  const { modal, selector, accountId } = useWalletSelector()
 
   useEffect(() => {
     selector.wallet().then(wallet => {
       const contract = new NFTCheddarContract(wallet)
       setContract(contract)
-      contract.getNFTs("silkking.testnet").then((nfts) => {
-        console.log(nfts)
+      contract.getNFTs(accountId!).then((nfts) => {
         setNFTs(nfts)
       })
     })
