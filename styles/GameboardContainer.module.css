@@ -1,0 +1,114 @@
+.gameContainer {
+  display: 'flex';
+  flex-direction: 'column';
+  align-items: 'center';
+  margin: '0 auto';
+  padding: '0';
+  border: '1px solid gold';
+  font-family: 'Bubblegum Sans !important';
+  background-size: 'cover';
+  background-position: 'center';
+}
+.mazeContainer {
+  margin-bottom: '10px';
+  border-radius: '5px';
+  overflow: 'hidden';
+  width: 'fit-content';
+  border: '3px solid #8542eb';
+}
+.playerActive {
+  z-index: 1;
+}
+.debugInfo {
+  display: 'none';
+}
+.gameOver {
+  font-size: '15px';
+  font-weight: 'bold';
+  /* color: hasExit ? 'green' : 'red', */
+  /* color: true ? 'green' : 'red', */
+}
+.gameInfo {
+  display: 'flex';
+  align-items: 'center';
+  justify-content: 'center';
+  width: '100%';
+  margin: 'auto';
+  margin-bottom: '10px';
+}
+.score {
+  flex: '1';
+  text-align: 'center';
+}
+.toolbar {
+  display: 'grid';
+  grid-template-columns: '1fr';
+  justify-items: 'end';
+  background-color: '#8542eb';
+}
+.tooltip {
+  position: 'relative';
+  display: 'flex';
+  text-align: 'right';
+  align-items: 'right';
+  padding: '5px';
+  gap: '5px';
+}
+.powerUpButton {
+  /* background-color: isPowerUpOn ? '#007bff' : '#AAB8C2', */
+  color: '#ffffff';
+  border: 'none';
+  border-radius: '5px';
+  padding: '5px 10px';
+  font-size: '16px';
+  cursor: 'pointer';
+  transition: 'background-color 0.3s ease';
+}
+.tooltipText {
+  visibility: 'hidden';
+  width: '120px';
+  background-color: '#555';
+  color: '#fff';
+  text-align: 'center';
+  border-radius: '6px';
+  padding: '5px';
+  position: 'absolute';
+  z-index: '1';
+  bottom: '125%';
+  left: '50%';
+  margin-left: '-60px';
+  opacity: '0';
+  transition: 'opacity 0.3s';
+}
+.time {
+  flex: '1';
+  text-align: 'center';
+}
+.buyPowerUp {
+  flex: '1';
+  text-align: 'center';
+}
+.buyLink {
+  color: 'yellow';
+  text-decoration: 'none';
+}
+.popup {
+  position: 'absolute';
+  background-color: '#f9f9f9';
+  border: '1px solid #ccc';
+  padding: '10px';
+  z-index: '3';
+  border-radius: '5px';
+  right: '5px';
+  min-width: '300px';
+  overflow-y: 'scroll';
+  max-height: '400px';
+}
+.restartGameButton {
+  font-size: '18px';
+}
+
+.orderedListContainer {
+  background-color: 'rgba(255, 255, 255, 0.9)';
+  padding: '10px';
+}

@@ -2,6 +2,8 @@ import { MazeTileData } from '@/contexts/GameContextProvider';
 import { useContext } from 'react';
 import { GameContext } from '@/contexts/GameContextProvider';
 
+import styles from '../styles/Gameboard.module.css';
+
 export function Gameboard() {
   const {
     mazeData,
@@ -30,7 +32,7 @@ export function Gameboard() {
   setLastCellY(playerPosition!.y);
 
   return mazeData.map((row: MazeTileData[], rowIndex: number) => (
-    <div key={rowIndex} className="mazeRow">
+    <div key={rowIndex} className={styles.mazeRow}>
       {row.map((cell: MazeTileData, colIndex: number) => {
         const blurRadius = playerMoved
           ? calculateBlurRadius(colIndex, rowIndex)
@@ -49,13 +51,13 @@ export function Gameboard() {
           <div
             key={colIndex}
             id={`cell-${rowIndex}-${colIndex}`}
-            className="mazeCell"
+            className={styles.mazeCell}
             style={{
+              border: `1px solid ${selectedColorSet.nonPathColor}`,
               backgroundColor: cell.isPath
                 ? selectedColorSet.pathColor
                 : selectedColorSet.backgroundColor,
               filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
-              position: 'relative', // Ensure relative positioning for absolute positioning of icons
             }}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -65,8 +67,8 @@ export function Gameboard() {
               <span
                 role="img"
                 aria-label={cellContent}
-                className="static-icon"
-                style={{ position: 'absolute' }}
+                // className="static-icon"
+                className={styles.staticIcon}
               >
                 {cellContent}
               </span>
@@ -76,16 +78,15 @@ export function Gameboard() {
             {playerPosition!.x === colIndex &&
               playerPosition!.y === rowIndex && (
                 <div
-                  className={`mazeCell playerCell player-icon ${direction} playerMove${
-                    direction.charAt(0).toUpperCase() + direction.slice(1)
-                  }`} // Apply dynamic CSS class based on the direction
-                  // Applying the direction style dynamically
+                  className={
+                    (styles.mazeCell,
+                    styles.playerCell,
+                    // styles[direction],
+                    styles[
+                      `playerMove${direction.charAt(0).toUpperCase() + direction.slice(1)}`
+                    ])
+                  }
                   style={{
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'center',
-                    backgroundSize: '70%',
-                    position: 'relative',
-                    zIndex: '2', // Ensure player is in the forefront
                     backgroundImage:
                       cell.enemyWon || cell.hasCartel || cell.hasExit
                         ? 'none'

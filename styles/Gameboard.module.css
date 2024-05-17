@@ -1,0 +1,43 @@
+.mazeRow {
+  display: 'flex';
+}
+.mazeCell {
+  display: 'flex';
+  flex: '0 0 auto';
+  width: '40px';
+  height: '40px';
+  justify-content: 'center';
+  align-items: 'center';
+  font-size: '24px';
+  padding: '5px';
+  position: 'relative';
+}
+.staticIcon {
+  position: 'absolute';
+}
+.playerCell {
+  position: 'relative';
+  width: '40px';
+  height: '40px';
+  justify-content: 'center';
+  align-items: 'center';
+  font-size: '24px';
+  background-color: 'transparent';
+  background-repeat: 'no-repeat';
+  background-position: 'center';
+  background-size: '70%';
+  position: 'relative';
+  z-index: '2';
+}
+.playerMoveUp {
+  transform: 'rotate(-90deg)';
+}
+.playerMoveDown {
+  transform: 'rotate(90deg)';
+}
+.playerMoveLeft {
+  transform: 'scaleX(-1)';
+}
+.playerMoveRight {
+  transform: '';
+}
