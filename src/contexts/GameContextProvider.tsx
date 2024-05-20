@@ -192,7 +192,11 @@ export const GameContextProvider = ({ children }: props) => {
     //Check the global.css file.
     const colorSetsQuantity = 3;
 
-    return Math.floor(Math.random() * colorSetsQuantity);
+    const randomizeColor = Math.floor(
+      Math.floor(Math.random() * colorSetsQuantity) + 1
+    );
+
+    return randomizeColor;
   };
 
   function getRandomPathCell(mazeData: MazeTileData[][]) {
