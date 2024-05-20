@@ -1,3 +1,74 @@
+/* Start COLOR SETS */
+/* Currently there are 3 color sets */
+.backgroundColorSet1 {
+  background-color: #333333;
+}
+
+.pathColorSet1 {
+  background-color: #9d67ef;
+}
+
+.nonPathColorSet1 {
+  border-color: white;
+}
+
+.textColorSet1 {
+  color: #000000
+}
+
+.backgroundImg1 {
+  background-image: url('https://cheddar.farm/newFarmBackground.c6905a5e.png');
+}
+
+.backgroundColorSet2 {
+  background-color: #333333;
+}
+
+.pathColorSet2 {
+  background-color: gold;
+}
+
+.nonPathColorSet2 {
+  border-color: white;
+}
+
+.textColorSet2 {
+  color: #333333
+}
+
+.backgroundImg2 {
+  background-image: url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm');
+}
+
+.backgroundColorSet3 {
+  background-color: #20d3fc;
+}
+
+.pathColorSet3 {
+  background-color: #ff00ff;
+}
+
+.nonPathColorSet3 {
+  border-color: #6600ff;
+}
+
+.textColorSet3 {
+  color: #333333
+}
+
+.backgroundImg3 {
+  background-image: url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm');
+}
+/* End COLOR SETS */
+
+.playerBackgroundEmpty {
+  background-image: none;
+}
+
+.playerBackgroundElementOnTop {
+  background-image: url('https://lh3.googleusercontent.com/d/114_RLl18MAzX035svMyvNJpE3ArfLNCF=w500');
+}
+
 :root {
   --max-width: 1100px;
   --border-radius: 12px;

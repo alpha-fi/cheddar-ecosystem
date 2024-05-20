@@ -42,6 +42,27 @@ export function Gameboard({ showRules }: Props) {
     ];
   }
 
+  function getClassNamesForCell(cell: MazeTileData) {
+    let backgroundColor;
+    if (cell.isPath) {
+      backgroundColor = 'pathColorSet';
+    } else {
+      backgroundColor = 'backgroundColorSet';
+    }
+    return `${styles.mazeCell} nonPathColorSet${selectedColorSet} ${backgroundColor}${selectedColorSet}`;
+  }
+
+  function getPlayerTileClasses(cell: MazeTileData) {
+    let backgroundImage;
+    if (cell.enemyWon || cell.hasCartel || cell.hasExit) {
+      backgroundImage = 'playerBackgroundEmpty';
+    } else {
+      backgroundImage = 'playerBackgroundElementOnTop';
+    }
+
+    return `${styles.mazeCell} ${styles.playerCell} ${getPlayerImgDirection()} ${backgroundImage}`;
+  }
+
   return (
     <>
       {showRules && (
@@ -75,12 +96,8 @@ export function Gameboard({ showRules }: Props) {
               <div
                 key={colIndex}
                 id={`cell-${rowIndex}-${colIndex}`}
-                className={styles.mazeCell}
+                className={getClassNamesForCell(cell)}
                 style={{
-                  border: `1px solid ${selectedColorSet.nonPathColor}`,
-                  backgroundColor: cell.isPath
-                    ? selectedColorSet.pathColor
-                    : selectedColorSet.backgroundColor,
                   filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
                 }}
                 onTouchStart={handleTouchStart}
@@ -102,16 +119,8 @@ export function Gameboard({ showRules }: Props) {
                 {playerPosition!.x === colIndex &&
                   playerPosition!.y === rowIndex && (
                     <div
-                      className={`
-                ${styles.mazeCell} ${styles.playerCell} ${getPlayerImgDirection()}
-                `}
+                      className={getPlayerTileClasses(cell)}
                       // ${/*styles[direction]*/}
-                      style={{
-                        backgroundImage:
-                          cell.enemyWon || cell.hasCartel || cell.hasExit
-                            ? 'none'
-                            : "url('https://lh3.googleusercontent.com/d/114_RLl18MAzX035svMyvNJpE3ArfLNCF=w500')",
-                      }}
                     ></div>
                   )}
               </div>

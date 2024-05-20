@@ -47,24 +47,8 @@ interface GameContextProps {
     React.SetStateAction<'right' | 'left' | 'down' | 'up'>
   >;
 
-  selectedColorSet: {
-    backgroundColor: string;
-    pathColor: string;
-    nonPathColor: string;
-    textColor: string;
-    rarity: string;
-    backgroundImage: string;
-  };
-  setSelectedColorSet: React.Dispatch<
-    React.SetStateAction<{
-      backgroundColor: string;
-      pathColor: string;
-      nonPathColor: string;
-      textColor: string;
-      rarity: string;
-      backgroundImage: string;
-    }>
-  >;
+  selectedColorSet: number;
+  setSelectedColorSet: React.Dispatch<React.SetStateAction<number>>;
 
   lastCellX: number;
   setLastCellX: React.Dispatch<React.SetStateAction<number>>;
@@ -138,14 +122,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [direction, setDirection] = useState(
     'right' as 'right' | 'left' | 'down' | 'up'
   );
-  const [selectedColorSet, setSelectedColorSet] = useState({
-    backgroundColor: '',
-    pathColor: '',
-    nonPathColor: '',
-    textColor: '',
-    rarity: '',
-    backgroundImage: '',
-  });
+  const [selectedColorSet, setSelectedColorSet] = useState(0);
   const [lastCellX, setLastCellX] = useState(-1);
   const [lastCellY, setLastCellY] = useState(-1);
   const [hasPowerUp, setHasPowerUp] = useState(false);
@@ -165,8 +142,8 @@ export const GameContextProvider = ({ children }: props) => {
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
   const [coveredCells, setCoveredCells] = useState(0);
 
-  const [backgroundImage, setBackgroundImage] = useState('');
-  const [rarity, setRarity] = useState('');
+  // const [backgroundImage, setBackgroundImage] = useState('');
+  // const [rarity, setRarity] = useState('');
 
   const mazeRows = 11;
   const mazeCols = 9;
@@ -181,38 +158,41 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to select a random color set, background image, and rarity
   const selectRandomColorSet = () => {
-    const colorSets = [
-      {
-        backgroundColor: '#333333',
-        pathColor: '#9d67ef',
-        nonPathColor: 'white',
-        textColor: '#000000',
-        rarity: 'common',
-        backgroundImage:
-          "url('https://cheddar.farm/newFarmBackground.c6905a5e.png')",
-      },
-      {
-        backgroundColor: '#333333',
-        pathColor: 'gold',
-        nonPathColor: 'white',
-        textColor: '#333333',
-        rarity: 'rare',
-        backgroundImage:
-          "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
-      },
-      {
-        backgroundColor: '#20d3fc',
-        pathColor: '#ff00ff',
-        nonPathColor: '#6600ff',
-        textColor: '#333333',
-        rarity: 'rare',
-        backgroundImage:
-          "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
-      },
-      // Add more color sets as needed
-    ];
+    // const colorSets = [
+    //   {
+    //     backgroundColor: '#333333',
+    //     pathColor: '#9d67ef',
+    //     nonPathColor: 'white',
+    //     textColor: '#000000',
+    //     rarity: 'common',
+    //     backgroundImage:
+    //       "url('https://cheddar.farm/newFarmBackground.c6905a5e.png')",
+    //   },
+    //   {
+    //     backgroundColor: '#333333',
+    //     pathColor: 'gold',
+    //     nonPathColor: 'white',
+    //     textColor: '#333333',
+    //     rarity: 'rare',
+    //     backgroundImage:
+    //       "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
+    //   },
+    //   {
+    //     backgroundColor: '#20d3fc',
+    //     pathColor: '#ff00ff',
+    //     nonPathColor: '#6600ff',
+    //     textColor: '#333333',
+    //     rarity: 'rare',
+    //     backgroundImage:
+    //       "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
+    //   },
+    //   // Add more color sets as needed
+    // ];
 
-    return colorSets[Math.floor(Math.random() * colorSets.length)];
+    //Check the global.css file.
+    const colorSetsQuantity = 3;
+
+    return Math.floor(Math.random() * colorSetsQuantity);
   };
 
   function getRandomPathCell(mazeData: MazeTileData[][]) {
@@ -343,8 +323,8 @@ export const GameContextProvider = ({ children }: props) => {
 
     const randomColorSet = selectRandomColorSet();
     setSelectedColorSet(randomColorSet);
-    setBackgroundImage(randomColorSet.backgroundImage);
-    setRarity(randomColorSet.rarity);
+    // setBackgroundImage(randomColorSet.backgroundImage);
+    // setRarity(randomColorSet.rarity);
 
     const playerStartCell = getRandomPathCell(newMazeData);
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });

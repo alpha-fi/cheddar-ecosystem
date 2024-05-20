@@ -76,12 +76,15 @@ export function GameboardContainer({
     setShowBuyNFTPanel(!showBuyNFTPanel);
   }
 
+  function getGameContainerClasses() {
+    return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
+  }
+
   return (
     <div
-      className={styles.gameContainer}
+      className={getGameContainerClasses()}
       style={{
         maxWidth: `${mazeData[0].length * cellSize + 25}px`,
-        backgroundImage: selectedColorSet.backgroundImage,
       }}
     >
       <h1>Cheddar Maze</h1>

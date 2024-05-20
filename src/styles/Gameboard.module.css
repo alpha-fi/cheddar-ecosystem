@@ -11,6 +11,8 @@
   font-size: 24px;
   padding: 5px;
   position: relative;
+  border-style: solid;
+  border-width: 1px;
 }
 .staticIcon {
   position: absolute;
