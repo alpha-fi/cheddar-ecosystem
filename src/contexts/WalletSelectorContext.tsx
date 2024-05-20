@@ -69,7 +69,6 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
   const DEFAULT_ENABLE_WALLETS = [
     'narwallets',
     'meteor',
-    'near',
     'mynearwallet',
     'xdefi',
     'opto',
@@ -87,15 +86,6 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
       switch (w) {
         case Wallets.Meteor: {
           modules.push(setupMeteorWallet());
-          break;
-        }
-        case Wallets.Near: {
-          modules.push(
-            setupNearWallet({
-              walletUrl: networkData.walletUrl,
-              iconUrl: '/assets/near-wallet-icon.png',
-            })
-          );
           break;
         }
         case Wallets.MyNearWallet: {

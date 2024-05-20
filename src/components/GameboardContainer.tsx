@@ -41,9 +41,17 @@ export function GameboardContainer({
   const { modal, selector } = useWalletSelector();
 
   useEffect(() => {
+    console.log(1)
+    if(!selector.isSignedIn()) {
+      console.log(2)
+      setNFTs([]);
+      return
+    }
+    console.log(3)
     selector.wallet().then((wallet) => {
       const contract = new NFTCheddarContract(wallet);
       setContract(contract);
+        
       contract.getNFTs('silkking.testnet').then((nfts) => {
         console.log(nfts);
         setNFTs(nfts);
@@ -204,7 +212,7 @@ export function GameboardContainer({
   return (
     <div style={styles.gameContainer}>
       {selector.isSignedIn() ? (
-        <div>Logged in with {nfts.length} NFTs!</div>
+        <div onClick={() => selector.wallet().then(wallet => wallet.signOut())}>Logged in with {nfts.length} NFTs!</div>
       ) : (
         <Button onClick={modal.show}>Login</Button>
       )}
