@@ -41,9 +41,8 @@
   text-align: center;
 }
 .toolbar {
-  display: grid;
-  grid-template-columns: 1fr;
-  justify-items: end;
+  display: flex;
+  justify-content: space-between;
   background-color: #8542eb;
 }
 .tooltip {
@@ -84,6 +83,9 @@
   flex: 1;
   text-align: center;
 }
+.rulesButton {
+  padding: 5px
+}
 .buyPowerUp {
   flex: 1;
   text-align: center;
@@ -106,9 +108,4 @@
 }
 .restartGameButton {
   font-size: 18px;
-}
-
-.orderedListContainer {
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 10px;
 }

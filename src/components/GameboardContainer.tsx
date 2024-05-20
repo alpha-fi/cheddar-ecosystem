@@ -1,5 +1,5 @@
 import { Gameboard } from './Gameboard';
-import { Button, ListItem, OrderedList } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { MouseEventHandler, useContext, useState } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
@@ -34,6 +34,11 @@ export function GameboardContainer({
   } = useContext(GameContext);
 
   const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+
+  function toggleShowRules() {
+    setShowRules(!showRules);
+  }
 
   //TODO get actual data and modify it as needed
   const NFTsDataTemplate = [
@@ -102,9 +107,12 @@ export function GameboardContainer({
         onTouchMove={handleTouchMove}
       >
         <div className={styles.toolbar}>
+          <span className={styles.rulesButton}>
+            <Button onClick={toggleShowRules}>Rules</Button>
+          </span>
           <div className={styles.tooltip}>
             <Button
-              colorScheme={styles.yellow}
+              colorScheme="yellow"
               onClick={handlePowerUpClick}
               disabled={!hasPowerUp}
             >
@@ -116,11 +124,11 @@ export function GameboardContainer({
             {!hasPowerUp && (
               <span className={styles.buyPowerUp}>
                 <Button
-                  colorScheme={styles.purple}
+                  colorScheme="purple"
                   onClick={handleBuyClick}
                   disabled={!hasPowerUp}
                 >
-                  buy
+                  Buy
                 </Button>
                 {showBuyNFTPanel && (
                   <div className={styles.popup}>
@@ -131,17 +139,7 @@ export function GameboardContainer({
             )}
           </div>
         </div>
-        <Gameboard />
-      </div>
-
-      <div className={styles.orderedListContainer}>
-        <OrderedList>
-          <ListItem>Click or Tap to Start</ListItem>
-          <ListItem>Navigate with Arrows or Tap</ListItem>
-          <ListItem>Collect Cheddar🧀</ListItem>
-          <ListItem>Battle Cartel to protect your Bag</ListItem>
-          <ListItem>Find the Hidden Door🚪 to Win!</ListItem>
-        </OrderedList>
+        <Gameboard showRules={showRules} />
       </div>
     </div>
   );
