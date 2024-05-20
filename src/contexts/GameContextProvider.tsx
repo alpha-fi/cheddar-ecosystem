@@ -131,7 +131,6 @@ export const GameContext = createContext<GameContextProps>(
 );
 
 export const GameContextProvider = ({ children }: props) => {
-
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);
@@ -214,7 +213,7 @@ export const GameContextProvider = ({ children }: props) => {
         rarity: 'rare',
         backgroundImage:
           "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
-        playerBackgroundColor: "#ff00ff88",
+        playerBackgroundColor: '#ff00ff88',
       },
       // Add more color sets as needed
     ];
@@ -592,7 +591,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   function calculateBlurRadius(cellX: number, cellY: number) {
-    return 0
+    return 0;
     // Check if it can be fixed. It looks bad even with maxBlurRadius=1
     // Check if lastCellX and lastCellY are null or undefined
     if (lastCellX === -1 || lastCellY === -1) {
