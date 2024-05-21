@@ -5,10 +5,10 @@ import { GameContext } from '@/contexts/GameContextProvider';
 interface Props {
   styles: Record<string, any>;
   isUserLoggedIn: boolean;
-  onOpenLogInModal: () => void;
+  openLogIn: () => void;
 }
 
-export function Gameboard({ styles, isUserLoggedIn, onOpenLogInModal }: Props) {
+export function Gameboard({ styles, isUserLoggedIn, openLogIn }: Props) {
   const {
     mazeData,
     playerPosition,
@@ -77,10 +77,10 @@ export function Gameboard({ styles, isUserLoggedIn, onOpenLogInModal }: Props) {
                 filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
                 position: 'relative', // Ensure relative positioning for absolute positioning of icons
               }}
-              onClick={handleConditionalFunction(() => {}, onOpenLogInModal)}
+              onClick={handleConditionalFunction(() => {}, openLogIn)}
               onTouchStart={handleConditionalFunction(
                 handleTouchStart,
-                onOpenLogInModal
+                openLogIn
               )}
               onTouchMove={handleConditionalFunction(handleTouchMove, () => {})}
             >

@@ -222,7 +222,6 @@ export function GameboardContainer({
     <div style={styles.gameContainer}>
       {selector.isSignedIn() ? (
         <div>
-          <div>Logged in with {nfts.length} NFTs!</div>
           <Button onClick={logOut}>Log out</Button>
         </div>
       ) : (
@@ -280,7 +279,7 @@ export function GameboardContainer({
         </div>
         <Gameboard
           styles={styles}
-          onOpenLogInModal={onOpen}
+          openLogIn={modal.show}
           isUserLoggedIn={selector.isSignedIn()}
         />
       </div>
@@ -299,10 +298,6 @@ export function GameboardContainer({
           <ListItem>Find the Hidden Door🚪 to Win!</ListItem>
         </OrderedList>
       </div>
-
-      <ModalContainer title="Remember" isOpen={isOpen} onClose={onClose}>
-        Log in to play.
-      </ModalContainer>
     </div>
   );
 }
