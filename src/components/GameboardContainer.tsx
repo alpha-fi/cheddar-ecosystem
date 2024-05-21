@@ -1,5 +1,11 @@
 import { Gameboard } from './Gameboard';
-import { Button, ListItem, OrderedList, background } from '@chakra-ui/react';
+import {
+  Button,
+  ListItem,
+  OrderedList,
+  background,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { MouseEventHandler, useContext, useEffect, useState } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
@@ -7,6 +13,7 @@ import { RenderBuyNFTSection } from './BuyNFTSection';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
+import { ModalContainer } from './FeedbackModal';
 
 interface Props {
   remainingMinutes: number;
@@ -37,6 +44,8 @@ export function GameboardContainer({
     restartGame,
   } = useContext(GameContext);
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const [contract, setContract] = useState<NFTCheddarContract | undefined>();
   const [nfts, setNFTs] = useState<NFT[]>([]);
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
@@ -44,19 +53,15 @@ export function GameboardContainer({
   const { modal, selector, accountId } = useWalletSelector();
 
   useEffect(() => {
-    console.log(1);
     if (!selector.isSignedIn()) {
-      console.log(2);
       setNFTs([]);
       return;
     }
-    console.log(3);
     selector.wallet().then((wallet) => {
       const contract = new NFTCheddarContract(wallet);
       setContract(contract);
 
       contract.getNFTs('silkking.testnet').then((nfts) => {
-        console.log(nfts);
         setNFTs(nfts);
       });
     });
@@ -212,13 +217,15 @@ export function GameboardContainer({
     },
   };
 
+  function logOut() {
+    selector.wallet().then((wallet) => wallet.signOut());
+  }
+
   return (
     <div style={styles.gameContainer}>
       {selector.isSignedIn() ? (
-        <div
-          onClick={() => selector.wallet().then((wallet) => wallet.signOut())}
-        >
-          Logged in with {nfts.length} NFTs!
+        <div>
+          <Button onClick={logOut}>Log out</Button>
         </div>
       ) : (
         <Button onClick={modal.show}>Login</Button>
@@ -273,7 +280,11 @@ export function GameboardContainer({
             )}
           </div>
         </div>
-        <Gameboard styles={styles} />
+        <Gameboard
+          styles={styles}
+          openLogIn={modal.show}
+          isUserLoggedIn={selector.isSignedIn()}
+        />
       </div>
 
       <div

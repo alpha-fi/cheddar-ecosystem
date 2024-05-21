@@ -4,9 +4,11 @@ import { GameContext } from '@/contexts/GameContextProvider';
 
 interface Props {
   styles: Record<string, any>;
+  isUserLoggedIn: boolean;
+  openLogIn: () => void;
 }
 
-export function Gameboard({ styles }: Props) {
+export function Gameboard({ styles, isUserLoggedIn, openLogIn }: Props) {
   const {
     mazeData,
     playerPosition,
@@ -33,6 +35,15 @@ export function Gameboard({ styles }: Props) {
   setLastCellX(playerPosition!.x);
   setLastCellY(playerPosition!.y);
 
+  const handleConditionalFunction =
+    (onTrue: (event: any) => void, onFalse: () => void) => (event: any) => {
+      if (isUserLoggedIn) {
+        onTrue(event);
+      } else {
+        onFalse();
+      }
+    };
+
   return mazeData.map((row: MazeTileData[], rowIndex: number) => {
     return (
       <div key={rowIndex} style={styles.mazeRow}>
@@ -44,13 +55,69 @@ export function Gameboard({ styles }: Props) {
             : 0;
           const applyBlur = blurRadius > 0; // Determine if blur should be applied
 
-          // Define cell content based on cell type
-          let cellContent = '';
-          if (cell.hasCheese) cellContent = '🧀';
-          else if (cell.hasEnemy) cellContent = '👾';
-          else if (cell.hasExit) cellContent = '🚪';
-          else if (cell.hasCartel) cellContent = '🤮';
-          else if (cell.enemyWon) cellContent = '💢';
+        // Define cell content based on cell type
+        let cellContent = '';
+
+        //TODO choose best logos options
+
+        //====================================================== Start cheese logo options ======================================================
+        if (cell.hasCheese) cellContent = '🧀';
+        //====================================================== end cheese logo options ======================================================
+
+        //====================================================== Start bag logo options ======================================================
+        // else if(cell.hasBag) cellContent = '🤑';
+        // else if(cell.hasBag) cellContent = '👑';
+        // else if(cell.hasBag) cellContent = '💎';
+        else if(cell.hasBag) cellContent = '💰';
+        //====================================================== End bag logo options ======================================================
+
+
+        //====================================================== Start enemy logo options ======================================================
+        // else if (cell.hasEnemy) cellContent = '👾';
+        // else if (cell.hasEnemy) cellContent = '👹';
+        // else if (cell.hasEnemy) cellContent = '🤕';
+        // else if (cell.hasEnemy) cellContent = '🤺';
+        // else if (cell.hasEnemy) cellContent = '🦹‍♂️';
+        // else if (cell.hasEnemy) cellContent = '🧌';
+        // else if (cell.hasEnemy) cellContent = '🧙‍♂️';
+        // else if (cell.hasEnemy) cellContent = '🤖';
+        // else if (cell.hasEnemy) cellContent = '👽';
+        // else if (cell.hasEnemy) cellContent = '👺';
+        // else if (cell.hasEnemy) cellContent = '😈';
+        // else if (cell.hasEnemy) cellContent = '🐉';
+        else if (cell.hasEnemy) cellContent = '⚔️';
+        //====================================================== End enemy logo options ======================================================
+
+
+        //====================================================== Start exit logo options ======================================================
+        else if (cell.hasExit) cellContent = '🚪';
+        //====================================================== End exit logo options ======================================================
+        
+        
+        //====================================================== Start cartel logo options ======================================================
+        // else if (cell.hasCartel) cellContent = '👾';
+        // else if (cell.hasCartel) cellContent = '🤮';
+        // else if (cell.hasCartel) cellContent = '🤕';
+        // else if (cell.hasCartel) cellContent = '💣';
+        // else if (cell.hasCartel) cellContent = '💥';
+        // else if (cell.hasCartel) cellContent = '🤺';
+        // else if (cell.hasCartel) cellContent = '🧌';
+        // else if (cell.hasCartel) cellContent = '🧙‍♂️';
+        // else if (cell.hasCartel) cellContent = '🤖';
+        // else if (cell.hasCartel) cellContent = '👽';
+        // else if (cell.hasCartel) cellContent = '👺';
+        // else if (cell.hasCartel) cellContent = '🦹‍♂️';
+        // else if (cell.hasCartel) cellContent = '🐉';
+        else if (cell.hasCartel) cellContent = '😈';
+        //====================================================== End cartel logo options ======================================================
+        
+        
+        //====================================================== Start enemy won logo options ======================================================
+        // else if (cell.enemyWon) cellContent = '💢';
+        // else if (cell.enemyWon) cellContent = '😵';
+        // else if (cell.enemyWon) cellContent = '☠️';
+        else if (cell.enemyWon) cellContent = '💀';
+        //====================================================== End enemy won logo options ======================================================
 
           return (
             <div
@@ -66,8 +133,12 @@ export function Gameboard({ styles }: Props) {
                 filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
                 position: 'relative', // Ensure relative positioning for absolute positioning of icons
               }}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
+              onClick={handleConditionalFunction(() => {}, openLogIn)}
+              onTouchStart={handleConditionalFunction(
+                handleTouchStart,
+                openLogIn
+              )}
+              onTouchMove={handleConditionalFunction(handleTouchMove, () => {})}
             >
               {/* Dynamic content based on cell */}
               {cellContent && (

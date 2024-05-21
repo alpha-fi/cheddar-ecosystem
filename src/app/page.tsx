@@ -106,7 +106,7 @@ export default function Home() {
 
   return (
     <div>
-      {doesUserHaveEnoughBalance() ? (
+      {
         initialized() && ( // Replace `condition` with your actual condition
           <GameboardContainer
             remainingMinutes={Math.floor(remainingTime / 60)}
@@ -117,12 +117,8 @@ export default function Home() {
             cheddarTokenImg={cheddarTokenImg}
           />
         )
-      ) : (
-        <p>
-          You don&apos;t have enough cheddar to play (Min of{' '}
-          {minCheddarRequired} is required)
-        </p>
-      )}
+      }
+      
     </div>
   );
 }
