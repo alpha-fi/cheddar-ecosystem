@@ -5,6 +5,7 @@ import { GameContext } from '../contexts/GameContextProvider';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { CheddarToken } from '@/contracts/CheddarToken';
 import { ntoy } from '@/contracts/contractUtils';
+import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
 
 export default function Home() {
   const {
@@ -27,6 +28,10 @@ export default function Home() {
   const [userCheddarBalance, setUserCheddarBalance] = useState<
     bigint | undefined | null
   >();
+  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
+    useGetCheddarBalance();
+  const { data: cheddarMetadata, isLoading: isLoadingCheddarMetadata } =
+    useGetCheddarMetadata();
 
   const [cheddarTokenImg, setCheddarTokenImg] = useState<undefined | string>();
 
@@ -47,7 +52,7 @@ export default function Home() {
     }
 
     getCheddarBalance();
-  }, [accountId]);
+  }, [accountId, selector]);
 
   const minCheddarRequired = ntoy(555);
 
