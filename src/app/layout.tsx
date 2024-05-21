@@ -6,6 +6,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletSelectorContextProvider } from '@/contexts/WalletSelectorContext';
 import { GameContextProvider } from '../contexts/GameContextProvider';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
           <ChakraProvider>
             <QueryClientProvider client={queryClient}>
               <GameContextProvider>{children}</GameContextProvider>
+              <ReactQueryDevtools initialIsOpen={false} />
             </QueryClientProvider>
           </ChakraProvider>
         </WalletSelectorContextProvider>
