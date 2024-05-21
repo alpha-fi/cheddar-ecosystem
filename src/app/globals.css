@@ -1,5 +1,6 @@
 /* Start COLOR SETS */
 /* Currently there are 3 color sets */
+/* If you add more color sets modify the const colorSetsQuantity in GameContextProvider.tsx */
 .backgroundColorSet1 {
   background-color: #333333;
 }
