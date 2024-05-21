@@ -132,8 +132,9 @@ export function GameboardContainer({
                   Buy
                 </Button>
                 {showBuyNFTPanel && (
-                  <RenderBuyNFTSection />
-
+                  <div className={styles.popup}>
+                    <RenderBuyNFTSection />
+                  </div>
                 )}
               </span>
             )}
