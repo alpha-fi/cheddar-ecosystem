@@ -14,7 +14,7 @@ import { RenderNearIcon } from './RenderNearIcon';
 import { error } from 'console';
 import { buyNFT } from '@/contracts/cheddarCalls';
 
-import styles from '../styles/BuyNFTSection.module.css'
+import styles from '../styles/BuyNFTSection.module.css';
 
 //The first option is the default one
 const payingOptions = [

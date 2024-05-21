@@ -163,7 +163,6 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to select a random color set, background image, and rarity
   const selectRandomColorSet = () => {
-
     //Check the global.css file.
     const colorSetsQuantity = 3;
 
@@ -730,7 +729,7 @@ export const GameContextProvider = ({ children }: props) => {
         cheeseCooldown,
         setCheeseCooldown,
         bagCooldown,
-        setBagCooldown,        
+        setBagCooldown,
         enemyCooldown,
         setEnemyCooldown,
         moves,

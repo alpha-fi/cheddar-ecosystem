@@ -1,8 +1,6 @@
 import { Gameboard } from './Gameboard';
 import styles from '../styles/GameboardContainer.module.css';
-import {
-  Button
-} from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { MouseEventHandler, useContext, useEffect, useState } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
@@ -37,7 +35,6 @@ export function GameboardContainer({
     handleTouchMove,
     restartGame,
   } = useContext(GameContext);
-
 
   const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
   const [showRules, setShowRules] = useState(false);
