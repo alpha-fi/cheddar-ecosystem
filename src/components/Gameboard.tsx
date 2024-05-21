@@ -4,9 +4,11 @@ import { GameContext } from '@/contexts/GameContextProvider';
 
 interface Props {
   styles: Record<string, any>;
+  isUserLoggedIn: boolean;
+  openLogIn: () => void;
 }
 
-export function Gameboard({ styles }: Props) {
+export function Gameboard({ styles, isUserLoggedIn, openLogIn }: Props) {
   const {
     mazeData,
     playerPosition,
@@ -32,6 +34,15 @@ export function Gameboard({ styles }: Props) {
   // Update last player position
   setLastCellX(playerPosition!.x);
   setLastCellY(playerPosition!.y);
+
+  const handleConditionalFunction =
+    (onTrue: (event: any) => void, onFalse: () => void) => (event: any) => {
+      if (isUserLoggedIn) {
+        onTrue(event);
+      } else {
+        onFalse();
+      }
+    };
 
   return mazeData.map((row: MazeTileData[], rowIndex: number) => {
     return (
@@ -122,8 +133,12 @@ export function Gameboard({ styles }: Props) {
                 filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
                 position: 'relative', // Ensure relative positioning for absolute positioning of icons
               }}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
+              onClick={handleConditionalFunction(() => {}, openLogIn)}
+              onTouchStart={handleConditionalFunction(
+                handleTouchStart,
+                openLogIn
+              )}
+              onTouchMove={handleConditionalFunction(handleTouchMove, () => {})}
             >
               {/* Dynamic content based on cell */}
               {cellContent && (
