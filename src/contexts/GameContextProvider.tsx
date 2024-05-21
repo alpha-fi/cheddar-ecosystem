@@ -18,6 +18,7 @@ export interface MazeTileData {
   enemyWon: boolean;
 
   hasCheese: boolean;
+  hasBag: boolean;
   hasEnemy: boolean;
   hasExit: boolean;
   hasCartel: boolean;
@@ -94,6 +95,9 @@ interface GameContextProps {
   cheeseCooldown: boolean;
   setCheeseCooldown: React.Dispatch<React.SetStateAction<boolean>>;
 
+  bagCooldown: boolean;
+  setBagCooldown: React.Dispatch<React.SetStateAction<boolean>>;
+
   enemyCooldown: boolean;
   setEnemyCooldown: React.Dispatch<React.SetStateAction<boolean>>;
 
@@ -160,6 +164,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [remainingSeconds, setRemainingSeconds] = useState(0);
 
   const [cheeseCooldown, setCheeseCooldown] = useState(false);
+  const [bagCooldown, setBagCooldown] = useState(false);
   const [enemyCooldown, setEnemyCooldown] = useState(false);
   const [moves, setMoves] = useState(0);
 
@@ -241,6 +246,7 @@ export const GameContextProvider = ({ children }: props) => {
     setTimeLimitInSeconds(120);
     setRemainingTime(120);
     setCheeseCooldown(false);
+    setBagCooldown(false);
     // setEnemyCooldown(false);
     setMoves(0);
     setGameOverFlag(false);
@@ -269,6 +275,7 @@ export const GameContextProvider = ({ children }: props) => {
         isPath: false,
         isActive: false,
         hasCheese: false,
+        hasBag: false,
         hasEnemy: false,
         hasExit: false,
         enemyWon: false,
@@ -402,6 +409,7 @@ export const GameContextProvider = ({ children }: props) => {
   function doesCellHasArtifact(x: number, y: number) {
     return (
       mazeData[y][x].hasCheese ||
+      mazeData[y][x].hasBag ||
       mazeData[y][x].hasEnemy ||
       mazeData[y][x].hasCartel ||
       mazeData[y][x].hasExit
@@ -455,6 +463,24 @@ export const GameContextProvider = ({ children }: props) => {
     );
   }
 
+  function handleBagFound(
+    clonedMazeData: MazeTileData[][],
+    x: number,
+    y: number
+  ) {
+    // 5.5% chance of winning cheese
+    clonedMazeData[y][x].hasBag = true;
+
+    setScore(score + 1);
+    setBagCooldown(true);
+    setTimeout(
+      () => {
+        setBagCooldown(false);
+      },
+      Math.floor(Math.random() * 10000) + 1000
+    );
+  }
+
   function handleCartelFound(
     clonedMazeData: MazeTileData[][],
     x: number,
@@ -497,6 +523,8 @@ export const GameContextProvider = ({ children }: props) => {
       handleEnemyFound(clonedMazeData, newX, newY);
     } else if (!cheeseCooldown && Math.random() < 0.055) {
       handleCheeseFound(clonedMazeData, newX, newY);
+    } else if (!bagCooldown && Math.random() < 0.055) {
+      handleBagFound(clonedMazeData, newX, newY);
     } else if (Math.random() < 0.002) {
       handleCartelFound(clonedMazeData, newX, newY);
     } else if (Math.random() < 0.33 && coveredCells >= 0.75 * totalCells) {
@@ -753,6 +781,8 @@ export const GameContextProvider = ({ children }: props) => {
         setRemainingSeconds,
         cheeseCooldown,
         setCheeseCooldown,
+        bagCooldown,
+        setBagCooldown,        
         enemyCooldown,
         setEnemyCooldown,
         moves,
