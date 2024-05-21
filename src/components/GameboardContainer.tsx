@@ -20,6 +20,7 @@ interface Props {
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
   handleBuyClick: MouseEventHandler<HTMLButtonElement>;
   cellSize: number;
+  cheddarTokenImg: undefined | string;
 }
 
 export function GameboardContainer({
@@ -46,6 +47,7 @@ export function GameboardContainer({
 
   const [contract, setContract] = useState<NFTCheddarContract | undefined>();
   const [nfts, setNFTs] = useState<NFT[]>([]);
+
 
   const { modal, selector } = useWalletSelector();
 
