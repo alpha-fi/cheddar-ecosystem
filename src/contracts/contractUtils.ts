@@ -47,7 +47,6 @@ export function encodeUTF8(arr: Uint8Array): string {
   for (let i = 0; i < arr.length; i++) s.push(String.fromCharCode(arr[i]));
   return decodeURIComponent(escape(s.join('')));
 }
-
 export function yton(
   yoctos: string,
   token_decimals: number = 24,

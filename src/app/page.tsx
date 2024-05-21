@@ -1,7 +1,6 @@
 'use client';
 import { useContext, useEffect, useState } from 'react';
 import { GameboardContainer } from '../components/GameboardContainer';
-
 import { GameContext } from '../contexts/GameContextProvider';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { CheddarToken } from '@/contracts/CheddarToken';

@@ -5,11 +5,11 @@ export interface Config {
     walletUrl: string;
     helperUrl: string;
     explorerUrl: string;
-  }
+  };
   contracts: {
     cheddarNft: string;
-    cheddarToken: string
-  }
+    cheddarToken: string;
+  };
 }
 
 export const getConfig = (): Config => {
@@ -25,9 +25,9 @@ export const getConfig = (): Config => {
           explorerUrl: 'https://explorer.mainnet.near.org',
         },
         contracts: {
-          cheddarNft: "nft.cheddar.near",
-          cheddarToken: ""
-        }
+          cheddarNft: 'nft.cheddar.near',
+          cheddarToken: '',
+        },
       };
     case 'testnet':
     case undefined:
@@ -40,9 +40,9 @@ export const getConfig = (): Config => {
           explorerUrl: 'https://explorer.testnet.near.org',
         },
         contracts: {
-          cheddarNft: "nft.cheddar.testnet",
-          cheddarToken: "token-v3.cheddar.testnet"
-        }
+          cheddarNft: 'nft.cheddar.testnet',
+          cheddarToken: 'token-v3.cheddar.testnet',
+        },
       };
     case 'local':
       return {
@@ -54,9 +54,9 @@ export const getConfig = (): Config => {
           explorerUrl: 'https://explorer.testnet.near.org',
         },
         contracts: {
-          cheddarNft: "",
-          cheddarToken: ""
-        }
+          cheddarNft: '',
+          cheddarToken: '',
+        },
       };
     default:
       throw Error(
