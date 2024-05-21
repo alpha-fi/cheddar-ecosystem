@@ -158,36 +158,6 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to select a random color set, background image, and rarity
   const selectRandomColorSet = () => {
-    // const colorSets = [
-    //   {
-    //     backgroundColor: '#333333',
-    //     pathColor: '#9d67ef',
-    //     nonPathColor: 'white',
-    //     textColor: '#000000',
-    //     rarity: 'common',
-    //     backgroundImage:
-    //       "url('https://cheddar.farm/newFarmBackground.c6905a5e.png')",
-    //   },
-    //   {
-    //     backgroundColor: '#333333',
-    //     pathColor: 'gold',
-    //     nonPathColor: 'white',
-    //     textColor: '#333333',
-    //     rarity: 'rare',
-    //     backgroundImage:
-    //       "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
-    //   },
-    //   {
-    //     backgroundColor: '#20d3fc',
-    //     pathColor: '#ff00ff',
-    //     nonPathColor: '#6600ff',
-    //     textColor: '#333333',
-    //     rarity: 'rare',
-    //     backgroundImage:
-    //       "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
-    //   },
-    //   // Add more color sets as needed
-    // ];
 
     //Check the global.css file.
     const colorSetsQuantity = 3;
@@ -569,6 +539,8 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   function calculateBlurRadius(cellX: number, cellY: number) {
+    return 0;
+    // Check if it can be fixed. It looks bad even with maxBlurRadius=1
     // Check if lastCellX and lastCellY are null or undefined
     if (lastCellX === -1 || lastCellY === -1) {
       // Initialize lastCellX and lastCellY with initial player position
@@ -582,7 +554,7 @@ export const GameContextProvider = ({ children }: props) => {
     );
 
     // Define max blur radius and adjust based on distance
-    const maxBlurRadius = 10; // Adjust as needed
+    const maxBlurRadius = 0; // Adjust as needed
     return Math.min(maxBlurRadius, distance);
   }
 
@@ -665,7 +637,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     const initialSquareId = getSquareIdFromTouch(initialTouch);
 
-    !gameOverFlag && moveIfValid(initialSquareId);
+    if (!gameOverFlag) moveIfValid(initialSquareId!);
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
@@ -686,6 +658,11 @@ export const GameContextProvider = ({ children }: props) => {
 
   const getSquareIdFromTouch = (touch: Touch) => {
     const square = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    // if (square?.id === 'player-icon') {
+    //   return square.parentElement?.id;
+    // }
+
     return square?.id || '';
   };
 

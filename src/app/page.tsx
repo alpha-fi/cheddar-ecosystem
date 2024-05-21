@@ -1,7 +1,7 @@
 'use client';
+
 import { useContext } from 'react';
 import { GameboardContainer } from '../components/GameboardContainer';
-
 import { GameContext } from '../contexts/GameContextProvider';
 
 export default function Home() {

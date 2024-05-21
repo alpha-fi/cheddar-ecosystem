@@ -1,10 +1,8 @@
 import { Gameboard } from './Gameboard';
 import { Button } from '@chakra-ui/react';
 import { MouseEventHandler, useContext, useState } from 'react';
-
 import { GameContext } from '@/contexts/GameContextProvider';
-import { BuyNFTCard } from './BuyNFTCard';
-
+import { RenderBuyNFTSection } from './BuyNFTSection';
 import styles from '../styles/GameboardContainer.module.css';
 
 interface Props {
@@ -134,9 +132,8 @@ export function GameboardContainer({
                   Buy
                 </Button>
                 {showBuyNFTPanel && (
-                  <div className={styles.popup}>
-                    {NFTsDataTemplate.map(BuyNFTCard)}
-                  </div>
+                  <RenderBuyNFTSection />
+
                 )}
               </span>
             )}
