@@ -1,9 +1,11 @@
 import { Gameboard } from './Gameboard';
-import { Button, ListItem, OrderedList } from '@chakra-ui/react';
-import { MouseEventHandler, useContext } from 'react';
+import { Button, ListItem, OrderedList, background } from '@chakra-ui/react';
+import { MouseEventHandler, useContext, useEffect, useState } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
-import { BuyNFTCard } from './BuyNFTCard';
+import { RenderBuyNFTSection } from './BuyNFTSection';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 
 interface Props {
   remainingMinutes: number;
@@ -33,37 +35,29 @@ export function GameboardContainer({
     restartGame,
   } = useContext(GameContext);
 
-  //TODO get actual data and modify it as needed
-  const NFTsDataTemplate = [
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 0.9,
-      name: 'CHEDDY 1',
-      id: 9999999,
-    },
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 0.8,
-      name: 'CHEDDY 2',
-      id: 9999998,
-    },
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 3,
-      name: 'CHEDDY 3',
-      id: 9999997,
-    },
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 0.9,
-      name: 'CHEDDY 4',
-      id: 9999996,
-    },
-  ];
+  const [contract, setContract] = useState<NFTCheddarContract | undefined>();
+  const [nfts, setNFTs] = useState<NFT[]>([]);
+
+  const { modal, selector } = useWalletSelector();
+
+  useEffect(() => {
+    console.log(1);
+    if (!selector.isSignedIn()) {
+      console.log(2);
+      setNFTs([]);
+      return;
+    }
+    console.log(3);
+    selector.wallet().then((wallet) => {
+      const contract = new NFTCheddarContract(wallet);
+      setContract(contract);
+
+      contract.getNFTs('silkking.testnet').then((nfts) => {
+        console.log(nfts);
+        setNFTs(nfts);
+      });
+    });
+  }, [selector]);
 
   const styles: Record<string, any> = {
     gameContainer: {
@@ -78,6 +72,7 @@ export function GameboardContainer({
       backgroundImage: selectedColorSet.backgroundImage,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
+      touchAction: 'none',
     },
     mazeContainer: {
       marginBottom: '10px',
@@ -107,7 +102,8 @@ export function GameboardContainer({
       justifyContent: 'center',
       alignItems: 'center',
       fontSize: '24px',
-      backgroundColor: 'transparent',
+      backgroundColor: selectedColorSet.playerBackgroundColor,
+      pointerEvents: 'none',
     },
     playerMoveUp: {
       transform: 'rotate(-90deg)',
@@ -179,7 +175,7 @@ export function GameboardContainer({
       borderRadius: '6px',
       padding: '5px',
       position: 'absolute',
-      zIndex: '1',
+      zIndex: 1,
       bottom: '125%',
       left: '50%',
       marginLeft: '-60px',
@@ -203,7 +199,7 @@ export function GameboardContainer({
       backgroundColor: '#f9f9f9',
       border: '1px solid #ccc',
       padding: '10px',
-      zIndex: '3',
+      zIndex: 3,
       borderRadius: '5px',
       display: 'none',
       right: '5px',
@@ -215,6 +211,15 @@ export function GameboardContainer({
 
   return (
     <div style={styles.gameContainer}>
+      {selector.isSignedIn() ? (
+        <div
+          onClick={() => selector.wallet().then((wallet) => wallet.signOut())}
+        >
+          Logged in with {nfts.length} NFTs!
+        </div>
+      ) : (
+        <Button onClick={modal.show}>Login</Button>
+      )}
       <h1>Cheddar Maze</h1>
       <div style={styles.gameInfo}>
         <div style={styles.score}>Score: {score}</div>
@@ -259,7 +264,7 @@ export function GameboardContainer({
                   buy
                 </Button>
                 <div id="buyPopup" style={styles.popup}>
-                  {NFTsDataTemplate.map(BuyNFTCard)}
+                  <RenderBuyNFTSection />
                 </div>
               </span>
             )}

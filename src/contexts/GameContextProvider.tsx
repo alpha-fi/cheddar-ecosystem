@@ -55,6 +55,7 @@ interface GameContextProps {
     textColor: string;
     rarity: string;
     backgroundImage: string;
+    playerBackgroundColor: string;
   };
   setSelectedColorSet: React.Dispatch<
     React.SetStateAction<{
@@ -64,6 +65,7 @@ interface GameContextProps {
       textColor: string;
       rarity: string;
       backgroundImage: string;
+      playerBackgroundColor: string;
     }>
   >;
 
@@ -149,6 +151,7 @@ export const GameContextProvider = ({ children }: props) => {
     textColor: '',
     rarity: '',
     backgroundImage: '',
+    playerBackgroundColor: '',
   });
   const [lastCellX, setLastCellX] = useState(-1);
   const [lastCellY, setLastCellY] = useState(-1);
@@ -195,15 +198,17 @@ export const GameContextProvider = ({ children }: props) => {
         rarity: 'common',
         backgroundImage:
           "url('https://cheddar.farm/newFarmBackground.c6905a5e.png')",
+        playerBackgroundColor: '#9d67ef88',
       },
       {
         backgroundColor: '#333333',
-        pathColor: 'gold',
+        pathColor: '#FFD700',
         nonPathColor: 'white',
         textColor: '#333333',
         rarity: 'rare',
         backgroundImage:
           "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
+        playerBackgroundColor: '#FFD70088',
       },
       {
         backgroundColor: '#20d3fc',
@@ -213,6 +218,7 @@ export const GameContextProvider = ({ children }: props) => {
         rarity: 'rare',
         backgroundImage:
           "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
+        playerBackgroundColor: '#ff00ff88',
       },
       // Add more color sets as needed
     ];
@@ -613,6 +619,8 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   function calculateBlurRadius(cellX: number, cellY: number) {
+    return 0;
+    // Check if it can be fixed. It looks bad even with maxBlurRadius=1
     // Check if lastCellX and lastCellY are null or undefined
     if (lastCellX === -1 || lastCellY === -1) {
       // Initialize lastCellX and lastCellY with initial player position
@@ -626,7 +634,7 @@ export const GameContextProvider = ({ children }: props) => {
     );
 
     // Define max blur radius and adjust based on distance
-    const maxBlurRadius = 10; // Adjust as needed
+    const maxBlurRadius = 0; // Adjust as needed
     return Math.min(maxBlurRadius, distance);
   }
 
@@ -709,7 +717,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     const initialSquareId = getSquareIdFromTouch(initialTouch);
 
-    !gameOverFlag && moveIfValid(initialSquareId);
+    if (!gameOverFlag) moveIfValid(initialSquareId!);
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
@@ -730,6 +738,11 @@ export const GameContextProvider = ({ children }: props) => {
 
   const getSquareIdFromTouch = (touch: Touch) => {
     const square = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    // if (square?.id === 'player-icon') {
+    //   return square.parentElement?.id;
+    // }
+
     return square?.id || '';
   };
 
