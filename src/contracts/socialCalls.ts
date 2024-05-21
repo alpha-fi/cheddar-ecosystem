@@ -31,6 +31,7 @@ export const setNearSocial = async (
   wallet: Wallet,
   data: Record<string, any>
 ): Promise<void | FinalExecutionOutcome> => {
+  const bytes = new TextEncoder().encode(JSON.stringify(data)).length;
   return change(
     wallet,
     nearSocial,
@@ -38,6 +39,6 @@ export const setNearSocial = async (
     {
       data: JSON.stringify(data),
     },
-    '1' + '0'.repeat(23)
+    bytes.toString() + '0'.repeat(19)
   );
 };
