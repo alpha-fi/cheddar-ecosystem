@@ -14,24 +14,19 @@ import { RenderNearIcon } from './RenderNearIcon';
 import { error } from 'console';
 import { buyNFT } from '@/contracts/cheddarCalls';
 
-const tokensStyles = {
-  marginLeft: '1rem',
-  width: '2rem',
-  minWidth: 'max-content',
-  height: '2rem',
-};
+import styles from '../styles/BuyNFTSection.module.css'
 
 //The first option is the default one
 const payingOptions = [
   {
     name: 'Cheddar',
     price: 0.5,
-    icon: <RenderCheddarIcon styles={tokensStyles} />,
+    icon: <RenderCheddarIcon className={styles.tokenIcon} />,
   },
   {
     name: 'Near',
     price: 0.5,
-    icon: <RenderNearIcon styles={tokensStyles} />,
+    icon: <RenderNearIcon className={styles.tokenIcon} />,
   },
 ];
 
@@ -57,7 +52,7 @@ export const RenderBuyNFTSection = () => {
 
   return (
     <>
-      <form style={{ display: 'flex', flexDirection: 'column' }}>
+      <form className={styles.form}>
         <FormControl isRequired>
           <FormLabel>Chose token to pay with:</FormLabel>
           <RadioButtonBroup
@@ -67,7 +62,7 @@ export const RenderBuyNFTSection = () => {
           />
         </FormControl>
 
-        <FormLabel marginTop={'1rem'}>
+        <FormLabel>
           {payingOptions.map((option) => {
             if (option.name === tokenToPayWith) {
               return (

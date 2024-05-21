@@ -16,6 +16,7 @@ import {
 } from '@chakra-ui/react';
 
 import { InfoIcon } from '@chakra-ui/icons';
+import styles from '../styles/FeedbackModal.module.css';
 
 export type ModalActionButtonProps = {
   text: string;
@@ -65,10 +66,8 @@ export const ModalContainer = ({
                   leftIcon={
                     actionButtonProps.iconSrc ? (
                       <Img
-                        w="2em"
-                        h="2em"
+                        className={styles.customButtonImg}
                         src={actionButtonProps.iconSrc}
-                        ml="-5px"
                       />
                     ) : undefined
                   }
@@ -92,8 +91,7 @@ export const ModalContainer = ({
                   <Button
                     onClick={onClose}
                     variant={'outlinedStake'}
-                    p={'15px 24px'}
-                    w="165px"
+                    className={styles.cancelButton}
                   >
                     {'CANCEL'}
                   </Button>
@@ -103,8 +101,7 @@ export const ModalContainer = ({
               <Button
                 variant={'outlinedStake'}
                 onClick={onClose}
-                height="48px"
-                w="165px"
+                className={styles.closeButton}
               >
                 {'CLOSE'}
               </Button>
