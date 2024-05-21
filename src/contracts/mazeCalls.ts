@@ -23,7 +23,7 @@ export interface MazeMetadata {
 }
 
 export const getMazeData = async (accountId: string) => {
-  const keys = [`${accountId}/index/${ecosystem}/${mazeVersion}`];
+  const keys = [`${accountId}/index/${ecosystem}/${mazeVersion}/**`];
   return getNearSocial(keys);
 };
 
