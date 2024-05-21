@@ -1,9 +1,14 @@
 import { Gameboard } from './Gameboard';
-import { Button } from '@chakra-ui/react';
-import { MouseEventHandler, useContext, useState } from 'react';
+import styles from '../styles/GameboardContainer.module.css';
+import {
+  Button
+} from '@chakra-ui/react';
+import { MouseEventHandler, useContext, useEffect, useState } from 'react';
+
 import { GameContext } from '@/contexts/GameContextProvider';
 import { RenderBuyNFTSection } from './BuyNFTSection';
-import styles from '../styles/GameboardContainer.module.css';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 
 interface Props {
   remainingMinutes: number;
@@ -31,6 +36,7 @@ export function GameboardContainer({
     restartGame,
   } = useContext(GameContext);
 
+
   const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
   const [showRules, setShowRules] = useState(false);
 
@@ -38,44 +44,37 @@ export function GameboardContainer({
     setShowRules(!showRules);
   }
 
-  //TODO get actual data and modify it as needed
-  const NFTsDataTemplate = [
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 0.9,
-      name: 'CHEDDY 1',
-      id: 9999999,
-    },
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 0.8,
-      name: 'CHEDDY 2',
-      id: 9999998,
-    },
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 3,
-      name: 'CHEDDY 3',
-      id: 9999997,
-    },
-    {
-      imgSrc:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-      price: 0.9,
-      name: 'CHEDDY 4',
-      id: 9999996,
-    },
-  ];
-
   function handleBuyClick() {
     setShowBuyNFTPanel(!showBuyNFTPanel);
   }
 
+  const [contract, setContract] = useState<NFTCheddarContract | undefined>();
+  const [nfts, setNFTs] = useState<NFT[]>([]);
+
+
+  const { modal, selector } = useWalletSelector();
+
+  useEffect(() => {
+    if (!selector.isSignedIn()) {
+      setNFTs([]);
+      return;
+    }
+    selector.wallet().then((wallet) => {
+      const contract = new NFTCheddarContract(wallet);
+      setContract(contract);
+
+      contract.getNFTs('silkking.testnet').then((nfts) => {
+        setNFTs(nfts);
+      });
+    });
+  }, [selector]);
+
   function getGameContainerClasses() {
     return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
+  }
+
+  function logOut() {
+    selector.wallet().then((wallet) => wallet.signOut());
   }
 
   return (
@@ -85,6 +84,13 @@ export function GameboardContainer({
         maxWidth: `${mazeData[0].length * cellSize + 25}px`,
       }}
     >
+      {selector.isSignedIn() ? (
+        <div>
+          <Button onClick={logOut}>Log out</Button>
+        </div>
+      ) : (
+        <Button onClick={modal.show}>Login</Button>
+      )}
       <h1>Cheddar Maze</h1>
       <div className={styles.gameInfo}>
         <div className={styles.score}>Score: {score}</div>
@@ -140,7 +146,11 @@ export function GameboardContainer({
             )}
           </div>
         </div>
-        <Gameboard showRules={showRules} />
+        <Gameboard
+          showRules={showRules}
+          openLogIn={modal.show}
+          isUserLoggedIn={selector.isSignedIn()}
+        />
       </div>
     </div>
   );

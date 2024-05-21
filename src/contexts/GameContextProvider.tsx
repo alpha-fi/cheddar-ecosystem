@@ -203,7 +203,6 @@ export const GameContextProvider = ({ children }: props) => {
     setMazeData(newMazeData);
 
     const playerStartCell = getRandomPathCell(newMazeData);
-    console.log(playerStartCell.x + ' ' + playerStartCell.y);
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
     setLastCellX(-1);
     setLastCellY(-1);
@@ -368,7 +367,6 @@ export const GameContextProvider = ({ children }: props) => {
     // Add logic for the enemy defeating the player
     if (Math.random() < 0) {
       // 0% chance of the enemy winning
-      console.log('enemy won');
       clonedMazeData[y][x].enemyWon = true;
       clonedMazeData[y][x].isActive = false;
 

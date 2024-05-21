@@ -7,9 +7,15 @@ import styles from '../styles/Gameboard.module.css';
 
 interface Props {
   showRules: boolean;
+  isUserLoggedIn: boolean;
+  openLogIn: () => void;
 }
 
-export function Gameboard({ showRules }: Props) {
+export function Gameboard({
+  isUserLoggedIn,
+  openLogIn,
+  showRules,
+}: Props) {
   const {
     mazeData,
     playerPosition,
@@ -41,6 +47,14 @@ export function Gameboard({ showRules }: Props) {
       `playerMove${direction.charAt(0).toUpperCase() + direction.slice(1)}`
     ];
   }
+  const handleConditionalFunction =
+    (onTrue: (event: any) => void, onFalse: () => void) => (event: any) => {
+      if (isUserLoggedIn) {
+        onTrue(event);
+      } else {
+        onFalse();
+      }
+    };
 
   function getClassNamesForCell(cell: MazeTileData) {
     let backgroundColor;
@@ -51,7 +65,6 @@ export function Gameboard({ showRules }: Props) {
     }
     return `${styles.mazeCell} nonPathColorSet${selectedColorSet} ${backgroundColor}${selectedColorSet}`;
   }
-
   function getPlayerTileClasses(cell: MazeTileData) {
     let backgroundImage;
     if (cell.enemyWon || cell.hasCartel || cell.hasExit) {
@@ -59,7 +72,6 @@ export function Gameboard({ showRules }: Props) {
     } else {
       backgroundImage = 'playerBackgroundElementOnTop';
     }
-
     return `${styles.mazeCell} ${styles.playerCell} ${getPlayerImgDirection()} ${backgroundImage}`;
   }
 
@@ -100,8 +112,15 @@ export function Gameboard({ showRules }: Props) {
                 style={{
                   filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
                 }}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
+                onClick={handleConditionalFunction(() => {}, openLogIn)}
+                onTouchStart={handleConditionalFunction(
+                  handleTouchStart,
+                  openLogIn
+                )}
+                onTouchMove={handleConditionalFunction(
+                  handleTouchMove,
+                  () => {}
+                )}
               >
                 {/* Dynamic content based on cell */}
                 {cellContent && (

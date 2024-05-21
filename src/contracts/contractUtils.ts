@@ -5,7 +5,7 @@ let id = 0;
 export async function view(
   contractId: string,
   method: string,
-  args: Record<string, any>
+  args: Record<string, any> = {}
 ): Promise<any> {
   const argsBase64 = btoa(JSON.stringify(args));
   const params = {
@@ -46,4 +46,31 @@ export function encodeUTF8(arr: Uint8Array): string {
   const s: string[] = [];
   for (let i = 0; i < arr.length; i++) s.push(String.fromCharCode(arr[i]));
   return decodeURIComponent(escape(s.join('')));
+}
+export function yton(
+  yoctos: string,
+  token_decimals: number = 24,
+  decimals: number = 5
+) {
+  if (!yoctos) return 0;
+  if (yoctos.indexOf('.') !== -1)
+    throw new Error("a yocto string can't have a decimal point: " + yoctos);
+  let negative = false;
+  if (yoctos.startsWith('-')) {
+    negative = true;
+    yoctos = yoctos.slice(1);
+  }
+  let padded = yoctos.padStart(token_decimals + 1, '0'); //at least 0.xxx
+  const decimalPointPosition = -token_decimals + decimals;
+  let nearsText =
+    padded.slice(0, -token_decimals) +
+    '.' +
+    padded.slice(-token_decimals, decimalPointPosition); //add decimal point. Equivalent to near=yoctos/1e24 and truncate to {decimals} dec places
+  return Number(nearsText) * (negative ? -1 : 1);
+}
+
+export function ntoy(n: number, token_decimals: number = 24) {
+  let by1e6 = Math.round(n * 1e6).toString(); // near * 1e6 - round
+  let yoctosText = by1e6 + '0'.repeat(token_decimals - 6); //  mul by 1e18 => yoctos = near * 1e(6+18)
+  return BigInt(yoctosText);
 }
