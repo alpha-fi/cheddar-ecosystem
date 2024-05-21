@@ -5,7 +5,7 @@ let id = 0;
 export async function view(
   contractId: string,
   method: string,
-  args: Record<string, any> = {}
+  args: Record<string, any>
 ): Promise<any> {
   const argsBase64 = btoa(JSON.stringify(args));
   const params = {

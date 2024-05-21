@@ -1,7 +1,6 @@
 'use client';
 import { useContext, useEffect, useState } from 'react';
 import { GameboardContainer } from '../components/GameboardContainer';
-
 import { GameContext } from '../contexts/GameContextProvider';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { CheddarToken } from '@/contracts/CheddarToken';
@@ -53,7 +52,7 @@ export default function Home() {
     }
 
     getCheddarBalance();
-  }, [accountId]);
+  }, [accountId, selector]);
 
   const minCheddarRequired = ntoy(555);
 
@@ -120,8 +119,8 @@ export default function Home() {
         )
       ) : (
         <p>
-          You don't have enough cheddar to play (Min of {minCheddarRequired} is
-          required)
+          You don&apos;t have enough cheddar to play (Min of{' '}
+          {minCheddarRequired} is required)
         </p>
       )}
     </div>

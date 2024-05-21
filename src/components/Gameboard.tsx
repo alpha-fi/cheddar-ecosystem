@@ -58,10 +58,11 @@ export function Gameboard({ styles }: Props) {
               id={`cell-${rowIndex}-${colIndex}`}
               style={{
                 ...styles.mazeCell,
-                backgroundColor: matchTileWithPlayerUbication ? selectedColorSet.playerBackgroundColor
-                : cell.isPath
-                  ? selectedColorSet.pathColor
-                  : selectedColorSet.backgroundColor,
+                backgroundColor: matchTileWithPlayerUbication
+                  ? selectedColorSet.playerBackgroundColor
+                  : cell.isPath
+                    ? selectedColorSet.pathColor
+                    : selectedColorSet.backgroundColor,
                 filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
                 position: 'relative', // Ensure relative positioning for absolute positioning of icons
               }}
