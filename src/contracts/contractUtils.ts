@@ -1,11 +1,12 @@
 import { getConfig } from '@/configs/config';
+import { Wallet } from '@near-wallet-selector/core';
 
 let id = 0;
 
 export async function view(
   contractId: string,
   method: string,
-  args: Record<string, any>
+  args: Record<string, any> = {}
 ): Promise<any> {
   const argsBase64 = btoa(JSON.stringify(args));
   const params = {
@@ -40,6 +41,30 @@ async function callRpc(
   const json = await response.json();
   // handlePossibleError(json, rpcOptions)
   return JSON.parse(encodeUTF8(json.result.result));
+}
+
+export async function change(
+  wallet: Wallet,
+  contractId: string,
+  method: string,
+  args: Record<string, any> = {},
+  deposit = '',
+  gas = '300' + '0'.repeat(12)
+) {
+  return wallet.signAndSendTransaction({
+    receiverId: contractId,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName: method,
+          args,
+          deposit,
+          gas,
+        },
+      },
+    ],
+  });
 }
 
 export function encodeUTF8(arr: Uint8Array): string {

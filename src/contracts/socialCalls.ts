@@ -1,0 +1,59 @@
+import { getConfig } from '@/configs/config';
+import { change, view } from './contractUtils';
+import { FinalExecutionOutcome, Wallet } from '@near-wallet-selector/core';
+
+const { nearSocial } = getConfig().contracts;
+
+export interface KeysOptions {
+  return_type: 'True' | 'BlockHeight' | 'NodeId';
+  return_deleted: boolean;
+  values_only: boolean;
+}
+
+const socialViewMethods = {
+  get: 'get',
+};
+
+const socialChangeMethods = {
+  set: 'set',
+};
+
+export const getNearSocial = async (
+  keys: string[],
+  options?: KeysOptions
+): Promise<Record<string, any>> => {
+  return view(nearSocial, socialViewMethods.get, {
+    keys,
+    options,
+  });
+};
+
+export const setNearSocial = async (
+  wallet: Wallet,
+  data: Record<string, any>
+): Promise<void | FinalExecutionOutcome> => {
+  return change(wallet, nearSocial, socialChangeMethods.set, {
+    data,
+  });
+};
+
+// {
+//   [accountId]: {
+//     "index": {
+//       "(test_)cheddarEcosystem": {
+//         "key":"maze_v0.0.1",
+//         "value":{
+//           data: {
+//             cheddarEarned: number
+//             score: number
+//             path: number[]
+//           },
+//           metadata: {
+//             createdAt: Date
+//             seedId: number //se pasa desde el back y se graba en la socialDb
+//           }
+//         }
+//       }
+//     }
+//   }
+// }

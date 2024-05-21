@@ -9,6 +9,7 @@ export interface Config {
   contracts: {
     cheddarNft: string;
     cheddarToken: string;
+    nearSocial: string;
   };
 }
 
@@ -27,6 +28,7 @@ export const getConfig = (): Config => {
         contracts: {
           cheddarNft: 'nft.cheddar.near',
           cheddarToken: '',
+          nearSocial: 'social.near',
         },
       };
     case 'testnet':
@@ -42,6 +44,7 @@ export const getConfig = (): Config => {
         contracts: {
           cheddarNft: 'nft.cheddar.testnet',
           cheddarToken: 'token-v3.cheddar.testnet',
+          nearSocial: 'v1.social08.testnet',
         },
       };
     case 'local':
@@ -56,6 +59,7 @@ export const getConfig = (): Config => {
         contracts: {
           cheddarNft: '',
           cheddarToken: '',
+          nearSocial: '',
         },
       };
     default:
