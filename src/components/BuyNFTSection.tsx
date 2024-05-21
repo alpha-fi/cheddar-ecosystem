@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { RenderNearIcon } from './RenderNearIcon';
 import { error } from 'console';
+import { buyNFT } from '@/contracts/cheddarCalls';
 
 const tokensStyles = {
   marginLeft: '1rem',
@@ -46,8 +47,7 @@ export const RenderBuyNFTSection = () => {
   async function handlePurchase() {
     try {
       const wallet = await selector.wallet();
-      const nftContract = new NFTCheddarContract(wallet);
-      await nftContract.buyNFT(false);
+      await buyNFT(wallet, false);
       onOpen();
     } catch (err: any) {
       setErrorMsg(err);

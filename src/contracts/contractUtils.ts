@@ -1,4 +1,5 @@
 import { getConfig } from '@/configs/config';
+import { Wallet } from '@near-wallet-selector/core';
 
 let id = 0;
 
@@ -42,11 +43,36 @@ async function callRpc(
   return JSON.parse(encodeUTF8(json.result.result));
 }
 
+export async function change(
+  wallet: Wallet,
+  contractId: string,
+  method: string,
+  args: Record<string, any> = {},
+  deposit = '',
+  gas = '300' + '0'.repeat(12)
+) {
+  return wallet.signAndSendTransaction({
+    receiverId: contractId,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName: method,
+          args,
+          deposit,
+          gas,
+        },
+      },
+    ],
+  });
+}
+
 export function encodeUTF8(arr: Uint8Array): string {
   const s: string[] = [];
   for (let i = 0; i < arr.length; i++) s.push(String.fromCharCode(arr[i]));
   return decodeURIComponent(escape(s.join('')));
 }
+
 export function yton(
   yoctos: string,
   token_decimals: number = 24,

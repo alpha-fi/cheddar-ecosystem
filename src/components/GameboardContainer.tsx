@@ -9,6 +9,8 @@ import { GameContext } from '@/contexts/GameContextProvider';
 import { RenderBuyNFTSection } from './BuyNFTSection';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
+import { useGetCheddarNFTs } from '@/hooks/cheddar';
+import { ModalContainer } from './FeedbackModal';
 
 interface Props {
   remainingMinutes: number;
@@ -50,9 +52,9 @@ export function GameboardContainer({
 
   const [contract, setContract] = useState<NFTCheddarContract | undefined>();
   const [nfts, setNFTs] = useState<NFT[]>([]);
-
-
-  const { modal, selector } = useWalletSelector();
+  const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
+    useGetCheddarNFTs();
+  const { modal, selector, accountId } = useWalletSelector();
 
   useEffect(() => {
     if (!selector.isSignedIn()) {
