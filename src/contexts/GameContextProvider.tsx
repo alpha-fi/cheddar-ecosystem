@@ -48,26 +48,8 @@ interface GameContextProps {
     React.SetStateAction<'right' | 'left' | 'down' | 'up'>
   >;
 
-  selectedColorSet: {
-    backgroundColor: string;
-    pathColor: string;
-    nonPathColor: string;
-    textColor: string;
-    rarity: string;
-    backgroundImage: string;
-    playerBackgroundColor: string;
-  };
-  setSelectedColorSet: React.Dispatch<
-    React.SetStateAction<{
-      backgroundColor: string;
-      pathColor: string;
-      nonPathColor: string;
-      textColor: string;
-      rarity: string;
-      backgroundImage: string;
-      playerBackgroundColor: string;
-    }>
-  >;
+  selectedColorSet: number;
+  setSelectedColorSet: React.Dispatch<React.SetStateAction<number>>;
 
   lastCellX: number;
   setLastCellX: React.Dispatch<React.SetStateAction<number>>;
@@ -144,15 +126,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [direction, setDirection] = useState(
     'right' as 'right' | 'left' | 'down' | 'up'
   );
-  const [selectedColorSet, setSelectedColorSet] = useState({
-    backgroundColor: '',
-    pathColor: '',
-    nonPathColor: '',
-    textColor: '',
-    rarity: '',
-    backgroundImage: '',
-    playerBackgroundColor: '',
-  });
+  const [selectedColorSet, setSelectedColorSet] = useState(0);
   const [lastCellX, setLastCellX] = useState(-1);
   const [lastCellY, setLastCellY] = useState(-1);
   const [hasPowerUp, setHasPowerUp] = useState(false);
@@ -173,8 +147,8 @@ export const GameContextProvider = ({ children }: props) => {
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
   const [coveredCells, setCoveredCells] = useState(0);
 
-  const [backgroundImage, setBackgroundImage] = useState('');
-  const [rarity, setRarity] = useState('');
+  // const [backgroundImage, setBackgroundImage] = useState('');
+  // const [rarity, setRarity] = useState('');
 
   const mazeRows = 11;
   const mazeCols = 9;
@@ -189,41 +163,15 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to select a random color set, background image, and rarity
   const selectRandomColorSet = () => {
-    const colorSets = [
-      {
-        backgroundColor: '#333333',
-        pathColor: '#9d67ef',
-        nonPathColor: 'white',
-        textColor: '#000000',
-        rarity: 'common',
-        backgroundImage:
-          "url('https://cheddar.farm/newFarmBackground.c6905a5e.png')",
-        playerBackgroundColor: '#9d67ef88',
-      },
-      {
-        backgroundColor: '#333333',
-        pathColor: '#FFD700',
-        nonPathColor: 'white',
-        textColor: '#333333',
-        rarity: 'rare',
-        backgroundImage:
-          "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
-        playerBackgroundColor: '#FFD70088',
-      },
-      {
-        backgroundColor: '#20d3fc',
-        pathColor: '#ff00ff',
-        nonPathColor: '#6600ff',
-        textColor: '#333333',
-        rarity: 'rare',
-        backgroundImage:
-          "url('https://ipfs.near.social/ipfs/bafkreihpddbzbioe7kctes25rr52klcs5we4pocwiwbmwldqf4acdarpcm')",
-        playerBackgroundColor: '#ff00ff88',
-      },
-      // Add more color sets as needed
-    ];
 
-    return colorSets[Math.floor(Math.random() * colorSets.length)];
+    //Check the global.css file.
+    const colorSetsQuantity = 3;
+
+    const randomizeColor = Math.floor(
+      Math.floor(Math.random() * colorSetsQuantity) + 1
+    );
+
+    return randomizeColor;
   };
 
   function getRandomPathCell(mazeData: MazeTileData[][]) {
@@ -355,8 +303,8 @@ export const GameContextProvider = ({ children }: props) => {
 
     const randomColorSet = selectRandomColorSet();
     setSelectedColorSet(randomColorSet);
-    setBackgroundImage(randomColorSet.backgroundImage);
-    setRarity(randomColorSet.rarity);
+    // setBackgroundImage(randomColorSet.backgroundImage);
+    // setRarity(randomColorSet.rarity);
 
     const playerStartCell = getRandomPathCell(newMazeData);
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });

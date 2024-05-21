@@ -1,14 +1,21 @@
 import { MazeTileData } from '@/contexts/GameContextProvider';
 import { useContext } from 'react';
 import { GameContext } from '@/contexts/GameContextProvider';
+import { ListItem, OrderedList } from '@chakra-ui/react';
+
+import styles from '../styles/Gameboard.module.css';
 
 interface Props {
-  styles: Record<string, any>;
+  showRules: boolean;
   isUserLoggedIn: boolean;
   openLogIn: () => void;
 }
 
-export function Gameboard({ styles, isUserLoggedIn, openLogIn }: Props) {
+export function Gameboard({
+  isUserLoggedIn,
+  openLogIn,
+  showRules,
+}: Props) {
   const {
     mazeData,
     playerPosition,
@@ -35,6 +42,11 @@ export function Gameboard({ styles, isUserLoggedIn, openLogIn }: Props) {
   setLastCellX(playerPosition!.x);
   setLastCellY(playerPosition!.y);
 
+  function getPlayerImgDirection() {
+    return styles[
+      `playerMove${direction.charAt(0).toUpperCase() + direction.slice(1)}`
+    ];
+  }
   const handleConditionalFunction =
     (onTrue: (event: any) => void, onFalse: () => void) => (event: any) => {
       if (isUserLoggedIn) {
@@ -44,17 +56,45 @@ export function Gameboard({ styles, isUserLoggedIn, openLogIn }: Props) {
       }
     };
 
-  return mazeData.map((row: MazeTileData[], rowIndex: number) => {
-    return (
-      <div key={rowIndex} style={styles.mazeRow}>
-        {row.map((cell: MazeTileData, colIndex: number) => {
-          const matchTileWithPlayerUbication =
-            playerPosition!.x === colIndex && playerPosition!.y === rowIndex;
-          const blurRadius = playerMoved
-            ? calculateBlurRadius(colIndex, rowIndex)
-            : 0;
-          const applyBlur = blurRadius > 0; // Determine if blur should be applied
+  function getClassNamesForCell(cell: MazeTileData) {
+    let backgroundColor;
+    if (cell.isPath) {
+      backgroundColor = 'pathColorSet';
+    } else {
+      backgroundColor = 'backgroundColorSet';
+    }
+    return `${styles.mazeCell} nonPathColorSet${selectedColorSet} ${backgroundColor}${selectedColorSet}`;
+  }
+  function getPlayerTileClasses(cell: MazeTileData) {
+    let backgroundImage;
+    if (cell.enemyWon || cell.hasCartel || cell.hasExit) {
+      backgroundImage = 'playerBackgroundEmpty';
+    } else {
+      backgroundImage = 'playerBackgroundElementOnTop';
+    }
+    return `${styles.mazeCell} ${styles.playerCell} ${getPlayerImgDirection()} ${backgroundImage}`;
+  }
 
+  return (
+    <>
+      {showRules && (
+        <div className={styles.orderedListContainer}>
+          <OrderedList>
+            <ListItem>Click or Tap to Start</ListItem>
+            <ListItem>Navigate with Arrows or Tap</ListItem>
+            <ListItem>Collect Cheddar🧀</ListItem>
+            <ListItem>Battle Cartel to protect your Bag</ListItem>
+            <ListItem>Find the Hidden Door🚪 to Win!</ListItem>
+          </OrderedList>
+        </div>
+      )}
+      {mazeData.map((row: MazeTileData[], rowIndex: number) => (
+        <div key={rowIndex} className={styles.mazeRow}>
+          {row.map((cell: MazeTileData, colIndex: number) => {
+            const blurRadius = playerMoved
+              ? calculateBlurRadius(colIndex, rowIndex)
+              : 0;
+            const applyBlur = blurRadius > 0; // Determine if blur should be applied
         // Define cell content based on cell type
         let cellContent = '';
 
@@ -119,70 +159,50 @@ export function Gameboard({ styles, isUserLoggedIn, openLogIn }: Props) {
         else if (cell.enemyWon) cellContent = '💀';
         //====================================================== End enemy won logo options ======================================================
 
-          return (
-            <div
-              key={colIndex}
-              id={`cell-${rowIndex}-${colIndex}`}
-              style={{
-                ...styles.mazeCell,
-                backgroundColor: matchTileWithPlayerUbication
-                  ? selectedColorSet.playerBackgroundColor
-                  : cell.isPath
-                    ? selectedColorSet.pathColor
-                    : selectedColorSet.backgroundColor,
-                filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
-                position: 'relative', // Ensure relative positioning for absolute positioning of icons
-              }}
-              onClick={handleConditionalFunction(() => {}, openLogIn)}
-              onTouchStart={handleConditionalFunction(
-                handleTouchStart,
-                openLogIn
-              )}
-              onTouchMove={handleConditionalFunction(handleTouchMove, () => {})}
-            >
-              {/* Dynamic content based on cell */}
-              {cellContent && (
-                <span
-                  role="img"
-                  aria-label={cellContent}
-                  className="static-icon"
-                  style={{ position: 'absolute' }}
-                >
-                  {cellContent}
-                </span>
-              )}
 
-              {/* Player icon */}
-              {/* Should alway be child of the cell */}
-              {matchTileWithPlayerUbication && (
-                <div
-                  id="player-icon"
-                  className={`player-icon ${direction}`} // Apply dynamic CSS class based on the direction
-                  style={{
-                    ...styles.mazeCell,
-                    ...styles.playerCell,
-                    ...styles[
-                      `playerMove${
-                        direction.charAt(0).toUpperCase() + direction.slice(1)
-                      }`
-                    ], // Applying the direction style dynamically
-                    // backgroundSize: 'cover',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'center',
-                    backgroundSize: '70%',
-                    position: 'relative',
-                    zIndex: 1, // Ensure player is in the forefront
-                    backgroundImage:
-                      cell.enemyWon || cell.hasCartel || cell.hasExit
-                        ? 'none'
-                        : "url('https://lh3.googleusercontent.com/d/114_RLl18MAzX035svMyvNJpE3ArfLNCF=w500')",
-                  }}
-                ></div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
-  });
+            return (
+              <div
+                key={colIndex}
+                id={`cell-${rowIndex}-${colIndex}`}
+                className={getClassNamesForCell(cell)}
+                style={{
+                  filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
+                }}
+                onClick={handleConditionalFunction(() => {}, openLogIn)}
+                onTouchStart={handleConditionalFunction(
+                  handleTouchStart,
+                  openLogIn
+                )}
+                onTouchMove={handleConditionalFunction(
+                  handleTouchMove,
+                  () => {}
+                )}
+              >
+                {/* Dynamic content based on cell */}
+                {cellContent && (
+                  <span
+                    role="img"
+                    aria-label={cellContent}
+                    // className="static-icon"
+                    className={styles.staticIcon}
+                  >
+                    {cellContent}
+                  </span>
+                )}
+
+                {/* Player icon */}
+                {playerPosition!.x === colIndex &&
+                  playerPosition!.y === rowIndex && (
+                    <div
+                      className={getPlayerTileClasses(cell)}
+                      // ${/*styles[direction]*/}
+                    ></div>
+                  )}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </>
+  );
 }

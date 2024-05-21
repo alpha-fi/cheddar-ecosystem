@@ -1,5 +1,6 @@
 import { Box, HStack, useRadio, useRadioGroup } from '@chakra-ui/react';
 import { isCurrentBrowserSupported } from '@near-wallet-selector/core';
+import styles from '../styles/RadioButtonGroup.module.css'
 
 export const RadioCard = (props: any) => {
   const { getInputProps, getRadioProps } = useRadio(props);
@@ -11,12 +12,10 @@ export const RadioCard = (props: any) => {
     <Box as="label">
       <input {...input} />
       <Box
+        className={styles.innerBox}
+        px={5}
+        py={3}
         {...checkbox}
-        userSelect="none"
-        cursor="pointer"
-        borderWidth="1px"
-        borderRadius="md"
-        boxShadow="md"
         background={props.optionSelected === props.children ? '#ECC94B' : ''}
         _checked={{
           bg: 'teal.600',
@@ -26,8 +25,6 @@ export const RadioCard = (props: any) => {
         _focus={{
           boxShadow: 'outline',
         }}
-        px={5}
-        py={3}
       >
         {props.children}
       </Box>
