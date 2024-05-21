@@ -3,7 +3,6 @@ import { change, view } from './contractUtils';
 import { FinalExecutionOutcome, Wallet } from '@near-wallet-selector/core';
 
 const { nearSocial } = getConfig().contracts;
-
 export interface KeysOptions {
   return_type: 'True' | 'BlockHeight' | 'NodeId';
   return_deleted: boolean;
@@ -33,27 +32,6 @@ export const setNearSocial = async (
   data: Record<string, any>
 ): Promise<void | FinalExecutionOutcome> => {
   return change(wallet, nearSocial, socialChangeMethods.set, {
-    data,
+    data: JSON.stringify(data),
   });
 };
-
-// {
-//   [accountId]: {
-//     "index": {
-//       "(test_)cheddarEcosystem": {
-//         "key":"maze_v0.0.1",
-//         "value":{
-//           data: {
-//             cheddarEarned: number
-//             score: number
-//             path: number[]
-//           },
-//           metadata: {
-//             createdAt: Date
-//             seedId: number //se pasa desde el back y se graba en la socialDb
-//           }
-//         }
-//       }
-//     }
-//   }
-// }

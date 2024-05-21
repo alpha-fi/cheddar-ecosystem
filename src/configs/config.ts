@@ -11,6 +11,10 @@ export interface Config {
     cheddarToken: string;
     nearSocial: string;
   };
+  socialKeys: {
+    ecosystem: string;
+    mazeVersion: string;
+  };
 }
 
 export const getConfig = (): Config => {
@@ -30,6 +34,10 @@ export const getConfig = (): Config => {
           cheddarToken: '',
           nearSocial: 'social.near',
         },
+        socialKeys: {
+          ecosystem: 'cheddarEcosystem',
+          mazeVersion: 'maze_v0.0.1',
+        },
       };
     case 'testnet':
     case undefined:
@@ -46,6 +54,10 @@ export const getConfig = (): Config => {
           cheddarToken: 'token-v3.cheddar.testnet',
           nearSocial: 'v1.social08.testnet',
         },
+        socialKeys: {
+          ecosystem: '(test_)cheddarEcosystem',
+          mazeVersion: 'maze_v0.0.1',
+        },
       };
     case 'local':
       return {
@@ -60,6 +72,10 @@ export const getConfig = (): Config => {
           cheddarNft: '',
           cheddarToken: '',
           nearSocial: '',
+        },
+        socialKeys: {
+          ecosystem: '',
+          mazeVersion: '',
         },
       };
     default:
