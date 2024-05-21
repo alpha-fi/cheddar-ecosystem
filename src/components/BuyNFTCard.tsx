@@ -9,11 +9,14 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 
+import styles from '../styles/BuyNFTCard.module.css';
+
 export const BuyNFTCard = (data: any) => {
   const { imgSrc, price, name, id } = data;
   return (
     <Center py={6}>
       <Stack
+        className="second-container"
         borderWidth="1px"
         borderRadius="lg"
         width={'90%'}
