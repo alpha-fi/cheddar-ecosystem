@@ -446,6 +446,7 @@ export const GameContextProvider = ({ children }: props) => {
     y: number
   ) {
     clonedMazeData[y][x].hasExit = true;
+    gameOver('Congrats! You found the Hidden Door.');
   }
 
   function addArtifacts(
@@ -487,6 +488,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   function gameOver(message: string) {
+    setCoveredCells(0);
     setGameOverFlag(true);
     setGameOverMessage(message);
     stopTimer();
