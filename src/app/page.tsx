@@ -109,8 +109,9 @@ export default function Home() {
       startTimer !== null &&
       handleKeyPress !== null &&
       handleTouchMove !== null &&
-      restartGame !== null &&
-      isAllowed
+      restartGame !== null
+      // restartGame !== null &&
+      // isAllowed
     );
   }
 

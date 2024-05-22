@@ -123,7 +123,7 @@ export function GameboardContainer({
         </button>
       )}
 
-      {accountId && !isAllowed?.ok ? (
+      {accountId && isAllowed?.ok ? (
         <RenderIsAllowedErrors errors={isAllowed?.errors!} />
       ) : (
         <div
