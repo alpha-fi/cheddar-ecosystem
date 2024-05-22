@@ -458,10 +458,6 @@ export const GameContextProvider = ({ children }: props) => {
     if (gameOverFlag /* && moves >= 10*/) {
       return;
     }
-    if (newMazeData[newY][newX].hasExit) {
-      gameOver('Congrats! You found the Hidden Door.');
-      return;
-    }
     if (doesCellHasArtifact(newX, newY)) {
       return;
     }
@@ -488,7 +484,6 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   function gameOver(message: string) {
-    setCoveredCells(0);
     setGameOverFlag(true);
     setGameOverMessage(message);
     stopTimer();
