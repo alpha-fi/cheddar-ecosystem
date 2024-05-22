@@ -131,7 +131,7 @@ export function GameboardContainer({
               <span className={styles.buyPowerUp}>
                 <Button
                   colorScheme="purple"
-                  onClick={handleBuyClick}
+                  onClick={selector.isSignedIn() ? handleBuyClick : modal.show}
                   disabled={!hasPowerUp}
                 >
                   Buy
