@@ -6,6 +6,7 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { CheddarToken } from '@/contracts/CheddarToken';
 import { ntoy } from '@/contracts/contractUtils';
 import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
+import { useGetIsAllowed } from '@/hooks/maze';
 
 export default function Home() {
   const {
@@ -25,42 +26,39 @@ export default function Home() {
   } = useContext(GameContext);
 
   const { selector, accountId } = useWalletSelector();
-  const [userCheddarBalance, setUserCheddarBalance] = useState<
-    bigint | undefined | null
-  >();
+
   const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
     useGetCheddarBalance();
   const { data: cheddarMetadata, isLoading: isLoadingCheddarMetadata } =
     useGetCheddarMetadata();
+  const { data: isAllowed, isLoading: isLoadingIsAllowed } = useGetIsAllowed();
 
-  const [cheddarTokenImg, setCheddarTokenImg] = useState<undefined | string>();
+  const [queriesLoaded, setQueriesLoaded] = useState(false);
 
-  useEffect(() => {
-    async function getCheddarBalance() {
-      const wallet = await selector.wallet();
-      const cheddarTokenContract = new CheddarToken(wallet);
+  console.log('isLoadingIsAllowed: ', isLoadingIsAllowed, isAllowed);
 
-      if (accountId) {
-        const balance = await cheddarTokenContract.getBalance(accountId);
-        setUserCheddarBalance(balance);
-
-        const metadata = await cheddarTokenContract.getMetadata();
-        setCheddarTokenImg(metadata.icon);
-      } else {
-        setUserCheddarBalance(null);
-      }
+  if (!queriesLoaded) {
+    if (
+      !isLoadingCheddarBalance &&
+      !isLoadingCheddarMetadata &&
+      !isLoadingIsAllowed
+    ) {
+      setQueriesLoaded(true);
     }
-
-    getCheddarBalance();
-  }, [accountId, selector]);
+  }
 
   const minCheddarRequired = ntoy(555);
 
   function doesUserHaveEnoughBalance() {
-    if (!userCheddarBalance) return false;
+    if (!cheddarBalanceData) return false;
 
-    return minCheddarRequired <= userCheddarBalance!;
+    return minCheddarRequired <= cheddarBalanceData!;
   }
+
+  let haveEnoughBalance = false;
+  useEffect(() => {
+    haveEnoughBalance = doesUserHaveEnoughBalance();
+  }, [cheddarBalanceData, accountId, selector, isAllowed]);
 
   function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);
@@ -75,6 +73,26 @@ export default function Home() {
   }
 
   const cellSize = isMobile() ? 30 : 40;
+
+  function getMinRequiredWithTwoDecimals() {
+    const biToString = Number(BigInt(minCheddarRequired)).toString();
+
+    let dotPosition;
+    for (let index = 0; index < biToString.length; index++) {
+      if (biToString[index] === '.') {
+        dotPosition = index;
+      }
+    }
+
+    let stringWithTwoDecimals;
+    if (dotPosition) {
+      stringWithTwoDecimals = biToString.slice(0, dotPosition + 3);
+    } else {
+      stringWithTwoDecimals = biToString;
+    }
+
+    return Number(stringWithTwoDecimals);
+  }
 
   function initialized() {
     // Check if all necessary state variables are not null or undefined
@@ -91,7 +109,8 @@ export default function Home() {
       startTimer !== null &&
       handleKeyPress !== null &&
       handleTouchMove !== null &&
-      restartGame !== null
+      restartGame !== null &&
+      isAllowed
     );
   }
 
@@ -103,6 +122,9 @@ export default function Home() {
           remainingSeconds={remainingTime % 60}
           handlePowerUpClick={handlePowerUpClick}
           cellSize={cellSize}
+          haveEnoughBalance={haveEnoughBalance}
+          minCheddarRequired={getMinRequiredWithTwoDecimals()}
+          isAllowed={isAllowed}
         />
       )}
     </div>
