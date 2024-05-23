@@ -1,6 +1,6 @@
 import { Gameboard } from './Gameboard';
 import styles from '../styles/GameboardContainer.module.css';
-import { Button, Text } from '@chakra-ui/react';
+import { Button, Text, useDisclosure } from '@chakra-ui/react';
 import { MouseEventHandler, useContext, useEffect, useState } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
@@ -20,7 +20,7 @@ interface Props {
   cellSize: number;
   haveEnoughBalance: boolean | null;
   minCheddarRequired: number;
-  isAllowed: IsAllowedResponse | null | undefined;
+  isAllowedResponse: IsAllowedResponse | null | undefined;
 }
 
 export function GameboardContainer({
@@ -30,7 +30,7 @@ export function GameboardContainer({
   cellSize,
   haveEnoughBalance,
   minCheddarRequired,
-  isAllowed,
+  isAllowedResponse,
 }: Props) {
   const {
     mazeData,
@@ -45,8 +45,10 @@ export function GameboardContainer({
     restartGame,
   } = useContext(GameContext);
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [firstRender, setFirstRender] = useState(true);
 
   function toggleShowRules() {
     setShowRules(!showRules);
@@ -61,6 +63,15 @@ export function GameboardContainer({
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
     useGetCheddarNFTs();
   const { modal, selector, accountId } = useWalletSelector();
+
+  const userIsNotAllowedToPlay = accountId && !isAllowedResponse?.ok;
+
+  function getPropperHandler(handler: any) {
+    if (isAllowedResponse?.ok) {
+      return handler;
+    }
+    return onOpen;
+  }
 
   useEffect(() => {
     if (!selector.isSignedIn()) {
@@ -83,6 +94,11 @@ export function GameboardContainer({
 
   function logOut() {
     selector.wallet().then((wallet) => wallet.signOut());
+  }
+
+  if (userIsNotAllowedToPlay && firstRender) {
+    setFirstRender(false);
+    onOpen();
   }
 
   return (
@@ -120,15 +136,12 @@ export function GameboardContainer({
           Restart Game
         </button>
       )}
-
-      {accountId && isAllowed?.ok ? (
-        <RenderIsAllowedErrors errors={isAllowed?.errors!} />
-      ) : (
+      {
         <div
           className={styles.mazeContainer}
           tabIndex={0}
-          onKeyDown={handleKeyPress}
-          onTouchMove={handleTouchMove}
+          onKeyDown={getPropperHandler(handleKeyPress)}
+          onTouchMove={getPropperHandler(handleTouchMove)}
         >
           <div className={styles.toolbar}>
             <span className={styles.rulesButton}>
@@ -167,8 +180,18 @@ export function GameboardContainer({
             showRules={showRules}
             openLogIn={modal.show}
             isUserLoggedIn={selector.isSignedIn()}
+            isAllowedResponse={isAllowedResponse!}
           />
         </div>
+      }
+      {userIsNotAllowedToPlay && (
+        <ModalContainer
+          title={'Ups! You cannot play'}
+          isOpen={isOpen}
+          onClose={onClose}
+        >
+          <RenderIsAllowedErrors errors={isAllowedResponse?.errors!} />
+        </ModalContainer>
       )}
     </div>
   );

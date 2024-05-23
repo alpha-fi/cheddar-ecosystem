@@ -12,10 +12,11 @@ const renderError = (error: string) => {
     case 'nadabot':
       return (
         <ListItem>
-          You must been validated by{' '}
-          <Link as={NextLink} href="nada.bot">
+          <span>You must been validated by </span>
+          <Link as={NextLink} href="nada.bot" color="blue">
             nada.bot
           </Link>
+          <span> to play</span>
         </ListItem>
       );
     default:

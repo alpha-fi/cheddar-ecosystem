@@ -3,7 +3,7 @@ export async function isAllowed(accountId: string) {
     `http://localhost:3001/api/maze/isAllowed?accountId=${accountId}`
   );
   const jsonResponse = await response.json();
-  return jsonResponse.ok;
+  return jsonResponse;
 }
 
 export async function getSeedId(accountId: string) {

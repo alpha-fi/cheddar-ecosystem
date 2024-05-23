@@ -6,7 +6,8 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { CheddarToken } from '@/contracts/CheddarToken';
 import { ntoy } from '@/contracts/contractUtils';
 import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
-import { useGetIsAllowed } from '@/hooks/maze';
+import { useGetIsAllowedResponse as useGetIsAllowedResponse } from '@/hooks/maze';
+import { isAllowed } from '@/queries/api/maze';
 
 export default function Home() {
   const {
@@ -27,11 +28,12 @@ export default function Home() {
 
   const { selector, accountId } = useWalletSelector();
 
-  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
-    useGetCheddarBalance();
   const { data: cheddarMetadata, isLoading: isLoadingCheddarMetadata } =
     useGetCheddarMetadata();
-  const { data: isAllowed, isLoading: isLoadingIsAllowed } = useGetIsAllowed();
+  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
+    useGetCheddarBalance();
+  const { data: isAllowedResponse, isLoading: isLoadingIsAllowed } =
+    useGetIsAllowedResponse();
 
   const [queriesLoaded, setQueriesLoaded] = useState(false);
 
@@ -56,7 +58,7 @@ export default function Home() {
   let haveEnoughBalance = false;
   useEffect(() => {
     haveEnoughBalance = doesUserHaveEnoughBalance();
-  }, [cheddarBalanceData, accountId, selector, isAllowed]);
+  }, [cheddarBalanceData, accountId, selector, isAllowedResponse]);
 
   function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);
@@ -107,9 +109,8 @@ export default function Home() {
       startTimer !== null &&
       handleKeyPress !== null &&
       handleTouchMove !== null &&
-      restartGame !== null
-      // restartGame !== null &&
-      // isAllowed
+      restartGame !== null &&
+      isAllowedResponse
     );
   }
 
@@ -123,7 +124,7 @@ export default function Home() {
           cellSize={cellSize}
           haveEnoughBalance={haveEnoughBalance}
           minCheddarRequired={getMinRequiredWithTwoDecimals()}
-          isAllowed={isAllowed}
+          isAllowedResponse={isAllowedResponse}
         />
       )}
     </div>

@@ -1,5 +1,5 @@
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { isAllowed } from '@/queries/api/maze';
+import { isAllowed as isAllowedResponse } from '@/queries/api/maze';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
 export interface IsAllowedResponse {
@@ -7,13 +7,14 @@ export interface IsAllowedResponse {
   errors?: string[];
 }
 
-export const useGetIsAllowed = (): UseQueryResult<null | IsAllowedResponse> => {
-  const { accountId } = useWalletSelector();
+export const useGetIsAllowedResponse =
+  (): UseQueryResult<null | IsAllowedResponse> => {
+    const { accountId } = useWalletSelector();
 
-  return useQuery({
-    queryKey: ['useGetIsAllowed', accountId],
-    queryFn: () => (accountId ? isAllowed(accountId) : null),
-    refetchInterval: 10000,
-    staleTime: 10000,
-  });
-};
+    return useQuery({
+      queryKey: ['useGetIsAllowed', accountId],
+      queryFn: () => (accountId ? isAllowedResponse(accountId) : null),
+      refetchInterval: 10000,
+      staleTime: 10000,
+    });
+  };

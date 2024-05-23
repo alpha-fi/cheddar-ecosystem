@@ -109,3 +109,6 @@
 .restartGameButton {
   font-size: 18px;
 }
+.disableGameBoardContainer {
+  pointer-events: 'none';
+}
