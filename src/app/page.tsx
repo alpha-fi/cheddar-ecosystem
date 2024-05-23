@@ -35,8 +35,6 @@ export default function Home() {
 
   const [queriesLoaded, setQueriesLoaded] = useState(false);
 
-  console.log('isLoadingIsAllowed: ', isLoadingIsAllowed, isAllowed);
-
   if (!queriesLoaded) {
     if (
       !isLoadingCheddarBalance &&

@@ -85,8 +85,6 @@ export function GameboardContainer({
     selector.wallet().then((wallet) => wallet.signOut());
   }
 
-  console.log('isAllowed: ', isAllowed);
-
   return (
     <div
       className={getGameContainerClasses()}

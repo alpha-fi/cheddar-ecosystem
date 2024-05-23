@@ -1,17 +1,16 @@
 export async function isAllowed(accountId: string) {
   const response = await fetch(
-    `localhost:3001/api/maze/isAllowed?accountId=${accountId}`
+    `http://localhost:3001/api/maze/isAllowed?accountId=${accountId}`
   );
-  console.log('r: ', response);
   const jsonResponse = await response.json();
-  return jsonResponse;
+  return jsonResponse.ok;
 }
 
 export async function getSeedId(accountId: string) {
   const data = {
     accountId,
   };
-  const response = await fetch('localhost:3001/api/maze/getSeedId', {
+  const response = await fetch('http://localhost:3001/api/maze/getSeedId', {
     method: 'POST',
     mode: 'cors',
     headers: {
