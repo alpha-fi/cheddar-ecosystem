@@ -3,11 +3,9 @@ import { useContext, useEffect, useState } from 'react';
 import { GameboardContainer } from '../components/GameboardContainer';
 import { GameContext } from '../contexts/GameContextProvider';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { CheddarToken } from '@/contracts/CheddarToken';
-import { ntoy } from '@/contracts/contractUtils';
+import { ntoy, yton } from '@/contracts/contractUtils';
 import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse as useGetIsAllowedResponse } from '@/hooks/maze';
-import { isAllowed } from '@/queries/api/maze';
 
 export default function Home() {
   const {
@@ -74,26 +72,6 @@ export default function Home() {
 
   const cellSize = isMobile() ? 30 : 40;
 
-  function getMinRequiredWithTwoDecimals() {
-    const biToString = Number(BigInt(minCheddarRequired)).toString();
-
-    let dotPosition;
-    for (let index = 0; index < biToString.length; index++) {
-      if (biToString[index] === '.') {
-        dotPosition = index;
-      }
-    }
-
-    let stringWithTwoDecimals;
-    if (dotPosition) {
-      stringWithTwoDecimals = biToString.slice(0, dotPosition + 3);
-    } else {
-      stringWithTwoDecimals = biToString;
-    }
-
-    return Number(stringWithTwoDecimals);
-  }
-
   function initialized() {
     // Check if all necessary state variables are not null or undefined
     return (
@@ -109,8 +87,7 @@ export default function Home() {
       startTimer !== null &&
       handleKeyPress !== null &&
       handleTouchMove !== null &&
-      restartGame !== null &&
-      isAllowedResponse
+      restartGame !== null
     );
   }
 
@@ -123,7 +100,7 @@ export default function Home() {
           handlePowerUpClick={handlePowerUpClick}
           cellSize={cellSize}
           haveEnoughBalance={haveEnoughBalance}
-          minCheddarRequired={getMinRequiredWithTwoDecimals()}
+          minCheddarRequired={yton(minCheddarRequired.toString())}
           isAllowedResponse={isAllowedResponse}
         />
       )}

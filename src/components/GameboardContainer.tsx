@@ -1,7 +1,13 @@
 import { Gameboard } from './Gameboard';
 import styles from '../styles/GameboardContainer.module.css';
-import { Button, Text, useDisclosure } from '@chakra-ui/react';
-import { MouseEventHandler, useContext, useEffect, useState } from 'react';
+import { Button, Text, background, useDisclosure } from '@chakra-ui/react';
+import {
+  MouseEventHandler,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
 import { RenderBuyNFTSection } from './BuyNFTSection';
@@ -40,15 +46,16 @@ export function GameboardContainer({
     selectedColorSet,
     hasPowerUp,
     isPowerUpOn,
+    remainingTime,
     handleKeyPress,
     handleTouchMove,
     restartGame,
+    timerStarted,
   } = useContext(GameContext);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
   const [showRules, setShowRules] = useState(false);
-  const [firstRender, setFirstRender] = useState(true);
 
   function toggleShowRules() {
     setShowRules(!showRules);
@@ -64,9 +71,11 @@ export function GameboardContainer({
     useGetCheddarNFTs();
   const { modal, selector, accountId } = useWalletSelector();
 
-  const userIsNotAllowedToPlay = accountId && !isAllowedResponse?.ok;
+  const userIsNotAllowedToPlay = useMemo(() => {
+    return accountId && !isAllowedResponse?.ok;
+  }, [accountId, isAllowedResponse?.ok]);
 
-  function getPropperHandler(handler: any) {
+  function getProperHandler(handler: any) {
     if (isAllowedResponse?.ok) {
       return handler;
     }
@@ -96,9 +105,8 @@ export function GameboardContainer({
     selector.wallet().then((wallet) => wallet.signOut());
   }
 
-  if (userIsNotAllowedToPlay && firstRender) {
-    setFirstRender(false);
-    onOpen();
+  function getStartGameButtonHandler() {
+    return accountId ? getProperHandler(restartGame) : modal.show;
   }
 
   return (
@@ -131,22 +139,25 @@ export function GameboardContainer({
         </div>
       </div>
       <div className={styles.gameOver}>{gameOverMessage}</div>
-      {gameOverFlag && (
-        <button onClick={restartGame} className={styles.restartGameButton}>
-          Restart Game
-        </button>
-      )}
       {
         <div
           className={styles.mazeContainer}
           tabIndex={0}
-          onKeyDown={getPropperHandler(handleKeyPress)}
-          onTouchMove={getPropperHandler(handleTouchMove)}
+          onKeyDown={getProperHandler(handleKeyPress)}
+          onTouchMove={getProperHandler(handleTouchMove)}
         >
           <div className={styles.toolbar}>
             <span className={styles.rulesButton}>
               <Button onClick={toggleShowRules}>Rules</Button>
             </span>
+            {!timerStarted && (
+              <span className={styles.rulesButton}>
+                {/* <Button onClick={getProperHandler(restartGame)}> */}
+                <Button onClick={getStartGameButtonHandler()}>
+                  {gameOverFlag ? 'Restart Game' : 'Start Game'}
+                </Button>
+              </span>
+            )}
             <div className={styles.tooltip}>
               <Button
                 colorScheme="yellow"
@@ -184,7 +195,7 @@ export function GameboardContainer({
           />
         </div>
       }
-      {userIsNotAllowedToPlay && (
+      {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
         <ModalContainer
           title={'Ups! You cannot play'}
           isOpen={isOpen}
