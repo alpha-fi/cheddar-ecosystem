@@ -2,13 +2,13 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { isAllowed as isAllowedResponse, getSeedId } from '@/queries/api/maze';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
-export interface IsAllowedResponse {
+export interface isAllowedResponse {
   ok: boolean;
   errors?: string[];
 }
 
 export const useGetIsAllowedResponse =
-  (): UseQueryResult<null | IsAllowedResponse> => {
+  (): UseQueryResult<null | isAllowedResponse> => {
     const { accountId } = useWalletSelector();
 
     return useQuery({

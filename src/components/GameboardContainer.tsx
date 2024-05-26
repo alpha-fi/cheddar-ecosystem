@@ -16,7 +16,7 @@ import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
 import { ModalContainer } from './FeedbackModal';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
-import { IsAllowedResponse } from '@/hooks/maze';
+import { isAllowedResponse } from '@/hooks/maze';
 import { RenderIsAllowedErrors } from './RenderIsAllowedErrors';
 
 interface Props {
@@ -26,7 +26,7 @@ interface Props {
   cellSize: number;
   haveEnoughBalance: boolean | null;
   minCheddarRequired: number;
-  isAllowedResponse: IsAllowedResponse | null | undefined;
+  isAllowedResponse: isAllowedResponse | null | undefined;
 }
 
 export function GameboardContainer({
@@ -109,6 +109,10 @@ export function GameboardContainer({
     return accountId ? getProperHandler(restartGame) : modal.show;
   }
 
+  function getKeyDownMoveHandler() {
+    return timerStarted ? getProperHandler(handleKeyPress) : ()=>{};
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -143,7 +147,8 @@ export function GameboardContainer({
         <div
           className={styles.mazeContainer}
           tabIndex={0}
-          onKeyDown={getProperHandler(handleKeyPress)}
+          // onKeyDown={getProperHandler(handleKeyPress)}
+          onKeyDown={getKeyDownMoveHandler()}
           onTouchMove={getProperHandler(handleTouchMove)}
         >
           <div className={styles.toolbar}>

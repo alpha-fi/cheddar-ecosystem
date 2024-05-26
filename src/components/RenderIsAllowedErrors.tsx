@@ -13,7 +13,7 @@ const renderError = (error: string) => {
       return (
         <ListItem>
           <span>You must been validated by </span>
-          <Link as={NextLink} href="nada.bot" color="blue">
+          <Link as={NextLink} href="http://www.nada.bot" color="blue">
             nada.bot
           </Link>
           <span> to play</span>
