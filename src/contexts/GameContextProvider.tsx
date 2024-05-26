@@ -220,9 +220,13 @@ export const GameContextProvider = ({ children }: props) => {
       return;
     }
 
+    console.log('in restart game');
+
     const newSeedIdResponse = await getSeedId(accountId);
     setSeedId(newSeedIdResponse.seedId);
 
+    setTimerStarted(true);
+    startTimer();
     // clearInterval(timerId);
     setScore(0);
     setTimeLimitInSeconds(120);

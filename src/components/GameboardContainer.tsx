@@ -16,7 +16,7 @@ import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
 import { ModalContainer } from './FeedbackModal';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
-import { IsAllowedResponse } from '@/hooks/maze';
+import { isAllowedResponse } from '@/hooks/maze';
 import { RenderIsAllowedErrors } from './RenderIsAllowedErrors';
 
 interface Props {
@@ -26,7 +26,7 @@ interface Props {
   cellSize: number;
   hasEnoughBalance: boolean | null;
   minCheddarRequired: number;
-  isAllowedResponse: IsAllowedResponse | null | undefined;
+  isAllowedResponse: isAllowedResponse | null | undefined;
 }
 
 export function GameboardContainer({
@@ -76,6 +76,8 @@ export function GameboardContainer({
   }, [accountId, isAllowedResponse?.ok]);
 
   function getProperHandler(handler: any) {
+    //Uncomment the next line to ignore the isAllowedResponse.ok returning false
+    // return handler;
     if (isAllowedResponse?.ok) {
       return handler;
     }
@@ -113,9 +115,19 @@ export function GameboardContainer({
     return accountId ? getProperHandler(restartGame) : modal.show;
   }
 
+  function getKeyDownMoveHandler() {
+    return timerStarted ? getProperHandler(handleKeyPress) : () => {};
+  }
+
+  function getStartButtonStyles() {
+    return `${styles.rulesButton} ${timerStarted ? styles.hideButton : ''}`;
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
+      // onKeyDown={getProperHandler(handleKeyPress)}
+      onKeyDown={getKeyDownMoveHandler()}
       style={{
         maxWidth: `${mazeData[0].length * cellSize + 25}px`,
       }}
@@ -147,13 +159,22 @@ export function GameboardContainer({
         <div
           className={styles.mazeContainer}
           tabIndex={0}
-          onKeyDown={getProperHandler(handleKeyPress)}
+          // onKeyDown={getProperHandler(handleKeyPress)}
+          // onKeyDown={getKeyDownMoveHandler()}
           onTouchMove={getProperHandler(handleTouchMove)}
         >
           <div className={styles.toolbar}>
             <span className={styles.rulesButton}>
               <Button onClick={toggleShowRules}>Rules</Button>
             </span>
+
+            <span className={getStartButtonStyles()}>
+              {/* <Button onClick={getProperHandler(restartGame)}> */}
+              <Button onClick={getStartGameButtonHandler()}>
+                {gameOverFlag ? 'Restart Game' : 'Start Game'}
+              </Button>
+            </span>
+
             <div className={styles.tooltip}>
               <Button
                 colorScheme="yellow"

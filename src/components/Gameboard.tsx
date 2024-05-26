@@ -4,13 +4,13 @@ import { GameContext } from '@/contexts/GameContextProvider';
 import { ListItem, OrderedList } from '@chakra-ui/react';
 
 import styles from '../styles/Gameboard.module.css';
-import { IsAllowedResponse } from '@/hooks/maze';
+import { isAllowedResponse } from '@/hooks/maze';
 
 interface Props {
   showRules: boolean;
   isUserLoggedIn: boolean;
   openLogIn: () => void;
-  isAllowedResponse: IsAllowedResponse;
+  isAllowedResponse: isAllowedResponse;
 }
 
 export function Gameboard({
