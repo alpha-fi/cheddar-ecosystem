@@ -34,6 +34,7 @@ export default function Home() {
     useGetIsAllowedResponse();
 
   const [queriesLoaded, setQueriesLoaded] = useState(false);
+  const [hasEnoughBalance, setHasEnoughBalance] = useState(false);
 
   if (!queriesLoaded) {
     if (
@@ -53,9 +54,8 @@ export default function Home() {
     return minCheddarRequired <= cheddarBalanceData!;
   }
 
-  let haveEnoughBalance = false;
   useEffect(() => {
-    haveEnoughBalance = doesUserHaveEnoughBalance();
+    setHasEnoughBalance(doesUserHaveEnoughBalance());
   }, [cheddarBalanceData, accountId, selector, isAllowedResponse]);
 
   function handlePowerUpClick() {
@@ -99,7 +99,7 @@ export default function Home() {
           remainingSeconds={remainingTime % 60}
           handlePowerUpClick={handlePowerUpClick}
           cellSize={cellSize}
-          haveEnoughBalance={haveEnoughBalance}
+          hasEnoughBalance={hasEnoughBalance}
           minCheddarRequired={yton(minCheddarRequired.toString())}
           isAllowedResponse={isAllowedResponse}
         />

@@ -24,7 +24,7 @@ interface Props {
   remainingSeconds: number;
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
   cellSize: number;
-  haveEnoughBalance: boolean | null;
+  hasEnoughBalance: boolean | null;
   minCheddarRequired: number;
   isAllowedResponse: IsAllowedResponse | null | undefined;
 }
@@ -34,7 +34,7 @@ export function GameboardContainer({
   remainingSeconds,
   handlePowerUpClick,
   cellSize,
-  haveEnoughBalance,
+  hasEnoughBalance,
   minCheddarRequired,
   isAllowedResponse,
 }: Props) {
@@ -116,7 +116,7 @@ export function GameboardContainer({
         maxWidth: `${mazeData[0].length * cellSize + 25}px`,
       }}
     >
-      {accountId && !haveEnoughBalance && (
+      {accountId && !hasEnoughBalance && (
         <Text color="tomato">
           You have to hold at least {minCheddarRequired}
           {RenderCheddarIcon({ width: '2rem' })} to earn.
