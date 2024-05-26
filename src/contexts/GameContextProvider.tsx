@@ -96,12 +96,13 @@ interface GameContextProps {
   setTouchStart: React.Dispatch<React.SetStateAction<Coordinates>>;
   touchEnd: Coordinates;
   setTouchEnd: React.Dispatch<React.SetStateAction<Coordinates>>;
-  coveredCells: number;
-  setCoveredCells: React.Dispatch<React.SetStateAction<number>>;
+  coveredCells: string[];
+  setCoveredCells: React.Dispatch<React.SetStateAction<string[]>>;
 
   mazeRows: number;
   mazeCols: number;
   totalCells: number;
+  pathLength: number;
 
   startTimer(): void;
 
@@ -122,6 +123,7 @@ export const GameContext = createContext<GameContextProps>(
 
 export const GameContextProvider = ({ children }: props) => {
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
+  const [pathLength, setPathLength] = useState(0);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
@@ -149,7 +151,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [won, setWon] = useState(false);
   const [touchStart, setTouchStart] = useState({ x: -1, y: -1 });
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
-  const [coveredCells, setCoveredCells] = useState(0);
+  const [coveredCells, setCoveredCells] = useState<string[]>([]);
 
   const [seedId, setSeedId] = useState(0);
 
@@ -161,6 +163,22 @@ export const GameContextProvider = ({ children }: props) => {
   const mazeRows = 11;
   const mazeCols = 9;
   const totalCells = mazeRows * mazeCols;
+
+  function getPathLength() {
+    let countPath = 0;
+    if (mazeData) {
+      mazeData.forEach((row) => {
+        row.forEach((cell) => {
+          if (cell.isPath) countPath++;
+        });
+      });
+    }
+    return countPath;
+  }
+
+  useEffect(() => {
+    setPathLength(getPathLength());
+  }, [mazeData]);
 
   useEffect(() => {
     const minutes = Math.floor(remainingTime / 60);
@@ -217,7 +235,7 @@ export const GameContextProvider = ({ children }: props) => {
     setWon(false);
     setGameOverMessage('');
     setDirection('right');
-    setCoveredCells(0);
+    setCoveredCells([]);
 
     // Regenerate maze data
     const rng = new RNG(newSeedIdResponse.seedId);
@@ -274,6 +292,7 @@ export const GameContextProvider = ({ children }: props) => {
         break;
     }
     maze[y!][x!].isPath = true;
+
     const stack = [[x!, y!]];
 
     while (stack.length) {
@@ -362,7 +381,11 @@ export const GameContextProvider = ({ children }: props) => {
 
     // Increment moves count
     setMoves(moves + 1);
-    setCoveredCells(coveredCells + 1);
+    if (!coveredCells.includes(`${newX}${newY}`)) {
+      let newCoveredCells = coveredCells;
+      newCoveredCells.push(`${newX}${newY}`);
+      setCoveredCells(newCoveredCells);
+    }
 
     // Periodically add artifacts to the board based on cooldowns and randomness
     addArtifacts(newX, newY, newMazeData, moves);
@@ -491,7 +514,10 @@ export const GameContextProvider = ({ children }: props) => {
       handleBagFound(clonedMazeData, newX, newY);
     } else if (rng.nextFloat() < 0.002) {
       handleCartelFound(clonedMazeData, newX, newY);
-    } else if (rng.nextFloat() < 0.33 && coveredCells >= 0.75 * totalCells) {
+    } else if (
+      Math.random() < 0.33 &&
+      coveredCells.length >= 0.75 * pathLength
+    ) {
       handleExitFound(clonedMazeData, newX, newY);
     }
     setMazeData(clonedMazeData);
@@ -504,6 +530,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   function gameOver(message: string) {
+    setCoveredCells([]);
     setGameOverFlag(true);
     setGameOverMessage(message);
     stopTimer();
@@ -762,6 +789,7 @@ export const GameContextProvider = ({ children }: props) => {
         mazeRows,
         mazeCols,
         totalCells,
+        pathLength: pathLength,
         startTimer,
         handleKeyPress,
         restartGame,
