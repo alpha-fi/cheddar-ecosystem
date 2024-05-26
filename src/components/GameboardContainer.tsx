@@ -102,7 +102,7 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return selector.isSignedIn() ? handleLoggedBuyClick() : modal.show()
+    return selector.isSignedIn() ? handleLoggedBuyClick() : modal.show();
   }
 
   function logOut() {

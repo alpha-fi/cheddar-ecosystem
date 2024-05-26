@@ -164,21 +164,21 @@ export const GameContextProvider = ({ children }: props) => {
   const mazeCols = 9;
   const totalCells = mazeRows * mazeCols;
 
-  function getPathLength() {
-    let countPath = 0;
-    if (mazeData) {
-      mazeData.forEach((row) => {
-        row.forEach((cell) => {
-          if (cell.isPath) countPath++;
-        });
-      });
-    }
-    return countPath;
-  }
-
   useEffect(() => {
+    function getPathLength() {
+      let countPath = 0;
+      if (mazeData) {
+        mazeData.forEach((row) => {
+          row.forEach((cell) => {
+            if (cell.isPath) countPath++;
+          });
+        });
+      }
+      return countPath;
+    }
+
     setPathLength(getPathLength());
-  }, [mazeData, getPathLength, getRandomPathCell]);
+  }, [mazeData, getRandomPathCell]);
 
   useEffect(() => {
     const minutes = Math.floor(remainingTime / 60);
