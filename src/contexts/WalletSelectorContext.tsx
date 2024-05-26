@@ -79,7 +79,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
     'coin98',
   ];
 
-  const setupWallets = () => {
+  const setupWallets = useCallback(() => {
     let modules: any[] = [];
     const enableWallets = DEFAULT_ENABLE_WALLETS;
     enableWallets.forEach((w: string) => {
@@ -149,7 +149,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
       }
     });
     return modules;
-  };
+  }, []);
 
   const init = useCallback(async () => {
     const _selector = await setupWalletSelector({
