@@ -466,6 +466,7 @@ export const GameContextProvider = ({ children }: props) => {
     y: number
   ) {
     clonedMazeData[y][x].hasExit = true;
+    gameOver('Congrats! You found the Hidden Door.');
   }
 
   function addArtifacts(
@@ -475,10 +476,6 @@ export const GameContextProvider = ({ children }: props) => {
     moves: number
   ) {
     if (gameOverFlag /* && moves >= 10*/) {
-      return;
-    }
-    if (newMazeData[newY][newX].hasExit) {
-      gameOver('Congrats! You found the Hidden Door.');
       return;
     }
     if (doesCellHasArtifact(newX, newY)) {
