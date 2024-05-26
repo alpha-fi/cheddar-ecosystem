@@ -86,6 +86,9 @@
 .rulesButton {
   padding: 5px
 }
+.hideButton {
+  z-index: -1;
+}
 .buyPowerUp {
   flex: 1;
   text-align: center;
