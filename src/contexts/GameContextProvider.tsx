@@ -10,6 +10,7 @@ import React, {
 
 import { getSeedId } from '@/queries/api/maze';
 import { useWalletSelector } from './WalletSelectorContext';
+import { M_PLUS_1 } from 'next/font/google';
 
 interface props {
   children: ReactNode;
@@ -163,7 +164,11 @@ export const GameContextProvider = ({ children }: props) => {
     }
 
     nextInt() {
+      console.log('State', this.state);
       this.state = (this.a * this.state + this.c) % this.m;
+      if (isNaN(this.state)) {
+        console.log('State NaN', this.a, this.c, this.m);
+      }
       return this.state;
     }
 
@@ -174,8 +179,13 @@ export const GameContextProvider = ({ children }: props) => {
     nextRange(start: number, end: number) {
       // returns in range [start, end): including start, excluding end
       // can't modulu nextInt because of weak randomness in lower bits
-      var rangeSize = end - start;
-      var randomUnder1 = this.nextInt() / this.m;
+      console.log(start, end);
+      const rangeSize = end - start;
+      const nextInt = this.nextInt();
+      console.log(nextInt, this.m);
+      const randomUnder1 = nextInt / this.m;
+      console.log(randomUnder1);
+      console.log(start + Math.floor(randomUnder1 * rangeSize));
       return start + Math.floor(randomUnder1 * rangeSize);
     }
 
@@ -233,8 +243,8 @@ export const GameContextProvider = ({ children }: props) => {
       return;
     }
 
-    const newSeedId = await getSeedId(accountId);
-    setSeedId(newSeedId);
+    const newSeedIdResponse = await getSeedId(accountId);
+    setSeedId(newSeedIdResponse.seedId);
 
     // clearInterval(timerId);
     setScore(0);
@@ -248,9 +258,11 @@ export const GameContextProvider = ({ children }: props) => {
     setWon(false);
     setGameOverMessage('');
     setDirection('right');
+    setCoveredCells(0);
 
     // Regenerate maze data
-    setRng(new RNG(newSeedId));
+    const rng = new RNG(newSeedIdResponse.seedId);
+    setRng(rng);
 
     const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
 
@@ -302,7 +314,7 @@ export const GameContextProvider = ({ children }: props) => {
         y = rng.nextRange(1, rows - 2);
         break;
     }
-
+    console.log(1, maze);
     maze[y!][x!].isPath = true;
     const stack = [[x!, y!]];
 
