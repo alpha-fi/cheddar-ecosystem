@@ -149,7 +149,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
       }
     });
     return modules;
-  }, []);
+  }, [DEFAULT_ENABLE_WALLETS, NETWORK_ID]);
 
   const init = useCallback(async () => {
     const _selector = await setupWalletSelector({

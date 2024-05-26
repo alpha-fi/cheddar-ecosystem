@@ -164,21 +164,21 @@ export const GameContextProvider = ({ children }: props) => {
   const mazeCols = 9;
   const totalCells = mazeRows * mazeCols;
 
-  function getPathLength() {
-    let countPath = 0;
-    if (mazeData) {
-      mazeData.forEach((row) => {
-        row.forEach((cell) => {
-          if (cell.isPath) countPath++;
-        });
-      });
-    }
-    return countPath;
-  }
-
   useEffect(() => {
+    function getPathLength() {
+      let countPath = 0;
+      if (mazeData) {
+        mazeData.forEach((row) => {
+          row.forEach((cell) => {
+            if (cell.isPath) countPath++;
+          });
+        });
+      }
+      return countPath;
+    }
+
     setPathLength(getPathLength());
-  }, [mazeData]);
+  }, [mazeData, getRandomPathCell]);
 
   useEffect(() => {
     const minutes = Math.floor(remainingTime / 60);
@@ -557,7 +557,7 @@ export const GameContextProvider = ({ children }: props) => {
     return () => {
       if (intervalId) clearInterval(intervalId);
     }; // Cleanup function to clear interval on unmount or when timer conditions change
-  }, [timerStarted, gameOverFlag]);
+  }, [timerStarted, gameOverFlag, gameOver]);
 
   // Function to handle key press events
   function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {

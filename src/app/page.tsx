@@ -48,13 +48,13 @@ export default function Home() {
 
   const minCheddarRequired = ntoy(555);
 
-  function doesUserHaveEnoughBalance() {
-    if (!cheddarBalanceData) return false;
-
-    return minCheddarRequired <= cheddarBalanceData!;
-  }
-
   useEffect(() => {
+    function doesUserHaveEnoughBalance() {
+      if (!cheddarBalanceData) return false;
+
+      return minCheddarRequired <= cheddarBalanceData!;
+    }
+
     setHasEnoughBalance(doesUserHaveEnoughBalance());
   }, [cheddarBalanceData, accountId, selector, isAllowedResponse]);
 

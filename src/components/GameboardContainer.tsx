@@ -61,7 +61,7 @@ export function GameboardContainer({
     setShowRules(!showRules);
   }
 
-  function handleBuyClick() {
+  function handleLoggedBuyClick() {
     setShowBuyNFTPanel(!showBuyNFTPanel);
   }
 
@@ -99,6 +99,10 @@ export function GameboardContainer({
 
   function getGameContainerClasses() {
     return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
+  }
+
+  function handleBuyClick() {
+    return selector.isSignedIn() ? handleLoggedBuyClick() : modal.show();
   }
 
   function logOut() {
@@ -150,7 +154,6 @@ export function GameboardContainer({
             <span className={styles.rulesButton}>
               <Button onClick={toggleShowRules}>Rules</Button>
             </span>
-            
             <div className={styles.tooltip}>
               <Button
                 colorScheme="yellow"
@@ -166,7 +169,7 @@ export function GameboardContainer({
                 <span className={styles.buyPowerUp}>
                   <Button
                     colorScheme="purple"
-                    onClick={selector.isSignedIn() ? handleBuyClick : modal.show}
+                    onClick={handleBuyClick}
                     disabled={!hasPowerUp}
                   >
                     Buy
