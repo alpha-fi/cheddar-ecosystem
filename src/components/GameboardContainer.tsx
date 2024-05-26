@@ -167,7 +167,7 @@ export function GameboardContainer({
             <span className={getStartButtonStyles()}>
               {/* <Button onClick={getProperHandler(restartGame)}> */}
               <Button onClick={getStartGameButtonHandler()}>
-                {gameOverFlag ? 'Reset' : 'Start Game'}
+                {gameOverFlag ? 'Restart Game' : 'Start Game'}
               </Button>
             </span>
 
