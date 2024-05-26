@@ -185,7 +185,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
 
     setSelector(_selector);
     setModal(_modal);
-  }, []);
+  }, [NETWORK_ID, setupWallets]);
 
   useEffect(() => {
     init().catch((err) => {
@@ -222,7 +222,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
       });
 
     return () => subscription.unsubscribe();
-  }, [selector]);
+  }, [selector, modal]);
 
   if (!selector || !modal) {
     return null;
