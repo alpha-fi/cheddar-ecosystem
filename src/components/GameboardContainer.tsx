@@ -76,6 +76,8 @@ export function GameboardContainer({
   }, [accountId, isAllowedResponse?.ok]);
 
   function getProperHandler(handler: any) {
+    //Uncomment the next line to ignore the isAllowedResponse.ok returning false
+    return handler;
     if (isAllowedResponse?.ok) {
       return handler;
     }
@@ -110,12 +112,18 @@ export function GameboardContainer({
   }
 
   function getKeyDownMoveHandler() {
-    return timerStarted ? getProperHandler(handleKeyPress) : ()=>{};
+    return timerStarted ? getProperHandler(handleKeyPress) : () => {};
+  }
+
+  function getStartButtonStyles() {
+    return `${styles.rulesButton} ${timerStarted ? styles.hideButton : ''}`;
   }
 
   return (
     <div
       className={getGameContainerClasses()}
+      // onKeyDown={getProperHandler(handleKeyPress)}
+      onKeyDown={getKeyDownMoveHandler()}
       style={{
         maxWidth: `${mazeData[0].length * cellSize + 25}px`,
       }}
@@ -148,21 +156,21 @@ export function GameboardContainer({
           className={styles.mazeContainer}
           tabIndex={0}
           // onKeyDown={getProperHandler(handleKeyPress)}
-          onKeyDown={getKeyDownMoveHandler()}
+          // onKeyDown={getKeyDownMoveHandler()}
           onTouchMove={getProperHandler(handleTouchMove)}
         >
           <div className={styles.toolbar}>
             <span className={styles.rulesButton}>
               <Button onClick={toggleShowRules}>Rules</Button>
             </span>
-            {!timerStarted && (
-              <span className={styles.rulesButton}>
-                {/* <Button onClick={getProperHandler(restartGame)}> */}
-                <Button onClick={getStartGameButtonHandler()}>
-                  {gameOverFlag ? 'Restart Game' : 'Start Game'}
-                </Button>
-              </span>
-            )}
+
+            <span className={getStartButtonStyles()}>
+              {/* <Button onClick={getProperHandler(restartGame)}> */}
+              <Button onClick={getStartGameButtonHandler()}>
+                {gameOverFlag ? 'Reset' : 'Start Game'}
+              </Button>
+            </span>
+
             <div className={styles.tooltip}>
               <Button
                 colorScheme="yellow"

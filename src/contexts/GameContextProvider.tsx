@@ -164,10 +164,8 @@ export const GameContextProvider = ({ children }: props) => {
     }
 
     nextInt() {
-      console.log('State', this.state);
       this.state = (this.a * this.state + this.c) % this.m;
       if (isNaN(this.state)) {
-        console.log('State NaN', this.a, this.c, this.m);
       }
       return this.state;
     }
@@ -179,13 +177,11 @@ export const GameContextProvider = ({ children }: props) => {
     nextRange(start: number, end: number) {
       // returns in range [start, end): including start, excluding end
       // can't modulu nextInt because of weak randomness in lower bits
-      console.log(start, end);
+
       const rangeSize = end - start;
       const nextInt = this.nextInt();
-      console.log(nextInt, this.m);
+
       const randomUnder1 = nextInt / this.m;
-      console.log(randomUnder1);
-      console.log(start + Math.floor(randomUnder1 * rangeSize));
       return start + Math.floor(randomUnder1 * rangeSize);
     }
 
@@ -243,9 +239,13 @@ export const GameContextProvider = ({ children }: props) => {
       return;
     }
 
+    console.log('in restart game');
+
     const newSeedIdResponse = await getSeedId(accountId);
     setSeedId(newSeedIdResponse.seedId);
 
+    setTimerStarted(true);
+    startTimer();
     // clearInterval(timerId);
     setScore(0);
     setTimeLimitInSeconds(120);
@@ -314,7 +314,7 @@ export const GameContextProvider = ({ children }: props) => {
         y = rng.nextRange(1, rows - 2);
         break;
     }
-    console.log(1, maze);
+
     maze[y!][x!].isPath = true;
     const stack = [[x!, y!]];
 
