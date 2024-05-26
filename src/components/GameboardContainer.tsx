@@ -77,7 +77,7 @@ export function GameboardContainer({
 
   function getProperHandler(handler: any) {
     //Uncomment the next line to ignore the isAllowedResponse.ok returning false
-    return handler;
+    // return handler;
     if (isAllowedResponse?.ok) {
       return handler;
     }
