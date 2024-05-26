@@ -98,7 +98,7 @@ interface GameContextProps {
   mazeRows: number;
   mazeCols: number;
   totalCells: number;
-  pathLenght: number;
+  pathLength: number;
 
   startTimer(): void;
 
@@ -772,7 +772,7 @@ export const GameContextProvider = ({ children }: props) => {
         mazeRows,
         mazeCols,
         totalCells,
-        pathLenght: pathLength,
+        pathLength: pathLength,
         startTimer,
         handleKeyPress,
         restartGame,
