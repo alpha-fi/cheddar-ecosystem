@@ -150,14 +150,7 @@ export function GameboardContainer({
             <span className={styles.rulesButton}>
               <Button onClick={toggleShowRules}>Rules</Button>
             </span>
-            {!timerStarted && (
-              <span className={styles.rulesButton}>
-                {/* <Button onClick={getProperHandler(restartGame)}> */}
-                <Button onClick={getStartGameButtonHandler()}>
-                  {gameOverFlag ? 'Restart Game' : 'Start Game'}
-                </Button>
-              </span>
-            )}
+            
             <div className={styles.tooltip}>
               <Button
                 colorScheme="yellow"
@@ -173,7 +166,7 @@ export function GameboardContainer({
                 <span className={styles.buyPowerUp}>
                   <Button
                     colorScheme="purple"
-                    onClick={handleBuyClick}
+                    onClick={selector.isSignedIn() ? handleBuyClick : modal.show}
                     disabled={!hasPowerUp}
                   >
                     Buy
