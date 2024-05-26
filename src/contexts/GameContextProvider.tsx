@@ -8,9 +8,8 @@ import React, {
   TouchEvent,
 } from 'react';
 
-import { getSeedId } from '@/queries/api/maze';
+import { getSeedId } from '../queries/api/maze';
 import { useWalletSelector } from './WalletSelectorContext';
-import { M_PLUS_1 } from 'next/font/google';
 
 interface props {
   children: ReactNode;
