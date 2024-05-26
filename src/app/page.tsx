@@ -56,7 +56,13 @@ export default function Home() {
 
   useEffect(() => {
     setHasEnoughBalance(doesUserHaveEnoughBalance());
-  }, [cheddarBalanceData, accountId, selector, isAllowedResponse]);
+  }, [
+    cheddarBalanceData,
+    accountId,
+    selector,
+    isAllowedResponse,
+    doesUserHaveEnoughBalance,
+  ]);
 
   function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);

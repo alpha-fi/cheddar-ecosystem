@@ -178,7 +178,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   useEffect(() => {
     setPathLength(getPathLength());
-  }, [mazeData]);
+  }, [mazeData, getPathLength, getRandomPathCell]);
 
   useEffect(() => {
     const minutes = Math.floor(remainingTime / 60);
@@ -557,7 +557,7 @@ export const GameContextProvider = ({ children }: props) => {
     return () => {
       if (intervalId) clearInterval(intervalId);
     }; // Cleanup function to clear interval on unmount or when timer conditions change
-  }, [timerStarted, gameOverFlag]);
+  }, [timerStarted, gameOverFlag, gameOver]);
 
   // Function to handle key press events
   function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
