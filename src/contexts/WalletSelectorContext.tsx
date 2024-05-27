@@ -60,11 +60,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
           break;
         }
         case Wallets.MyNearWallet: {
-          modules.push(
-            setupMyNearWallet({
-              iconUrl: '/assets/my-near-wallet-icon.png',
-            })
-          );
+          modules.push(setupMyNearWallet());
           break;
         }
         case Wallets.Here: {
