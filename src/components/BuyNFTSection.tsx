@@ -16,27 +16,31 @@ import styles from '../styles/BuyNFTSection.module.css';
 import { useGetCheddarNFTPrice } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
 
-
-
 export const RenderBuyNFTSection = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { selector } = useWalletSelector();
-  const { data: cheddarNftPriceInCheddar, isLoading: isNftPriceInCheddarLoading } = useGetCheddarNFTPrice(true);
-  const { data: cheddarNftPriceInNear, isLoading: isNftPriceInNearLoading } = useGetCheddarNFTPrice(false);
+  const {
+    data: cheddarNftPriceInCheddar,
+    isLoading: isNftPriceInCheddarLoading,
+  } = useGetCheddarNFTPrice(true);
+  const { data: cheddarNftPriceInNear, isLoading: isNftPriceInNearLoading } =
+    useGetCheddarNFTPrice(false);
 
   //The first option is the default one
-const payingOptions = [
-  {
-    name: 'Cheddar',
-    price: isNftPriceInCheddarLoading ? "Loading" : yton(cheddarNftPriceInCheddar!),
-    icon: <RenderCheddarIcon className={styles.tokenIcon} />,
-  },
-  {
-    name: 'Near',
-    price: isNftPriceInNearLoading ? "Loading" : yton(cheddarNftPriceInNear!),
-    icon: <RenderNearIcon className={styles.tokenIcon} />,
-  },
-];
+  const payingOptions = [
+    {
+      name: 'Cheddar',
+      price: isNftPriceInCheddarLoading
+        ? 'Loading'
+        : yton(cheddarNftPriceInCheddar!),
+      icon: <RenderCheddarIcon className={styles.tokenIcon} />,
+    },
+    {
+      name: 'Near',
+      price: isNftPriceInNearLoading ? 'Loading' : yton(cheddarNftPriceInNear!),
+      icon: <RenderNearIcon className={styles.tokenIcon} />,
+    },
+  ];
 
   const [tokenToPayWith, setTokenToPayWith] = useState(payingOptions[0].name);
   const [errorMsg, setErrorMsg] = useState(undefined as undefined | string);
@@ -46,8 +50,10 @@ const payingOptions = [
   async function handlePurchase() {
     try {
       const wallet = await selector.wallet();
-      const withCheddar = tokenToPayWith === 'Cheddar'
-      const amount = withCheddar ? cheddarNftPriceInCheddar : cheddarNftPriceInNear;
+      const withCheddar = tokenToPayWith === 'Cheddar';
+      const amount = withCheddar
+        ? cheddarNftPriceInCheddar
+        : cheddarNftPriceInNear;
       await buyNFT(wallet, withCheddar, amount!);
       onOpen();
     } catch (err: any) {

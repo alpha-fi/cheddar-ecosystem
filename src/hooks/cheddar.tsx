@@ -44,14 +44,16 @@ export const useGetCheddarNFTs = (): UseQueryResult => {
   });
 };
 
-export const useGetCheddarNFTPrice = (withCheddar: boolean): UseQueryResult<string|null> => {
+export const useGetCheddarNFTPrice = (
+  withCheddar: boolean
+): UseQueryResult<string | null> => {
   const { accountId } = useWalletSelector();
 
-  return useQuery<string|null>({
+  return useQuery<string | null>({
     queryKey: ['useGetCheddarNFTs', accountId, withCheddar],
-    queryFn: () => (accountId ? getCheddarNFTBuyPrice(accountId, withCheddar) : null),
+    queryFn: () =>
+      accountId ? getCheddarNFTBuyPrice(accountId, withCheddar) : null,
     refetchInterval: 10000,
     staleTime: 10000,
   });
-  
 };
