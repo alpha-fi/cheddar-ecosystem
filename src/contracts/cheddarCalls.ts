@@ -93,6 +93,13 @@ export const buyNFT = async (
   }
 };
 
-export const getCheddarNFTBuyPrice = (accountId: string, withCheddar: boolean): Promise<string> => {
-  return view(cheddarNft, 'total_cost', { num: 1, minter: accountId, with_cheddar: withCheddar });
-}
+export const getCheddarNFTBuyPrice = (
+  accountId: string,
+  withCheddar: boolean
+): Promise<string> => {
+  return view(cheddarNft, 'total_cost', {
+    num: 1,
+    minter: accountId,
+    with_cheddar: withCheddar,
+  });
+};
