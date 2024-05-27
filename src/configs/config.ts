@@ -40,7 +40,6 @@ export const getConfig = (): Config => {
         },
       };
     case 'testnet':
-    case undefined:
       return {
         networkData: {
           networkId: 'testnet',
