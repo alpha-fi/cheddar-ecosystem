@@ -16,6 +16,7 @@ import { setupHereWallet } from '@near-wallet-selector/here-wallet';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 import { setupCoin98Wallet } from '@near-wallet-selector/coin98-wallet';
+import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
 //import { WALLET_CONNECT_PROJECT_ID } from "../constants";
 import { store } from '../stores/walletSelector.store';
 import { setupXDEFI } from '@near-wallet-selector/xdefi';
@@ -54,6 +55,7 @@ enum Wallets {
   Narwallets = 'narwallets',
   XDefi = 'xdefi',
   Opto = 'opto',
+  MintBase = 'mintbase',
 }
 
 const WalletSelectorContext =
@@ -77,6 +79,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
     'walletconnect',
     'here',
     'coin98',
+    'mintbase',
   ];
 
   const setupWallets = useCallback(() => {
@@ -144,6 +147,10 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
         }
         case Wallets.Opto: {
           modules.push(setupOptoWallet());
+          break;
+        }
+        case Wallets.MintBase: {
+          modules.push(setupMintbaseWallet());
           break;
         }
       }
