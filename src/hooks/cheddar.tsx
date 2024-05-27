@@ -2,6 +2,7 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import {
   getCheddarBalance,
   getCheddarMetadata,
+  getCheddarNFTBuyPrice,
   getNFTs,
 } from '@/contracts/cheddarCalls';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
@@ -41,4 +42,16 @@ export const useGetCheddarNFTs = (): UseQueryResult => {
     refetchInterval: 10000,
     staleTime: 10000,
   });
+};
+
+export const useGetCheddarNFTPrice = (withCheddar: boolean): UseQueryResult<string|null> => {
+  const { accountId } = useWalletSelector();
+
+  return useQuery<string|null>({
+    queryKey: ['useGetCheddarNFTs', accountId, withCheddar],
+    queryFn: () => (accountId ? getCheddarNFTBuyPrice(accountId, withCheddar) : null),
+    refetchInterval: 10000,
+    staleTime: 10000,
+  });
+  
 };
