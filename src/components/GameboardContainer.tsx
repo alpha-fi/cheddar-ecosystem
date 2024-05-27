@@ -1,6 +1,13 @@
 import { Gameboard } from './Gameboard';
 import styles from '../styles/GameboardContainer.module.css';
-import { Button, Text, background, useDisclosure } from '@chakra-ui/react';
+import {
+  Button,
+  ListItem,
+  OrderedList,
+  Text,
+  background,
+  useDisclosure,
+} from '@chakra-ui/react';
 import {
   MouseEventHandler,
   useContext,
@@ -16,8 +23,9 @@ import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
 import { ModalContainer } from './FeedbackModal';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
-import { isAllowedResponse } from '@/hooks/maze';
-import { RenderIsAllowedErrors } from './RenderIsAllowedErrors';
+import { IsAllowedResponse } from '@/hooks/maze';
+import ModalNotAllowedToPlay from './ModalNotAllowedToPlay';
+import ModalRules from './ModalRules';
 
 interface Props {
   remainingMinutes: number;
@@ -26,7 +34,7 @@ interface Props {
   cellSize: number;
   hasEnoughBalance: boolean | null;
   minCheddarRequired: number;
-  isAllowedResponse: isAllowedResponse | null | undefined;
+  isAllowedResponse: IsAllowedResponse | null | undefined;
 }
 
 export function GameboardContainer({
@@ -53,13 +61,18 @@ export function GameboardContainer({
     timerStarted,
   } = useContext(GameContext);
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
-  const [showRules, setShowRules] = useState(false);
+  const {
+    isOpen: isOpenNotAlloWedModal,
+    onOpen: onOpenNotAlloWedModal,
+    onClose: onCloseNotAlloWedModal,
+  } = useDisclosure();
+  const {
+    isOpen: isOpenModalRules,
+    onOpen: onOpenModalRules,
+    onClose: onCloseModalRules,
+  } = useDisclosure();
 
-  function toggleShowRules() {
-    setShowRules(!showRules);
-  }
+  const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
 
   function handleLoggedBuyClick() {
     setShowBuyNFTPanel(!showBuyNFTPanel);
@@ -81,7 +94,7 @@ export function GameboardContainer({
     if (isAllowedResponse?.ok) {
       return handler;
     }
-    return onOpen;
+    return onOpenNotAlloWedModal;
   }
 
   useEffect(() => {
@@ -165,7 +178,7 @@ export function GameboardContainer({
         >
           <div className={styles.toolbar}>
             <span className={styles.rulesButton}>
-              <Button onClick={toggleShowRules}>Rules</Button>
+              <Button onClick={onOpenModalRules}>Rules</Button>
             </span>
 
             <span className={getStartButtonStyles()}>
@@ -205,7 +218,6 @@ export function GameboardContainer({
             </div>
           </div>
           <Gameboard
-            showRules={showRules}
             openLogIn={modal.show}
             isUserLoggedIn={selector.isSignedIn()}
             isAllowedResponse={isAllowedResponse!}
@@ -213,14 +225,13 @@ export function GameboardContainer({
         </div>
       }
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
-        <ModalContainer
-          title={'Ups! You cannot play'}
-          isOpen={isOpen}
-          onClose={onClose}
-        >
-          <RenderIsAllowedErrors errors={isAllowedResponse?.errors!} />
-        </ModalContainer>
+        <ModalNotAllowedToPlay
+          isOpen={isOpenNotAlloWedModal}
+          onClose={onCloseNotAlloWedModal}
+          errors={isAllowedResponse.errors}
+        />
       )}
+      <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
     </div>
   );
 }

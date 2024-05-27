@@ -52,7 +52,7 @@ export const ModalContainer = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent {...props} minW={{ base: 'inherit', md: '582px' }}>
+      <ModalContent {...props} maxW="385px">
         <ModalHeader>{title}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>

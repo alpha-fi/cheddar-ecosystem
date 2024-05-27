@@ -4,19 +4,17 @@ import { GameContext } from '@/contexts/GameContextProvider';
 import { ListItem, OrderedList } from '@chakra-ui/react';
 
 import styles from '../styles/Gameboard.module.css';
-import { isAllowedResponse } from '@/hooks/maze';
+import { IsAllowedResponse } from '@/hooks/maze';
 
 interface Props {
-  showRules: boolean;
   isUserLoggedIn: boolean;
   openLogIn: () => void;
-  isAllowedResponse: isAllowedResponse;
+  isAllowedResponse: IsAllowedResponse;
 }
 
 export function Gameboard({
   isUserLoggedIn,
   openLogIn,
-  showRules,
   isAllowedResponse,
 }: Props) {
   const {
@@ -82,17 +80,6 @@ export function Gameboard({
 
   return (
     <>
-      {showRules && (
-        <div className={styles.orderedListContainer}>
-          <OrderedList>
-            <ListItem>Click or Tap to Start</ListItem>
-            <ListItem>Navigate with Arrows or Tap</ListItem>
-            <ListItem>Collect Cheddar🧀</ListItem>
-            <ListItem>Battle Cartel to protect your Bag</ListItem>
-            <ListItem>Find the Hidden Door🚪 to Win!</ListItem>
-          </OrderedList>
-        </div>
-      )}
       {mazeData.map((row: MazeTileData[], rowIndex: number) => (
         <div key={rowIndex} className={styles.mazeRow}>
           {row.map((cell: MazeTileData, colIndex: number) => {
