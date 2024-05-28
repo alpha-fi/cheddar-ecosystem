@@ -15,6 +15,7 @@ export interface Config {
     ecosystem: string;
     mazeVersion: string;
   };
+  backendBaseUrl: string;
 }
 
 export const getConfig = (): Config => {
@@ -38,9 +39,9 @@ export const getConfig = (): Config => {
           ecosystem: 'cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
         },
+        backendBaseUrl: '',
       };
     case 'testnet':
-    case undefined:
       return {
         networkData: {
           networkId: 'testnet',
@@ -55,28 +56,30 @@ export const getConfig = (): Config => {
           nearSocial: 'v1.social08.testnet',
         },
         socialKeys: {
-          ecosystem: '(test_)cheddarEcosystem',
+          ecosystem: 'test_cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
         },
+        backendBaseUrl: 'https://api.cheddar.farm:3001/',
       };
     case 'local':
       return {
         networkData: {
-          networkId: 'local',
-          nodeUrl: 'http://localhost:3030',
-          walletUrl: 'http://localhost:4000/wallet',
+          networkId: 'testnet',
+          nodeUrl: 'https://rpc.testnet.near.org',
+          walletUrl: 'https://wallet.testnet.near.org',
           helperUrl: 'https://helper.testnet.near.org',
           explorerUrl: 'https://explorer.testnet.near.org',
         },
         contracts: {
-          cheddarNft: '',
-          cheddarToken: '',
-          nearSocial: '',
+          cheddarNft: 'nft.cheddar.testnet',
+          cheddarToken: 'token-v3.cheddar.testnet',
+          nearSocial: 'v1.social08.testnet',
         },
         socialKeys: {
-          ecosystem: '',
-          mazeVersion: '',
+          ecosystem: 'test_cheddarEcosystem',
+          mazeVersion: 'maze_v0.0.1',
         },
+        backendBaseUrl: 'http://localhost:3001/',
       };
     default:
       throw Error(

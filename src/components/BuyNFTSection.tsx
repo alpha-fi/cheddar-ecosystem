@@ -5,34 +5,42 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { ModalContainer } from './FeedbackModal';
-import { NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RadioButtonBroup } from './RadioButtonGroup';
 import { useState } from 'react';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { RenderNearIcon } from './RenderNearIcon';
-import { error } from 'console';
 import { buyNFT } from '@/contracts/cheddarCalls';
 
 import styles from '../styles/BuyNFTSection.module.css';
-
-//The first option is the default one
-const payingOptions = [
-  {
-    name: 'Cheddar',
-    price: 0.5,
-    icon: <RenderCheddarIcon className={styles.tokenIcon} />,
-  },
-  {
-    name: 'Near',
-    price: 0.5,
-    icon: <RenderNearIcon className={styles.tokenIcon} />,
-  },
-];
+import { useGetCheddarNFTPrice } from '@/hooks/cheddar';
+import { yton } from '@/contracts/contractUtils';
 
 export const RenderBuyNFTSection = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { selector } = useWalletSelector();
+  const {
+    data: cheddarNftPriceInCheddar,
+    isLoading: isNftPriceInCheddarLoading,
+  } = useGetCheddarNFTPrice(true);
+  const { data: cheddarNftPriceInNear, isLoading: isNftPriceInNearLoading } =
+    useGetCheddarNFTPrice(false);
+
+  //The first option is the default one
+  const payingOptions = [
+    {
+      name: 'Cheddar',
+      price: isNftPriceInCheddarLoading
+        ? 'Loading'
+        : yton(cheddarNftPriceInCheddar!),
+      icon: <RenderCheddarIcon className={styles.tokenIcon} />,
+    },
+    {
+      name: 'Near',
+      price: isNftPriceInNearLoading ? 'Loading' : yton(cheddarNftPriceInNear!),
+      icon: <RenderNearIcon className={styles.tokenIcon} />,
+    },
+  ];
 
   const [tokenToPayWith, setTokenToPayWith] = useState(payingOptions[0].name);
   const [errorMsg, setErrorMsg] = useState(undefined as undefined | string);
@@ -42,7 +50,11 @@ export const RenderBuyNFTSection = () => {
   async function handlePurchase() {
     try {
       const wallet = await selector.wallet();
-      await buyNFT(wallet, false);
+      const withCheddar = tokenToPayWith === 'Cheddar';
+      const amount = withCheddar
+        ? cheddarNftPriceInCheddar
+        : cheddarNftPriceInNear;
+      await buyNFT(wallet, withCheddar, amount!);
       onOpen();
     } catch (err: any) {
       setErrorMsg(err);

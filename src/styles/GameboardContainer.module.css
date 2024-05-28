@@ -22,12 +22,6 @@
 .debugInfo {
   display: none;
 }
-.gameOver {
-  font-size: 15px;
-  font-weight: bold;
-  /* color: hasExit ? 'green' : 'red', */
-  /* color: true ? 'green' : 'red', */
-}
 .gameInfo {
   display: flex;
   align-items: center;
@@ -86,6 +80,9 @@
 .rulesButton {
   padding: 5px
 }
+.hideButton {
+  z-index: -1;
+}
 .buyPowerUp {
   flex: 1;
   text-align: center;
@@ -106,6 +103,6 @@
   overflow-y: scroll;
   max-height: 400px;
 }
-.restartGameButton {
-  font-size: 18px;
+.disableGameBoardContainer {
+  pointer-events: 'none';
 }

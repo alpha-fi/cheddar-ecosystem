@@ -8,6 +8,10 @@ import React, {
   TouchEvent,
 } from 'react';
 
+import { callEndGame, getSeedId } from '../queries/api/maze';
+import { useWalletSelector } from './WalletSelectorContext';
+import { RNG } from '@/entities/RNG';
+
 interface props {
   children: ReactNode;
 }
@@ -23,6 +27,15 @@ export interface MazeTileData {
   hasExit: boolean;
   hasCartel: boolean;
 }
+
+const amountOfCheddarInBag = 5;
+
+const pointsOfActions = {
+  cheddarFound: 1,
+  bagFound: 1,
+  enemyDefeated: 1,
+  moveWithoutDying: 0,
+};
 
 interface GameContextProps {
   mazeData: MazeTileData[][];
@@ -92,12 +105,13 @@ interface GameContextProps {
   setTouchStart: React.Dispatch<React.SetStateAction<Coordinates>>;
   touchEnd: Coordinates;
   setTouchEnd: React.Dispatch<React.SetStateAction<Coordinates>>;
-  coveredCells: number;
-  setCoveredCells: React.Dispatch<React.SetStateAction<number>>;
+  coveredCells: string[];
+  setCoveredCells: React.Dispatch<React.SetStateAction<string[]>>;
 
   mazeRows: number;
   mazeCols: number;
   totalCells: number;
+  pathLength: number;
 
   startTimer(): void;
 
@@ -110,6 +124,10 @@ interface GameContextProps {
   handleTouchStart: (event: React.TouchEvent<HTMLDivElement>) => void;
 
   handleTouchMove: (event: React.TouchEvent<HTMLDivElement>) => void;
+
+  cheddarFound: number;
+
+  saveResponse: string[] | undefined;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -118,6 +136,7 @@ export const GameContext = createContext<GameContextProps>(
 
 export const GameContextProvider = ({ children }: props) => {
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
+  const [pathLength, setPathLength] = useState(0);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
@@ -145,7 +164,15 @@ export const GameContextProvider = ({ children }: props) => {
   const [won, setWon] = useState(false);
   const [touchStart, setTouchStart] = useState({ x: -1, y: -1 });
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
-  const [coveredCells, setCoveredCells] = useState(0);
+  const [coveredCells, setCoveredCells] = useState<string[]>([]);
+
+  const [cheddarFound, setCheddarFound] = useState(0);
+
+  const [seedId, setSeedId] = useState(0);
+
+  const [rng, setRng] = useState(new RNG(0));
+
+  const [saveResponse, setSaveResponse] = useState();
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -155,11 +182,29 @@ export const GameContextProvider = ({ children }: props) => {
   const totalCells = mazeRows * mazeCols;
 
   useEffect(() => {
+    function getPathLength() {
+      let countPath = 0;
+      if (mazeData) {
+        mazeData.forEach((row) => {
+          row.forEach((cell) => {
+            if (cell.isPath) countPath++;
+          });
+        });
+      }
+      return countPath;
+    }
+
+    setPathLength(getPathLength());
+  }, [mazeData, getRandomPathCell]);
+
+  useEffect(() => {
     const minutes = Math.floor(remainingTime / 60);
     const seconds = remainingTime % 60;
     setRemainingMinutes(minutes);
     setRemainingSeconds(seconds);
   }, [remainingTime]);
+
+  const { accountId } = useWalletSelector();
 
   // Function to select a random color set, background image, and rarity
   const selectRandomColorSet = () => {
@@ -183,14 +228,24 @@ export const GameContextProvider = ({ children }: props) => {
       });
     });
 
-    return pathCells[Math.floor(Math.random() * pathCells.length)];
+    return pathCells[rng.nextRange(0, pathCells.length)];
   }
 
   // Function to restart the game
-  function restartGame() {
+  async function restartGame() {
+    if (!accountId) {
+      return;
+    }
+
+    const newSeedIdResponse = await getSeedId(accountId);
+    setSeedId(newSeedIdResponse.seedId);
+
+    setTimerStarted(true);
+    startTimer();
     // clearInterval(timerId);
     setScore(0);
     setTimeLimitInSeconds(120);
+    setCheddarFound(0);
     setRemainingTime(120);
     setCheeseCooldown(false);
     setBagCooldown(false);
@@ -200,9 +255,14 @@ export const GameContextProvider = ({ children }: props) => {
     setWon(false);
     setGameOverMessage('');
     setDirection('right');
+    setCoveredCells([]);
+    setSaveResponse(undefined);
 
     // Regenerate maze data
-    const newMazeData = generateMazeData(mazeRows, mazeCols);
+    const rng = new RNG(newSeedIdResponse.seedId);
+    setRng(rng);
+
+    const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
 
     // Set the maze data with the new maze and player's starting position
     setMazeData(newMazeData);
@@ -216,7 +276,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   // Function to generate maze data
-  function generateMazeData(rows: number, cols: number) {
+  function generateMazeData(rows: number, cols: number, rng: RNG) {
     const maze = Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => ({
         isPath: false,
@@ -231,29 +291,29 @@ export const GameContextProvider = ({ children }: props) => {
     );
 
     // Choose a random starting position on the outer border
-    const startEdge = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+    const startEdge = rng.nextRange(0, 4); // 0: top, 1: right, 2: bottom, 3: left
     let x: number, y: number;
 
     switch (startEdge) {
       case 0: // Top edge
-        x = Math.floor(Math.random() * (cols - 2)) + 1;
+        x = rng.nextRange(1, cols - 2);
         y = 0;
         break;
       case 1: // Right edge
         x = cols - 1;
-        y = Math.floor(Math.random() * (rows - 2)) + 1;
+        y = rng.nextRange(1, rows - 2);
         break;
       case 2: // Bottom edge
-        x = Math.floor(Math.random() * (cols - 2)) + 1;
+        x = rng.nextRange(1, cols - 2);
         y = rows - 1;
         break;
       case 3: // Left edge
         x = 0;
-        y = Math.floor(Math.random() * (rows - 2)) + 1;
+        y = rng.nextRange(1, rows - 2);
         break;
     }
-
     maze[y!][x!].isPath = true;
+
     const stack = [[x!, y!]];
 
     while (stack.length) {
@@ -282,7 +342,7 @@ export const GameContextProvider = ({ children }: props) => {
 
       if (directions.length) {
         const [nx, ny, px, py] =
-          directions[Math.floor(Math.random() * directions.length)];
+          directions[rng.nextRange(0, directions.length)];
         maze[ny][nx].isPath = true;
         maze[py][px].isPath = true;
         stack.push([nx, ny]);
@@ -297,7 +357,7 @@ export const GameContextProvider = ({ children }: props) => {
   // Inside the component where you're using the Maze component
   useEffect(() => {
     // Generate maze data and set it to the state
-    const newMazeData = generateMazeData(mazeRows, mazeCols);
+    const newMazeData = generateMazeData(mazeRows, mazeCols, new RNG(0));
     setMazeData(newMazeData);
 
     const randomColorSet = selectRandomColorSet();
@@ -342,7 +402,11 @@ export const GameContextProvider = ({ children }: props) => {
 
     // Increment moves count
     setMoves(moves + 1);
-    setCoveredCells(coveredCells + 1);
+    if (!coveredCells.includes(`${newX}${newY}`)) {
+      let newCoveredCells = coveredCells;
+      newCoveredCells.push(`${newX}${newY}`);
+      setCoveredCells(newCoveredCells);
+    }
 
     // Periodically add artifacts to the board based on cooldowns and randomness
     addArtifacts(newX, newY, newMazeData, moves);
@@ -372,22 +436,22 @@ export const GameContextProvider = ({ children }: props) => {
     // Code for adding enemy artifact...
 
     // Add logic for the enemy defeating the player
-    if (Math.random() < 0) {
-      // 0% chance of the enemy winning
+    if (rng.nextFloat() < 0.02) {
+      // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
       clonedMazeData[y][x].isActive = false;
 
-      setScore(0); // Set score to zero
       gameOver('Enemy won! Game Over!');
     } else {
       clonedMazeData[y][x].hasEnemy = true;
 
+      setScore(score + pointsOfActions.enemyDefeated);
       // setEnemyCooldown(true);
       setTimeout(
         () => {
           // setEnemyCooldown(false);
         },
-        Math.floor(Math.random() * 5000) + 1000
+        rng.nextRange(1000, 6000)
       );
     }
   }
@@ -400,13 +464,14 @@ export const GameContextProvider = ({ children }: props) => {
     // 5.5% chance of winning cheese
     clonedMazeData[y][x].hasCheese = true;
 
-    setScore(score + 1);
+    setScore(score + pointsOfActions.cheddarFound);
+    setCheddarFound(cheddarFound + 1);
     setCheeseCooldown(true);
     setTimeout(
       () => {
         setCheeseCooldown(false);
       },
-      Math.floor(Math.random() * 5000) + 1000
+      rng.nextRange(1000, 6000)
     );
   }
 
@@ -418,13 +483,14 @@ export const GameContextProvider = ({ children }: props) => {
     // 5.5% chance of winning cheese
     clonedMazeData[y][x].hasBag = true;
 
-    setScore(score + 1);
+    setScore(score + pointsOfActions.bagFound);
+    setCheddarFound(cheddarFound + 1 * amountOfCheddarInBag);
     setBagCooldown(true);
     setTimeout(
       () => {
         setBagCooldown(false);
       },
-      Math.floor(Math.random() * 10000) + 1000
+      rng.nextRange(1000, 11000)
     );
   }
 
@@ -436,7 +502,6 @@ export const GameContextProvider = ({ children }: props) => {
     // 0.2% chance of hitting the "cartel" event
     clonedMazeData[y][x].hasCartel = true;
 
-    setScore(0);
     gameOver('You ran into the cartel! Game Over!');
   }
 
@@ -446,6 +511,7 @@ export const GameContextProvider = ({ children }: props) => {
     y: number
   ) {
     clonedMazeData[y][x].hasExit = true;
+    gameOver('Congrats! You found the Hidden Door.');
   }
 
   function addArtifacts(
@@ -457,25 +523,26 @@ export const GameContextProvider = ({ children }: props) => {
     if (gameOverFlag /* && moves >= 10*/) {
       return;
     }
-    if (newMazeData[newY][newX].hasExit) {
-      gameOver('Congrats! You found the Hidden Door.');
-      return;
-    }
     if (doesCellHasArtifact(newX, newY)) {
       return;
     }
 
     let clonedMazeData = [...newMazeData];
-    if (!enemyCooldown && Math.random() < 0.3) {
+    if (!enemyCooldown && rng.nextFloat() < 0.3) {
       handleEnemyFound(clonedMazeData, newX, newY);
-    } else if (!cheeseCooldown && Math.random() < 0.055) {
+    } else if (!cheeseCooldown && rng.nextFloat() < 0.055) {
       handleCheeseFound(clonedMazeData, newX, newY);
-    } else if (!bagCooldown && Math.random() < 0.055) {
+    } else if (!bagCooldown && rng.nextFloat() < 0.055) {
       handleBagFound(clonedMazeData, newX, newY);
-    } else if (Math.random() < 0.002) {
+    } else if (rng.nextFloat() < 0.002) {
       handleCartelFound(clonedMazeData, newX, newY);
-    } else if (Math.random() < 0.33 && coveredCells >= 0.75 * totalCells) {
+    } else if (
+      Math.random() < 0.33 &&
+      coveredCells.length >= 0.75 * pathLength
+    ) {
       handleExitFound(clonedMazeData, newX, newY);
+    } else {
+      setScore(score + pointsOfActions.moveWithoutDying);
     }
     setMazeData(clonedMazeData);
   }
@@ -486,10 +553,28 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   // Function to handle game over
-  function gameOver(message: string) {
+  async function gameOver(message: string) {
+    const endGameRequestData = {
+      data: {
+        cheddarEarned: cheddarFound,
+        score,
+        path: [],
+      },
+      metadata: {
+        accountId: accountId!,
+        seedId,
+      },
+    };
+
+    console.log('endGameRequestData: ', endGameRequestData);
+
+    setCoveredCells([]);
     setGameOverFlag(true);
     setGameOverMessage(message);
     stopTimer();
+
+    const endGameResponse = await callEndGame(endGameRequestData);
+    if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
   }
 
   // Define a new useEffect hook to manage the timer
@@ -513,7 +598,7 @@ export const GameContextProvider = ({ children }: props) => {
     return () => {
       if (intervalId) clearInterval(intervalId);
     }; // Cleanup function to clear interval on unmount or when timer conditions change
-  }, [timerStarted, gameOverFlag]);
+  }, [timerStarted, gameOverFlag, gameOver]);
 
   // Function to handle key press events
   function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
@@ -684,10 +769,6 @@ export const GameContextProvider = ({ children }: props) => {
   const getSquareIdFromTouch = (touch: Touch) => {
     const square = document.elementFromPoint(touch.clientX, touch.clientY);
 
-    // if (square?.id === 'player-icon') {
-    //   return square.parentElement?.id;
-    // }
-
     return square?.id || '';
   };
 
@@ -745,12 +826,15 @@ export const GameContextProvider = ({ children }: props) => {
         mazeRows,
         mazeCols,
         totalCells,
+        pathLength: pathLength,
         startTimer,
         handleKeyPress,
         restartGame,
         calculateBlurRadius,
         handleTouchStart,
         handleTouchMove,
+        cheddarFound,
+        saveResponse,
       }}
     >
       {children}

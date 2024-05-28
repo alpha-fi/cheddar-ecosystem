@@ -34,7 +34,8 @@ export const getNFTs = async (accountId: string): Promise<NFT[]> => {
 
 export const buyNFT = async (
   wallet: Wallet,
-  withCheddar: boolean
+  withCheddar: boolean,
+  amount: string
 ): Promise<any> => {
   const tokenCheddarContractId = getConfig().contracts.cheddarToken;
   if (withCheddar) {
@@ -49,7 +50,7 @@ export const buyNFT = async (
                 methodName: 'ft_transfer_call',
                 args: {
                   receiver_id: cheddarNft,
-                  amount: '7700' + '0'.repeat(24),
+                  amount,
                   msg: '',
                 },
                 gas: '300' + '0'.repeat(12),
@@ -67,7 +68,7 @@ export const buyNFT = async (
                 methodName: 'nft_mint_one',
                 args: { with_cheddar: true },
                 gas: '300' + '0'.repeat(12),
-                deposit: '1',
+                deposit: '1' + '0'.repeat(21),
               },
             },
           ],
@@ -84,10 +85,21 @@ export const buyNFT = async (
             methodName: 'nft_mint_one',
             args: { with_cheddar: false },
             gas: '300' + '0'.repeat(12),
-            deposit: '15' + '0'.repeat(24),
+            deposit: amount,
           },
         },
       ],
     });
   }
+};
+
+export const getCheddarNFTBuyPrice = (
+  accountId: string,
+  withCheddar: boolean
+): Promise<string> => {
+  return view(cheddarNft, 'total_cost', {
+    num: 1,
+    minter: accountId,
+    with_cheddar: withCheddar,
+  });
 };
