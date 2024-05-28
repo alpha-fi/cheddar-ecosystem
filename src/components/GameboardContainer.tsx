@@ -17,7 +17,7 @@ import {
 } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
-import { RenderBuyNFTSection } from './BuyNFTSection';
+import { ModalBuyNFT } from './ModalBuyNFT';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
@@ -66,17 +66,18 @@ export function GameboardContainer({
     onOpen: onOpenNotAlloWedModal,
     onClose: onCloseNotAlloWedModal,
   } = useDisclosure();
+
   const {
     isOpen: isOpenModalRules,
     onOpen: onOpenModalRules,
     onClose: onCloseModalRules,
   } = useDisclosure();
 
-  const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
-
-  function handleLoggedBuyClick() {
-    setShowBuyNFTPanel(!showBuyNFTPanel);
-  }
+  const {
+    isOpen: isOpenBuyNFTPanel,
+    onOpen: onOpenBuyNFTPanel,
+    onClose: onCloseBuyNFTPanel,
+  } = useDisclosure();
 
   const [contract, setContract] = useState<NFTCheddarContract | undefined>();
   const [nfts, setNFTs] = useState<NFT[]>([]);
@@ -117,7 +118,7 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return selector.isSignedIn() ? handleLoggedBuyClick() : modal.show();
+    return selector.isSignedIn() ? onOpenBuyNFTPanel() : modal.show();
   }
 
   function logOut() {
@@ -208,11 +209,10 @@ export function GameboardContainer({
                   >
                     Buy
                   </Button>
-                  {showBuyNFTPanel && (
-                    <div className={styles.popup}>
-                      <RenderBuyNFTSection />
-                    </div>
-                  )}
+                  <ModalBuyNFT
+                    onClose={onCloseBuyNFTPanel}
+                    isOpen={isOpenBuyNFTPanel}
+                  />
                 </span>
               )}
             </div>
