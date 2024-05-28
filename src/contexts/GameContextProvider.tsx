@@ -113,8 +113,6 @@ interface GameContextProps {
   totalCells: number;
   pathLength: number;
 
-  startTimer(): void;
-
   handleKeyPress(event: KeyboardEvent<HTMLDivElement>): void;
 
   restartGame(): void;
@@ -142,6 +140,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [timerStarted, setTimerStarted] = useState(false);
+  const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
   const [direction, setDirection] = useState(
     'right' as 'right' | 'left' | 'down' | 'up'
   );
@@ -241,7 +240,7 @@ export const GameContextProvider = ({ children }: props) => {
     setSeedId(newSeedIdResponse.seedId);
 
     setTimerStarted(true);
-    startTimer();
+    setStartTimestamp(Date.now());
     // clearInterval(timerId);
     setScore(0);
     setTimeLimitInSeconds(120);
@@ -271,8 +270,6 @@ export const GameContextProvider = ({ children }: props) => {
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
     setLastCellX(-1);
     setLastCellY(-1);
-
-    startTimer(); // Start the timer again after resetting the game
   }
 
   // Function to generate maze data
@@ -376,12 +373,6 @@ export const GameContextProvider = ({ children }: props) => {
       !mazeData[newY][newX].isPath
     ) {
       return; // Player cannot move to non-path cells
-    }
-
-    // Start the timer if it hasn't started yet
-    if (!timerStarted) {
-      startTimer();
-      setTimerStarted(true);
     }
 
     const newMazeData = mazeData.map((row: MazeTileData[], rowIndex: number) =>
@@ -580,17 +571,20 @@ export const GameContextProvider = ({ children }: props) => {
   // Define a new useEffect hook to manage the timer
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
-    if (timerStarted && !gameOverFlag) {
+    if (timerStarted && !gameOverFlag && startTimestamp) {
       intervalId = setInterval(() => {
         setRemainingTime((prevTime) => {
           if (prevTime === 0 && intervalId) {
             clearInterval(intervalId);
+            setStartTimestamp(null);
             gameOver("⏰ Time's up! Game Over!");
             return prevTime;
           }
-          return prevTime - 1;
+          return Math.floor(
+            startTimestamp / 1000 + timeLimitInSeconds - Date.now() / 1000
+          );
         });
-      }, 1000);
+      }, 500);
     } else {
       if (intervalId) clearInterval(intervalId);
     }
@@ -598,7 +592,7 @@ export const GameContextProvider = ({ children }: props) => {
     return () => {
       if (intervalId) clearInterval(intervalId);
     }; // Cleanup function to clear interval on unmount or when timer conditions change
-  }, [timerStarted, gameOverFlag, gameOver]);
+  }, [timerStarted, gameOverFlag]);
 
   // Function to handle key press events
   function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
@@ -633,19 +627,6 @@ export const GameContextProvider = ({ children }: props) => {
     // Update last cell coordinates
     setLastCellX(playerPosition.x);
     setLastCellY(playerPosition.y);
-  }
-
-  // Function to start the timer
-  function startTimer() {
-    if (!timerStarted && !gameOverFlag) {
-      setTimerStarted(true);
-    }
-  }
-
-  function startTimerOnTap() {
-    if (!timerStarted) {
-      startTimer();
-    }
   }
 
   function calculateBlurRadius(cellX: number, cellY: number) {
@@ -743,8 +724,6 @@ export const GameContextProvider = ({ children }: props) => {
     const touches = event.touches;
     const initialTouch = touches[0] as Touch;
 
-    startTimerOnTap();
-
     const initialSquareId = getSquareIdFromTouch(initialTouch);
 
     if (!gameOverFlag) moveIfValid(initialSquareId!);
@@ -827,7 +806,6 @@ export const GameContextProvider = ({ children }: props) => {
         mazeCols,
         totalCells,
         pathLength: pathLength,
-        startTimer,
         handleKeyPress,
         restartGame,
         calculateBlurRadius,

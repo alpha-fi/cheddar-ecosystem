@@ -18,7 +18,6 @@ export default function Home() {
     isPowerUpOn,
     setIsPowerUpOn,
     remainingTime,
-    startTimer,
     handleKeyPress,
     handleTouchMove,
     restartGame,
@@ -84,7 +83,6 @@ export default function Home() {
       remainingTime !== null &&
       gameOverFlag !== null &&
       gameOverMessage !== null &&
-      startTimer !== null &&
       handleKeyPress !== null &&
       handleTouchMove !== null &&
       restartGame !== null

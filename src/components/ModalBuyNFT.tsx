@@ -77,7 +77,7 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
     <ModalContainer title="Buy Cheddar NFT" onClose={onClose} isOpen={isOpen}>
       <form className={styles.form}>
         <FormControl isRequired>
-          <FormLabel>Chose token to pay with:</FormLabel>
+          <FormLabel>Choose token to pay with:</FormLabel>
           <RadioButtonBroup
             options={payingOptions}
             optionSelected={tokenToPayWith}
