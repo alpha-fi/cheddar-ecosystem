@@ -22,12 +22,6 @@
 .debugInfo {
   display: none;
 }
-.gameOver {
-  font-size: 15px;
-  font-weight: bold;
-  /* color: hasExit ? 'green' : 'red', */
-  /* color: true ? 'green' : 'red', */
-}
 .gameInfo {
   display: flex;
   align-items: center;
