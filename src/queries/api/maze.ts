@@ -23,14 +23,14 @@ export async function getSeedId(accountId: string) {
 
 export interface EndGameRequest {
   data: {
-      cheddarEarned: number
-      score: number
-      path: number[]
-  }
+    cheddarEarned: number;
+    score: number;
+    path: number[];
+  };
   metadata: {
-      accountId: string
-      seedId: number
-  }
+    accountId: string;
+    seedId: number;
+  };
 }
 
 export async function callEndGame(endGameData: EndGameRequest) {

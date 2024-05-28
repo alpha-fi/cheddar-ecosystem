@@ -244,12 +244,16 @@ export function GameboardContainer({
         </ModalContainer>
       )}
       {saveResponse && (
-        <ModalContainer title={'Error saving game'} isOpen={isOpen} onClose={onClose}>
-          <div>{saveResponse.map(error => {
-            return (
-              <div>{error}</div>
-            )
-          })}</div>
+        <ModalContainer
+          title={'Error saving game'}
+          isOpen={isOpen}
+          onClose={onClose}
+        >
+          <div>
+            {saveResponse.map((error) => {
+              return <div>{error}</div>;
+            })}
+          </div>
         </ModalContainer>
       )}
     </div>

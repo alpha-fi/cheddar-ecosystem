@@ -127,7 +127,7 @@ interface GameContextProps {
 
   cheddarFound: number;
 
-  saveResponse: string[]|undefined;
+  saveResponse: string[] | undefined;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -172,7 +172,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [rng, setRng] = useState(new RNG(0));
 
-  const [saveResponse, setSaveResponse] = useState()
+  const [saveResponse, setSaveResponse] = useState();
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -256,7 +256,7 @@ export const GameContextProvider = ({ children }: props) => {
     setGameOverMessage('');
     setDirection('right');
     setCoveredCells([]);
-    setSaveResponse(undefined)
+    setSaveResponse(undefined);
 
     // Regenerate maze data
     const rng = new RNG(newSeedIdResponse.seedId);
@@ -558,15 +558,15 @@ export const GameContextProvider = ({ children }: props) => {
       data: {
         cheddarEarned: cheddarFound,
         score,
-        path: []
+        path: [],
       },
       metadata: {
         accountId: accountId!,
         seedId,
-      }
-    }
+      },
+    };
 
-    console.log("endGameRequestData: ", endGameRequestData)
+    console.log('endGameRequestData: ', endGameRequestData);
 
     setCoveredCells([]);
     setGameOverFlag(true);
@@ -574,7 +574,7 @@ export const GameContextProvider = ({ children }: props) => {
     stopTimer();
 
     const endGameResponse = await callEndGame(endGameRequestData);
-    if(!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+    if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
   }
 
   // Define a new useEffect hook to manage the timer
