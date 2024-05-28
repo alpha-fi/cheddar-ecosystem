@@ -1,6 +1,6 @@
 import { Gameboard } from './Gameboard';
 import styles from '../styles/GameboardContainer.module.css';
-import { Button, Text, background, useDisclosure } from '@chakra-ui/react';
+import { Button, Text, useDisclosure } from '@chakra-ui/react';
 import {
   MouseEventHandler,
   useContext,
@@ -19,6 +19,8 @@ import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { isAllowedResponse } from '@/hooks/maze';
 import { RenderIsAllowedErrors } from './RenderIsAllowedErrors';
 import { GameOverModalContent } from './GameOverModalContent';
+import { Scoreboard } from './Scoreboard';
+
 interface Props {
   remainingMinutes: number;
   remainingSeconds: number;
@@ -56,6 +58,11 @@ export function GameboardContainer({
   } = useContext(GameContext);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: scoreboardOpened,
+    onOpen: onOpenScoreboard,
+    onClose: onCloseScoreboard,
+  } = useDisclosure();
   const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
@@ -152,14 +159,19 @@ export function GameboardContainer({
           {RenderCheddarIcon({ width: '2rem' })} to earn.
         </Text>
       )}
-      {selector.isSignedIn() ? (
-        <div>
-          <Button onClick={logOut}>Log out</Button>
+      {
+        <div className={styles.headerButtonsContainer}>
+          <Button onClick={onOpenScoreboard}>Scoreboard</Button>
+          {selector.isSignedIn() ? (
+            <div>
+              <Button onClick={logOut}>Log out</Button>
+            </div>
+          ) : (
+            <Button onClick={modal.show}>Login</Button>
+          )}
         </div>
-      ) : (
-        <Button onClick={modal.show}>Login</Button>
-      )}
-      <h1>Cheddar Maze</h1>
+      }
+      <h1 className={styles.gameName}>Cheddar Maze</h1>
       <div className={styles.gameInfo}>
         <div className={styles.score}>Score: {score}</div>
         <div className={styles.time}>
@@ -256,6 +268,14 @@ export function GameboardContainer({
           </div>
         </ModalContainer>
       )}
+
+      <ModalContainer
+        title={'Scoreboard'}
+        isOpen={scoreboardOpened}
+        onClose={onCloseScoreboard}
+      >
+        <Scoreboard />
+      </ModalContainer>
     </div>
   );
 }

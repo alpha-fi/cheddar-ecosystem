@@ -1,0 +1,39 @@
+.titlesContainer {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0.5rem;
+}
+.title {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+.scoreboardContainer {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid black;
+  border-radius: 10px;
+}
+.playerDataContainer {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0.5rem;
+  font-weight: bold;
+}
+.borderTop {
+  border-top: 1px solid black;
+}
+.leftPortion {
+    display: flex;
+    max-width: 60%;
+}
+.position {
+  margin-right: 0.5rem;
+}
+.userName {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.userBackground {
+  background-color: rgba(251, 202, 27, 0.36);
+}
