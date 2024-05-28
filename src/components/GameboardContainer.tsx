@@ -250,8 +250,8 @@ export function GameboardContainer({
           onClose={onClose}
         >
           <div>
-            {saveResponse.map((error) => {
-              return <div>{error}</div>;
+            {saveResponse.map((error, index) => {
+              return <div key={index}>{error}</div>;
             })}
           </div>
         </ModalContainer>
