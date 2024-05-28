@@ -52,6 +52,7 @@ export function GameboardContainer({
     restartGame,
     timerStarted,
     setGameOverMessage,
+    saveResponse,
   } = useContext(GameContext);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -224,7 +225,7 @@ export function GameboardContainer({
         />
       </div>
 
-      {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
+      {!saveResponse && userIsNotAllowedToPlay && isAllowedResponse?.errors && (
         <ModalContainer
           title={'Ups! You cannot play'}
           isOpen={isOpen}
@@ -233,13 +234,22 @@ export function GameboardContainer({
           <RenderIsAllowedErrors errors={isAllowedResponse?.errors!} />
         </ModalContainer>
       )}
-      {gameOverFlag && gameOverMessage.length > 0 && (
+      {!saveResponse && gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer
           title={'Game over'}
           isOpen={isOpen}
           onClose={closeGameOverModal}
         >
           <GameOverModalContent />
+        </ModalContainer>
+      )}
+      {saveResponse && (
+        <ModalContainer title={'Error saving game'} isOpen={isOpen} onClose={onClose}>
+          <div>{saveResponse.map(error => {
+            return (
+              <div>{error}</div>
+            )
+          })}</div>
         </ModalContainer>
       )}
     </div>

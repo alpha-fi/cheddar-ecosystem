@@ -8,7 +8,7 @@ import React, {
   TouchEvent,
 } from 'react';
 
-import { getSeedId } from '../queries/api/maze';
+import { callEndGame, getSeedId } from '../queries/api/maze';
 import { useWalletSelector } from './WalletSelectorContext';
 import { RNG } from '@/entities/RNG';
 
@@ -126,6 +126,8 @@ interface GameContextProps {
   handleTouchMove: (event: React.TouchEvent<HTMLDivElement>) => void;
 
   cheddarFound: number;
+
+  saveResponse: string[]|undefined;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -169,6 +171,8 @@ export const GameContextProvider = ({ children }: props) => {
   const [seedId, setSeedId] = useState(0);
 
   const [rng, setRng] = useState(new RNG(0));
+
+  const [saveResponse, setSaveResponse] = useState()
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -252,6 +256,7 @@ export const GameContextProvider = ({ children }: props) => {
     setGameOverMessage('');
     setDirection('right');
     setCoveredCells([]);
+    setSaveResponse(undefined)
 
     // Regenerate maze data
     const rng = new RNG(newSeedIdResponse.seedId);
@@ -431,11 +436,10 @@ export const GameContextProvider = ({ children }: props) => {
     // Code for adding enemy artifact...
 
     // Add logic for the enemy defeating the player
-    if (rng.nextFloat() < 0) {
-      // 0% chance of the enemy winning
+    if (rng.nextFloat() < 0.02) {
+      // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
       clonedMazeData[y][x].isActive = false;
-      setScore(0);
 
       gameOver('Enemy won! Game Over!');
     } else {
@@ -497,7 +501,6 @@ export const GameContextProvider = ({ children }: props) => {
   ) {
     // 0.2% chance of hitting the "cartel" event
     clonedMazeData[y][x].hasCartel = true;
-    setScore(0);
 
     gameOver('You ran into the cartel! Game Over!');
   }
@@ -550,11 +553,28 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   // Function to handle game over
-  function gameOver(message: string) {
+  async function gameOver(message: string) {
+    const endGameRequestData = {
+      data: {
+        cheddarEarned: cheddarFound,
+        score,
+        path: []
+      },
+      metadata: {
+        accountId: accountId!,
+        seedId,
+      }
+    }
+
+    console.log("endGameRequestData: ", endGameRequestData)
+
     setCoveredCells([]);
     setGameOverFlag(true);
     setGameOverMessage(message);
     stopTimer();
+
+    const endGameResponse = await callEndGame(endGameRequestData);
+    if(!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
   }
 
   // Define a new useEffect hook to manage the timer
@@ -814,6 +834,7 @@ export const GameContextProvider = ({ children }: props) => {
         handleTouchStart,
         handleTouchMove,
         cheddarFound,
+        saveResponse,
       }}
     >
       {children}
