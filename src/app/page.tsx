@@ -91,11 +91,6 @@ export default function Home() {
     );
   }
 
-  console.log(
-    'process.env.NEXT_PUBLIC_NETWORK',
-    process.env.NEXT_PUBLIC_NETWORK
-  );
-
   return (
     <div>
       {initialized() && ( // Replace `condition` with your actual condition

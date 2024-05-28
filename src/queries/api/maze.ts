@@ -9,7 +9,6 @@ export async function isAllowed(accountId: string) {
   ).toString();
   const response = await fetch(url);
   const jsonResponse = await response.json();
-  console.log('isAllowed response', jsonResponse);
   return jsonResponse;
 }
 
