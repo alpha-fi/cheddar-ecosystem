@@ -1,8 +1,15 @@
+import { getConfig } from '@/configs/config';
+
+const { backendBaseUrl } = getConfig();
+
 export async function isAllowed(accountId: string) {
-  const response = await fetch(
-    `http://localhost:3001/api/maze/isAllowed?accountId=${accountId}`
-  );
+  const url = new URL(
+    `api/maze/isAllowed?accountId=${accountId}`,
+    backendBaseUrl
+  ).toString();
+  const response = await fetch(url);
   const jsonResponse = await response.json();
+  console.log('isAllowed response', jsonResponse);
   return jsonResponse;
 }
 
@@ -10,7 +17,9 @@ export async function getSeedId(accountId: string) {
   const data = {
     accountId,
   };
-  const response = await fetch('http://localhost:3001/api/maze/getSeedId', {
+  const url = new URL(`api/maze/getSeedId`, backendBaseUrl).toString();
+
+  const response = await fetch(url, {
     method: 'POST',
     mode: 'cors',
     headers: {
@@ -34,7 +43,9 @@ export interface EndGameRequest {
 }
 
 export async function callEndGame(endGameData: EndGameRequest) {
-  const response = await fetch('http://localhost:3001/api/maze/endGame', {
+  const url = new URL(`api/maze/endGame`, backendBaseUrl).toString();
+
+  const response = await fetch(url, {
     method: 'POST',
     mode: 'cors',
     headers: {

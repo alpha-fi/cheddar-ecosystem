@@ -15,6 +15,7 @@ export interface Config {
     ecosystem: string;
     mazeVersion: string;
   };
+  backendBaseUrl: string;
 }
 
 export const getConfig = (): Config => {
@@ -38,6 +39,7 @@ export const getConfig = (): Config => {
           ecosystem: 'cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
         },
+        backendBaseUrl: '',
       };
     case 'testnet':
       return {
@@ -57,6 +59,7 @@ export const getConfig = (): Config => {
           ecosystem: 'test_cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
         },
+        backendBaseUrl: 'http://15.204.142.153:3001/',
       };
     case 'local':
       return {
@@ -76,6 +79,7 @@ export const getConfig = (): Config => {
           ecosystem: 'test_cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
         },
+        backendBaseUrl: 'http://localhost:3001/',
       };
     default:
       throw Error(
