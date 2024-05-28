@@ -8,7 +8,7 @@ import React, {
   TouchEvent,
 } from 'react';
 
-import { getSeedId } from '../queries/api/maze';
+import { callEndGame, getSeedId } from '../queries/api/maze';
 import { useWalletSelector } from './WalletSelectorContext';
 import { RNG } from '@/entities/RNG';
 
@@ -27,6 +27,15 @@ export interface MazeTileData {
   hasExit: boolean;
   hasCartel: boolean;
 }
+
+const amountOfCheddarInBag = 5;
+
+const pointsOfActions = {
+  cheddarFound: 1,
+  bagFound: 1,
+  enemyDefeated: 1,
+  moveWithoutDying: 0,
+};
 
 interface GameContextProps {
   mazeData: MazeTileData[][];
@@ -115,6 +124,10 @@ interface GameContextProps {
   handleTouchStart: (event: React.TouchEvent<HTMLDivElement>) => void;
 
   handleTouchMove: (event: React.TouchEvent<HTMLDivElement>) => void;
+
+  cheddarFound: number;
+
+  saveResponse: string[] | undefined;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -153,9 +166,13 @@ export const GameContextProvider = ({ children }: props) => {
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
   const [coveredCells, setCoveredCells] = useState<string[]>([]);
 
+  const [cheddarFound, setCheddarFound] = useState(0);
+
   const [seedId, setSeedId] = useState(0);
 
   const [rng, setRng] = useState(new RNG(0));
+
+  const [saveResponse, setSaveResponse] = useState();
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -220,8 +237,6 @@ export const GameContextProvider = ({ children }: props) => {
       return;
     }
 
-    console.log('in restart game');
-
     const newSeedIdResponse = await getSeedId(accountId);
     setSeedId(newSeedIdResponse.seedId);
 
@@ -230,6 +245,7 @@ export const GameContextProvider = ({ children }: props) => {
     // clearInterval(timerId);
     setScore(0);
     setTimeLimitInSeconds(120);
+    setCheddarFound(0);
     setRemainingTime(120);
     setCheeseCooldown(false);
     setBagCooldown(false);
@@ -240,6 +256,7 @@ export const GameContextProvider = ({ children }: props) => {
     setGameOverMessage('');
     setDirection('right');
     setCoveredCells([]);
+    setSaveResponse(undefined);
 
     // Regenerate maze data
     const rng = new RNG(newSeedIdResponse.seedId);
@@ -419,16 +436,16 @@ export const GameContextProvider = ({ children }: props) => {
     // Code for adding enemy artifact...
 
     // Add logic for the enemy defeating the player
-    if (rng.nextFloat() < 0) {
-      // 0% chance of the enemy winning
+    if (rng.nextFloat() < 0.02) {
+      // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
       clonedMazeData[y][x].isActive = false;
 
-      setScore(0); // Set score to zero
       gameOver('Enemy won! Game Over!');
     } else {
       clonedMazeData[y][x].hasEnemy = true;
 
+      setScore(score + pointsOfActions.enemyDefeated);
       // setEnemyCooldown(true);
       setTimeout(
         () => {
@@ -447,7 +464,8 @@ export const GameContextProvider = ({ children }: props) => {
     // 5.5% chance of winning cheese
     clonedMazeData[y][x].hasCheese = true;
 
-    setScore(score + 1);
+    setScore(score + pointsOfActions.cheddarFound);
+    setCheddarFound(cheddarFound + 1);
     setCheeseCooldown(true);
     setTimeout(
       () => {
@@ -465,7 +483,8 @@ export const GameContextProvider = ({ children }: props) => {
     // 5.5% chance of winning cheese
     clonedMazeData[y][x].hasBag = true;
 
-    setScore(score + 1);
+    setScore(score + pointsOfActions.bagFound);
+    setCheddarFound(cheddarFound + 1 * amountOfCheddarInBag);
     setBagCooldown(true);
     setTimeout(
       () => {
@@ -483,7 +502,6 @@ export const GameContextProvider = ({ children }: props) => {
     // 0.2% chance of hitting the "cartel" event
     clonedMazeData[y][x].hasCartel = true;
 
-    setScore(0);
     gameOver('You ran into the cartel! Game Over!');
   }
 
@@ -523,6 +541,8 @@ export const GameContextProvider = ({ children }: props) => {
       coveredCells.length >= 0.75 * pathLength
     ) {
       handleExitFound(clonedMazeData, newX, newY);
+    } else {
+      setScore(score + pointsOfActions.moveWithoutDying);
     }
     setMazeData(clonedMazeData);
   }
@@ -533,11 +553,28 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   // Function to handle game over
-  function gameOver(message: string) {
+  async function gameOver(message: string) {
+    const endGameRequestData = {
+      data: {
+        cheddarEarned: cheddarFound,
+        score,
+        path: [],
+      },
+      metadata: {
+        accountId: accountId!,
+        seedId,
+      },
+    };
+
+    console.log('endGameRequestData: ', endGameRequestData);
+
     setCoveredCells([]);
     setGameOverFlag(true);
     setGameOverMessage(message);
     stopTimer();
+
+    const endGameResponse = await callEndGame(endGameRequestData);
+    if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
   }
 
   // Define a new useEffect hook to manage the timer
@@ -732,10 +769,6 @@ export const GameContextProvider = ({ children }: props) => {
   const getSquareIdFromTouch = (touch: Touch) => {
     const square = document.elementFromPoint(touch.clientX, touch.clientY);
 
-    // if (square?.id === 'player-icon') {
-    //   return square.parentElement?.id;
-    // }
-
     return square?.id || '';
   };
 
@@ -800,6 +833,8 @@ export const GameContextProvider = ({ children }: props) => {
         calculateBlurRadius,
         handleTouchStart,
         handleTouchMove,
+        cheddarFound,
+        saveResponse,
       }}
     >
       {children}

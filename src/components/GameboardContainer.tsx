@@ -26,7 +26,7 @@ import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { IsAllowedResponse } from '@/hooks/maze';
 import ModalNotAllowedToPlay from './ModalNotAllowedToPlay';
 import ModalRules from './ModalRules';
-
+import { GameOverModalContent } from './GameOverModalContent';
 interface Props {
   remainingMinutes: number;
   remainingSeconds: number;
@@ -59,6 +59,8 @@ export function GameboardContainer({
     handleTouchMove,
     restartGame,
     timerStarted,
+    setGameOverMessage,
+    saveResponse,
   } = useContext(GameContext);
 
   const {
@@ -66,6 +68,15 @@ export function GameboardContainer({
     onOpen: onOpenNotAlloWedModal,
     onClose: onCloseNotAlloWedModal,
   } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
+
+  if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
+    onOpen();
+    setAllowOpenGameOverModal(true);
+  }
 
   const {
     isOpen: isOpenModalRules,
@@ -137,6 +148,12 @@ export function GameboardContainer({
     return `${styles.rulesButton} ${timerStarted ? styles.hideButton : ''}`;
   }
 
+  function closeGameOverModal() {
+    setGameOverMessage('');
+    onClose();
+    setAllowOpenGameOverModal(false);
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -168,62 +185,61 @@ export function GameboardContainer({
           {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
         </div>
       </div>
-      <div className={styles.gameOver}>{gameOverMessage}</div>
-      {
-        <div
-          className={styles.mazeContainer}
-          tabIndex={0}
-          // onKeyDown={getProperHandler(handleKeyPress)}
-          // onKeyDown={getKeyDownMoveHandler()}
-          onTouchMove={getProperHandler(handleTouchMove)}
-        >
-          <div className={styles.toolbar}>
-            <span className={styles.rulesButton}>
-              <Button onClick={onOpenModalRules}>Rules</Button>
-            </span>
 
-            <span className={getStartButtonStyles()}>
-              {/* <Button onClick={getProperHandler(restartGame)}> */}
-              <Button onClick={getStartGameButtonHandler()}>
-                {gameOverFlag ? 'Restart Game' : 'Start Game'}
-              </Button>
-            </span>
+      <div
+        className={styles.mazeContainer}
+        tabIndex={0}
+        // onKeyDown={getProperHandler(handleKeyPress)}
+        // onKeyDown={getKeyDownMoveHandler()}
+        onTouchMove={getProperHandler(handleTouchMove)}
+      >
+        <div className={styles.toolbar}>
+          <span className={styles.rulesButton}>
+            <Button onClick={onOpenModalRules}>Rules</Button>
+          </span>
 
-            <div className={styles.tooltip}>
-              <Button
-                colorScheme="yellow"
-                onClick={handlePowerUpClick}
-                disabled={!hasPowerUp}
-              >
-                ⚡
-              </Button>
-              <span className={styles.tooltipText}>
-                Cheddy PowerUp NFT provides in-game features
+          <span className={getStartButtonStyles()}>
+            {/* <Button onClick={getProperHandler(restartGame)}> */}
+            <Button onClick={getStartGameButtonHandler()}>
+              {gameOverFlag ? 'Restart Game' : 'Start Game'}
+            </Button>
+          </span>
+
+          <div className={styles.tooltip}>
+            <Button
+              colorScheme="yellow"
+              onClick={handlePowerUpClick}
+              disabled={!hasPowerUp}
+            >
+              ⚡
+            </Button>
+            <span className={styles.tooltipText}>
+              Cheddy PowerUp NFT provides in-game features
+            </span>
+            {!hasPowerUp && (
+              <span className={styles.buyPowerUp}>
+                <Button
+                  colorScheme="purple"
+                  onClick={handleBuyClick}
+                  disabled={!hasPowerUp}
+                >
+                  Buy
+                </Button>
+                <ModalBuyNFT
+                  onClose={onCloseBuyNFTPanel}
+                  isOpen={isOpenBuyNFTPanel}
+                />
               </span>
-              {!hasPowerUp && (
-                <span className={styles.buyPowerUp}>
-                  <Button
-                    colorScheme="purple"
-                    onClick={handleBuyClick}
-                    disabled={!hasPowerUp}
-                  >
-                    Buy
-                  </Button>
-                  <ModalBuyNFT
-                    onClose={onCloseBuyNFTPanel}
-                    isOpen={isOpenBuyNFTPanel}
-                  />
-                </span>
-              )}
-            </div>
+            )}
           </div>
-          <Gameboard
-            openLogIn={modal.show}
-            isUserLoggedIn={selector.isSignedIn()}
-            isAllowedResponse={isAllowedResponse!}
-          />
         </div>
-      }
+        <Gameboard
+          openLogIn={modal.show}
+          isUserLoggedIn={selector.isSignedIn()}
+          isAllowedResponse={isAllowedResponse!}
+        />
+      </div>
+
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
         <ModalNotAllowedToPlay
           isOpen={isOpenNotAlloWedModal}
@@ -232,6 +248,28 @@ export function GameboardContainer({
         />
       )}
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
+      {gameOverFlag && gameOverMessage.length > 0 && (
+        <ModalContainer
+          title={'Game over'}
+          isOpen={isOpen}
+          onClose={closeGameOverModal}
+        >
+          <GameOverModalContent />
+        </ModalContainer>
+      )}
+      {saveResponse && (
+        <ModalContainer
+          title={'Error saving game'}
+          isOpen={isOpen}
+          onClose={onClose}
+        >
+          <div>
+            {saveResponse.map((error, index) => {
+              return <div key={index}>{error}</div>;
+            })}
+          </div>
+        </ModalContainer>
+      )}
     </div>
   );
 }
