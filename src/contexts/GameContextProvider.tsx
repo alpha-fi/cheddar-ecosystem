@@ -28,13 +28,13 @@ export interface MazeTileData {
   hasCartel: boolean;
 }
 
-const ammountOfCheddarInBag = 5;
+const amountOfCheddarInBag = 5;
 
 const pointsOfActions = {
-  cheddarFound: 555,
-  bagFound: 555 * ammountOfCheddarInBag,
-  enemyDefeated: 200,
-  moveWithoutDying: 20,
+  cheddarFound: 1,
+  bagFound: 1,
+  enemyDefeated: 1,
+  moveWithoutDying: 0,
 };
 
 interface GameContextProps {
@@ -480,7 +480,7 @@ export const GameContextProvider = ({ children }: props) => {
     clonedMazeData[y][x].hasBag = true;
 
     setScore(score + pointsOfActions.bagFound);
-    setCheddarFound(cheddarFound + 1 * ammountOfCheddarInBag);
+    setCheddarFound(cheddarFound + 1 * amountOfCheddarInBag);
     setBagCooldown(true);
     setTimeout(
       () => {
