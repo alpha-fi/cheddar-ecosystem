@@ -32,13 +32,15 @@ export default function ModalNotAllowedToPlay({
     }
   };
 
+  const testErrors = ["nadabot"]
+
   return (
     <ModalContainer
       title={'Ups! You cannot play'}
       isOpen={isOpen}
       onClose={onClose}
     >
-      <UnorderedList>{errors.map(renderError)}</UnorderedList>
+      <UnorderedList>{testErrors.map(renderError)}</UnorderedList>
     </ModalContainer>
   );
 }

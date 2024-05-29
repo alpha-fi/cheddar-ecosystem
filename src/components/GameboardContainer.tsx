@@ -255,6 +255,7 @@ export function GameboardContainer({
         />
       </div>
 
+      {/* {userIsNotAllowedToPlay && isAllowedResponse?.errors && ( */}
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
         <ModalNotAllowedToPlay
           isOpen={isOpenNotAlloWedModal}
