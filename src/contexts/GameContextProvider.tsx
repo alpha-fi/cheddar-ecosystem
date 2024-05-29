@@ -590,7 +590,7 @@ export const GameContextProvider = ({ children }: props) => {
         seedId,
       },
     };
-
+    
     setHasWon(won);
     setCoveredCells([]);
     setGameOverFlag(true);
