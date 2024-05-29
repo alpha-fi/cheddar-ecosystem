@@ -12,7 +12,8 @@ export const GameOverModalContent = () => {
     hasWon,
   } = useContext(GameContext);
 
-  const propperSecondsFormat = remainingSeconds === 0 ? '00' : remainingSeconds;
+  const propperSecondsFormat =
+    remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
 
   function getMessageStyles() {
     return `${styles.gameOver} ${hasWon ? styles.win : styles.lost}`;
