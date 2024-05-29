@@ -528,8 +528,8 @@ export const GameContextProvider = ({ children }: props) => {
     } else if (rng.nextFloat() < 0.002) {
       handleCartelFound(clonedMazeData, newX, newY);
     } else if (
-      Math.random() < 0.33 &&
-      coveredCells.length >= 0.75 * pathLength
+      Math.random() < 0.1 &&
+      coveredCells.length >= 0.85 * pathLength
     ) {
       handleExitFound(clonedMazeData, newX, newY);
     } else {
