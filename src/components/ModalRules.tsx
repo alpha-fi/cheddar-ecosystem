@@ -1,3 +1,4 @@
+import { getConfig } from '@/configs/config';
 import { ModalContainer } from './FeedbackModal';
 import { ListItem, OrderedList, UnorderedList } from '@chakra-ui/react';
 import Link from 'next/link';
@@ -8,9 +9,30 @@ interface Props {
 }
 
 export default function ModalRules({ isOpen, onClose }: Props) {
+  const { buyCheddarInRefUrl, nadaBotUrl } = getConfig().networkData;
   return (
     <ModalContainer title={'Rules'} isOpen={isOpen} onClose={onClose}>
       <OrderedList>
+        <ListItem>
+          A lil NEAR and a Wallet 2 Be human via{' '}
+          <Link
+            href={nadaBotUrl}
+            style={{ textDecoration: 'underline' }}
+            target="_blank"
+          >
+            Nadabot
+          </Link>
+        </ListItem>
+        <ListItem>
+          Hold 555 🧀 to play, get it on{' '}
+          <Link
+            href={buyCheddarInRefUrl}
+            style={{ textDecoration: 'underline' }}
+            target="_blank"
+          >
+            Ref
+          </Link>
+        </ListItem>
         <ListItem>Click or Tap to Start</ListItem>
         <ListItem>Navigate with Arrows or Tap</ListItem>
         <ListItem>Collect Cheddar🧀</ListItem>
