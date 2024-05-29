@@ -6,6 +6,7 @@ import React, {
   useState,
   KeyboardEvent,
   TouchEvent,
+  useRef,
 } from 'react';
 
 import { callEndGame, getSeedId } from '../queries/api/maze';
@@ -171,7 +172,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [rng, setRng] = useState(new RNG(0));
 
-  const [saveResponse, setSaveResponse] = useState();
+  const [saveResponse, setSaveResponse] = useState();  
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -718,7 +719,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    event.preventDefault(); // Prevent screen scroll
+    // event.preventDefault(); // Prevent screen scroll
     const touches = event.touches;
     const initialTouch = touches[0] as Touch;
 
@@ -728,6 +729,7 @@ export const GameContextProvider = ({ children }: props) => {
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    console.log("Touch move")
     event.preventDefault(); // Prevent screen scroll
     const touches = event.touches;
 

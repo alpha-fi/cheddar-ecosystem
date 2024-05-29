@@ -19,7 +19,6 @@ export default function Home() {
     setIsPowerUpOn,
     remainingTime,
     handleKeyPress,
-    handleTouchMove,
     restartGame,
   } = useContext(GameContext);
 
@@ -84,7 +83,6 @@ export default function Home() {
       gameOverFlag !== null &&
       gameOverMessage !== null &&
       handleKeyPress !== null &&
-      handleTouchMove !== null &&
       restartGame !== null
     );
   }

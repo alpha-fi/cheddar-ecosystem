@@ -32,7 +32,6 @@
   background-size: 70%;
   position: relative;
   z-index: 2;
-  pointer-events: none;
 }
 .playerMoveUp {
   transform: rotate(-90deg);

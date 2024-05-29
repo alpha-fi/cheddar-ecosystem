@@ -1,5 +1,5 @@
 import { MazeTileData } from '@/contexts/GameContextProvider';
-import { useContext } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { GameContext } from '@/contexts/GameContextProvider';
 import { ListItem, OrderedList } from '@chakra-ui/react';
 
@@ -29,7 +29,31 @@ export function Gameboard({
     calculateBlurRadius,
     handleTouchStart,
     handleTouchMove,
+    timerStarted,
   } = useContext(GameContext);
+
+  const touchContainerRef = useRef<HTMLDivElement>(null);
+  const gameStartedRef = useRef(false)
+
+  // useEffect(() => {
+  //   const wasGameStarted = gameStartedRef.current
+  //   gameStartedRef.current = timerStarted
+  //   console.log(touchContainerRef.current)
+  //   if(touchContainerRef.current && wasGameStarted !== gameStartedRef.current) {
+  //     console.log("in")
+  //     const tiles = touchContainerRef.current.getElementsByClassName('tile')
+  //     for(let i = 0; i < tiles.length; i++) {
+  //       const tile = tiles[i]
+  //       console.log("Setting up touch event listeners")
+  //       tile.addEventListener('onclick', () => console.log("touchmove"))
+  //       // tile.addEventListener('ontouchmove', handleConditionalFunction(
+  //       //   handleTouchMove,
+  //       //   () => {}
+  //       // ))
+  //       console.log(i, tile)
+  //     }
+  //   }
+  // }, [timerStarted]);
 
   // Check if the game has started for the first time
   const gameStarted = playerPosition !== null;
@@ -79,7 +103,9 @@ export function Gameboard({
   }
 
   return (
-    <>
+    <div
+      ref={touchContainerRef}
+    >
       {mazeData.map((row: MazeTileData[], rowIndex: number) => (
         <div key={rowIndex} className={styles.mazeRow}>
           {row.map((cell: MazeTileData, colIndex: number) => {
@@ -146,7 +172,7 @@ export function Gameboard({
               <div
                 key={colIndex}
                 id={`cell-${rowIndex}-${colIndex}`}
-                className={getClassNamesForCell(cell)}
+                className={getClassNamesForCell(cell) + ' tile'}
                 style={{
                   filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
                 }}
@@ -185,6 +211,6 @@ export function Gameboard({
           })}
         </div>
       ))}
-    </>
+    </div>
   );
 }
