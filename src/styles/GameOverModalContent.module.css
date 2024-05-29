@@ -31,4 +31,9 @@
 .earnings {
     font-size: 1.5rem;
     font-weight: bolder;
-  }
+}
+
+.loseEarnings {
+  font-size: 1.2rem;
+  font-weight: bolder;
+}

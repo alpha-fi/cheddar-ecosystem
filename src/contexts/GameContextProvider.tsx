@@ -561,7 +561,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     const endGameRequestData = {
       data: {
-        cheddarEarned: cheddarFound,
+        cheddarEarned: won ? cheddarFound : 0,
         score,
         path: [],
       },
