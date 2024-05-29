@@ -172,7 +172,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [rng, setRng] = useState(new RNG(0));
 
-  const [saveResponse, setSaveResponse] = useState();  
+  const [saveResponse, setSaveResponse] = useState();
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -729,7 +729,7 @@ export const GameContextProvider = ({ children }: props) => {
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
-    console.log("Touch move")
+    console.log('Touch move');
     event.preventDefault(); // Prevent screen scroll
     const touches = event.touches;
 

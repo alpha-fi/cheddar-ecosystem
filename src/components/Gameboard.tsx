@@ -33,7 +33,7 @@ export function Gameboard({
   } = useContext(GameContext);
 
   const touchContainerRef = useRef<HTMLDivElement>(null);
-  const gameStartedRef = useRef(false)
+  const gameStartedRef = useRef(false);
 
   // useEffect(() => {
   //   const wasGameStarted = gameStartedRef.current
@@ -103,9 +103,7 @@ export function Gameboard({
   }
 
   return (
-    <div
-      ref={touchContainerRef}
-    >
+    <div ref={touchContainerRef}>
       {mazeData.map((row: MazeTileData[], rowIndex: number) => (
         <div key={rowIndex} className={styles.mazeRow}>
           {row.map((cell: MazeTileData, colIndex: number) => {

@@ -185,10 +185,7 @@ export function GameboardContainer({
         </div>
       </div>
 
-      <div
-        className={styles.mazeContainer}
-        tabIndex={0}
-      >
+      <div className={styles.mazeContainer} tabIndex={0}>
         <div className={styles.toolbar}>
           <span className={styles.rulesButton}>
             <Button onClick={onOpenModalRules}>Rules</Button>
