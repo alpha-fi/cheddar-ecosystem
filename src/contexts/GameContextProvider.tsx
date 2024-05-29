@@ -169,6 +169,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [touchStart, setTouchStart] = useState({ x: -1, y: -1 });
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
   const [coveredCells, setCoveredCells] = useState<string[]>([]);
+  const [cellsWithItemAmount, setCellsWithItemAmount] = useState(0);
 
   const [cheddarFound, setCheddarFound] = useState(0);
 
@@ -262,6 +263,7 @@ export const GameContextProvider = ({ children }: props) => {
     setDirection('right');
     setCoveredCells([]);
     setSaveResponse(undefined);
+    setCellsWithItemAmount(0);
 
     gameOverRefSent.current = false;
 
@@ -433,7 +435,7 @@ export const GameContextProvider = ({ children }: props) => {
   ) {
     // 30% chance of encountering an enemy
     // Code for adding enemy artifact...
-
+    setCellsWithItemAmount(cellsWithItemAmount + 1);
     // Add logic for the enemy defeating the player
     if (rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
@@ -462,7 +464,7 @@ export const GameContextProvider = ({ children }: props) => {
   ) {
     // 5.5% chance of winning cheese
     clonedMazeData[y][x].hasCheese = true;
-
+    setCellsWithItemAmount(cellsWithItemAmount + 1);
     setScore(score + pointsOfActions.cheddarFound);
     setCheddarFound(cheddarFound + 1);
     setCheeseCooldown(true);
@@ -481,7 +483,7 @@ export const GameContextProvider = ({ children }: props) => {
   ) {
     // 5.5% chance of winning cheese
     clonedMazeData[y][x].hasBag = true;
-
+    setCellsWithItemAmount(cellsWithItemAmount + 1);
     setScore(score + pointsOfActions.bagFound);
     setCheddarFound(cheddarFound + 1 * amountOfCheddarInBag);
     setBagCooldown(true);
@@ -500,7 +502,7 @@ export const GameContextProvider = ({ children }: props) => {
   ) {
     // 0.2% chance of hitting the "cartel" event
     clonedMazeData[y][x].hasCartel = true;
-
+    setCellsWithItemAmount(cellsWithItemAmount + 1);
     gameOver('You ran into the cartel! Game Over!', false);
   }
 
@@ -510,6 +512,7 @@ export const GameContextProvider = ({ children }: props) => {
     y: number
   ) {
     clonedMazeData[y][x].hasExit = true;
+    setCellsWithItemAmount(cellsWithItemAmount + 1);
     gameOver('Congrats! You found the Hidden Door.', true);
   }
 
@@ -525,21 +528,22 @@ export const GameContextProvider = ({ children }: props) => {
     if (doesCellHasArtifact(newX, newY)) {
       return;
     }
-
+    console.log(pathLength, cellsWithItemAmount)
     let clonedMazeData = [...newMazeData];
-    if (!enemyCooldown && rng.nextFloat() < 0.3) {
+    if (
+      rng.nextFloat() < 0.0015 &&
+      coveredCells.length >= 0.75 * pathLength || 
+      pathLength - cellsWithItemAmount === 1
+    ) {
+      handleExitFound(clonedMazeData, newX, newY);
+    } else if (!enemyCooldown && rng.nextFloat() < 0.19) {
       handleEnemyFound(clonedMazeData, newX, newY);
     } else if (!cheeseCooldown && rng.nextFloat() < 0.055) {
       handleCheeseFound(clonedMazeData, newX, newY);
-    } else if (!bagCooldown && rng.nextFloat() < 0.055) {
+    } else if (!bagCooldown && rng.nextFloat() < 0.027) {
       handleBagFound(clonedMazeData, newX, newY);
-    } else if (rng.nextFloat() < 0.002) {
+    } else if (rng.nextFloat() < 0.0002) {
       handleCartelFound(clonedMazeData, newX, newY);
-    } else if (
-      Math.random() < 0.1 &&
-      coveredCells.length >= 0.85 * pathLength
-    ) {
-      handleExitFound(clonedMazeData, newX, newY);
     } else {
       setScore(score + pointsOfActions.moveWithoutDying);
     }
