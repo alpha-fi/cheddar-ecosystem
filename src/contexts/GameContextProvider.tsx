@@ -557,8 +557,6 @@ export const GameContextProvider = ({ children }: props) => {
       },
     };
 
-    console.log('endGameRequestData: ', endGameRequestData);
-
     setCoveredCells([]);
     setGameOverFlag(true);
     setGameOverMessage(message);
