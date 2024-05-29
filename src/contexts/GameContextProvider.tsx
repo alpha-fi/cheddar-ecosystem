@@ -449,7 +449,8 @@ export const GameContextProvider = ({ children }: props) => {
     // Code for adding enemy artifact...
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     // Add logic for the enemy defeating the player
-    if (rng.nextFloat() < 0.02) {
+    // if (rng.nextFloat() < 0.02) {
+    if (rng.nextFloat() < 1) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
       clonedMazeData[y][x].isActive = false;
@@ -591,6 +592,8 @@ export const GameContextProvider = ({ children }: props) => {
       },
     };
 
+    if(!won) setCheddarFound(0);
+    
     setHasWon(won);
     setCoveredCells([]);
     setGameOverFlag(true);
