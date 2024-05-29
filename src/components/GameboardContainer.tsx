@@ -56,7 +56,6 @@ export function GameboardContainer({
     isPowerUpOn,
     remainingTime,
     handleKeyPress,
-    handleTouchMove,
     restartGame,
     timerStarted,
     setGameOverMessage,
@@ -186,13 +185,7 @@ export function GameboardContainer({
         </div>
       </div>
 
-      <div
-        className={styles.mazeContainer}
-        tabIndex={0}
-        // onKeyDown={getProperHandler(handleKeyPress)}
-        // onKeyDown={getKeyDownMoveHandler()}
-        onTouchMove={getProperHandler(handleTouchMove)}
-      >
+      <div className={styles.mazeContainer} tabIndex={0}>
         <div className={styles.toolbar}>
           <span className={styles.rulesButton}>
             <Button onClick={onOpenModalRules}>Rules</Button>
