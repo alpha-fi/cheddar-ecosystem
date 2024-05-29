@@ -1,0 +1,15 @@
+.tokenIcon {
+  margin-left: 1rem;
+  width: 2rem;
+  min-width: max-content;
+  height: 2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formLabel {
+    margin-top: 1rem;
+}

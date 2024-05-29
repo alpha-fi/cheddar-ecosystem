@@ -1,0 +1,7 @@
+.innerBox {
+    user-select: none;
+    cursor: pointer;
+    border-width: 1px;
+    border-radius: 10px;
+    box-shadow: 10px;   
+}
