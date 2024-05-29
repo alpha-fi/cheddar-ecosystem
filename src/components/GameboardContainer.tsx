@@ -89,6 +89,7 @@ export function GameboardContainer({
     onClose: onCloseBuyNFTPanel,
   } = useDisclosure();
 
+  const [publicityDown, setPublicityDown] = useState(true);
   const [contract, setContract] = useState<NFTCheddarContract | undefined>();
   const [nfts, setNFTs] = useState<NFT[]>([]);
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
@@ -170,6 +171,10 @@ export function GameboardContainer({
     );
   }
 
+  function handleClosePublicity() {
+    setPublicityDown(!publicityDown);
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -179,6 +184,48 @@ export function GameboardContainer({
         maxWidth: `${mazeData[0].length * cellSize + 25}px`,
       }}
     >
+      {publicityDown && (
+        <>
+          <div className={styles.publicityContainerTwo}>
+            <img
+              className={`${styles.learnImg} ${styles.publicityContainerImg}`}
+              src="../../assets/books.svg"
+              alt="learn image"
+            />
+            <span className={styles.publicityContainerSpan}>Learn</span>
+            <img
+              className={`${styles.farmImg} ${styles.publicityContainerImg}`}
+              src="../../assets/farm.svg"
+              alt="farm image"
+            />
+            <span className={styles.publicityContainerSpan}>Farm</span>
+            <img
+              className={styles.publicityContainerImg}
+              src="../../assets/play.svg"
+              alt="play image"
+            />
+            <span className={styles.publicityContainerSpan}>Play</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              style={{
+                position: 'relative',
+                top: '-30px',
+                right: '-15px',
+                color: '#F8F9FA',
+              }}
+              className="bi bi-x-circle-fill"
+              viewBox="0 0 16 16"
+              onClick={handleClosePublicity}
+            >
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" />
+            </svg>
+          </div>
+        </>
+      )}
+      <div className={styles.publicityDecoration}></div>
       {accountId && !hasEnoughBalance && (
         <Text color="tomato">
           You have to hold at least {minCheddarRequired}
