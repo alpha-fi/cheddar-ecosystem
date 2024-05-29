@@ -22,6 +22,20 @@
 .debugInfo {
   display: none;
 }
+.headerContainer {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+.header {
+  font-weight: bolder;
+}
+.userName {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 30%;
+}
 .gameInfo {
   display: flex;
   align-items: center;
