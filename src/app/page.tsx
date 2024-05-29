@@ -68,7 +68,7 @@ export default function Home() {
     );
   }
 
-  const cellSize = isMobile() ? 30 : 40;
+  const cellSize = 40;
 
   function initialized() {
     // Check if all necessary state variables are not null or undefined
