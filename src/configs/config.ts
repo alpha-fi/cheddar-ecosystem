@@ -5,6 +5,8 @@ export interface Config {
     walletUrl: string;
     helperUrl: string;
     explorerUrl: string;
+    buyCheddarInRefUrl: string;
+    nadaBotUrl: string;
   };
   contracts: {
     cheddarNft: string;
@@ -29,6 +31,9 @@ export const getConfig = (): Config => {
           walletUrl: 'https://wallet.near.org',
           helperUrl: 'https://helper.mainnet.near.org',
           explorerUrl: 'https://explorer.mainnet.near.org',
+          buyCheddarInRefUrl:
+            'https://app.ref.finance/#near|token.cheddar.near',
+          nadaBotUrl: 'https://app.nada.bot/',
         },
         contracts: {
           cheddarNft: 'nft.cheddar.near',
@@ -49,6 +54,9 @@ export const getConfig = (): Config => {
           walletUrl: 'https://wallet.testnet.near.org',
           helperUrl: 'https://helper.testnet.near.org',
           explorerUrl: 'https://explorer.testnet.near.org',
+          buyCheddarInRefUrl:
+            'https://testnet.ref.finance/#near|token.cheddar.testnet',
+          nadaBotUrl: 'https://testnet.nada.bot/',
         },
         contracts: {
           cheddarNft: 'nft.cheddar.testnet',
@@ -69,6 +77,9 @@ export const getConfig = (): Config => {
           walletUrl: 'https://wallet.testnet.near.org',
           helperUrl: 'https://helper.testnet.near.org',
           explorerUrl: 'https://explorer.testnet.near.org',
+          buyCheddarInRefUrl:
+            'https://testnet.ref.finance/#near|token.cheddar.testnet',
+          nadaBotUrl: 'https://testnet.nada.bot/',
         },
         contracts: {
           cheddarNft: 'nft.cheddar.testnet',
