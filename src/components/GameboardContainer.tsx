@@ -256,11 +256,12 @@ export function GameboardContainer({
       </div>
 
       {/* {userIsNotAllowedToPlay && isAllowedResponse?.errors && ( */}
-      {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
+      {true && (
         <ModalNotAllowedToPlay
-          isOpen={isOpenNotAlloWedModal}
+          // isOpen={isOpenNotAlloWedModal}
+          isOpen={true}
           onClose={onCloseNotAlloWedModal}
-          errors={isAllowedResponse.errors}
+          // errors={isAllowedResponse.errors}
         />
       )}
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
