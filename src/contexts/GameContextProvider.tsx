@@ -12,6 +12,7 @@ import React, {
 import { callEndGame, getSeedId } from '../queries/api/maze';
 import { useWalletSelector } from './WalletSelectorContext';
 import { RNG } from '@/entities/RNG';
+import { useGetPendingCheddarToMint } from '@/hooks/maze';
 
 interface props {
   children: ReactNode;
@@ -128,6 +129,8 @@ interface GameContextProps {
 
   saveResponse: string[] | undefined;
   hasWon: undefined | boolean;
+  pendingCheddarToMint: number;
+  endGameResponse: any;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -178,6 +181,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [rng, setRng] = useState(new RNG(0));
 
   const [saveResponse, setSaveResponse] = useState();
+  const [endGameResponse, setEndGameResponse] = useState();
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -185,6 +189,12 @@ export const GameContextProvider = ({ children }: props) => {
   const mazeRows = 11;
   const mazeCols = 9;
   const totalCells = mazeRows * mazeCols;
+
+  const {
+    data: pendingCheddarToMint = 0,
+    isLoading: isLoadingPendingCheddarToMint,
+    refetch: refetchPendingCheddarToMint,
+  } = useGetPendingCheddarToMint();
 
   useEffect(() => {
     function getPathLength() {
@@ -243,6 +253,7 @@ export const GameContextProvider = ({ children }: props) => {
     }
 
     const newSeedIdResponse = await getSeedId(accountId);
+    await refetchPendingCheddarToMint();
     setSeedId(newSeedIdResponse.seedId);
 
     setHasWon(undefined);
@@ -263,6 +274,7 @@ export const GameContextProvider = ({ children }: props) => {
     setDirection('right');
     setCoveredCells([]);
     setSaveResponse(undefined);
+    setEndGameResponse(undefined);
     setCellsWithItemAmount(0);
 
     gameOverRefSent.current = false;
@@ -562,9 +574,14 @@ export const GameContextProvider = ({ children }: props) => {
 
     gameOverRefSent.current = true;
 
+    const cheddarToEarn =
+      cheddarFound <= pendingCheddarToMint
+        ? cheddarFound
+        : pendingCheddarToMint;
+
     const endGameRequestData = {
       data: {
-        cheddarEarned: won ? cheddarFound : 0,
+        cheddarEarned: won ? cheddarToEarn : 0,
         score,
         path: [],
       },
@@ -581,6 +598,7 @@ export const GameContextProvider = ({ children }: props) => {
     stopTimer();
 
     const endGameResponse = await callEndGame(endGameRequestData);
+    setEndGameResponse(endGameResponse);
     if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
   }
 
@@ -832,6 +850,8 @@ export const GameContextProvider = ({ children }: props) => {
         cheddarFound,
         saveResponse,
         hasWon,
+        pendingCheddarToMint,
+        endGameResponse,
       }}
     >
       {children}

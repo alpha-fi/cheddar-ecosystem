@@ -44,7 +44,7 @@ export const getConfig = (): Config => {
           ecosystem: 'cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
         },
-        backendBaseUrl: '',
+        backendBaseUrl: 'https://api.cheddar.farm:3002/',
       };
     case 'testnet':
       return {

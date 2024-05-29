@@ -12,6 +12,16 @@ export async function isAllowed(accountId: string) {
   return jsonResponse;
 }
 
+export async function getPendingCheddarToMint(accountId: string) {
+  const url = new URL(
+    `api/maze/pendingCheddar?accountId=${accountId}`,
+    backendBaseUrl
+  ).toString();
+  const response = await fetch(url);
+  const jsonResponse = await response.json();
+  return jsonResponse.ok ? jsonResponse.pendingCheddarToMint : 0;
+}
+
 export async function getSeedId(accountId: string) {
   const data = {
     accountId,
