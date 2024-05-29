@@ -1,16 +1,16 @@
 import { ModalContainer } from './FeedbackModal';
 import { ListItem, UnorderedList } from '@chakra-ui/react';
 import Link from 'next/link';
-import styles from '../styles/ModalNotAllowedToPlay.module.css'
+import styles from '../styles/ModalNotAllowedToPlay.module.css';
 
 interface Props {
-  // errors: string[];
+  errors: string[];
   isOpen: boolean;
   onClose: () => void;
 }
 
 export default function ModalNotAllowedToPlay({
-  // errors,
+  errors,
   isOpen,
   onClose,
 }: Props) {
@@ -33,15 +33,13 @@ export default function ModalNotAllowedToPlay({
     }
   };
 
-  const testErrors = ["nadabot"]
-
   return (
     <ModalContainer
       title={'Ups! You cannot play'}
       isOpen={isOpen}
       onClose={onClose}
     >
-      <UnorderedList>{testErrors.map(renderError)}</UnorderedList>
+      <UnorderedList>{errors.map(renderError)}</UnorderedList>
     </ModalContainer>
   );
 }
