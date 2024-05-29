@@ -127,6 +127,7 @@ interface GameContextProps {
   cheddarFound: number;
 
   saveResponse: string[] | undefined;
+  hasWon: undefined | boolean;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -134,12 +135,15 @@ export const GameContext = createContext<GameContextProps>(
 );
 
 export const GameContextProvider = ({ children }: props) => {
+  const gameOverRefSent = useRef(false);
+
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
+  const [hasWon, setHasWon] = useState<undefined | boolean>(undefined);
   const [timerStarted, setTimerStarted] = useState(false);
   const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
   const [direction, setDirection] = useState(
@@ -240,13 +244,14 @@ export const GameContextProvider = ({ children }: props) => {
     const newSeedIdResponse = await getSeedId(accountId);
     setSeedId(newSeedIdResponse.seedId);
 
+    setHasWon(undefined);
     setTimerStarted(true);
     setStartTimestamp(Date.now());
     // clearInterval(timerId);
     setScore(0);
     setTimeLimitInSeconds(120);
-    setCheddarFound(0);
     setRemainingTime(120);
+    setCheddarFound(0);
     setCheeseCooldown(false);
     setBagCooldown(false);
     // setEnemyCooldown(false);
@@ -257,6 +262,8 @@ export const GameContextProvider = ({ children }: props) => {
     setDirection('right');
     setCoveredCells([]);
     setSaveResponse(undefined);
+
+    gameOverRefSent.current = false;
 
     // Regenerate maze data
     const rng = new RNG(newSeedIdResponse.seedId);
@@ -433,7 +440,7 @@ export const GameContextProvider = ({ children }: props) => {
       clonedMazeData[y][x].enemyWon = true;
       clonedMazeData[y][x].isActive = false;
 
-      gameOver('Enemy won! Game Over!');
+      gameOver('Enemy won! Game Over!', false);
     } else {
       clonedMazeData[y][x].hasEnemy = true;
 
@@ -494,7 +501,7 @@ export const GameContextProvider = ({ children }: props) => {
     // 0.2% chance of hitting the "cartel" event
     clonedMazeData[y][x].hasCartel = true;
 
-    gameOver('You ran into the cartel! Game Over!');
+    gameOver('You ran into the cartel! Game Over!', false);
   }
 
   function handleExitFound(
@@ -503,7 +510,7 @@ export const GameContextProvider = ({ children }: props) => {
     y: number
   ) {
     clonedMazeData[y][x].hasExit = true;
-    gameOver('Congrats! You found the Hidden Door.');
+    gameOver('Congrats! You found the Hidden Door.', true);
   }
 
   function addArtifacts(
@@ -545,7 +552,13 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   // Function to handle game over
-  async function gameOver(message: string) {
+  async function gameOver(message: string, won: boolean) {
+    if (gameOverRefSent.current) {
+      return;
+    }
+
+    gameOverRefSent.current = true;
+
     const endGameRequestData = {
       data: {
         cheddarEarned: cheddarFound,
@@ -558,6 +571,7 @@ export const GameContextProvider = ({ children }: props) => {
       },
     };
 
+    setHasWon(won);
     setCoveredCells([]);
     setGameOverFlag(true);
     setGameOverMessage(message);
@@ -574,9 +588,10 @@ export const GameContextProvider = ({ children }: props) => {
       intervalId = setInterval(() => {
         setRemainingTime((prevTime) => {
           if (prevTime === 0 && intervalId) {
+            // if (intervalId && true) {
             clearInterval(intervalId);
             setStartTimestamp(null);
-            gameOver("⏰ Time's up! Game Over!");
+            gameOver("⏰ Time's up! Game Over!", false);
             return prevTime;
           }
           return Math.floor(
@@ -813,6 +828,7 @@ export const GameContextProvider = ({ children }: props) => {
         handleTouchMove,
         cheddarFound,
         saveResponse,
+        hasWon,
       }}
     >
       {children}
