@@ -8,6 +8,7 @@
   font-family: Bubblegum Sans !important;
   background-size: cover;
   background-position: center;
+  overscroll-behavior: none;
 }
 .mazeContainer {
   margin-bottom: 10px;
