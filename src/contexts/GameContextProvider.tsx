@@ -135,6 +135,8 @@ export const GameContext = createContext<GameContextProps>(
 );
 
 export const GameContextProvider = ({ children }: props) => {
+  const gameOverRefSent = useRef(false);
+
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
@@ -248,8 +250,8 @@ export const GameContextProvider = ({ children }: props) => {
     // clearInterval(timerId);
     setScore(0);
     setTimeLimitInSeconds(120);
-    setCheddarFound(0);
     setRemainingTime(120);
+    setCheddarFound(0);
     setCheeseCooldown(false);
     setBagCooldown(false);
     // setEnemyCooldown(false);
@@ -260,6 +262,8 @@ export const GameContextProvider = ({ children }: props) => {
     setDirection('right');
     setCoveredCells([]);
     setSaveResponse(undefined);
+
+    gameOverRefSent.current = false;
 
     // Regenerate maze data
     const rng = new RNG(newSeedIdResponse.seedId);
@@ -549,6 +553,12 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
+    if (gameOverRefSent.current) {
+      return;
+    }
+
+    gameOverRefSent.current = true;
+
     const endGameRequestData = {
       data: {
         cheddarEarned: cheddarFound,
@@ -578,6 +588,7 @@ export const GameContextProvider = ({ children }: props) => {
       intervalId = setInterval(() => {
         setRemainingTime((prevTime) => {
           if (prevTime === 0 && intervalId) {
+            // if (intervalId && true) {
             clearInterval(intervalId);
             setStartTimestamp(null);
             gameOver("⏰ Time's up! Game Over!", false);
