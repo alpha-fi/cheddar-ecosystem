@@ -590,8 +590,6 @@ export const GameContextProvider = ({ children }: props) => {
         seedId,
       },
     };
-
-    if(!won) setCheddarFound(0);
     
     setHasWon(won);
     setCoveredCells([]);
