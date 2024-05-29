@@ -127,6 +127,7 @@ interface GameContextProps {
   cheddarFound: number;
 
   saveResponse: string[] | undefined;
+  hasWon: undefined | boolean;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -140,6 +141,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [score, setScore] = useState(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
+  const [hasWon, setHasWon] = useState<undefined | boolean>(undefined);
   const [timerStarted, setTimerStarted] = useState(false);
   const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
   const [direction, setDirection] = useState(
@@ -240,6 +242,7 @@ export const GameContextProvider = ({ children }: props) => {
     const newSeedIdResponse = await getSeedId(accountId);
     setSeedId(newSeedIdResponse.seedId);
 
+    setHasWon(undefined);
     setTimerStarted(true);
     setStartTimestamp(Date.now());
     // clearInterval(timerId);
@@ -433,7 +436,7 @@ export const GameContextProvider = ({ children }: props) => {
       clonedMazeData[y][x].enemyWon = true;
       clonedMazeData[y][x].isActive = false;
 
-      gameOver('Enemy won! Game Over!');
+      gameOver('Enemy won! Game Over!', false);
     } else {
       clonedMazeData[y][x].hasEnemy = true;
 
@@ -494,7 +497,7 @@ export const GameContextProvider = ({ children }: props) => {
     // 0.2% chance of hitting the "cartel" event
     clonedMazeData[y][x].hasCartel = true;
 
-    gameOver('You ran into the cartel! Game Over!');
+    gameOver('You ran into the cartel! Game Over!', false);
   }
 
   function handleExitFound(
@@ -503,7 +506,7 @@ export const GameContextProvider = ({ children }: props) => {
     y: number
   ) {
     clonedMazeData[y][x].hasExit = true;
-    gameOver('Congrats! You found the Hidden Door.');
+    gameOver('Congrats! You found the Hidden Door.', true);
   }
 
   function addArtifacts(
@@ -545,7 +548,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   // Function to handle game over
-  async function gameOver(message: string) {
+  async function gameOver(message: string, won: boolean) {
     const endGameRequestData = {
       data: {
         cheddarEarned: cheddarFound,
@@ -558,6 +561,7 @@ export const GameContextProvider = ({ children }: props) => {
       },
     };
 
+    setHasWon(won);
     setCoveredCells([]);
     setGameOverFlag(true);
     setGameOverMessage(message);
@@ -576,7 +580,7 @@ export const GameContextProvider = ({ children }: props) => {
           if (prevTime === 0 && intervalId) {
             clearInterval(intervalId);
             setStartTimestamp(null);
-            gameOver("⏰ Time's up! Game Over!");
+            gameOver("⏰ Time's up! Game Over!", false);
             return prevTime;
           }
           return Math.floor(
@@ -813,6 +817,7 @@ export const GameContextProvider = ({ children }: props) => {
         handleTouchMove,
         cheddarFound,
         saveResponse,
+        hasWon,
       }}
     >
       {children}

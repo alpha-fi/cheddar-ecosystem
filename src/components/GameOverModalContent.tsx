@@ -9,18 +9,19 @@ export const GameOverModalContent = () => {
     score,
     cheddarFound,
     gameOverMessage,
+    hasWon,
   } = useContext(GameContext);
 
   const propperSecondsFormat = remainingSeconds === 0 ? '00' : remainingSeconds;
 
   function getMessageStyles() {
-    return `${styles.gameOver} ${score > 0 ? styles.win : styles.lost}`;
+    return `${styles.gameOver} ${hasWon ? styles.win : styles.lost}`;
   }
 
   return (
     <div className={styles.gameOverModal}>
       <p className={getMessageStyles()}>{gameOverMessage}</p>
-      {score > 0 && <p className={styles.score}>{score} Points!</p>}
+      <p className={styles.score}>{score} Points!</p>
       <p className={styles.timeRemaining}>
         Time remaining: {remainingMinutes}:{propperSecondsFormat}
       </p>
