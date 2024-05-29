@@ -449,8 +449,7 @@ export const GameContextProvider = ({ children }: props) => {
     // Code for adding enemy artifact...
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     // Add logic for the enemy defeating the player
-    // if (rng.nextFloat() < 0.02) {
-    if (rng.nextFloat() < 1) {
+    if (rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
       clonedMazeData[y][x].isActive = false;
