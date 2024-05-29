@@ -1,6 +1,13 @@
 import { Gameboard } from './Gameboard';
 import styles from '../styles/GameboardContainer.module.css';
-import { Button, Text, background, useDisclosure } from '@chakra-ui/react';
+import {
+  Button,
+  ListItem,
+  OrderedList,
+  Text,
+  background,
+  useDisclosure,
+} from '@chakra-ui/react';
 import {
   MouseEventHandler,
   useContext,
@@ -10,14 +17,15 @@ import {
 } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
-import { RenderBuyNFTSection } from './BuyNFTSection';
+import { ModalBuyNFT } from './ModalBuyNFT';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
 import { ModalContainer } from './FeedbackModal';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
-import { isAllowedResponse } from '@/hooks/maze';
-import { RenderIsAllowedErrors } from './RenderIsAllowedErrors';
+import { IsAllowedResponse } from '@/hooks/maze';
+import ModalNotAllowedToPlay from './ModalNotAllowedToPlay';
+import ModalRules from './ModalRules';
 import { GameOverModalContent } from './GameOverModalContent';
 interface Props {
   remainingMinutes: number;
@@ -26,7 +34,7 @@ interface Props {
   cellSize: number;
   hasEnoughBalance: boolean | null;
   minCheddarRequired: number;
-  isAllowedResponse: isAllowedResponse | null | undefined;
+  isAllowedResponse: IsAllowedResponse | null | undefined;
 }
 
 export function GameboardContainer({
@@ -55,6 +63,11 @@ export function GameboardContainer({
     saveResponse,
   } = useContext(GameContext);
 
+  const {
+    isOpen: isOpenNotAlloWedModal,
+    onOpen: onOpenNotAlloWedModal,
+    onClose: onCloseNotAlloWedModal,
+  } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
   const [showRules, setShowRules] = useState(false);
@@ -65,13 +78,17 @@ export function GameboardContainer({
     setAllowOpenGameOverModal(true);
   }
 
-  function toggleShowRules() {
-    setShowRules(!showRules);
-  }
+  const {
+    isOpen: isOpenModalRules,
+    onOpen: onOpenModalRules,
+    onClose: onCloseModalRules,
+  } = useDisclosure();
 
-  function handleLoggedBuyClick() {
-    setShowBuyNFTPanel(!showBuyNFTPanel);
-  }
+  const {
+    isOpen: isOpenBuyNFTPanel,
+    onOpen: onOpenBuyNFTPanel,
+    onClose: onCloseBuyNFTPanel,
+  } = useDisclosure();
 
   const [contract, setContract] = useState<NFTCheddarContract | undefined>();
   const [nfts, setNFTs] = useState<NFT[]>([]);
@@ -89,7 +106,7 @@ export function GameboardContainer({
     if (isAllowedResponse?.ok) {
       return handler;
     }
-    return onOpen;
+    return onOpenNotAlloWedModal;
   }
 
   useEffect(() => {
@@ -112,7 +129,7 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return selector.isSignedIn() ? handleLoggedBuyClick() : modal.show();
+    return selector.isSignedIn() ? onOpenBuyNFTPanel() : modal.show();
   }
 
   function logOut() {
@@ -178,7 +195,7 @@ export function GameboardContainer({
       >
         <div className={styles.toolbar}>
           <span className={styles.rulesButton}>
-            <Button onClick={toggleShowRules}>Rules</Button>
+            <Button onClick={onOpenModalRules}>Rules</Button>
           </span>
 
           <span className={getStartButtonStyles()}>
@@ -208,33 +225,30 @@ export function GameboardContainer({
                 >
                   Buy
                 </Button>
-                {showBuyNFTPanel && (
-                  <div className={styles.popup}>
-                    <RenderBuyNFTSection />
-                  </div>
-                )}
+                <ModalBuyNFT
+                  onClose={onCloseBuyNFTPanel}
+                  isOpen={isOpenBuyNFTPanel}
+                />
               </span>
             )}
           </div>
         </div>
         <Gameboard
-          showRules={showRules}
           openLogIn={modal.show}
           isUserLoggedIn={selector.isSignedIn()}
           isAllowedResponse={isAllowedResponse!}
         />
       </div>
 
-      {!saveResponse && userIsNotAllowedToPlay && isAllowedResponse?.errors && (
-        <ModalContainer
-          title={'Ups! You cannot play'}
-          isOpen={isOpen}
-          onClose={onClose}
-        >
-          <RenderIsAllowedErrors errors={isAllowedResponse?.errors!} />
-        </ModalContainer>
+      {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
+        <ModalNotAllowedToPlay
+          isOpen={isOpenNotAlloWedModal}
+          onClose={onCloseNotAlloWedModal}
+          errors={isAllowedResponse.errors}
+        />
       )}
-      {!saveResponse && gameOverFlag && gameOverMessage.length > 0 && (
+      <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
+      {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer
           title={'Game over'}
           isOpen={isOpen}

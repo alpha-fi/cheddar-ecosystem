@@ -1,9 +1,4 @@
-import {
-  FormControl,
-  FormLabel,
-  Button,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { FormControl, FormLabel, Button, useToast } from '@chakra-ui/react';
 import { ModalContainer } from './FeedbackModal';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RadioButtonBroup } from './RadioButtonGroup';
@@ -16,8 +11,12 @@ import styles from '../styles/BuyNFTSection.module.css';
 import { useGetCheddarNFTPrice } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
 
-export const RenderBuyNFTSection = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+interface Props {
+  onClose: () => void;
+  isOpen: boolean;
+}
+
+export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
   const { selector } = useWalletSelector();
   const {
     data: cheddarNftPriceInCheddar,
@@ -25,6 +24,7 @@ export const RenderBuyNFTSection = () => {
   } = useGetCheddarNFTPrice(true);
   const { data: cheddarNftPriceInNear, isLoading: isNftPriceInNearLoading } =
     useGetCheddarNFTPrice(false);
+  const toast = useToast();
 
   //The first option is the default one
   const payingOptions = [
@@ -55,18 +55,29 @@ export const RenderBuyNFTSection = () => {
         ? cheddarNftPriceInCheddar
         : cheddarNftPriceInNear;
       await buyNFT(wallet, withCheddar, amount!);
-      onOpen();
+      toast({
+        title: 'Enjoy your purchase!',
+        status: 'success',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
     } catch (err: any) {
-      setErrorMsg(err);
-      onOpen();
+      toast({
+        title: err,
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
     }
   }
 
   return (
-    <>
+    <ModalContainer title="Buy Cheddar NFT" onClose={onClose} isOpen={isOpen}>
       <form className={styles.form}>
         <FormControl isRequired>
-          <FormLabel>Chose token to pay with:</FormLabel>
+          <FormLabel>Choose token to pay with:</FormLabel>
           <RadioButtonBroup
             options={payingOptions}
             optionSelected={tokenToPayWith}
@@ -90,9 +101,6 @@ export const RenderBuyNFTSection = () => {
           Purchase
         </Button>
       </form>
-      <ModalContainer title={modalTitle} isOpen={isOpen} onClose={onClose}>
-        {errorMsg ? errorMsg : 'Enjoy your purchase!'}
-      </ModalContainer>
-    </>
+    </ModalContainer>
   );
 };
