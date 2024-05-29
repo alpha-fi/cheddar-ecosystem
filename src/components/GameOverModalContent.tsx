@@ -25,8 +25,11 @@ export const GameOverModalContent = () => {
       <p className={styles.timeRemaining}>
         Time remaining: {remainingMinutes}:{propperSecondsFormat}
       </p>
-      {cheddarFound > 0 && (
+      {cheddarFound > 0 && hasWon && (
         <p className={styles.earnings}>You have earned {cheddarFound} 🧀</p>
+      )}
+      {cheddarFound > 0 && !hasWon && (
+        <p className={styles.loseEarnings}>Enemy drained ur Cheddar bag</p>
       )}
     </div>
   );
