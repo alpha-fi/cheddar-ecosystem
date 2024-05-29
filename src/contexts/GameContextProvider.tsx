@@ -528,11 +528,10 @@ export const GameContextProvider = ({ children }: props) => {
     if (doesCellHasArtifact(newX, newY)) {
       return;
     }
-    console.log(pathLength, cellsWithItemAmount)
+    console.log(pathLength, cellsWithItemAmount);
     let clonedMazeData = [...newMazeData];
     if (
-      rng.nextFloat() < 0.0015 &&
-      coveredCells.length >= 0.75 * pathLength || 
+      (rng.nextFloat() < 0.0015 && coveredCells.length >= 0.75 * pathLength) ||
       pathLength - cellsWithItemAmount === 1
     ) {
       handleExitFound(clonedMazeData, newX, newY);
