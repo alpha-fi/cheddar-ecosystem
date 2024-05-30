@@ -268,7 +268,7 @@ export function GameboardContainer({
 
       <div className={styles.publicityDecoration}></div>
 
-      {accountId && (!hasEnoughBalance || userIsNotAllowedToPlay) && (      
+      {accountId && (!hasEnoughBalance || userIsNotAllowedToPlay) && (
         <Link
           target="_blank"
           className={styles.notEnoughBalanceMsg}
