@@ -37,7 +37,7 @@ export const getConfig = (): Config => {
         },
         contracts: {
           cheddarNft: 'nft.cheddar.near',
-          cheddarToken: '',
+          cheddarToken: 'token.cheddar.near',
           nearSocial: 'social.near',
         },
         socialKeys: {
