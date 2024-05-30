@@ -143,7 +143,7 @@ export function GameboardContainer({
 
   function getStartGameButtonHandler() {
     return accountId //If the accountId exists
-      ? !hasEnoughBalance //And have enough balance
+      ? hasEnoughBalance //And have enough balance
         ? getProperHandler(restartGame)
         : () => {} //If doesn't have enough balance
       : modal.show; //If accountId doesn't exist
