@@ -1,8 +1,11 @@
 'use client';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { GameboardContainer } from '../components/GameboardContainer';
-
 import { GameContext } from '../contexts/GameContextProvider';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { ntoy, yton } from '@/contracts/contractUtils';
+import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
+import { useGetIsAllowedResponse as useGetIsAllowedResponse } from '@/hooks/maze';
 
 export default function Home() {
   const {
@@ -15,24 +18,47 @@ export default function Home() {
     isPowerUpOn,
     setIsPowerUpOn,
     remainingTime,
-    startTimer,
     handleKeyPress,
-    handleTouchMove,
     restartGame,
   } = useContext(GameContext);
+
+  const { selector, accountId } = useWalletSelector();
+
+  const { data: cheddarMetadata, isLoading: isLoadingCheddarMetadata } =
+    useGetCheddarMetadata();
+  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
+    useGetCheddarBalance();
+  const { data: isAllowedResponse, isLoading: isLoadingIsAllowed } =
+    useGetIsAllowedResponse();
+
+  const [queriesLoaded, setQueriesLoaded] = useState(false);
+  const [hasEnoughBalance, setHasEnoughBalance] = useState(false);
+
+  if (!queriesLoaded) {
+    if (
+      !isLoadingCheddarBalance &&
+      !isLoadingCheddarMetadata &&
+      !isLoadingIsAllowed
+    ) {
+      setQueriesLoaded(true);
+    }
+  }
+
+  const minCheddarRequired = ntoy(555);
+
+  useEffect(() => {
+    function doesUserHaveEnoughBalance() {
+      if (!cheddarBalanceData) return false;
+
+      return minCheddarRequired <= cheddarBalanceData!;
+    }
+
+    setHasEnoughBalance(doesUserHaveEnoughBalance());
+  }, [cheddarBalanceData, accountId, selector, isAllowedResponse]);
 
   function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);
     // Additional logic if needed
-  }
-
-  function handleBuyClick() {
-    const popup = document.getElementById('buyPopup');
-    if (popup!.style.display === 'block') {
-      popup!.style.display = 'none';
-    } else {
-      popup!.style.display = 'block';
-    }
   }
 
   function isMobile() {
@@ -42,7 +68,7 @@ export default function Home() {
     );
   }
 
-  const cellSize = isMobile() ? 30 : 40;
+  const cellSize = 40;
 
   function initialized() {
     // Check if all necessary state variables are not null or undefined
@@ -56,24 +82,24 @@ export default function Home() {
       remainingTime !== null &&
       gameOverFlag !== null &&
       gameOverMessage !== null &&
-      startTimer !== null &&
       handleKeyPress !== null &&
-      handleTouchMove !== null &&
       restartGame !== null
     );
   }
 
   return (
-    <div>
+    <>
       {initialized() && ( // Replace `condition` with your actual condition
         <GameboardContainer
           remainingMinutes={Math.floor(remainingTime / 60)}
           remainingSeconds={remainingTime % 60}
           handlePowerUpClick={handlePowerUpClick}
-          handleBuyClick={handleBuyClick}
           cellSize={cellSize}
+          hasEnoughBalance={hasEnoughBalance}
+          minCheddarRequired={yton(minCheddarRequired.toString())}
+          isAllowedResponse={isAllowedResponse}
         />
       )}
-    </div>
+    </>
   );
 }

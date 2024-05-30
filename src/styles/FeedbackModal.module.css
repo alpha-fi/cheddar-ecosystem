@@ -1,0 +1,15 @@
+.customButtonImg {
+    width: 2em;    
+    height: 2em;
+    margin-left: -5px;
+}
+
+.cancelButton {
+    padding: 15px 24px;
+    width: 165px;
+}
+
+.closeButton {
+    height: 48px;
+    width: 165px;
+}
