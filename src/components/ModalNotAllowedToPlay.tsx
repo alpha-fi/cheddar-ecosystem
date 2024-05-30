@@ -1,6 +1,7 @@
 import { ModalContainer } from './FeedbackModal';
 import { ListItem, UnorderedList } from '@chakra-ui/react';
 import Link from 'next/link';
+import styles from '../styles/ModalNotAllowedToPlay.module.css';
 
 interface Props {
   errors: string[];
@@ -21,7 +22,7 @@ export default function ModalNotAllowedToPlay({
         return (
           <ListItem>
             <span>You must been validated by </span>
-            <Link href="http://www.nada.bot" color="blue">
+            <Link className={styles.link} href="http://www.nada.bot">
               nada.bot
             </Link>
             <span> to play</span>

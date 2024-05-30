@@ -2,6 +2,7 @@ import { Gameboard } from './Gameboard';
 import styles from '../styles/GameboardContainer.module.css';
 import {
   Button,
+  Link,
   ListItem,
   OrderedList,
   Text,
@@ -137,7 +138,11 @@ export function GameboardContainer({
   }
 
   function getStartGameButtonHandler() {
-    return accountId ? getProperHandler(restartGame) : modal.show;
+    return accountId //If the accountId exists
+      ? !hasEnoughBalance //And have enough balance
+        ? getProperHandler(restartGame)
+        : () => {} //If doesn't have enough balance
+      : modal.show; //If accountId doesn't exist
   }
 
   function getKeyDownMoveHandler() {
@@ -227,10 +232,14 @@ export function GameboardContainer({
       )}
       <div className={styles.publicityDecoration}></div>
       {accountId && !hasEnoughBalance && (
-        <Text color="tomato">
-          You have to hold at least {minCheddarRequired}
-          {RenderCheddarIcon({ width: '2rem' })} to earn.
-        </Text>
+        <Link
+          target="_blank"
+          className={styles.notEnoughBalanceMsg}
+          href="https://app.ref.finance/#a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near%7Ctoken.cheddar.near"
+        >
+          You must have {minCheddarRequired}
+          {RenderCheddarIcon({ width: '2rem' })} to play.
+        </Link>
       )}
       {selector.isSignedIn() ? (
         <div>
@@ -262,9 +271,11 @@ export function GameboardContainer({
 
           <span className={getStartButtonStyles()}>
             {/* <Button onClick={getProperHandler(restartGame)}> */}
-            <Button onClick={getStartGameButtonHandler()}>
-              {gameOverFlag ? 'Restart Game' : 'Start Game'}
-            </Button>
+            {hasEnoughBalance && (
+              <Button onClick={getStartGameButtonHandler()}>
+                {gameOverFlag ? 'Restart Game' : 'Start Game'}
+              </Button>
+            )}
           </span>
 
           <div className={styles.tooltip}>

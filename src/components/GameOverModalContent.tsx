@@ -25,7 +25,11 @@ export const GameOverModalContent = () => {
   }
 
   useEffect(() => {
-    if (endGameResponse && endGameResponse.ok) {
+    if (
+      endGameResponse &&
+      endGameResponse.ok &&
+      endGameResponse.cheddarMinted > 0
+    ) {
       toast({
         title: 'Cheddar Minted Succesfully!',
         status: 'success',
