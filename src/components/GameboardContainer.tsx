@@ -194,13 +194,13 @@ export function GameboardContainer({
           {RenderCheddarIcon({ width: '2rem' })} to play.
         </Link>
       )}
-      {selector.isSignedIn() ? (
+      {/* {selector.isSignedIn() ? (
         <div>
           <Button onClick={logOut}>Log out</Button>
         </div>
       ) : (
         <Button onClick={modal.show}>Login</Button>
-      )}
+      )} */}
       <div className={styles.headerContainer}>
         <h1 className={styles.header}>Cheddar Maze</h1>
         <span className={styles.userName}>
