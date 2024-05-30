@@ -95,10 +95,6 @@ export function GameboardContainer({
     onClose: onCloseBuyNFTPanel,
   } = useDisclosure();
 
-  const [contract, setContract] = useState<NFTCheddarContract | undefined>();
-  const [nfts, setNFTs] = useState<NFT[]>([]);
-  const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
-    useGetCheddarNFTs();
   const { modal, selector, accountId } = useWalletSelector();
 
   const userIsNotAllowedToPlay = useMemo(() => {
@@ -113,21 +109,6 @@ export function GameboardContainer({
     }
     return onOpenNotAlloWedModal;
   }
-
-  useEffect(() => {
-    if (!selector.isSignedIn()) {
-      setNFTs([]);
-      return;
-    }
-    selector.wallet().then((wallet) => {
-      const contract = new NFTCheddarContract(wallet);
-      setContract(contract);
-
-      contract.getNFTs('silkking.testnet').then((nfts) => {
-        setNFTs(nfts);
-      });
-    });
-  }, [selector]);
 
   function getGameContainerClasses() {
     return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
