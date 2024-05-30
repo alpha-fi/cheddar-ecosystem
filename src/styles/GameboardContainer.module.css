@@ -9,6 +9,11 @@
   background-size: cover;
   background-position: center;
 }
+.notEnoughBalanceMsg {
+  font-weight: bold;
+  margin: 1rem auto 0.5rem auto;
+  color: red !important;
+}
 .mazeContainer {
   margin-bottom: 10px;
   border-radius: 5px;
