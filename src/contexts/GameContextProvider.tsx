@@ -554,10 +554,19 @@ export const GameContextProvider = ({ children }: props) => {
   const chancesOfFinding = {
     exit: 0.0015,
     enemy: 0.19,
-    cheese: nfts.length > 0 ? 0.07 : 0.055, //TO TEST More chances if have nfts
+    cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
   };
+
+  const NFTBuffMultiplier = 1.28;
+
+  function getChancesOfFindingCheese() {
+    if(nfts.length > 0) {
+      return chancesOfFinding.cheese * NFTBuffMultiplier;
+    }
+    return chancesOfFinding.cheese;
+  }
 
   function addArtifacts(
     newX: number,
@@ -580,7 +589,7 @@ export const GameContextProvider = ({ children }: props) => {
       handleExitFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
       handleEnemyFound(clonedMazeData, newX, newY);
-    } else if (!cheeseCooldown && rng.nextFloat() < chancesOfFinding.cheese) {
+    } else if (!cheeseCooldown && rng.nextFloat() < getChancesOfFindingCheese()) {
       handleCheeseFound(clonedMazeData, newX, newY);
     } else if (!bagCooldown && rng.nextFloat() < chancesOfFinding.bag) {
       handleBagFound(clonedMazeData, newX, newY);
