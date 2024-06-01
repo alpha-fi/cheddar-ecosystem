@@ -96,6 +96,7 @@ export default function Home() {
           handlePowerUpClick={handlePowerUpClick}
           cellSize={cellSize}
           hasEnoughBalance={hasEnoughBalance}
+          cheddarBalanceData={cheddarBalanceData}
           minCheddarRequired={yton(minCheddarRequired.toString())}
           isAllowedResponse={isAllowedResponse}
         />
