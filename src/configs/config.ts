@@ -7,6 +7,7 @@ export interface Config {
     explorerUrl: string;
     buyCheddarInRefUrl: string;
     nadaBotUrl: string;
+    nftImageBaseUrl: string;
   };
   contracts: {
     cheddarNft: string;
@@ -34,6 +35,8 @@ export const getConfig = (): Config => {
           buyCheddarInRefUrl:
             'https://app.ref.finance/#near|token.cheddar.near',
           nadaBotUrl: 'https://app.nada.bot/',
+          nftImageBaseUrl:
+            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
         },
         contracts: {
           cheddarNft: 'nft.cheddar.near',
@@ -57,6 +60,8 @@ export const getConfig = (): Config => {
           buyCheddarInRefUrl:
             'https://testnet.ref.finance/#near|token.cheddar.testnet',
           nadaBotUrl: 'https://testnet.nada.bot/',
+          nftImageBaseUrl:
+            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
         },
         contracts: {
           cheddarNft: 'nft.cheddar.testnet',
@@ -80,6 +85,8 @@ export const getConfig = (): Config => {
           buyCheddarInRefUrl:
             'https://testnet.ref.finance/#near|token.cheddar.testnet',
           nadaBotUrl: 'https://testnet.nada.bot/',
+          nftImageBaseUrl:
+            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
         },
         contracts: {
           cheddarNft: 'nft.cheddar.testnet',
