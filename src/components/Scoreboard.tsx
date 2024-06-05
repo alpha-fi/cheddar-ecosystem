@@ -28,10 +28,10 @@ export const Scoreboard = () => {
   }
   return (
     <div>
-      <div className={styles.titlesContainer}>
+      {/* <div className={styles.titlesContainer}>
         <h3 className={styles.title}>User</h3>
         <h3 className={styles.title}>Score</h3>
-      </div>
+      </div> */}
       <div className={styles.scoreboardContainer}>
         {scoreboardResponse &&
           scoreboardResponse.ok &&
@@ -46,7 +46,7 @@ export const Scoreboard = () => {
                 </div>
                 <div className={styles.bottomPart}>
                   <span>Cheese found: {playerScoreData.cheddarEarned}</span>
-                  <span>Score{playerScoreData.score}</span>
+                  <span>Score: {playerScoreData.score}</span>
                 </div>
               </div>
             );
