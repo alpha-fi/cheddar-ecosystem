@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 env:
-  NEXT_PUBLIC_NETWORK: testnet
+  NEXT_PUBLIC_NETWORK: mainnet
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:

@@ -18,9 +18,7 @@ export default function Home() {
     isPowerUpOn,
     setIsPowerUpOn,
     remainingTime,
-    startTimer,
     handleKeyPress,
-    handleTouchMove,
     restartGame,
   } = useContext(GameContext);
 
@@ -70,7 +68,7 @@ export default function Home() {
     );
   }
 
-  const cellSize = isMobile() ? 30 : 40;
+  const cellSize = 40;
 
   function initialized() {
     // Check if all necessary state variables are not null or undefined
@@ -84,20 +82,13 @@ export default function Home() {
       remainingTime !== null &&
       gameOverFlag !== null &&
       gameOverMessage !== null &&
-      startTimer !== null &&
       handleKeyPress !== null &&
-      handleTouchMove !== null &&
       restartGame !== null
     );
   }
 
-  console.log(
-    'process.env.NEXT_PUBLIC_NETWORK',
-    process.env.NEXT_PUBLIC_NETWORK
-  );
-
   return (
-    <div>
+    <>
       {initialized() && ( // Replace `condition` with your actual condition
         <GameboardContainer
           remainingMinutes={Math.floor(remainingTime / 60)}
@@ -109,6 +100,6 @@ export default function Home() {
           isAllowedResponse={isAllowedResponse}
         />
       )}
-    </div>
+    </>
   );
 }

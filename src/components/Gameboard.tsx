@@ -1,22 +1,20 @@
 import { MazeTileData } from '@/contexts/GameContextProvider';
-import { useContext } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { GameContext } from '@/contexts/GameContextProvider';
 import { ListItem, OrderedList } from '@chakra-ui/react';
 
 import styles from '../styles/Gameboard.module.css';
-import { isAllowedResponse } from '@/hooks/maze';
+import { IsAllowedResponse } from '@/hooks/maze';
 
 interface Props {
-  showRules: boolean;
   isUserLoggedIn: boolean;
   openLogIn: () => void;
-  isAllowedResponse: isAllowedResponse;
+  isAllowedResponse: IsAllowedResponse;
 }
 
 export function Gameboard({
   isUserLoggedIn,
   openLogIn,
-  showRules,
   isAllowedResponse,
 }: Props) {
   const {
@@ -31,7 +29,31 @@ export function Gameboard({
     calculateBlurRadius,
     handleTouchStart,
     handleTouchMove,
+    timerStarted,
   } = useContext(GameContext);
+
+  const touchContainerRef = useRef<HTMLDivElement>(null);
+  const gameStartedRef = useRef(false);
+
+  // useEffect(() => {
+  //   const wasGameStarted = gameStartedRef.current
+  //   gameStartedRef.current = timerStarted
+  //   console.log(touchContainerRef.current)
+  //   if(touchContainerRef.current && wasGameStarted !== gameStartedRef.current) {
+  //     console.log("in")
+  //     const tiles = touchContainerRef.current.getElementsByClassName('tile')
+  //     for(let i = 0; i < tiles.length; i++) {
+  //       const tile = tiles[i]
+  //       console.log("Setting up touch event listeners")
+  //       tile.addEventListener('onclick', () => console.log("touchmove"))
+  //       // tile.addEventListener('ontouchmove', handleConditionalFunction(
+  //       //   handleTouchMove,
+  //       //   () => {}
+  //       // ))
+  //       console.log(i, tile)
+  //     }
+  //   }
+  // }, [timerStarted]);
 
   // Check if the game has started for the first time
   const gameStarted = playerPosition !== null;
@@ -81,18 +103,7 @@ export function Gameboard({
   }
 
   return (
-    <>
-      {showRules && (
-        <div className={styles.orderedListContainer}>
-          <OrderedList>
-            <ListItem>Click or Tap to Start</ListItem>
-            <ListItem>Navigate with Arrows or Tap</ListItem>
-            <ListItem>Collect Cheddar🧀</ListItem>
-            <ListItem>Battle Cartel to protect your Bag</ListItem>
-            <ListItem>Find the Hidden Door🚪 to Win!</ListItem>
-          </OrderedList>
-        </div>
-      )}
+    <div ref={touchContainerRef}>
       {mazeData.map((row: MazeTileData[], rowIndex: number) => (
         <div key={rowIndex} className={styles.mazeRow}>
           {row.map((cell: MazeTileData, colIndex: number) => {
@@ -159,7 +170,7 @@ export function Gameboard({
               <div
                 key={colIndex}
                 id={`cell-${rowIndex}-${colIndex}`}
-                className={getClassNamesForCell(cell)}
+                className={getClassNamesForCell(cell) + ' tile'}
                 style={{
                   filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
                 }}
@@ -198,6 +209,6 @@ export function Gameboard({
           })}
         </div>
       ))}
-    </>
+    </div>
   );
 }
