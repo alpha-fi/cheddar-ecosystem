@@ -562,7 +562,7 @@ export const GameContextProvider = ({ children }: props) => {
   const NFTBuffMultiplier = 1.28;
 
   function getChancesOfFindingCheese() {
-    if(nfts.length > 0) {
+    if (nfts.length > 0) {
       return chancesOfFinding.cheese * NFTBuffMultiplier;
     }
     return chancesOfFinding.cheese;
@@ -589,7 +589,10 @@ export const GameContextProvider = ({ children }: props) => {
       handleExitFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
       handleEnemyFound(clonedMazeData, newX, newY);
-    } else if (!cheeseCooldown && rng.nextFloat() < getChancesOfFindingCheese()) {
+    } else if (
+      !cheeseCooldown &&
+      rng.nextFloat() < getChancesOfFindingCheese()
+    ) {
       handleCheeseFound(clonedMazeData, newX, newY);
     } else if (!bagCooldown && rng.nextFloat() < chancesOfFinding.bag) {
       handleBagFound(clonedMazeData, newX, newY);
@@ -727,21 +730,21 @@ export const GameContextProvider = ({ children }: props) => {
   function getCoordinatesFromTileId(id: string) {
     const stringCoordinates = id.slice('cell-'.length);
 
-    const splitedStringCoordinates = stringCoordinates.split('-');
+    const splitStringCoordinates = stringCoordinates.split('-');
 
-    const finalCoorditane = {
-      y: Number(splitedStringCoordinates[0]),
-      x: Number(splitedStringCoordinates[1]),
+    const finalCoordinate = {
+      y: Number(splitStringCoordinates[0]),
+      x: Number(splitStringCoordinates[1]),
     };
 
-    return finalCoorditane as Coordinates;
+    return finalCoordinate as Coordinates;
   }
 
   function isValidTileToMove(coordinates: Coordinates) {
     //If the coordinate is part of the path
     const isPath = mazeData[coordinates.y][coordinates.x].isPath;
 
-    //If the coordinate is next to player ubication (discarding diagonals)
+    //If the coordinate is next to player location (discarding diagonals)
     const isNextToPlayer =
       ((playerPosition.y + 1 === coordinates.y ||
         playerPosition.y - 1 === coordinates.y) &&
