@@ -367,7 +367,11 @@ export function GameboardContainer({
         onClose={onCloseVideoModal}
       >
         <div className={styles.videoContainer}>
-          <video src="../../../assets/cheddar_rap.mp4" autoPlay controls></video>
+          <video
+            src="../../../assets/cheddar_rap.mp4"
+            autoPlay
+            controls
+          ></video>
         </div>
       </ModalContainer>
     </div>
