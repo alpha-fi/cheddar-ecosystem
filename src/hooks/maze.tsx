@@ -1,14 +1,21 @@
+import { PlayerScoreData } from '@/components/Scoreboard';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import {
   isAllowed as isAllowedResponse,
   getSeedId,
   getPendingCheddarToMint,
+  getScoreBoard,
 } from '@/queries/api/maze';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
 export interface IsAllowedResponse {
   ok: boolean;
   errors?: string[];
+}
+
+export interface ScoreboardResponse {
+  ok: boolean;
+  scoreboard: PlayerScoreData[]
 }
 
 export const useGetIsAllowedResponse =
@@ -22,6 +29,16 @@ export const useGetIsAllowedResponse =
       staleTime: 10000,
     });
   };
+
+export const useGetScoreboard = (): UseQueryResult<null | ScoreboardResponse> => {
+  
+  return useQuery({
+    queryKey: ['useGetScoreboard'],
+    queryFn: () => getScoreBoard(),
+    refetchInterval: 10000,
+    staleTime: 10000,
+  });
+}
 
 export const useGetPendingCheddarToMint = (): UseQueryResult<number> => {
   const { accountId } = useWalletSelector();

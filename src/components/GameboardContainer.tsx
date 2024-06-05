@@ -307,6 +307,8 @@ export function GameboardContainer({
         </div>
       </div>
 
+      <Button onClick={onOpenScoreboard}>Scoreboard</Button>
+
       <div className={styles.mazeContainer} tabIndex={0}>
         <div className={styles.toolbar}>
           <span className={styles.rulesButton}>
