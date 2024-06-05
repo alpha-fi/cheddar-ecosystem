@@ -367,12 +367,7 @@ export function GameboardContainer({
         onClose={onCloseVideoModal}
       >
         <div className={styles.videoContainer}>
-          <iframe
-            src="https://drive.google.com/file/d/1v7caweMK531xhld8FQdk2DkXKTB4H5mj/preview"
-            width="300"
-            height="250"
-            allow="autoplay"
-          ></iframe>
+          <video src="../../../assets/cheddar_rap.mp4" autoPlay controls></video>
         </div>
       </ModalContainer>
     </div>
