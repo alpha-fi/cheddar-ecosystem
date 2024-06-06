@@ -174,7 +174,7 @@ export function GameboardContainer({
         <div className={styles.headerLeftPortionContainer}>
           <Link href="#" id="logo">
             <img
-              src="../../../assets/cheddar-logo-reduced.png"
+              src="assets/cheddar-logo-reduced.png"
               className={styles.headerCheddarIcon}
             />
           </Link>
