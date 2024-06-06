@@ -13,6 +13,8 @@ import { callEndGame, getSeedId } from '../queries/api/maze';
 import { useWalletSelector } from './WalletSelectorContext';
 import { RNG } from '@/entities/RNG';
 import { useGetPendingCheddarToMint } from '@/hooks/maze';
+import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
+import { useGetCheddarNFTs } from '@/hooks/cheddar';
 
 interface props {
   children: ReactNode;
@@ -219,7 +221,28 @@ export const GameContextProvider = ({ children }: props) => {
     setRemainingSeconds(seconds);
   }, [remainingTime]);
 
-  const { accountId } = useWalletSelector();
+  const { accountId, selector } = useWalletSelector();
+  const [contract, setContract] = useState<NFTCheddarContract | undefined>();
+  const [nfts, setNFTs] = useState<NFT[]>([]);
+  const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
+    useGetCheddarNFTs();
+
+  useEffect(() => {
+    if (!selector.isSignedIn()) {
+      setNFTs([]);
+      return;
+    }
+    selector.wallet().then((wallet) => {
+      const contract = new NFTCheddarContract(wallet);
+      setContract(contract);
+
+      if (accountId) {
+        contract.getNFTs(accountId).then((nfts) => {
+          setNFTs(nfts);
+        });
+      }
+    });
+  }, [selector]);
 
   // Function to select a random color set, background image, and rarity
   const selectRandomColorSet = () => {
@@ -528,6 +551,23 @@ export const GameContextProvider = ({ children }: props) => {
     gameOver('Congrats! You found the Hidden Door.', true);
   }
 
+  const chancesOfFinding = {
+    exit: 0.0015,
+    enemy: 0.19,
+    cheese: 0.055,
+    bag: 0.027,
+    cartel: 0.0002,
+  };
+
+  const NFTBuffMultiplier = 1.28;
+
+  function getChancesOfFindingCheese() {
+    if (nfts.length > 0) {
+      return chancesOfFinding.cheese * NFTBuffMultiplier;
+    }
+    return chancesOfFinding.cheese;
+  }
+
   function addArtifacts(
     newX: number,
     newY: number,
@@ -540,20 +580,23 @@ export const GameContextProvider = ({ children }: props) => {
     if (doesCellHasArtifact(newX, newY)) {
       return;
     }
-    console.log(pathLength, cellsWithItemAmount);
     let clonedMazeData = [...newMazeData];
     if (
-      (rng.nextFloat() < 0.0015 && coveredCells.length >= 0.75 * pathLength) ||
+      (rng.nextFloat() < chancesOfFinding.exit &&
+        coveredCells.length >= 0.75 * pathLength) ||
       pathLength - cellsWithItemAmount === 1
     ) {
       handleExitFound(clonedMazeData, newX, newY);
-    } else if (!enemyCooldown && rng.nextFloat() < 0.19) {
+    } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
       handleEnemyFound(clonedMazeData, newX, newY);
-    } else if (!cheeseCooldown && rng.nextFloat() < 0.055) {
+    } else if (
+      !cheeseCooldown &&
+      rng.nextFloat() < getChancesOfFindingCheese()
+    ) {
       handleCheeseFound(clonedMazeData, newX, newY);
-    } else if (!bagCooldown && rng.nextFloat() < 0.027) {
+    } else if (!bagCooldown && rng.nextFloat() < chancesOfFinding.bag) {
       handleBagFound(clonedMazeData, newX, newY);
-    } else if (rng.nextFloat() < 0.0002) {
+    } else if (rng.nextFloat() < chancesOfFinding.cartel) {
       handleCartelFound(clonedMazeData, newX, newY);
     } else {
       setScore(score + pointsOfActions.moveWithoutDying);
@@ -687,21 +730,21 @@ export const GameContextProvider = ({ children }: props) => {
   function getCoordinatesFromTileId(id: string) {
     const stringCoordinates = id.slice('cell-'.length);
 
-    const splitedStringCoordinates = stringCoordinates.split('-');
+    const splitStringCoordinates = stringCoordinates.split('-');
 
-    const finalCoorditane = {
-      y: Number(splitedStringCoordinates[0]),
-      x: Number(splitedStringCoordinates[1]),
+    const finalCoordinate = {
+      y: Number(splitStringCoordinates[0]),
+      x: Number(splitStringCoordinates[1]),
     };
 
-    return finalCoorditane as Coordinates;
+    return finalCoordinate as Coordinates;
   }
 
   function isValidTileToMove(coordinates: Coordinates) {
     //If the coordinate is part of the path
     const isPath = mazeData[coordinates.y][coordinates.x].isPath;
 
-    //If the coordinate is next to player ubication (discarding diagonals)
+    //If the coordinate is next to player location (discarding diagonals)
     const isNextToPlayer =
       ((playerPosition.y + 1 === coordinates.y ||
         playerPosition.y - 1 === coordinates.y) &&
