@@ -64,7 +64,7 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
       });
     } catch (err: any) {
       toast({
-        title: err,
+        title: err.message,
         status: 'error',
         duration: 9000,
         position: 'bottom-right',
