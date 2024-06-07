@@ -47,7 +47,7 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
 
   const modalTitle = errorMsg ? 'Something went wrong' : 'Success';
 
-  async function handlePurchase() {
+  async function handleBuy() {
     try {
       const wallet = await selector.wallet();
       const withCheddar = tokenToPayWith === 'Cheddar';
@@ -56,7 +56,7 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
         : cheddarNftPriceInNear;
       await buyNFT(wallet, withCheddar, amount!);
       toast({
-        title: 'Enjoy your purchase!',
+        title: 'Enjoy your buy!',
         status: 'success',
         duration: 9000,
         position: 'bottom-right',
@@ -97,8 +97,8 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
             return <></>;
           })}
         </FormLabel>
-        <Button colorScheme="yellow" onClick={handlePurchase}>
-          Purchase
+        <Button colorScheme="yellow" onClick={handleBuy}>
+          Buy
         </Button>
       </form>
     </ModalContainer>
