@@ -102,10 +102,6 @@ export function GameboardContainer({
     onClose: onCloseBuyNFTPanel,
   } = useDisclosure();
 
-  const [contract, setContract] = useState<NFTCheddarContract | undefined>();
-  const [nfts, setNFTs] = useState<NFT[]>([]);
-  const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
-    useGetCheddarNFTs();
   const { modal, selector, accountId } = useWalletSelector();
 
   const userIsNotAllowedToPlay = useMemo(() => {
@@ -120,21 +116,6 @@ export function GameboardContainer({
     }
     return onOpenNotAlloWedModal;
   }
-
-  useEffect(() => {
-    if (!selector.isSignedIn()) {
-      setNFTs([]);
-      return;
-    }
-    selector.wallet().then((wallet) => {
-      const contract = new NFTCheddarContract(wallet);
-      setContract(contract);
-
-      contract.getNFTs('silkking.testnet').then((nfts) => {
-        setNFTs(nfts);
-      });
-    });
-  }, [selector]);
 
   function getGameContainerClasses() {
     return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
@@ -200,7 +181,7 @@ export function GameboardContainer({
         <div className={styles.headerLeftPortionContainer}>
           <Link href="#" id="logo">
             <img
-              src="../../../assets/cheddar-logo-reduced.png"
+              src="assets/cheddar-logo-reduced.png"
               className={styles.headerCheddarIcon}
             />
           </Link>
@@ -275,14 +256,14 @@ export function GameboardContainer({
 
       <div className={styles.publicityDecoration}></div>
 
-      {accountId && !hasEnoughBalance && (
+      {accountId && (!hasEnoughBalance || userIsNotAllowedToPlay) && (
         <Link
           target="_blank"
           className={styles.notEnoughBalanceMsg}
           href="https://app.ref.finance/#a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near%7Ctoken.cheddar.near"
         >
-          You must have {minCheddarRequired}
-          {RenderCheddarIcon({ width: '2rem' })} to play.
+          Must have {minCheddarRequired}
+          {RenderCheddarIcon({ width: '2rem' })} and Verified Human to play.
         </Link>
       )}
       {selector.isSignedIn() ? (
@@ -395,12 +376,11 @@ export function GameboardContainer({
         onClose={onCloseVideoModal}
       >
         <div className={styles.videoContainer}>
-          <iframe
-            src="https://drive.google.com/file/d/1v7caweMK531xhld8FQdk2DkXKTB4H5mj/preview"
-            width="300"
-            height="250"
-            allow="autoplay"
-          ></iframe>
+          <video
+            src="../../../assets/cheddar_rap.mp4"
+            autoPlay
+            controls
+          ></video>
         </div>
       </ModalContainer>
 
