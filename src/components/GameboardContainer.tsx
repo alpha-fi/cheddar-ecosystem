@@ -405,7 +405,7 @@ export function GameboardContainer({
       </ModalContainer>
 
       <ModalContainer
-        title={'Scoreboard'}
+        title={'Maze scoreboard'}
         isOpen={scoreboardOpened}
         onClose={onCloseScoreboard}
       >

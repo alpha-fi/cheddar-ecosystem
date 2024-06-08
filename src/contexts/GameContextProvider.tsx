@@ -139,8 +139,8 @@ interface GameContextProps {
   pendingCheddarToMint: number;
   endGameResponse: any;
 
-  scoreboardResponse: ScoreboardResponse | null | undefined,
-  isLoadingScoreboard: boolean,
+  scoreboardResponse: ScoreboardResponse | null | undefined;
+  isLoadingScoreboard: boolean;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -798,7 +798,7 @@ export const GameContextProvider = ({ children }: props) => {
   };
 
   const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
-  useGetScoreboard();
+    useGetScoreboard();
 
   return (
     <GameContext.Provider

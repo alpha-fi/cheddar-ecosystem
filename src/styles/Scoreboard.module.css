@@ -1,45 +1,57 @@
+.tableContaier {
+  width: 100%;
+}
 .titlesContainer {
-  display: flex;
-  justify-content: space-between;
+  position: sticky;
+  top: 0;
   margin: 0 0.5rem;
-}
-.title {
-  font-weight: bold;
-  font-size: 1.5rem;
-}
-.scoreboardContainer {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid black;
-  border-radius: 10px;
-}
-.playerDataContainer {
-  display: flex;
-  flex-direction: column;
-  margin: 0 0.5rem;
-  font-weight: bold;
-  padding: 0.5rem;
+  border-bottom: 1px solid black;
+  background-color: white;
+  height: 5rem;
 }
 .borderTop {
   border-top: 1px solid black;
 }
-.topPart {
-    display: flex;
-    max-width: 60%;
+.rowContainer {
+  font-weight: bold;
+  border-spacing: 5px 10px;
+  height: 5rem;
 }
-.bottomPart {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
+.th {
+  text-align: center;
+}
+.content {
+  text-align: center;
+  padding-left: 0.5px;
+  padding-right: 0.5px;
 }
 .position {
   margin-right: 0.5rem;
+  width: 10px;
+  min-width: none;
 }
 .userName {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+  max-width: 130px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+.cheddarEarned {
+  max-width: 30px;
+}
+.score {
+  max-width: 30px;
 }
 .userBackground {
   background-color: rgba(251, 202, 27, 0.36);
+}
+.tFoot {
+  display: flex;
+  justify-content: center;
+}
+.showMore {
+  text-align: center;
+  cursor: pointer;
+  margin-top: 0.5rem;
 }

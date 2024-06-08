@@ -15,7 +15,7 @@ export interface IsAllowedResponse {
 
 export interface ScoreboardResponse {
   ok: boolean;
-  scoreboard: PlayerScoreData[]
+  scoreboard: PlayerScoreData[];
 }
 
 export const useGetIsAllowedResponse =
@@ -30,15 +30,15 @@ export const useGetIsAllowedResponse =
     });
   };
 
-export const useGetScoreboard = (): UseQueryResult<null | ScoreboardResponse> => {
-  
-  return useQuery({
-    queryKey: ['useGetScoreboard'],
-    queryFn: () => getScoreBoard(),
-    refetchInterval: 10000,
-    staleTime: 10000,
-  });
-}
+export const useGetScoreboard =
+  (): UseQueryResult<null | ScoreboardResponse> => {
+    return useQuery({
+      queryKey: ['useGetScoreboard'],
+      queryFn: () => getScoreBoard(),
+      refetchInterval: 10000,
+      staleTime: 10000,
+    });
+  };
 
 export const useGetPendingCheddarToMint = (): UseQueryResult<number> => {
   const { accountId } = useWalletSelector();

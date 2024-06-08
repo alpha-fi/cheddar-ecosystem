@@ -41,13 +41,10 @@ export async function getSeedId(accountId: string) {
 }
 
 export async function getScoreBoard() {
-  const url = new URL(
-    `/api/maze/scoreboard`,
-    backendBaseUrl
-  ).toString();
+  const url = new URL(`/api/maze/scoreboard`, backendBaseUrl).toString();
   const response = await fetch(url);
   const jsonResponse = await response.json();
-  return jsonResponse as PlayerScoreData|Promise<any>|undefined;
+  return jsonResponse as PlayerScoreData | Promise<any> | undefined;
 }
 
 export interface EndGameRequest {
