@@ -1,4 +1,4 @@
-import { Image, Text } from '@chakra-ui/react';
+import { HStack, Image, Text } from '@chakra-ui/react';
 import { ModalContainer } from './FeedbackModal';
 import { useEffect, useState } from 'react';
 
@@ -6,7 +6,7 @@ export default function ModalWelcome() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   useEffect(() => {
-    const welcomeModalWasShown = localStorage.getItem('welcomeModalWasShown');
+    const welcomeModalWasShown = null; //localStorage.getItem('welcomeModalWasShown');
     if (welcomeModalWasShown === null) {
       localStorage.setItem('welcomeModalWasShown', 'true');
       setShowWelcomeModal(true);
@@ -35,7 +35,10 @@ export default function ModalWelcome() {
         communities to farm, connect, and, grow, through a fun web3 experience.
         Cheddar brings good vibes and breaks down barriers
       </Text>
-      <Text>- join the movement!</Text>
+      <HStack justifyContent="space-between">
+        <Text alignSelf="start">- join the movement!</Text>
+        <Image src="assets/cheddar-mouse.png" alt="cheddar mouse" w="120px" />
+      </HStack>
     </ModalContainer>
   );
 }
