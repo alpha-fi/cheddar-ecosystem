@@ -28,6 +28,12 @@ import { IsAllowedResponse } from '@/hooks/maze';
 import ModalNotAllowedToPlay from './ModalNotAllowedToPlay';
 import ModalRules from './ModalRules';
 import { GameOverModalContent } from './GameOverModalContent';
+import {
+  ArrowBackIcon,
+  ArrowDownIcon,
+  ArrowForwardIcon,
+  ArrowUpIcon,
+} from '@chakra-ui/icons';
 interface Props {
   remainingMinutes: number;
   remainingSeconds: number;
@@ -61,6 +67,7 @@ export function GameboardContainer({
     timerStarted,
     setGameOverMessage,
     saveResponse,
+    handleArrowPress,
   } = useContext(GameContext);
 
   const {
@@ -329,6 +336,36 @@ export function GameboardContainer({
           isUserLoggedIn={selector.isSignedIn()}
           isAllowedResponse={isAllowedResponse!}
         />
+        <div className={styles.arrowButtonsContainer}>
+          <div className={styles.arrowButtonsFirstLine}>
+            <Button
+              onClick={() => handleArrowPress('ArrowUp')}
+              disabled={!hasPowerUp}
+            >
+              <ArrowUpIcon />
+            </Button>
+          </div>
+          <div className={styles.arrowButtonsSecondLine}>
+            <Button
+              onClick={() => handleArrowPress('ArrowLeft')}
+              disabled={!hasPowerUp}
+            >
+              <ArrowBackIcon />
+            </Button>
+            <Button
+              onClick={() => handleArrowPress('ArrowDown')}
+              disabled={!hasPowerUp}
+            >
+              <ArrowDownIcon />
+            </Button>
+            <Button
+              onClick={() => handleArrowPress('ArrowRight')}
+              disabled={!hasPowerUp}
+            >
+              <ArrowForwardIcon />
+            </Button>
+          </div>
+        </div>
       </div>
 
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (

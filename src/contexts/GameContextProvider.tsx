@@ -118,6 +118,7 @@ interface GameContextProps {
   pathLength: number;
 
   handleKeyPress(event: KeyboardEvent<HTMLDivElement>): void;
+  handleArrowPress(direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'): void;
 
   restartGame(): void;
 
@@ -672,15 +673,13 @@ export const GameContextProvider = ({ children }: props) => {
     }; // Cleanup function to clear interval on unmount or when timer conditions change
   }, [timerStarted, gameOverFlag]);
 
-  // Function to handle key press events
-  function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
+  function handleMoveByArrow(direction: string) {
     if (gameOverFlag) return; // If game over, prevent further movement
 
-    const key = event.key;
     let newX = playerPosition.x;
     let newY = playerPosition.y;
 
-    switch (key) {
+    switch (direction) {
       case 'ArrowUp':
         newY--;
         setDirection('up');
@@ -705,6 +704,18 @@ export const GameContextProvider = ({ children }: props) => {
     // Update last cell coordinates
     setLastCellX(playerPosition.x);
     setLastCellY(playerPosition.y);
+  }
+
+  // Function to handle key press events
+  function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
+    const key = event.key;
+    handleMoveByArrow(key);
+  }
+
+  function handleArrowPress(
+    direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
+  ) {
+    handleMoveByArrow(direction);
   }
 
   function calculateBlurRadius(cellX: number, cellY: number) {
@@ -886,6 +897,7 @@ export const GameContextProvider = ({ children }: props) => {
         totalCells,
         pathLength: pathLength,
         handleKeyPress,
+        handleArrowPress,
         restartGame,
         calculateBlurRadius,
         handleTouchStart,
