@@ -133,6 +133,8 @@ interface GameContextProps {
   hasWon: undefined | boolean;
   pendingCheddarToMint: number;
   endGameResponse: any;
+
+  nfts: NFT[];
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -895,6 +897,7 @@ export const GameContextProvider = ({ children }: props) => {
         hasWon,
         pendingCheddarToMint,
         endGameResponse,
+        nfts,
       }}
     >
       {children}

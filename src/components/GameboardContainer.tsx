@@ -61,6 +61,7 @@ export function GameboardContainer({
     timerStarted,
     setGameOverMessage,
     saveResponse,
+    nfts,
   } = useContext(GameContext);
 
   const {
@@ -159,6 +160,10 @@ export function GameboardContainer({
       '...' +
       string.substring(midpoint + rstrip)
     );
+  }
+
+  function getRayStyles() {
+    return `${styles.raySVG} ${nfts.length > 0 ? styles.powerUpActive : styles.powerUpNotActive}`;
   }
 
   return (
@@ -299,29 +304,20 @@ export function GameboardContainer({
           <div className={styles.tooltip}>
             <Button
               colorScheme="yellow"
-              onClick={handlePowerUpClick}
+              onClick={handleBuyClick}
               disabled={!hasPowerUp}
             >
-              ⚡
+              <svg className={getRayStyles()} viewBox="0 0 538.842 538.842">
+                <g>
+                  <g>
+                    <polygon points="392.326,200.43 325.083,200.43 423.691,0 280.813,0 133.933,298.54 210.513,298.54 115.151,538.842 		" />
+                  </g>
+                </g>
+              </svg>
             </Button>
             <span className={styles.tooltipText}>
               Cheddy PowerUp NFT provides in-game features
             </span>
-            {!hasPowerUp && (
-              <span className={styles.buyPowerUp}>
-                <Button
-                  colorScheme="purple"
-                  onClick={handleBuyClick}
-                  disabled={!hasPowerUp}
-                >
-                  Buy
-                </Button>
-                <ModalBuyNFT
-                  onClose={onCloseBuyNFTPanel}
-                  isOpen={isOpenBuyNFTPanel}
-                />
-              </span>
-            )}
           </div>
         </div>
         <Gameboard
@@ -331,6 +327,7 @@ export function GameboardContainer({
         />
       </div>
 
+      <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
         <ModalNotAllowedToPlay
           isOpen={isOpenNotAlloWedModal}
