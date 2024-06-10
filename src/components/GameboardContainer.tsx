@@ -72,7 +72,7 @@ export function GameboardContainer({
   } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
-    isOpen: scoreboardOpened,
+    isOpen: isScoreboardOpen,
     onOpen: onOpenScoreboard,
     onClose: onCloseScoreboard,
   } = useDisclosure();
@@ -386,7 +386,7 @@ export function GameboardContainer({
 
       <ModalContainer
         title={'Maze scoreboard'}
-        isOpen={scoreboardOpened}
+        isOpen={isScoreboardOpen}
         onClose={onCloseScoreboard}
       >
         <Scoreboard />

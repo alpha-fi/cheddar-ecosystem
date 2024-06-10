@@ -15,9 +15,9 @@ export interface PlayerScoreData {
 export const Scoreboard = () => {
   const { accountId } = useWalletSelector();
   const { scoreboardResponse } = useContext(GameContext);
-  const [amountOfElements, setAmountOfElements] = useState(4);
+  const [rowAmount, setRowAmount] = useState(4);
 
-  const firstPlayerAparition = useRef(-1);
+  const firstLoggedUserOccurrence = useRef(-1);
 
   function getRowStyles(index: number, playerScoreData: PlayerScoreData) {
     let rowStyles = `${styles.rowContainer} ${index === 0 ? '' : styles.borderTop} ${accountId === playerScoreData.accountId ? styles.userBackground : ''}`;
@@ -26,15 +26,15 @@ export const Scoreboard = () => {
   }
 
   function handleIncreaseElementsToShow() {
-    setAmountOfElements(amountOfElements + 5);
+    setRowAmount(rowAmount + 5);
   }
 
   return (
     <>
-      <table className={styles.tableContaier}>
+      <table className={styles.tableContainer}>
         <thead className={styles.titlesContainer}>
           <tr>
-            <th className={styles.th}>Pos.</th>
+            <th className={styles.th}>#</th>
             <th className={styles.th}>User</th>
             <th className={styles.th}>
               {RenderCheddarIcon({ width: '2rem' })}
@@ -47,15 +47,15 @@ export const Scoreboard = () => {
             scoreboardResponse.ok &&
             scoreboardResponse.scoreboard.map((playerScoreData, index) => {
               if (
-                firstPlayerAparition.current === -1 &&
+                firstLoggedUserOccurrence.current === -1 &&
                 playerScoreData.accountId === accountId
               ) {
-                firstPlayerAparition.current = index;
+                firstLoggedUserOccurrence.current = index;
               }
 
               if (
-                index > amountOfElements &&
-                firstPlayerAparition.current !== index
+                index > rowAmount &&
+                firstLoggedUserOccurrence.current !== index
               )
                 return <></>;
               return (
@@ -65,7 +65,7 @@ export const Scoreboard = () => {
                 >
                   <td
                     className={`${styles.content} ${styles.position}`}
-                  >{`#${index + 1}`}</td>
+                  >{`${index + 1}`}</td>
                   <td className={`${styles.content} ${styles.userName}`}>
                     {playerScoreData.accountId}
                   </td>
