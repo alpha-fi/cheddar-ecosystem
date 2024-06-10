@@ -118,7 +118,9 @@ interface GameContextProps {
   pathLength: number;
 
   handleKeyPress(event: KeyboardEvent<HTMLDivElement>): void;
-  handleArrowPress(direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'): void;
+  handleArrowPress(
+    direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
+  ): void;
 
   restartGame(): void;
 
@@ -134,6 +136,9 @@ interface GameContextProps {
   hasWon: undefined | boolean;
   pendingCheddarToMint: number;
   endGameResponse: any;
+
+  showMovementButtons: boolean;
+  setShowMovementButtons: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -185,6 +190,8 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [saveResponse, setSaveResponse] = useState();
   const [endGameResponse, setEndGameResponse] = useState();
+
+  const [showMovementButtons, setShowMovementButtons] = useState(true);
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -809,28 +816,31 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    // event.preventDefault(); // Prevent screen scroll
-    const touches = event.touches;
-    const initialTouch = touches[0] as Touch;
+    if (!showMovementButtons) {
+      // event.preventDefault(); // Prevent screen scroll
+      const touches = event.touches;
+      const initialTouch = touches[0] as Touch;
 
-    const initialSquareId = getSquareIdFromTouch(initialTouch);
+      const initialSquareId = getSquareIdFromTouch(initialTouch);
 
-    if (!gameOverFlag) moveIfValid(initialSquareId!);
+      if (!gameOverFlag) moveIfValid(initialSquareId!);
+    }
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
-    console.log('Touch move');
-    event.preventDefault(); // Prevent screen scroll
-    const touches = event.touches;
+    if (!showMovementButtons) {
+      event.preventDefault(); // Prevent screen scroll
+      const touches = event.touches;
 
-    // Calculate touchedSquares
-    for (let i = 0; i < touches.length; i++) {
-      const currentTouch = touches[i] as Touch;
+      // Calculate touchedSquares
+      for (let i = 0; i < touches.length; i++) {
+        const currentTouch = touches[i] as Touch;
 
-      const tileId = getSquareIdFromTouch(currentTouch);
+        const tileId = getSquareIdFromTouch(currentTouch);
 
-      if (!gameOverFlag && tileId) {
-        moveIfValid(tileId);
+        if (!gameOverFlag && tileId) {
+          moveIfValid(tileId);
+        }
       }
     }
   };
@@ -907,6 +917,8 @@ export const GameContextProvider = ({ children }: props) => {
         hasWon,
         pendingCheddarToMint,
         endGameResponse,
+        showMovementButtons,
+        setShowMovementButtons,
       }}
     >
       {children}

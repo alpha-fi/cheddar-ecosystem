@@ -193,6 +193,10 @@
   display: flex;
   justify-content: center;
 }
+.togglePlayModeIconContainer {
+  width: 20px;
+  height: 20px;
+}
 .arrowButtonsContainer {
   position: absolute;
   bottom: 1rem;
