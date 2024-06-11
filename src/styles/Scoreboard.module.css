@@ -21,11 +21,11 @@
 .th {
   text-align: center;
 }
-.tBody {
+/* .tBody {
   box-shadow: 0px 12px 24px -5px rgba(0,0,0,0.46);
   -webkit-box-shadow: 0px 12px 24px -5px rgba(0,0,0,0.46);
   -moz-box-shadow: 0px 12px 24px -5px rgba(0,0,0,0.46);
-}
+} */
 .content {
   text-align: center;
   padding-left: 0.5px;
