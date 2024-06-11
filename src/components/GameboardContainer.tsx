@@ -162,6 +162,8 @@ export function GameboardContainer({
     );
   }
 
+  console.log("nfts: ", nfts)
+
   function getRayStyles() {
     return `${styles.raySVG} ${nfts.length > 0 ? styles.powerUpActive : styles.powerUpNotActive}`;
   }

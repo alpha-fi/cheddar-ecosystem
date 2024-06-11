@@ -15,6 +15,7 @@ import { RNG } from '@/entities/RNG';
 import { useGetPendingCheddarToMint } from '@/hooks/maze';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
+import { getNFTs } from '@/contracts/cheddarCalls';
 
 interface props {
   children: ReactNode;
@@ -224,27 +225,19 @@ export const GameContextProvider = ({ children }: props) => {
   }, [remainingTime]);
 
   const { accountId, selector } = useWalletSelector();
-  const [contract, setContract] = useState<NFTCheddarContract | undefined>();
   const [nfts, setNFTs] = useState<NFT[]>([]);
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
     useGetCheddarNFTs();
 
   useEffect(() => {
-    if (!selector.isSignedIn()) {
+    if (accountId) {
+      getNFTs(accountId).then((nfts) => {
+        setNFTs(nfts);
+      });
+    } else {
       setNFTs([]);
-      return;
     }
-    selector.wallet().then((wallet) => {
-      const contract = new NFTCheddarContract(wallet);
-      setContract(contract);
-
-      if (accountId) {
-        contract.getNFTs(accountId).then((nfts) => {
-          setNFTs(nfts);
-        });
-      }
-    });
-  }, [selector]);
+  }, [accountId]);
 
   // Function to select a random color set, background image, and rarity
   const selectRandomColorSet = () => {
