@@ -2,9 +2,11 @@ import { Gameboard } from './Gameboard';
 import styles from '../styles/GameboardContainer.module.css';
 import {
   Button,
+  Hide,
   Link,
   ListItem,
   OrderedList,
+  Show,
   Text,
   background,
   useDisclosure,
@@ -362,7 +364,8 @@ export function GameboardContainer({
             <span className={styles.tooltipText}>
               Cheddy PowerUp NFT provides in-game features
             </span>
-            {/* {!hasPowerUp && (
+
+            {!hasPowerUp && (
               <span className={styles.buyPowerUp}>
                 <Button
                   colorScheme="purple"
@@ -376,16 +379,18 @@ export function GameboardContainer({
                   isOpen={isOpenBuyNFTPanel}
                 />
               </span>
-            )} */}
+            )}
 
-            <Button
-              onClick={() => handleToggleShowMovementButtons()}
-              colorScheme="gray"
-            >
-              <div className={styles.togglePlayModeIconContainer}>
-                {showMovementButtons ? renderSwipeIcon() : renderArrowsIcon()}
-              </div>
-            </Button>
+            <Show below="lg">
+              <Button
+                onClick={() => handleToggleShowMovementButtons()}
+                colorScheme="gray"
+              >
+                <div className={styles.togglePlayModeIconContainer}>
+                  {showMovementButtons ? renderSwipeIcon() : renderArrowsIcon()}
+                </div>
+              </Button>
+            </Show>
           </div>
         </div>
         <Gameboard
@@ -395,36 +400,38 @@ export function GameboardContainer({
         />
 
         {showMovementButtons && (
-          <div className={styles.arrowButtonsContainer}>
-            <div className={styles.arrowButtonsFirstLine}>
-              <Button
-                onClick={() => handleArrowPress('ArrowUp')}
-                disabled={!hasPowerUp}
-              >
-                <ArrowUpIcon />
-              </Button>
+          <Show below="lg">
+            <div className={styles.arrowButtonsContainer}>
+              <div className={styles.arrowButtonsFirstLine}>
+                <Button
+                  onClick={() => handleArrowPress('ArrowUp')}
+                  disabled={!hasPowerUp}
+                >
+                  <ArrowUpIcon />
+                </Button>
+              </div>
+              <div className={styles.arrowButtonsSecondLine}>
+                <Button
+                  onClick={() => handleArrowPress('ArrowLeft')}
+                  disabled={!hasPowerUp}
+                >
+                  <ArrowBackIcon />
+                </Button>
+                <Button
+                  onClick={() => handleArrowPress('ArrowDown')}
+                  disabled={!hasPowerUp}
+                >
+                  <ArrowDownIcon />
+                </Button>
+                <Button
+                  onClick={() => handleArrowPress('ArrowRight')}
+                  disabled={!hasPowerUp}
+                >
+                  <ArrowForwardIcon />
+                </Button>
+              </div>
             </div>
-            <div className={styles.arrowButtonsSecondLine}>
-              <Button
-                onClick={() => handleArrowPress('ArrowLeft')}
-                disabled={!hasPowerUp}
-              >
-                <ArrowBackIcon />
-              </Button>
-              <Button
-                onClick={() => handleArrowPress('ArrowDown')}
-                disabled={!hasPowerUp}
-              >
-                <ArrowDownIcon />
-              </Button>
-              <Button
-                onClick={() => handleArrowPress('ArrowRight')}
-                disabled={!hasPowerUp}
-              >
-                <ArrowForwardIcon />
-              </Button>
-            </div>
-          </div>
+          </Show>
         )}
       </div>
 
