@@ -362,7 +362,7 @@ export function GameboardContainer({
             <span className={styles.tooltipText}>
               Cheddy PowerUp NFT provides in-game features
             </span>
-            {!hasPowerUp && (
+            {/* {!hasPowerUp && (
               <span className={styles.buyPowerUp}>
                 <Button
                   colorScheme="purple"
@@ -376,7 +376,16 @@ export function GameboardContainer({
                   isOpen={isOpenBuyNFTPanel}
                 />
               </span>
-            )}
+            )} */}
+
+            <Button
+              onClick={() => handleToggleShowMovementButtons()}
+              colorScheme="gray"
+            >
+              <div className={styles.togglePlayModeIconContainer}>
+                {showMovementButtons ? renderSwipeIcon() : renderArrowsIcon()}
+              </div>
+            </Button>
           </div>
         </div>
         <Gameboard
@@ -384,14 +393,6 @@ export function GameboardContainer({
           isUserLoggedIn={selector.isSignedIn()}
           isAllowedResponse={isAllowedResponse!}
         />
-        <Button
-          onClick={() => handleToggleShowMovementButtons()}
-          colorScheme="gray"
-        >
-          <div className={styles.togglePlayModeIconContainer}>
-            {showMovementButtons ? renderSwipeIcon() : renderArrowsIcon()}
-          </div>
-        </Button>
 
         {showMovementButtons && (
           <div className={styles.arrowButtonsContainer}>
