@@ -1,6 +1,7 @@
 import { HamburgerIcon } from '@chakra-ui/icons';
 import {
   Box,
+  Button,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
@@ -47,7 +48,9 @@ export function DrawerMenu() {
           />
           <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
 
-          <DrawerBody px="0"></DrawerBody>
+          <DrawerBody px="0">
+            <Button>Scoreboard</Button>
+          </DrawerBody>
 
           <DrawerFooter
             flexDirection="column"

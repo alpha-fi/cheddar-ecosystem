@@ -32,14 +32,6 @@ import { IsAllowedResponse } from '@/hooks/maze';
 import ModalNotAllowedToPlay from './ModalNotAllowedToPlay';
 import ModalRules from './ModalRules';
 import { GameOverModalContent } from './GameOverModalContent';
-import {
-  ChevronDownIcon,
-  CloseIcon,
-  HamburgerIcon,
-  SmallCloseIcon,
-} from '@chakra-ui/icons';
-import { ntoy, yton } from '@/contracts/contractUtils';
-import { BurguerMenu } from './BurguerMenu';
 interface Props {
   remainingMinutes: number;
   remainingSeconds: number;
@@ -59,7 +51,6 @@ export function GameboardContainer({
   hasEnoughBalance,
   minCheddarRequired,
   isAllowedResponse,
-  cheddarBalanceData,
 }: Props) {
   const {
     mazeData,
@@ -68,17 +59,12 @@ export function GameboardContainer({
     gameOverMessage,
     selectedColorSet,
     hasPowerUp,
-    isPowerUpOn,
-    remainingTime,
     handleKeyPress,
     restartGame,
     timerStarted,
     setGameOverMessage,
     saveResponse,
-    handleToggleBurguerMenu,
-    showBurguerMenu,
     videoModalOpened,
-    onOpenVideoModal,
     onCloseVideoModal,
   } = useContext(GameContext);
 
@@ -178,57 +164,11 @@ export function GameboardContainer({
   return (
     <div
       className={getGameContainerClasses()}
-      // onKeyDown={getProperHandler(handleKeyPress)}
       onKeyDown={getKeyDownMoveHandler()}
       style={{
         maxWidth: `${mazeData[0].length * cellSize + 25}px`,
       }}
     >
-      {/* <header className={styles.headerContainer}>
-        <div className={styles.headerLeftPortionContainer}>
-          <Link href="#" id="logo" onClick={onOpenVideoModal}>
-            <img
-              src="../../../assets/cheddar-logo.png"
-              className={styles.headerCheddarIcon}
-            />
-          </Link>
-        </div>
-        <div className={styles.headerRightPortionContainer}>
-          {selector.isSignedIn() ? (
-            <Menu>
-              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                <span className={styles.balance}>
-                  {cheddarBalanceData ? yton(`${cheddarBalanceData}`) : 0}
-                </span>
-                <RenderCheddarIcon />
-              </MenuButton>
-              <MenuList className={styles.menuList}>
-                <MenuItem className={styles.menuItem}>
-                  <Link
-                    href={`https://nearblocks.io/address/${accountId}`}
-                    className={styles.userName}
-                    target="_blank"
-                  >
-                    {smartTrim(accountId ?? '', 12)}
-                  </Link>
-                </MenuItem>
-                <MenuItem className={styles.menuItem} onClick={logOut}>
-                  Log out
-                </MenuItem>
-              </MenuList>
-            </Menu>
-          ) : (
-            <Button onClick={modal.show}>Login</Button>
-          )}
-          <Button
-            onClick={() => handleToggleBurguerMenu()}
-            className={styles.burguerButton}
-          >
-            {showBurguerMenu ? <SmallCloseIcon /> : <HamburgerIcon />}
-          </Button>
-        </div>
-      </header> */}
-
       <div className={styles.publicityDecoration}></div>
 
       {accountId && (!hasEnoughBalance || userIsNotAllowedToPlay) && (
@@ -260,7 +200,6 @@ export function GameboardContainer({
           </span>
 
           <span className={getStartButtonStyles()}>
-            {/* <Button onClick={getProperHandler(restartGame)}> */}
             {hasEnoughBalance && (
               <Button onClick={getStartGameButtonHandler()}>
                 {gameOverFlag ? 'Restart Game' : 'Start Game'}
@@ -346,7 +285,6 @@ export function GameboardContainer({
           ></video>
         </div>
       </ModalContainer>
-      {showBurguerMenu && <BurguerMenu />}
     </div>
   );
 }

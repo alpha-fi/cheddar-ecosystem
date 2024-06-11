@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Container,
   Flex,
   HStack,
@@ -73,7 +74,9 @@ export default function Navbar({ cheddarBalanceData }: Props) {
             mt={{ base: 4, md: 0 }}
             fontWeight="700"
             lineHeight="1"
-          ></Stack>
+          >
+            <Button>Scoreboard</Button>
+          </Stack>
         </Flex>
 
         <Flex flexDir="row" justifyContent="end">

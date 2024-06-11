@@ -135,9 +135,6 @@ interface GameContextProps {
   pendingCheddarToMint: number;
   endGameResponse: any;
 
-  handleToggleBurguerMenu: () => void;
-  showBurguerMenu: boolean;
-
   videoModalOpened: boolean;
   onOpenVideoModal: () => void;
   onCloseVideoModal: () => void;
@@ -192,8 +189,6 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [saveResponse, setSaveResponse] = useState();
   const [endGameResponse, setEndGameResponse] = useState();
-
-  const [showBurguerMenu, setShowBurguerMenu] = useState(false);
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -854,10 +849,6 @@ export const GameContextProvider = ({ children }: props) => {
     return square?.id || '';
   };
 
-  function handleToggleBurguerMenu() {
-    setShowBurguerMenu(!showBurguerMenu);
-  }
-
   return (
     <GameContext.Provider
       value={{
@@ -923,8 +914,6 @@ export const GameContextProvider = ({ children }: props) => {
         hasWon,
         pendingCheddarToMint,
         endGameResponse,
-        handleToggleBurguerMenu,
-        showBurguerMenu,
         videoModalOpened,
         onOpenVideoModal,
         onCloseVideoModal,

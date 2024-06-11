@@ -64,7 +64,6 @@ export function ButtonConnectWallet({ cheddarBalanceData }: Props) {
               {cheddarBalanceData ? yton(`${cheddarBalanceData}`) : 0}
             </Text>
             <RenderCheddarIcon />
-            {/* {smartTrim(walletSelector.accountId ?? '', 10)} */}
           </MenuButton>
           <MenuList
             minWidth="auto"
