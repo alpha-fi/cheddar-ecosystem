@@ -1,5 +1,5 @@
 import { FormControl, FormLabel, Button, useToast } from '@chakra-ui/react';
-import { ModalContainer } from './FeedbackModal';
+import { ModalContainer } from './ModalContainer';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RadioButtonBroup } from './RadioButtonGroup';
 import { useState } from 'react';
@@ -97,7 +97,7 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
             return <></>;
           })}
         </FormLabel>
-        <Button colorScheme="yellow" onClick={handlePurchase}>
+        <Button colorScheme="yellow" color="white" onClick={handlePurchase}>
           Purchase
         </Button>
       </form>

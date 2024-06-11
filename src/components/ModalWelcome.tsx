@@ -1,12 +1,12 @@
 import { HStack, Image, Text } from '@chakra-ui/react';
-import { ModalContainer } from './FeedbackModal';
+import { ModalContainer } from './ModalContainer';
 import { useEffect, useState } from 'react';
 
 export default function ModalWelcome() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   useEffect(() => {
-    const welcomeModalWasShown = null; //localStorage.getItem('welcomeModalWasShown');
+    const welcomeModalWasShown = localStorage.getItem('welcomeModalWasShown');
     if (welcomeModalWasShown === null) {
       localStorage.setItem('welcomeModalWasShown', 'true');
       setShowWelcomeModal(true);
