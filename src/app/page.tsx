@@ -6,6 +6,7 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ntoy, yton } from '@/contracts/contractUtils';
 import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse as useGetIsAllowedResponse } from '@/hooks/maze';
+import Navbar from '@/components/Navbar/containers/Navbar';
 
 export default function Home() {
   const {
@@ -89,6 +90,7 @@ export default function Home() {
 
   return (
     <>
+      <Navbar />
       {initialized() && ( // Replace `condition` with your actual condition
         <GameboardContainer
           remainingMinutes={Math.floor(remainingTime / 60)}
