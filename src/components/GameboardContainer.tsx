@@ -77,6 +77,9 @@ export function GameboardContainer({
     saveResponse,
     handleToggleBurguerMenu,
     showBurguerMenu,
+    videoModalOpened,
+    onOpenVideoModal,
+    onCloseVideoModal,
   } = useContext(GameContext);
 
   const {
@@ -85,11 +88,6 @@ export function GameboardContainer({
     onClose: onCloseNotAlloWedModal,
   } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const {
-    isOpen: videoModalOpened,
-    onOpen: onOpenVideoModal,
-    onClose: onCloseVideoModal,
-  } = useDisclosure();
   const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
@@ -186,7 +184,7 @@ export function GameboardContainer({
         maxWidth: `${mazeData[0].length * cellSize + 25}px`,
       }}
     >
-      <header className={styles.headerContainer}>
+      {/* <header className={styles.headerContainer}>
         <div className={styles.headerLeftPortionContainer}>
           <Link href="#" id="logo" onClick={onOpenVideoModal}>
             <img
@@ -205,7 +203,7 @@ export function GameboardContainer({
                 <RenderCheddarIcon />
               </MenuButton>
               <MenuList className={styles.menuList}>
-                <MenuItem className={styles.menuItem} onClick={logOut}>
+                <MenuItem className={styles.menuItem}>
                   <Link
                     href={`https://nearblocks.io/address/${accountId}`}
                     className={styles.userName}
@@ -229,7 +227,7 @@ export function GameboardContainer({
             {showBurguerMenu ? <SmallCloseIcon /> : <HamburgerIcon />}
           </Button>
         </div>
-      </header>
+      </header> */}
 
       <div className={styles.publicityDecoration}></div>
 

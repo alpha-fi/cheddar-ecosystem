@@ -15,6 +15,7 @@ import { RNG } from '@/entities/RNG';
 import { useGetPendingCheddarToMint } from '@/hooks/maze';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
+import { useDisclosure } from '@chakra-ui/react';
 
 interface props {
   children: ReactNode;
@@ -136,6 +137,10 @@ interface GameContextProps {
 
   handleToggleBurguerMenu: () => void;
   showBurguerMenu: boolean;
+
+  videoModalOpened: boolean;
+  onOpenVideoModal: () => void;
+  onCloseVideoModal: () => void;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -192,6 +197,12 @@ export const GameContextProvider = ({ children }: props) => {
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
+
+  const {
+    isOpen: videoModalOpened,
+    onOpen: onOpenVideoModal,
+    onClose: onCloseVideoModal,
+  } = useDisclosure();
 
   const mazeRows = 11;
   const mazeCols = 9;
@@ -914,6 +925,9 @@ export const GameContextProvider = ({ children }: props) => {
         endGameResponse,
         handleToggleBurguerMenu,
         showBurguerMenu,
+        videoModalOpened,
+        onOpenVideoModal,
+        onCloseVideoModal,
       }}
     >
       {children}

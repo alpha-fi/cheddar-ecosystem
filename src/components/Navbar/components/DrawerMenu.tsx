@@ -23,6 +23,8 @@ import telegramIcon from '../../../assets/telegram.svg';
 import discordIcon from '../../../assets/discord.svg';
 import twitterIcon from '../../../assets/twitter.svg';
 import gitbookIcon from '../../../assets/gitbook.svg';
+import { RenderCheddarIcon } from '@/components/RenderCheddarIcon';
+import { SocialMedia } from '@/components/SocialMediaContainer';
 
 export function DrawerMenu() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -45,94 +47,21 @@ export function DrawerMenu() {
           />
           <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
 
-          <DrawerBody px="0">
-            <Box mt="20px">
-              <Link
-                p="16px 24px"
-                display="flex"
-                href="https://t.me/cheddarfarm"
-                target="_blank"
-                _hover={{ bg: 'yellowCheddar' }}
-                _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
-                _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
-              >
-                Telegram
-                <Box minW="30px" ml="5px">
-                  <Img
-                    src={'/assets/telegram.svg'}
-                    alt=""
-                    width="24px"
-                    height="24px"
-                  />
-                </Box>
-              </Link>
-
-              <Link
-                p="16px 24px"
-                display="flex"
-                href="https://discord.com/invite/G9PTbmPUwe"
-                target="_blank"
-                _hover={{ bg: 'yellowCheddar' }}
-                _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
-                _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
-              >
-                Discord
-                <Box minW="30px" ml="5px">
-                  <Img
-                    src={'/assets/discord.svg'}
-                    alt=""
-                    width="24px"
-                    height="24px"
-                  />
-                </Box>
-              </Link>
-
-              <Link
-                p="16px 24px"
-                display="flex"
-                href="https://twitter.com/CheddarFi"
-                target="_blank"
-                _hover={{ bg: 'yellowCheddar' }}
-                _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
-                _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
-              >
-                Twitter
-                <Box minW="30px" ml="5px">
-                  <Img
-                    src={'/assets/twitter.svg'}
-                    alt=""
-                    width="24px"
-                    height="24px"
-                  />
-                </Box>
-              </Link>
-
-              <Link
-                p="16px 24px"
-                display="flex"
-                href="https://cheddarfarm.gitbook.io/docs"
-                target="_blank"
-                _hover={{ bg: 'yellowCheddar' }}
-                _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
-                _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
-              >
-                Gitbook
-                <Box minW="30px" ml="5px">
-                  <Img
-                    src={'/assets/gitbook.svg'}
-                    alt=""
-                    width="24px"
-                    height="24px"
-                  />
-                </Box>
-              </Link>
-            </Box>
-          </DrawerBody>
+          <DrawerBody px="0"></DrawerBody>
 
           <DrawerFooter
+            flexDirection="column"
             borderTopWidth="1px"
             justifyContent="space-around"
-          ></DrawerFooter>
+          >
+            <SocialMedia />
+            <Text display="flex" justifyContent="space-between" w="100%">
+              <Text as="i">
+                Total <RenderCheddarIcon /> suply moked:{' '}
+              </Text>
+              <Text>9999</Text>
+            </Text>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </>

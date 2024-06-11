@@ -1,9 +1,23 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { Button, Menu, MenuButton, MenuList } from '@chakra-ui/react';
+import {
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Text,
+} from '@chakra-ui/react';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { YellowButton } from './YellowButton';
+import { yton } from '@/contracts/contractUtils';
+import { RenderCheddarIcon } from '@/components/RenderCheddarIcon';
+import Link from 'next/link';
 
-export function ButtonConnectWallet() {
+interface Props {
+  cheddarBalanceData: bigint | null | undefined;
+}
+
+export function ButtonConnectWallet({ cheddarBalanceData }: Props) {
   const walletSelector = useWalletSelector();
 
   function smartTrim(string: string, maxLength: number) {
@@ -46,7 +60,11 @@ export function ButtonConnectWallet() {
             borderRadius="full"
             rightIcon={<ChevronDownIcon />}
           >
-            {smartTrim(walletSelector.accountId ?? '', 10)}
+            <Text mr="5px" display="inline-block">
+              {cheddarBalanceData ? yton(`${cheddarBalanceData}`) : 0}
+            </Text>
+            <RenderCheddarIcon />
+            {/* {smartTrim(walletSelector.accountId ?? '', 10)} */}
           </MenuButton>
           <MenuList
             minWidth="auto"
@@ -54,16 +72,15 @@ export function ButtonConnectWallet() {
             borderRadius="full"
             bg="yellowCheddar"
           >
-            <Button
-              onClick={handleOnClick}
-              colorScheme="yellow"
-              borderRadius="full"
-              _focus={{
-                boxShadow: '0 0 0 0 #0000',
-              }}
-            >
-              Disconnect
-            </Button>
+            <MenuItem>
+              <Link
+                href={`https://nearblocks.io/address/${walletSelector.accountId}`}
+                target="_blank"
+              >
+                {smartTrim(walletSelector.accountId ?? '', 12)}
+              </Link>
+            </MenuItem>
+            <MenuItem onClick={handleOnClick}>Log out</MenuItem>
           </MenuList>
         </Menu>
       ) : (
