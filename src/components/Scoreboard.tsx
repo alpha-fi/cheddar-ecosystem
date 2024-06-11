@@ -42,7 +42,7 @@ export const Scoreboard = () => {
             <th className={styles.th}>Score</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className={styles.tBody}>
           {scoreboardResponse &&
             scoreboardResponse.ok &&
             scoreboardResponse.scoreboard.map((playerScoreData, index) => {
