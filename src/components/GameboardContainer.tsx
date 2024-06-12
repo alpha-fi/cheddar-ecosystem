@@ -115,8 +115,15 @@ export function GameboardContainer({
     return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
   }
 
+  function handleOpenBuyNFTPanel() {
+    if (nfts && nfts.length === 0) {
+      return onOpenBuyNFTPanel();
+    }
+    return () => {};
+  }
+
   function handleBuyClick() {
-    return selector.isSignedIn() ? onOpenBuyNFTPanel() : modal.show();
+    return selector.isSignedIn() ? handleOpenBuyNFTPanel() : modal.show();
   }
 
   function logOut() {
@@ -162,7 +169,7 @@ export function GameboardContainer({
     );
   }
 
-  console.log("nfts: ", nfts)
+  console.log('nfts: ', nfts);
 
   function getRayStyles() {
     return `${styles.raySVG} ${nfts.length > 0 ? styles.powerUpActive : styles.powerUpNotActive}`;
@@ -305,17 +312,10 @@ export function GameboardContainer({
 
           <div className={styles.tooltip}>
             <Button
-              colorScheme="yellow"
+              colorScheme={nfts && nfts.length > 0 ? 'yellow' : 'gray'}
               onClick={handleBuyClick}
-              disabled={!hasPowerUp}
             >
-              <svg className={getRayStyles()} viewBox="0 0 538.842 538.842">
-                <g>
-                  <g>
-                    <polygon points="392.326,200.43 325.083,200.43 423.691,0 280.813,0 133.933,298.54 210.513,298.54 115.151,538.842 		" />
-                  </g>
-                </g>
-              </svg>
+              ⚡
             </Button>
             <span className={styles.tooltipText}>
               Cheddy PowerUp NFT provides in-game features
