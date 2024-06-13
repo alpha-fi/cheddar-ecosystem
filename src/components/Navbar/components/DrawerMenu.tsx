@@ -62,11 +62,13 @@ export function DrawerMenu({
           >
             <SocialMedia />
             <Text display="flex" justifyContent="space-between" w="100%">
-              <Text as="i">Total supply:</Text>
-              <Text>
+              <Text as="i">
+                Total supply:{' '}
                 {isLoadingCheddarTotalSupply
                   ? 'Loading'
-                  : yton(cheddarTotalSupply!)}
+                  : new Intl.NumberFormat('de-DE', {
+                      maximumFractionDigits: 0,
+                    }).format(yton(cheddarTotalSupply!))}{' '}
                 <RenderCheddarIcon />
               </Text>
             </Text>
