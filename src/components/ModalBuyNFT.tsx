@@ -56,7 +56,7 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
         : cheddarNftPriceInNear;
       await buyNFT(wallet, withCheddar, amount!);
       toast({
-        title: 'Enjoy your buy!',
+        title: 'Enjoy your purchase!',
         status: 'success',
         duration: 9000,
         position: 'bottom-right',
