@@ -1,31 +1,11 @@
 import { Gameboard } from './Gameboard';
 import styles from '../styles/GameboardContainer.module.css';
-import {
-  Button,
-  Link,
-  ListItem,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  OrderedList,
-  Text,
-  background,
-  useDisclosure,
-} from '@chakra-ui/react';
-import {
-  MouseEventHandler,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { Button, Link, useDisclosure } from '@chakra-ui/react';
+import { MouseEventHandler, useContext, useMemo, useState } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
 import { ModalBuyNFT } from './ModalBuyNFT';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
-import { useGetCheddarNFTs } from '@/hooks/cheddar';
 import { ModalContainer } from './FeedbackModal';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { IsAllowedResponse } from '@/hooks/maze';

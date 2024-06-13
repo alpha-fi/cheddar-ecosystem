@@ -11,14 +11,12 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { ButtonConnectWallet } from '../components/ButtonConnectWallet';
-import thunderIcon from '../../../assets/thunder-icon.svg';
-import swapIcon from '../../../assets/swap-icon.svg';
-import GamesMenu from '../components/GamesMenu';
 import { DrawerMenu } from '../components/DrawerMenu';
-import { WhiteButton } from '../components/WhiteButton';
 import { useContext } from 'react';
 import { GameContext } from '@/contexts/GameContextProvider';
 import { RenderCheddarIcon } from '@/components/RenderCheddarIcon';
+import { useGetCheddarTotalSupply } from '@/hooks/cheddar';
+import { yton } from '@/contracts/contractUtils';
 
 interface Props {
   cheddarBalanceData: bigint | null | undefined;
@@ -26,6 +24,9 @@ interface Props {
 
 export default function Navbar({ cheddarBalanceData }: Props) {
   const { onOpenVideoModal } = useContext(GameContext);
+
+  const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
+    useGetCheddarTotalSupply();
 
   return (
     <Box
@@ -57,10 +58,13 @@ export default function Navbar({ cheddarBalanceData }: Props) {
               justifyContent="space-between"
               w="100%"
             >
-              <Text as="i">
-                Total <RenderCheddarIcon /> suply moked:{' '}
+              <Text as="i">Total supply:</Text>
+              <Text>
+                {isLoadingCheddarTotalSupply
+                  ? 'Loading'
+                  : yton(cheddarTotalSupply!)}{' '}
+                <RenderCheddarIcon />{' '}
               </Text>
-              <Text>9999</Text>
             </Text>
           </Flex>
 

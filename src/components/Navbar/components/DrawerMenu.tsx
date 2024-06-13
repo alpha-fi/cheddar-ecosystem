@@ -26,9 +26,14 @@ import twitterIcon from '../../../assets/twitter.svg';
 import gitbookIcon from '../../../assets/gitbook.svg';
 import { RenderCheddarIcon } from '@/components/RenderCheddarIcon';
 import { SocialMedia } from '@/components/SocialMediaContainer';
+import { useGetCheddarTotalSupply } from '@/hooks/cheddar';
+import { yton } from '@/contracts/contractUtils';
 
 export function DrawerMenu() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
+    useGetCheddarTotalSupply();
   return (
     <>
       <IconButton
@@ -59,10 +64,13 @@ export function DrawerMenu() {
           >
             <SocialMedia />
             <Text display="flex" justifyContent="space-between" w="100%">
-              <Text as="i">
-                Total <RenderCheddarIcon /> suply moked:{' '}
+              <Text as="i">Total supply:</Text>
+              <Text>
+                {isLoadingCheddarTotalSupply
+                  ? 'Loading'
+                  : yton(cheddarTotalSupply!)}
+                <RenderCheddarIcon />
               </Text>
-              <Text>9999</Text>
             </Text>
           </DrawerFooter>
         </DrawerContent>
