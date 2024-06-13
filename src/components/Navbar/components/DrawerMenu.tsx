@@ -10,30 +10,25 @@ import {
   DrawerHeader,
   DrawerOverlay,
   IconButton,
-  Img,
-  Link,
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import checkersIcon from '../../../assets/checkers-icon.png';
-import gamepadIcon from '../../../assets/gamepad-icon.svg';
-import cheddarIcon from '../../../assets/cheddar-icon.svg';
-import thunderIcon from '../../../assets/thunder-icon.svg';
-import swapIcon from '../../../assets/swap-icon.svg';
-import telegramIcon from '../../../assets/telegram.svg';
-import discordIcon from '../../../assets/discord.svg';
-import twitterIcon from '../../../assets/twitter.svg';
-import gitbookIcon from '../../../assets/gitbook.svg';
 import { RenderCheddarIcon } from '@/components/RenderCheddarIcon';
 import { SocialMedia } from '@/components/SocialMediaContainer';
-import { useGetCheddarTotalSupply } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
 
-export function DrawerMenu() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+interface Props {
+  onOpenVideoModal: () => void;
+  cheddarTotalSupply: bigint | undefined;
+  isLoadingCheddarTotalSupply: boolean;
+}
 
-  const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
-    useGetCheddarTotalSupply();
+export function DrawerMenu({
+  onOpenVideoModal,
+  cheddarTotalSupply,
+  isLoadingCheddarTotalSupply,
+}: Props) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
       <IconButton
@@ -53,7 +48,10 @@ export function DrawerMenu() {
           />
           <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
 
-          <DrawerBody px="0">
+          <DrawerBody display="flex" flexDirection="column" gap="0.5rem" px="0">
+            <Button colorScheme="blue" onClick={onOpenVideoModal}>
+              🎶
+            </Button>
             <Button>Scoreboard</Button>
           </DrawerBody>
 

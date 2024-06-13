@@ -54,8 +54,6 @@ export function GameboardContainer({
     onClose: onCloseNotAlloWedModal,
   } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [showBuyNFTPanel, setShowBuyNFTPanel] = useState(false);
-  const [showRules, setShowRules] = useState(false);
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
 
   if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {

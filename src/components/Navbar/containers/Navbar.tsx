@@ -49,7 +49,7 @@ export default function Navbar({ cheddarBalanceData }: Props) {
       >
         <Flex alignContent="center">
           <Flex flexDirection="column" rowGap={1} mr="20px">
-            <HStack spacing={0} onClick={onOpenVideoModal}>
+            <HStack spacing={0}>
               <Img src={'/assets/cheddar-logo.png'} alt="" height="25px" />
             </HStack>
 
@@ -67,7 +67,9 @@ export default function Navbar({ cheddarBalanceData }: Props) {
               </Text>
             </Text>
           </Flex>
+        </Flex>
 
+        <Flex flexDir="row" justifyContent="end" gap="0.5rem">
           <Stack
             direction={{ base: 'column', md: 'row' }}
             display={{ base: 'none', lg: 'flex' }}
@@ -80,13 +82,17 @@ export default function Navbar({ cheddarBalanceData }: Props) {
             lineHeight="1"
           >
             <Button>Scoreboard</Button>
+            <Button colorScheme="blue" onClick={onOpenVideoModal}>
+              🎶
+            </Button>
           </Stack>
-        </Flex>
-
-        <Flex flexDir="row" justifyContent="end">
           <ButtonConnectWallet cheddarBalanceData={cheddarBalanceData} />
           <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
-            <DrawerMenu />
+            <DrawerMenu
+              onOpenVideoModal={onOpenVideoModal}
+              cheddarTotalSupply={cheddarTotalSupply}
+              isLoadingCheddarTotalSupply={isLoadingCheddarTotalSupply}
+            />
           </Box>
         </Flex>
       </Container>
