@@ -115,15 +115,8 @@ export function GameboardContainer({
     return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
   }
 
-  function handleOpenBuyNFTPanel() {
-    if (nfts && nfts.length === 0) {
-      return onOpenBuyNFTPanel();
-    }
-    return () => {};
-  }
-
   function handleBuyClick() {
-    return selector.isSignedIn() ? handleOpenBuyNFTPanel() : modal.show();
+    return selector.isSignedIn() ? onOpenBuyNFTPanel() : modal.show();
   }
 
   function logOut() {
@@ -167,12 +160,6 @@ export function GameboardContainer({
       '...' +
       string.substring(midpoint + rstrip)
     );
-  }
-
-  console.log('nfts: ', nfts);
-
-  function getRayStyles() {
-    return `${styles.raySVG} ${nfts.length > 0 ? styles.powerUpActive : styles.powerUpNotActive}`;
   }
 
   return (
