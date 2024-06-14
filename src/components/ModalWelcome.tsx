@@ -31,8 +31,8 @@ export default function ModalWelcome() {
         mb="30px"
       />
       <Text>
-        More the a loyalty token, it&apos;s a freedom movement. We empower
-        communities to farm, connect, and, grow, through a fun web3 experience.
+        More than a loyalty token, it&apos;s a freedom movement. We empower
+        communities to farm, connect, and grow, through a fun Web3 experience.
         Cheddar brings good vibes and breaks down barriers
       </Text>
       <HStack justifyContent="space-between">
