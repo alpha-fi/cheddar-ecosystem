@@ -9,10 +9,17 @@ import React, {
   useRef,
 } from 'react';
 
-import { callEndGame, getSeedId } from '../queries/api/maze';
+import { callEndGame, getScoreBoard, getSeedId } from '../queries/api/maze';
 import { useWalletSelector } from './WalletSelectorContext';
 import { RNG } from '@/entities/RNG';
-import { useGetPendingCheddarToMint } from '@/hooks/maze';
+import {
+  IsAllowedResponse,
+  ScoreboardResponse,
+  useGetIsAllowedResponse,
+  useGetPendingCheddarToMint,
+  useGetScoreboard,
+} from '@/hooks/maze';
+import { PlayerScoreData } from '@/components/Scoreboard';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
 
@@ -133,6 +140,9 @@ interface GameContextProps {
   hasWon: undefined | boolean;
   pendingCheddarToMint: number;
   endGameResponse: any;
+
+  scoreboardResponse: ScoreboardResponse | null | undefined;
+  isLoadingScoreboard: boolean;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -838,6 +848,9 @@ export const GameContextProvider = ({ children }: props) => {
     return square?.id || '';
   };
 
+  const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
+    useGetScoreboard();
+
   return (
     <GameContext.Provider
       value={{
@@ -903,6 +916,8 @@ export const GameContextProvider = ({ children }: props) => {
         hasWon,
         pendingCheddarToMint,
         endGameResponse,
+        scoreboardResponse,
+        isLoadingScoreboard,
       }}
     >
       {children}
