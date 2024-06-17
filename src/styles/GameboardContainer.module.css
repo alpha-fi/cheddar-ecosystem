@@ -25,6 +25,15 @@
   background-size: cover;
   background-position: center;
 }
+.headerButtonsContainer {
+  display: flex;
+  justify-content: space-around;
+  margin: 0.5rem 0;
+  width: 100%;
+}
+.gameName {
+  font-weight: bolder;
+}
 
 .headerLeftPortionContainer {
   padding-left: 1rem;

@@ -74,7 +74,7 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
     }
   }
 
-  async function handlePurchase() {
+  async function handleBuy() {
     try {
       setIsLoading(true);
       const wallet = await selector.wallet();
@@ -160,7 +160,7 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
           </FormLabel>
           <Button
             colorScheme="yellow"
-            onClick={handlePurchase}
+            onClick={handleBuy}
             isLoading={isLoading}
           >
             Purchase

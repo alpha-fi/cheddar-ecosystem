@@ -9,10 +9,17 @@ import React, {
   useRef,
 } from 'react';
 
-import { callEndGame, getSeedId } from '../queries/api/maze';
+import { callEndGame, getScoreBoard, getSeedId } from '../queries/api/maze';
 import { useWalletSelector } from './WalletSelectorContext';
 import { RNG } from '@/entities/RNG';
-import { useGetPendingCheddarToMint } from '@/hooks/maze';
+import {
+  IsAllowedResponse,
+  ScoreboardResponse,
+  useGetIsAllowedResponse,
+  useGetPendingCheddarToMint,
+  useGetScoreboard,
+} from '@/hooks/maze';
+import { PlayerScoreData } from '@/components/Scoreboard';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
 import { getNFTs } from '@/contracts/cheddarCalls';
@@ -136,6 +143,9 @@ interface GameContextProps {
   endGameResponse: any;
 
   nfts: NFT[];
+
+  scoreboardResponse: ScoreboardResponse | null | undefined;
+  isLoadingScoreboard: boolean;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -547,20 +557,28 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const chancesOfFinding = {
-    exit: 0.0015,
+    exit: 0.002,
     enemy: 0.19,
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
   };
 
-  const NFTBuffMultiplier = 1.28;
+  const NFTCheeseBuffMultiplier = 1.28;
+  const NFTExitBuffMultiplier = 10;
 
   function getChancesOfFindingCheese() {
     if (nfts.length > 0) {
-      return chancesOfFinding.cheese * NFTBuffMultiplier;
+      return chancesOfFinding.cheese * NFTCheeseBuffMultiplier;
     }
     return chancesOfFinding.cheese;
+  }
+
+  function getChancesOfFindingExit() {
+    if (nfts.length > 0) {
+      return chancesOfFinding.exit * NFTExitBuffMultiplier;
+    }
+    return chancesOfFinding.exit;
   }
 
   function addArtifacts(
@@ -577,7 +595,7 @@ export const GameContextProvider = ({ children }: props) => {
     }
     let clonedMazeData = [...newMazeData];
     if (
-      (rng.nextFloat() < chancesOfFinding.exit &&
+      (rng.nextFloat() < getChancesOfFindingExit() &&
         coveredCells.length >= 0.75 * pathLength) ||
       pathLength - cellsWithItemAmount === 1
     ) {
@@ -825,6 +843,9 @@ export const GameContextProvider = ({ children }: props) => {
     return square?.id || '';
   };
 
+  const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
+    useGetScoreboard();
+
   return (
     <GameContext.Provider
       value={{
@@ -891,6 +912,9 @@ export const GameContextProvider = ({ children }: props) => {
         pendingCheddarToMint,
         endGameResponse,
         nfts,
+
+        scoreboardResponse,
+        isLoadingScoreboard,
       }}
     >
       {children}
