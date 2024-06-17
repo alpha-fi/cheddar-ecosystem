@@ -9,10 +9,17 @@ import React, {
   useRef,
 } from 'react';
 
-import { callEndGame, getSeedId } from '../queries/api/maze';
+import { callEndGame, getScoreBoard, getSeedId } from '../queries/api/maze';
 import { useWalletSelector } from './WalletSelectorContext';
 import { RNG } from '@/entities/RNG';
-import { useGetPendingCheddarToMint } from '@/hooks/maze';
+import {
+  IsAllowedResponse,
+  ScoreboardResponse,
+  useGetIsAllowedResponse,
+  useGetPendingCheddarToMint,
+  useGetScoreboard,
+} from '@/hooks/maze';
+import { PlayerScoreData } from '@/components/Scoreboard';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
 import { useDisclosure } from '@chakra-ui/react';
@@ -135,9 +142,16 @@ interface GameContextProps {
   pendingCheddarToMint: number;
   endGameResponse: any;
 
+  scoreboardResponse: ScoreboardResponse | null | undefined;
+  isLoadingScoreboard: boolean;
+
   videoModalOpened: boolean;
   onOpenVideoModal: () => void;
   onCloseVideoModal: () => void;
+
+  isScoreboardOpen: boolean;
+  onOpenScoreboard: () => void;
+  onCloseScoreboard: () => void;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -146,6 +160,12 @@ export const GameContext = createContext<GameContextProps>(
 
 export const GameContextProvider = ({ children }: props) => {
   const gameOverRefSent = useRef(false);
+
+  const {
+    isOpen: isScoreboardOpen,
+    onOpen: onOpenScoreboard,
+    onClose: onCloseScoreboard,
+  } = useDisclosure();
 
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
@@ -849,6 +869,9 @@ export const GameContextProvider = ({ children }: props) => {
     return square?.id || '';
   };
 
+  const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
+    useGetScoreboard();
+
   return (
     <GameContext.Provider
       value={{
@@ -917,6 +940,11 @@ export const GameContextProvider = ({ children }: props) => {
         videoModalOpened,
         onOpenVideoModal,
         onCloseVideoModal,
+        scoreboardResponse,
+        isLoadingScoreboard,
+        isScoreboardOpen,
+        onOpenScoreboard,
+        onCloseScoreboard,
       }}
     >
       {children}

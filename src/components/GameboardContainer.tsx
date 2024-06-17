@@ -12,6 +12,8 @@ import { IsAllowedResponse } from '@/hooks/maze';
 import ModalNotAllowedToPlay from './ModalNotAllowedToPlay';
 import ModalRules from './ModalRules';
 import { GameOverModalContent } from './GameOverModalContent';
+import { Scoreboard } from './Scoreboard';
+
 interface Props {
   remainingMinutes: number;
   remainingSeconds: number;
@@ -46,6 +48,9 @@ export function GameboardContainer({
     saveResponse,
     videoModalOpened,
     onCloseVideoModal,
+    isScoreboardOpen,
+    onOpenScoreboard,
+    onCloseScoreboard,
   } = useContext(GameContext);
 
   const {
@@ -262,6 +267,14 @@ export function GameboardContainer({
             controls
           ></video>
         </div>
+      </ModalContainer>
+
+      <ModalContainer
+        title={'Maze scoreboard'}
+        isOpen={isScoreboardOpen}
+        onClose={onCloseScoreboard}
+      >
+        <Scoreboard />
       </ModalContainer>
     </div>
   );

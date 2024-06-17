@@ -23,7 +23,7 @@ interface Props {
 }
 
 export default function Navbar({ cheddarBalanceData }: Props) {
-  const { onOpenVideoModal } = useContext(GameContext);
+  const { onOpenVideoModal, onOpenScoreboard } = useContext(GameContext);
 
   const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
     useGetCheddarTotalSupply();
@@ -83,7 +83,7 @@ export default function Navbar({ cheddarBalanceData }: Props) {
             fontWeight="700"
             lineHeight="1"
           >
-            <Button>Scoreboard</Button>
+            <Button onClick={onOpenScoreboard}>Scoreboard</Button>
             <Button colorScheme="blue" onClick={onOpenVideoModal}>
               🎶
             </Button>

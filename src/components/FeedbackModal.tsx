@@ -52,7 +52,15 @@ export const ModalContainer = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent {...props} maxW="385px">
+      <ModalContent
+        {...props}
+        maxW="385px"
+        bgColor="#8542eb"
+        border="10px solid white"
+        color={'white'}
+        fontSize="16px"
+        fontWeight="600"
+      >
         <ModalHeader>{title}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>

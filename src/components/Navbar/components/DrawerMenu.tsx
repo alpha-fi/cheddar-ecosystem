@@ -16,6 +16,8 @@ import {
 import { RenderCheddarIcon } from '@/components/RenderCheddarIcon';
 import { SocialMedia } from '@/components/SocialMediaContainer';
 import { yton } from '@/contracts/contractUtils';
+import { useContext } from 'react';
+import { GameContext } from '@/contexts/GameContextProvider';
 
 interface Props {
   onOpenVideoModal: () => void;
@@ -28,6 +30,7 @@ export function DrawerMenu({
   cheddarTotalSupply,
   isLoadingCheddarTotalSupply,
 }: Props) {
+  const { onOpenScoreboard } = useContext(GameContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
@@ -52,7 +55,7 @@ export function DrawerMenu({
             <Button colorScheme="blue" onClick={onOpenVideoModal}>
               🎶
             </Button>
-            <Button>Scoreboard</Button>
+            <Button onClick={onOpenScoreboard}>Scoreboard</Button>
           </DrawerBody>
 
           <DrawerFooter

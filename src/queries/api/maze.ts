@@ -1,3 +1,4 @@
+import { PlayerScoreData } from '@/components/Scoreboard';
 import { getConfig } from '@/configs/config';
 
 const { backendBaseUrl } = getConfig();
@@ -37,6 +38,13 @@ export async function getSeedId(accountId: string) {
     body: JSON.stringify(data),
   });
   return response.json();
+}
+
+export async function getScoreBoard() {
+  const url = new URL(`/api/maze/scoreboard`, backendBaseUrl).toString();
+  const response = await fetch(url);
+  const jsonResponse = await response.json();
+  return jsonResponse as PlayerScoreData | Promise<any> | undefined;
 }
 
 export interface EndGameRequest {
