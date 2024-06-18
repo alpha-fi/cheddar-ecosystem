@@ -12,6 +12,9 @@
   width: 100%;
   justify-content: space-between;
   padding-top: 1rem;
+  padding-bottom: 0.5rem;
+  padding-inline: 0.5rem;
+  align-items: center;
 }
 
 .gameContainer {
@@ -54,7 +57,7 @@
 .ourSocialMedia {
   position: relative;
   z-index: 4;
-
+  color:white;
   display    : flex;
   flex-flow  : row;
   align-items: center;
@@ -63,7 +66,7 @@
 
 .socialMediaLinks {
   color:  #222;
-  margin: 0 0 0 0.1rem;
+  margin: 0 0 0 0.6rem;
   width:  1.5em;
 }
 
@@ -80,17 +83,15 @@
   border-radius: 30px;
   height: 2rem;
   border: 1px solid mediumslateblue;
-  cursor: pointer;
-  margin-right: 1rem;
+  cursor: pointer;;
 }
 .notEnoughBalanceMsg {
+  font-size: 18px;
   font-weight: bold;
   margin: 1rem auto 0.5rem auto;
-  color: #F9BA37 !important;
-  text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
+  color: #8542eb !important;
 }
 .mazeContainer {
-  margin-bottom: 10px;
   border-radius: 5px;
   overflow: hidden;
   width: fit-content;
@@ -201,4 +202,41 @@
 .videoContainer {
   display: flex;
   justify-content: center;
+}
+
+.logoContainer {
+  display: flex;
+  gap:0.2rem;
+  align-items: center;
+}
+
+.logoText {
+  font-weight: 700;
+}
+
+.textWhite {
+  color:white;
+}
+
+.flexAlignCenter {
+  display: flex;
+  align-items: center;
+}
+
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.textCenter {
+  text-align: center;
+}
+
+.marginLeftSm {
+  margin-left: 0.4rem;
+}
+
+.loginContainer {
+  min-width: 100px;
 }

@@ -197,10 +197,30 @@ export const GameContextProvider = ({ children }: props) => {
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
-
   const mazeRows = 11;
-  const mazeCols = 9;
-  const totalCells = mazeRows * mazeCols;
+  const [mazeCols, setMazeCols] = useState(8);
+  const [totalCells, setTotalCells] = useState(0);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
+    const handleMediaChange = (e: any) => {
+      if (e.matches) {
+        setMazeCols(9); // Larger devices
+      } else {
+        setMazeCols(8); // Smaller devices
+      }
+    };
+
+    handleMediaChange(mediaQuery);
+
+    mediaQuery.addListener(handleMediaChange);
+
+    return () => mediaQuery.removeListener(handleMediaChange);
+  }, []);
+
+  useEffect(() => {
+    setTotalCells(mazeRows * mazeCols);
+  }, [mazeCols]);
 
   const {
     data: pendingCheddarToMint = 0,
@@ -419,7 +439,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     const playerStartCell = getRandomPathCell(newMazeData);
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
-  }, []); // Empty dependency array to run this effect only once on component mount
+  }, [totalCells]); // Empty dependency array to run this effect only once on component mount
 
   function movePlayer(newX: number, newY: number) {
     if (
