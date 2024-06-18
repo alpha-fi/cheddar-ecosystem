@@ -1,4 +1,5 @@
 import { Gameboard } from './Gameboard';
+import { PinkoBoard } from './plinko/PlinkoGameboard';
 import styles from '../styles/GameboardContainer.module.css';
 import {
   Button,
@@ -333,11 +334,12 @@ export function GameboardContainer({
             )}
           </div>
         </div>
-        <Gameboard
+        {/* <Gameboard
           openLogIn={modal.show}
           isUserLoggedIn={selector.isSignedIn()}
           isAllowedResponse={isAllowedResponse!}
-        />
+        /> */}
+        <PinkoBoard numDrops={18} />
       </div>
 
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
