@@ -41,6 +41,7 @@
     "near-api-js": "^0.44.2",
     "react": "^18",
     "react-dom": "^18",
+    "react-matter-js": "^1.0.5",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

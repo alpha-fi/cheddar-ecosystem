@@ -169,6 +169,8 @@ export function GameboardContainer({
     );
   }
 
+  return <PinkoBoard numDrops={10}/>
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -339,7 +341,7 @@ export function GameboardContainer({
           isUserLoggedIn={selector.isSignedIn()}
           isAllowedResponse={isAllowedResponse!}
         /> */}
-        <PinkoBoard numDrops={18} />
+        <PinkoBoard numDrops={10}/>
       </div>
 
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (

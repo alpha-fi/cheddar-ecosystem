@@ -1,104 +1,74 @@
-import { Button } from '@chakra-ui/react';
-import React, { useEffect, useRef, useState } from 'react';
+import * as React from 'react';
+import { useEffect, useRef } from 'react';
+import { Engine, Render, Bodies, World } from 'matter-js';
+import { color } from 'framer-motion';
 
-interface PinkoBoardProps {
+interface Props {
   numDrops: number;
 }
 
-export const PinkoBoard: React.FC<PinkoBoardProps> = ({ numDrops }) => {
-  // Gameboard configuration
-  const boardWidth = 300;
-  const boardHeight = 400;
-  const pinRadius = 5;
+export function PinkoBoard({ numDrops }: Props) {
+  const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
+  const engine = useRef(Engine.create());
   const rows = numDrops;
-  const pinSpacing = boardWidth / rows;
-
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [ballPosition, setBallPosition] = useState({ x: 150, y: pinSpacing });
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const context = canvas.getContext('2d');
-    if (!context) return;
+    const cw = document.body.clientWidth;
+    const ch = document.body.clientHeight;
+    const pinSpacing = cw / rows;
 
-    context.clearRect(0, 0, boardWidth, boardHeight);
+    if (scene) {
+      const render = Render.create({
+        element: scene.current,
+        engine: engine.current,
+        options: {
+          width: cw,
+          height: ch,
+          wireframes: false,
+          background: 'transparent',
+        },
+      });
 
-    // Draw pins
-    for (let row = 1; row <= rows; row++) {
-      for (let col = 0; col < row; col++) {
-        const x =
-          boardWidth / 2 - ((row - 1) * pinSpacing) / 2 + col * pinSpacing;
-        const y = row * pinSpacing;
+      World.add(engine.current.world, [
+        Bodies.rectangle(cw / 2, -10, cw, 20, { isStatic: true }),
+        Bodies.rectangle(-10, ch / 2, 20, ch, { isStatic: true }),
+        Bodies.rectangle(cw / 2, ch + 10, cw, 20, { isStatic: true }),
+        Bodies.rectangle(cw + 10, ch / 2, 20, ch, { isStatic: true }),
+      ]);
 
-        if (row > 1) {
-          // First line should be even
-          context.beginPath();
-          context.arc(x, y, pinRadius, 0, Math.PI * 2);
-          context.fillStyle = 'black';
-          context.fill();
-        }
-      }
-    }
-
-    // Draw ball
-    const getBall = () => ({
-      x: ballPosition.x,
-      y: ballPosition.y,
-      ballSize: pinSpacing / 2.5, // Adjusted ball size
-      startAngle: 0,
-      endAngle: Math.PI * 2,
-      color: 'red',
-
-      draw() {
-        context.beginPath();
-        context.arc(
-          this.x,
-          this.y,
-          this.ballSize,
-          this.startAngle,
-          this.endAngle
-        );
-        context.fillStyle = this.color;
-        context.fill();
-      },
-    });
-
-    const ball = getBall();
-
-    const update = () => {
-      context.clearRect(0, 0, boardWidth, boardHeight);
-      // Redraw pins
       for (let row = 1; row <= rows; row++) {
         for (let col = 0; col < row; col++) {
-          const x =
-            boardWidth / 2 - ((row - 1) * pinSpacing) / 2 + col * pinSpacing;
+          const x = cw / 2 - ((row - 1) * pinSpacing) / 2 + col * pinSpacing;
           const y = row * pinSpacing;
 
           if (row > 1) {
-            context.beginPath();
-            context.arc(x, y, pinRadius, 0, Math.PI * 2);
-            context.fillStyle = 'black';
-            context.fill();
+            const pin = Bodies.circle(x, y, 5, {
+              isStatic: true,
+              render: {
+                fillStyle: 'black',
+              },
+            });
+            World.add(engine.current.world, [pin]);
           }
         }
       }
-      // Redraw ball
-      ball.draw();
-      requestAnimationFrame(update);
-    };
 
-    requestAnimationFrame(update);
-  }, [ballPosition, pinSpacing, rows, boardWidth, boardHeight, pinRadius]);
+      const ball = Bodies.circle(cw/2, pinSpacing, pinSpacing / 2.5, {
+        render: { fillStyle: 'red' },
+      });
+      World.add(engine.current.world, [ball]);
 
-  const dropBall = () => {};
+      Engine.run(engine.current);
+      Render.run(render);
 
-  return (
-    <div>
-      <canvas ref={canvasRef} width={boardWidth} height={boardHeight} />
-      <Button onClick={dropBall}>Drop Ball</Button>
-    </div>
-  );
-};
+      return () => {
+        Render.stop(render);
+        World.clear(engine.current.world, true);
+        Engine.clear(engine.current);
+        render.canvas.remove();
+      };
+    }
+  }, []);
 
-export default PinkoBoard;
+  return <div ref={scene} style={{ width: '100vw', height: '100vh' }} />;
+}
