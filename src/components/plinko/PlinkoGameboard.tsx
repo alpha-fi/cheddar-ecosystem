@@ -53,7 +53,9 @@ export function PinkoBoard({ numDrops }: Props) {
         }
       }
 
-      const ball = Bodies.circle(cw/2, pinSpacing, pinSpacing / 2.5, {
+      const ball = Bodies.circle(cw / 2, pinSpacing, pinSpacing / 2.17, {
+        restitution: 1,
+        friction: 0.05,
         render: { fillStyle: 'red' },
       });
       World.add(engine.current.world, [ball]);
