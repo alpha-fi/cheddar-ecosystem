@@ -29,6 +29,7 @@ export function PinkoBoard({ numDrops }: Props) {
         },
       });
 
+      //Create world
       World.add(engine.current.world, [
         Bodies.rectangle(cw / 2, -10, cw, 20, { isStatic: true }),
         Bodies.rectangle(-10, ch / 2, 20, ch, { isStatic: true }),
@@ -36,6 +37,7 @@ export function PinkoBoard({ numDrops }: Props) {
         Bodies.rectangle(cw + 10, ch / 2, 20, ch, { isStatic: true }),
       ]);
 
+      //Create plinko pins
       for (let row = 1; row <= rows; row++) {
         for (let col = 0; col < row; col++) {
           const x = cw / 2 - ((row - 1) * pinSpacing) / 2 + col * pinSpacing;
@@ -53,13 +55,15 @@ export function PinkoBoard({ numDrops }: Props) {
         }
       }
 
+      //Draw ball
       const ball = Bodies.circle(cw / 2, pinSpacing, pinSpacing / 2.17, {
         restitution: 1,
-        friction: 0.05,
+        friction: 0.5,
         render: { fillStyle: 'red' },
       });
       World.add(engine.current.world, [ball]);
 
+      //Start runing and renderling
       Engine.run(engine.current);
       Render.run(render);
 
