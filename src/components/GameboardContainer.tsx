@@ -24,7 +24,7 @@ import { ModalBuyNFT } from './ModalBuyNFT';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
-import { ModalContainer } from './FeedbackModal';
+import { ModalContainer } from './ModalContainer';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { IsAllowedResponse } from '@/hooks/maze';
 import ModalNotAllowedToPlay from './ModalNotAllowedToPlay';
