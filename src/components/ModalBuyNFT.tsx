@@ -9,7 +9,7 @@ import {
   Stack,
   Switch,
 } from '@chakra-ui/react';
-import { ModalContainer } from './FeedbackModal';
+import { ModalContainer } from './ModalContainer';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RadioButtonBroup } from './RadioButtonGroup';
 import { useEffect, useState } from 'react';

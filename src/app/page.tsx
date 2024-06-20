@@ -6,6 +6,7 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ntoy, yton } from '@/contracts/contractUtils';
 import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse as useGetIsAllowedResponse } from '@/hooks/maze';
+import ModalWelcome from '@/components/ModalWelcome';
 
 export default function Home() {
   const {
@@ -100,6 +101,7 @@ export default function Home() {
           isAllowedResponse={isAllowedResponse}
         />
       )}
+      <ModalWelcome />
     </>
   );
 }
