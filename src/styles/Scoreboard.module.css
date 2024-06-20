@@ -1,0 +1,63 @@
+.tableContainer {
+  width: 100%;
+}
+.titlesContainer {
+  position: sticky;
+  top: 0;
+  margin: 0 0.5rem;
+  border-bottom: 1px solid black;
+  height: 3rem;
+}
+.borderTop {
+  border-top: 1px solid black;
+}
+.rowContainer {
+  font-weight: bold;
+  border-spacing: 5px 10px;
+  padding-left: 1rem;
+  height: 3rem;
+  background-color: #b27fff;
+}
+.th {
+  text-align: center;
+}
+/* .tBody {
+  box-shadow: 0px 12px 24px -5px rgba(0,0,0,0.46);
+  -webkit-box-shadow: 0px 12px 24px -5px rgba(0,0,0,0.46);
+  -moz-box-shadow: 0px 12px 24px -5px rgba(0,0,0,0.46);
+} */
+.content {
+  text-align: center;
+  padding-left: 0.5px;
+  padding-right: 0.5px;
+}
+.position {
+  margin-right: 0.5rem;
+  width: 10px;
+  min-width: none;
+}
+.userName {
+  max-width: 130px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+.cheddarEarned {
+  max-width: 30px;
+}
+.score {
+  max-width: 30px;
+}
+.userBackground {
+  background-color: rgba(251, 202, 27);
+}
+.tFoot {
+  display: flex;
+  justify-content: center;
+}
+.showMore {
+  text-align: center;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}

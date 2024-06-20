@@ -9,10 +9,17 @@ import React, {
   useRef,
 } from 'react';
 
-import { callEndGame, getSeedId } from '../queries/api/maze';
+import { callEndGame, getScoreBoard, getSeedId } from '../queries/api/maze';
 import { useWalletSelector } from './WalletSelectorContext';
 import { RNG } from '@/entities/RNG';
-import { useGetPendingCheddarToMint } from '@/hooks/maze';
+import {
+  IsAllowedResponse,
+  ScoreboardResponse,
+  useGetIsAllowedResponse,
+  useGetPendingCheddarToMint,
+  useGetScoreboard,
+} from '@/hooks/maze';
+import { PlayerScoreData } from '@/components/Scoreboard';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
 
@@ -118,6 +125,9 @@ interface GameContextProps {
   pathLength: number;
 
   handleKeyPress(event: KeyboardEvent<HTMLDivElement>): void;
+  handleArrowPress(
+    direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
+  ): void;
 
   restartGame(): void;
 
@@ -133,6 +143,12 @@ interface GameContextProps {
   hasWon: undefined | boolean;
   pendingCheddarToMint: number;
   endGameResponse: any;
+
+  showMovementButtons: boolean;
+  setShowMovementButtons: React.Dispatch<React.SetStateAction<boolean>>;
+
+  scoreboardResponse: ScoreboardResponse | null | undefined;
+  isLoadingScoreboard: boolean;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -184,6 +200,8 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [saveResponse, setSaveResponse] = useState();
   const [endGameResponse, setEndGameResponse] = useState();
+
+  const [showMovementButtons, setShowMovementButtons] = useState(true);
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -659,7 +677,7 @@ export const GameContextProvider = ({ children }: props) => {
     if (timerStarted && !gameOverFlag && startTimestamp) {
       intervalId = setInterval(() => {
         setRemainingTime((prevTime) => {
-          if (prevTime === 0 && intervalId) {
+          if (prevTime <= 0 && intervalId) {
             // if (intervalId && true) {
             clearInterval(intervalId);
             setStartTimestamp(null);
@@ -680,15 +698,13 @@ export const GameContextProvider = ({ children }: props) => {
     }; // Cleanup function to clear interval on unmount or when timer conditions change
   }, [timerStarted, gameOverFlag]);
 
-  // Function to handle key press events
-  function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
+  function handleMoveByArrow(direction: string) {
     if (gameOverFlag) return; // If game over, prevent further movement
 
-    const key = event.key;
     let newX = playerPosition.x;
     let newY = playerPosition.y;
 
-    switch (key) {
+    switch (direction) {
       case 'ArrowUp':
         newY--;
         setDirection('up');
@@ -713,6 +729,18 @@ export const GameContextProvider = ({ children }: props) => {
     // Update last cell coordinates
     setLastCellX(playerPosition.x);
     setLastCellY(playerPosition.y);
+  }
+
+  // Function to handle key press events
+  function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
+    const key = event.key;
+    handleMoveByArrow(key);
+  }
+
+  function handleArrowPress(
+    direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
+  ) {
+    handleMoveByArrow(direction);
   }
 
   function calculateBlurRadius(cellX: number, cellY: number) {
@@ -806,28 +834,31 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    // event.preventDefault(); // Prevent screen scroll
-    const touches = event.touches;
-    const initialTouch = touches[0] as Touch;
+    if (!showMovementButtons) {
+      // event.preventDefault(); // Prevent screen scroll
+      const touches = event.touches;
+      const initialTouch = touches[0] as Touch;
 
-    const initialSquareId = getSquareIdFromTouch(initialTouch);
+      const initialSquareId = getSquareIdFromTouch(initialTouch);
 
-    if (!gameOverFlag) moveIfValid(initialSquareId!);
+      if (!gameOverFlag) moveIfValid(initialSquareId!);
+    }
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
-    console.log('Touch move');
-    event.preventDefault(); // Prevent screen scroll
-    const touches = event.touches;
+    if (!showMovementButtons) {
+      event.preventDefault(); // Prevent screen scroll
+      const touches = event.touches;
 
-    // Calculate touchedSquares
-    for (let i = 0; i < touches.length; i++) {
-      const currentTouch = touches[i] as Touch;
+      // Calculate touchedSquares
+      for (let i = 0; i < touches.length; i++) {
+        const currentTouch = touches[i] as Touch;
 
-      const tileId = getSquareIdFromTouch(currentTouch);
+        const tileId = getSquareIdFromTouch(currentTouch);
 
-      if (!gameOverFlag && tileId) {
-        moveIfValid(tileId);
+        if (!gameOverFlag && tileId) {
+          moveIfValid(tileId);
+        }
       }
     }
   };
@@ -837,6 +868,9 @@ export const GameContextProvider = ({ children }: props) => {
 
     return square?.id || '';
   };
+
+  const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
+    useGetScoreboard();
 
   return (
     <GameContext.Provider
@@ -894,6 +928,7 @@ export const GameContextProvider = ({ children }: props) => {
         totalCells,
         pathLength: pathLength,
         handleKeyPress,
+        handleArrowPress,
         restartGame,
         calculateBlurRadius,
         handleTouchStart,
@@ -903,6 +938,10 @@ export const GameContextProvider = ({ children }: props) => {
         hasWon,
         pendingCheddarToMint,
         endGameResponse,
+        showMovementButtons,
+        setShowMovementButtons,
+        scoreboardResponse,
+        isLoadingScoreboard,
       }}
     >
       {children}
