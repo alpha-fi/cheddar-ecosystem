@@ -71,6 +71,7 @@ export function GameboardContainer({
     timerStarted,
     setGameOverMessage,
     saveResponse,
+    nfts,
     handleArrowPress,
     showMovementButtons,
     setShowMovementButtons,
@@ -364,9 +365,8 @@ export function GameboardContainer({
 
           <div className={styles.tooltip}>
             <Button
-              colorScheme="yellow"
-              onClick={handlePowerUpClick}
-              disabled={!hasPowerUp}
+              colorScheme={nfts && nfts.length > 0 ? 'yellow' : 'gray'}
+              onClick={handleBuyClick}
             >
               ⚡
             </Button>
@@ -374,21 +374,6 @@ export function GameboardContainer({
               Cheddy PowerUp NFT provides in-game features
             </span>
 
-            {!hasPowerUp && (
-              <span className={styles.buyPowerUp}>
-                <Button
-                  colorScheme="purple"
-                  onClick={handleBuyClick}
-                  disabled={!hasPowerUp}
-                >
-                  Buy
-                </Button>
-                <ModalBuyNFT
-                  onClose={onCloseBuyNFTPanel}
-                  isOpen={isOpenBuyNFTPanel}
-                />
-              </span>
-            )}
 
             <Show below="lg">
               <Button
@@ -444,6 +429,7 @@ export function GameboardContainer({
         )}
       </div>
 
+      <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
         <ModalNotAllowedToPlay
           isOpen={isOpenNotAlloWedModal}
