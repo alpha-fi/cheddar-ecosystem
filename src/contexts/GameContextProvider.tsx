@@ -669,7 +669,7 @@ export const GameContextProvider = ({ children }: props) => {
     if (timerStarted && !gameOverFlag && startTimestamp) {
       intervalId = setInterval(() => {
         setRemainingTime((prevTime) => {
-          if (prevTime === 0 && intervalId) {
+          if (prevTime <= 0 && intervalId) {
             // if (intervalId && true) {
             clearInterval(intervalId);
             setStartTimestamp(null);
