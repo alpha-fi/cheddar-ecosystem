@@ -22,6 +22,7 @@ import {
 import { PlayerScoreData } from '@/components/Scoreboard';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
+import { useDisclosure } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
 
 interface props {
@@ -152,6 +153,14 @@ interface GameContextProps {
 
   scoreboardResponse: ScoreboardResponse | null | undefined;
   isLoadingScoreboard: boolean;
+
+  videoModalOpened: boolean;
+  onOpenVideoModal: () => void;
+  onCloseVideoModal: () => void;
+
+  isScoreboardOpen: boolean;
+  onOpenScoreboard: () => void;
+  onCloseScoreboard: () => void;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -160,6 +169,12 @@ export const GameContext = createContext<GameContextProps>(
 
 export const GameContextProvider = ({ children }: props) => {
   const gameOverRefSent = useRef(false);
+
+  const {
+    isOpen: isScoreboardOpen,
+    onOpen: onOpenScoreboard,
+    onClose: onCloseScoreboard,
+  } = useDisclosure();
 
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
@@ -208,6 +223,12 @@ export const GameContextProvider = ({ children }: props) => {
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
+
+  const {
+    isOpen: videoModalOpened,
+    onOpen: onOpenVideoModal,
+    onClose: onCloseVideoModal,
+  } = useDisclosure();
 
   const mazeRows = 11;
   const mazeCols = 9;
@@ -933,12 +954,18 @@ export const GameContextProvider = ({ children }: props) => {
         hasWon,
         pendingCheddarToMint,
         endGameResponse,
+        videoModalOpened,
+        onOpenVideoModal,
+        onCloseVideoModal,
         nfts,
 
         showMovementButtons,
         setShowMovementButtons,
         scoreboardResponse,
         isLoadingScoreboard,
+        isScoreboardOpen,
+        onOpenScoreboard,
+        onCloseScoreboard,
       }}
     >
       {children}
