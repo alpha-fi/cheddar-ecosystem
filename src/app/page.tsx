@@ -9,6 +9,7 @@ import { useGetIsAllowedResponse as useGetIsAllowedResponse } from '@/hooks/maze
 import Navbar from '@/components/Navbar/containers/Navbar';
 import { SocialMedia } from '@/components/SocialMediaContainer';
 import { Hide, Show } from '@chakra-ui/react';
+import ModalWelcome from '@/components/ModalWelcome';
 
 export default function Home() {
   const {
@@ -108,6 +109,7 @@ export default function Home() {
       <Hide below="lg">
         <SocialMedia />
       </Hide>
+      <ModalWelcome />
     </>
   );
 }

@@ -61,6 +61,29 @@
   margin-right: 5px;
 }
 
+.ourSocialMedia {
+  position: relative;
+  z-index: 4;
+
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  margin: 5px 15px 0px 15px;
+}
+
+.socialMediaLinks {
+  color: #222;
+  margin: 0 0 0 0.1rem;
+  width: 1.5em;
+}
+
+.socialMediaLinks:focus {
+  outline-style: none;
+  outline-color: #8542eb;
+  box-shadow: none;
+  outline-width: 0px;
+}
+
 .balance {
   margin-right: 5px;
 }
@@ -84,6 +107,12 @@
   display: none;
 }
 .gameName {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin: 0 auto;
+}
+.header {
   font-weight: bolder;
   margin: 0 auto;
 }
@@ -157,10 +186,6 @@
 .hideButton {
   z-index: -1;
 }
-.buyPowerUp {
-  flex: 1;
-  text-align: center;
-}
 .buyLink {
   color: yellow;
   text-decoration: none;
@@ -180,4 +205,27 @@
 .videoContainer {
   display: flex;
   justify-content: center;
+}
+.togglePlayModeIconContainer {
+  width: 20px;
+  height: 20px;
+}
+.arrowButtonsContainer {
+  position: absolute;
+  bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;  
+  left: 50%;
+  right: 50%;
+  opacity: 0.4;
+}
+.arrowButtonsFirstLine {
+  display: flex;
+  justify-content: center;
+}
+.arrowButtonsSecondLine {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
 }
