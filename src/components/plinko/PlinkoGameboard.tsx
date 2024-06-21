@@ -48,8 +48,8 @@ export function PlinkoBoard({ rows }: Props) {
 
       //Create world
       World.add(engine.current.world, [
-        Bodies.rectangle(0, 0, cw/2, 2*ch, { isStatic: true, render: { fillStyle: 'black' }}), // Left wall
-        Bodies.rectangle(cw/2 + cols * pinSpacing, 0, cw / 2, 2*ch, { isStatic: true, render: { fillStyle: 'black' } }), // Right wall
+        Bodies.rectangle(0, 0, cw/2, 2*ch, { isStatic: true, render: { fillStyle: 'red' }}), // Left wall
+        Bodies.rectangle(cw/2 + cols * pinSpacing, 0, cw / 2, 2*ch, { isStatic: true, render: { fillStyle: 'blue' } }), // Right wall
         Bodies.rectangle(0, (2 * rows - 2) * pinSpacing, 2 * cw, ch, { isStatic: true, render: { fillStyle: 'black' } }),// Bottom wall
 
         Bodies.rectangle(cw/2 + 6*pinSpacing, (2 * rows - 3) * pinSpacing, cw, ch, { isStatic: true, render: { fillStyle: 'orange' } }),// Section wall
