@@ -1,5 +1,5 @@
 import { Gameboard } from './Gameboard';
-import { PinkoBoard } from './plinko/PlinkoGameboard';
+import { PlinkoBoard } from './plinko/PlinkoGameboard';
 import styles from '../styles/GameboardContainer.module.css';
 import {
   Button,
@@ -169,7 +169,7 @@ export function GameboardContainer({
     );
   }
 
-  return <PinkoBoard numDrops={10}/>
+  return <PlinkoBoard rows={10}/>
 
   return (
     <div
@@ -341,7 +341,7 @@ export function GameboardContainer({
           isUserLoggedIn={selector.isSignedIn()}
           isAllowedResponse={isAllowedResponse!}
         /> */}
-        <PinkoBoard numDrops={10}/>
+        <PlinkoBoard rows={10}/>
       </div>
 
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
