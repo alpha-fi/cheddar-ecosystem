@@ -29,6 +29,7 @@ import {
   ArrowUpIcon,
 } from '@chakra-ui/icons';
 import { Scoreboard } from './Scoreboard';
+import classNames from 'classnames';
 
 interface Props {
   remainingMinutes: number;
@@ -63,6 +64,7 @@ export function GameboardContainer({
     setGameOverMessage,
     saveResponse,
     videoModalOpened,
+    onOpenVideoModal,
     onCloseVideoModal,
     isScoreboardOpen,
     onOpenScoreboard,
@@ -114,7 +116,8 @@ export function GameboardContainer({
   }
 
   function getGameContainerClasses() {
-    return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
+    return `${styles.gameContainer}`;
+    // return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
   }
 
   function handleBuyClick() {
@@ -215,7 +218,7 @@ export function GameboardContainer({
       className={getGameContainerClasses()}
       onKeyDown={getKeyDownMoveHandler()}
       style={{
-        maxWidth: `${mazeData[0].length * cellSize + 25}px`,
+        maxWidth: `${mazeData[0].length * cellSize + 50}px`,
       }}
     >
       <div className={styles.publicityDecoration}></div>
@@ -233,6 +236,9 @@ export function GameboardContainer({
 
       <h1 className={styles.gameName}>Cheddar Maze</h1>
 
+      {/* <div className={styles.gameHeaderContainer}>
+        <Button onClick={onOpenScoreboard}>Scoreboard</Button>
+      </div> */}
       <div className={styles.gameInfo}>
         <div className={styles.score}>Score: {score}</div>
         <div className={styles.time}>
