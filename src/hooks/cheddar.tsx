@@ -57,12 +57,9 @@ export const useGetCheddarTotalSupply = (): UseQueryResult<bigint> => {
 export const useGetCheddarNFTPrice = (
   withCheddar: boolean
 ): UseQueryResult<string | null> => {
-  const { accountId } = useWalletSelector();
-
   return useQuery<string | null>({
-    queryKey: ['useGetCheddarNFTs', accountId, withCheddar],
-    queryFn: () =>
-      accountId ? getCheddarNFTBuyPrice(accountId, withCheddar) : null,
+    queryKey: ['useGetCheddarNFTs', withCheddar],
+    queryFn: () => getCheddarNFTBuyPrice(withCheddar),
     refetchInterval: 10000,
     staleTime: 10000,
   });
