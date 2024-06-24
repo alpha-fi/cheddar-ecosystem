@@ -1,9 +1,9 @@
-import { MazeTileData } from '@/contexts/GameContextProvider';
+import { MazeTileData } from '@/contexts/maze/GameContextProvider';
 import { useContext, useEffect, useRef } from 'react';
-import { GameContext } from '@/contexts/GameContextProvider';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { ListItem, OrderedList } from '@chakra-ui/react';
 
-import styles from '../styles/Gameboard.module.css';
+import styles from '@/styles/Gameboard.module.css';
 import { IsAllowedResponse } from '@/hooks/maze';
 
 interface Props {

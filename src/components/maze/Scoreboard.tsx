@@ -1,8 +1,8 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import styles from '../styles/Scoreboard.module.css';
+import styles from '@/styles/Scoreboard.module.css';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { getScoreBoard } from '@/queries/api/maze';
-import { GameContext } from '@/contexts/GameContextProvider';
+import { getScoreBoard } from '@/queries/maze/api';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { PlusSquareIcon } from '@chakra-ui/icons';
 

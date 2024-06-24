@@ -7,8 +7,6 @@ import {
 } from '@/contracts/cheddarCalls';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
-// USE IN REACT COMPONENT
-// const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance, refetch as void=> () } = useGetCheddarBalance();
 export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
   const { accountId } = useWalletSelector();
 
@@ -20,8 +18,6 @@ export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
   });
 };
 
-// USE IN REACT COMPONENT
-// const { data: cheddarMetadata, isLoading: isLoadingCheddarMetadata, refetch as void=> () } = useGetCheddarMetadata();
 export const useGetCheddarMetadata = (): UseQueryResult => {
   return useQuery({
     queryKey: ['useGetCheddarMetadata'],
@@ -31,8 +27,6 @@ export const useGetCheddarMetadata = (): UseQueryResult => {
   });
 };
 
-// USE IN REACT COMPONENT
-// const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs, refetch as void=> () } = useGetCheddarNFTs();
 export const useGetCheddarNFTs = (): UseQueryResult => {
   const { accountId } = useWalletSelector();
 
