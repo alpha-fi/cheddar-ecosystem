@@ -6,7 +6,7 @@ import { Button } from '@chakra-ui/react';
 
 export function PlinkoBoard() {
   const [points, setPoints] = useState(0);
-  // const [onGoingGame, setOnGoingGame] = useState(true);
+  const [onGoingGame, setOnGoingGame] = useState(true);
 
   const [rows, setRows] = useState(9);
   const [cols, setCols] = useState(11);
@@ -14,12 +14,20 @@ export function PlinkoBoard() {
   const [ballRadius, setBallRadius] = useState(10);
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
+
   engine.current.world.gravity.y = 0.5;
   // const [cw, setCw] = useState<number>(document.body.clientWidth);
   // const [ch, setCh] = useState<number>(document.body.clientHeight);
   const [cw, setCw] = useState<number>(600);
   const [ch, setCh] = useState<number>(700);
   const [pinSpacing, setPinSpacing] = useState<number>(cw / cols);
+
+  // const lastBody = engine.current.world.bodies[lastBodyAddedInWorldIndex];
+  // const positionY = React.useMemo(() => {
+  //   return lastBody?.position.y;
+  // }, [lastBody?.position.y]);
+
+  // if (lastBody) console.log('positionY: ', positionY);
 
   // if (lastBody && lastBody.label === 'ball') {
   //   if (onGoingGame && lastBody.position.y >= 655) {
@@ -28,17 +36,17 @@ export function PlinkoBoard() {
   // }
 
   function handleNewGameButton() {
-    // if (onGoingGame) return;
-    removeLastBall();
-    drawNewBall();
+    const ball = engine.current.world.bodies.find(
+      (body) => body.label === 'ball'
+    ) ;
+    if (ball && ball.position.y >= 655) {
+      removeLastBall(ball);
+      drawNewBall();
+    }
   }
 
-  function removeLastBall() {
-    const lastBodyAddedInWorldIndex = engine.current.world.bodies.length - 1;
-    const lastBody = engine.current.world.bodies[lastBodyAddedInWorldIndex];
-    if (lastBody.label === 'ball') {
-      World.remove(engine.current.world, lastBody);
-    }
+  function removeLastBall(ball: any) {
+    World.remove(engine.current.world, ball);
   }
 
   const drawNewBall = () => {
