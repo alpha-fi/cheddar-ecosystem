@@ -53,7 +53,7 @@ export default function GamesMenu() {
             <Img src={cheddarIcon} alt="" width="30px" height="30px" />
           </Box>
         </MenuItem>
-        <MenuItem
+        {/* <MenuItem
           as={Link}
           href="https://checkers.cheddar.farm/"
           target="_blank"
@@ -63,9 +63,9 @@ export default function GamesMenu() {
         >
           Checkers
           <Box minW="30px" ml="10px">
-            <Img src={checkersIcon} alt="" width="24px" height="24px" />
+            <Img src={'../../../assets/checkers-icon.png'} alt="" width="24px" height="24px" />
           </Box>
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem
           as={Link}
           href="https://nearhub.club/cdcUv8P/cheddar-farm"

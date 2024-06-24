@@ -1,10 +1,13 @@
 import { Box, Img, Link } from '@chakra-ui/react';
 import styles from '../styles/SocialMedia.module.css';
 
-
 export const SocialMedia = () => {
   return (
-    <Box className={styles.container}/* display="flex" justifyContent="center" mt="20px" bgColor={'white'} flex={2}*/>
+    <Box
+      className={
+        styles.container
+      } /* display="flex" justifyContent="center" mt="20px" bgColor={'white'} flex={2}*/
+    >
       <Link
         p="16px 24px"
         display="flex"
