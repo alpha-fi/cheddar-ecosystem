@@ -99,12 +99,12 @@ export const buyNFT = async (
 };
 
 export const getCheddarNFTBuyPrice = (
-  accountId: string,
   withCheddar: boolean
 ): Promise<string> => {
   return view(cheddarNft, 'total_cost', {
     num: 1,
-    minter: accountId,
+    // If minter is contract owner, it's free. For every other account, it has the same cost, so it can be hardcoded
+    minter: 'b2a715c29af50e9cc789f92824bb5f76793acc0a12948644a498e8087e029010',
     with_cheddar: withCheddar,
   });
 };
