@@ -18,6 +18,7 @@
 }
 
 .gameContainer {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,26 +43,36 @@
   padding-left: 1rem;
 }
 
-.headerCheddarIcon {
-  width: 30px;
-}
-
-.litepaperLink {
-  width: 1.4em;
-}
-
-.headerExtension {
+.headerRightPortionContainer {
   display: flex;
+  justify-content: right;
+  min-width: 200px;
+  gap: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.headerCheddarIcon {
+  width: 100px;
+}
+
+.menuList {
+  width: 180px;
+  min-width: unset !important;
+}
+
+.balanceTitle {
+  margin-right: 5px;
 }
 
 .ourSocialMedia {
   position: relative;
   z-index: 4;
-  color:white;
-  display    : flex;
-  flex-flow  : row;
+
+  color: white;
+  display: flex;
+  flex-flow: row;
   align-items: center;
-  margin     : 5px 15px 0px 15px;
+  margin: 5px 15px 0px 15px;
 }
 
 .socialMediaLinks {
@@ -72,9 +83,13 @@
 
 .socialMediaLinks:focus {
   outline-style: none;
-  outline-color: #8542EB;
-  box-shadow   : none;
+  outline-color: #8542eb;
+  box-shadow: none;
   outline-width: 0px;
+}
+
+.balance {
+  margin-right: 5px;
 }
 
 .musicIcon {
@@ -103,20 +118,24 @@
 .debugInfo {
   display: none;
 }
-.gameHeaderContainer {
+.gameName {
   display: flex;
   justify-content: space-around;
   width: 100%;
-  margin: 0 auto;;
+  margin: 0 auto;
 }
 .header {
   font-weight: bolder;
+  margin: 0 auto;
 }
 .userName {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  max-width: 30%;
+  max-width: 100%;
+}
+.burguerButton {
+  z-index: 10;
 }
 .gameInfo {
   display: flex;
@@ -179,10 +198,6 @@
 .hideButton {
   z-index: -1;
 }
-.buyPowerUp {
-  flex: 1;
-  text-align: center;
-}
 .buyLink {
   color: yellow;
   text-decoration: none;
@@ -202,6 +217,29 @@
 .videoContainer {
   display: flex;
   justify-content: center;
+}
+.togglePlayModeIconContainer {
+  width: 20px;
+  height: 20px;
+}
+.arrowButtonsContainer {
+  position: absolute;
+  bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;  
+  left: 50%;
+  right: 50%;
+  opacity: 0.4;
+}
+.arrowButtonsFirstLine {
+  display: flex;
+  justify-content: center;
+}
+.arrowButtonsSecondLine {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .logoContainer {
