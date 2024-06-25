@@ -17,6 +17,7 @@ import {
 
 import { InfoIcon } from '@chakra-ui/icons';
 import styles from '../styles/FeedbackModal.module.css';
+import { useEffect, useState } from 'react';
 
 export type ModalActionButtonProps = {
   text: string;
@@ -36,6 +37,7 @@ interface ModContainerProps extends ModalContentProps {
   actionButtonProps?: ModalActionButtonProps | undefined;
   hasCancelButton?: boolean;
   hideButtons?: boolean;
+  closeOnOverlayClick?: boolean;
 }
 
 export const ModalContainer = ({
@@ -47,10 +49,28 @@ export const ModalContainer = ({
   actionButtonProps,
   hasCancelButton,
   hideButtons = false,
+  closeOnOverlayClick: closeOnOverlayClickProp = true,
   ...props
 }: ModContainerProps) => {
+  const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(
+    closeOnOverlayClickProp
+  );
+
+  // It was required that modals can be closed by clicking on the overlay after 5 seconds
+  useEffect(() => {
+    if (!closeOnOverlayClick) {
+      setTimeout(() => {
+        setCloseOnOverlayClick(true);
+      }, 5000);
+    }
+  }, []);
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      closeOnOverlayClick={closeOnOverlayClick}
+    >
       <ModalOverlay />
       <ModalContent
         {...props}
