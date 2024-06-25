@@ -9,13 +9,13 @@ import {
 } from '@chakra-ui/react';
 import { ModalContainer } from './FeedbackModal';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { RadioButtonBroup } from './RadioButtonGroup';
+import { RadioButtonBroup } from './maze/RadioButtonGroup';
 import { useEffect, useState } from 'react';
-import { RenderCheddarIcon } from './RenderCheddarIcon';
-import { RenderNearIcon } from './RenderNearIcon';
+import { RenderCheddarIcon } from './maze/RenderCheddarIcon';
+import { RenderNearIcon } from './maze/RenderNearIcon';
 import { buyNFT } from '@/contracts/cheddarCalls';
 
-import styles from '../styles/BuyNFTSection.module.css';
+import styles from '@/styles/BuyNFTSection.module.css';
 import { useGetCheddarNFTPrice } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
 import { getTransactionLastResult } from 'near-api-js/lib/providers';

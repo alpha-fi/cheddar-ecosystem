@@ -1,6 +1,6 @@
 import { Gameboard } from './Gameboard';
-import { PlinkoBoard } from './plinko/PlinkoGameboard';
-import styles from '../styles/GameboardContainer.module.css';
+import { PlinkoBoard } from '../plinko/PlinkoGameboard';
+import styles from '@/styles/GameboardContainer.module.css';
 import {
   Button,
   Link,
@@ -18,12 +18,12 @@ import {
   useState,
 } from 'react';
 
-import { GameContext } from '@/contexts/GameContextProvider';
-import { ModalBuyNFT } from './ModalBuyNFT';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
+import { ModalBuyNFT } from '../ModalBuyNFT';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
-import { ModalContainer } from './FeedbackModal';
+import { ModalContainer } from '../FeedbackModal';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { IsAllowedResponse } from '@/hooks/maze';
 import ModalNotAllowedToPlay from './ModalNotAllowedToPlay';
@@ -168,8 +168,6 @@ export function GameboardContainer({
       string.substring(midpoint + rstrip)
     );
   }
-
-  return <PlinkoBoard rows={10}/>
 
   return (
     <div
@@ -336,12 +334,11 @@ export function GameboardContainer({
             )}
           </div>
         </div>
-        {/* <Gameboard
+        <Gameboard
           openLogIn={modal.show}
           isUserLoggedIn={selector.isSignedIn()}
           isAllowedResponse={isAllowedResponse!}
-        /> */}
-        <PlinkoBoard rows={10}/>
+        />
       </div>
 
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (

@@ -9,9 +9,9 @@ import React, {
   useRef,
 } from 'react';
 
-import { callEndGame, getScoreBoard, getSeedId } from '../queries/api/maze';
-import { useWalletSelector } from './WalletSelectorContext';
-import { RNG } from '@/entities/RNG';
+import { callEndGame, getScoreBoard, getSeedId } from '@/queries/maze/api';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { RNG } from '@/entities/maze/RNG';
 import {
   IsAllowedResponse,
   ScoreboardResponse,
@@ -19,7 +19,7 @@ import {
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
-import { PlayerScoreData } from '@/components/Scoreboard';
+import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
 

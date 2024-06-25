@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 
 import { InfoIcon } from '@chakra-ui/icons';
-import styles from '../styles/FeedbackModal.module.css';
+import styles from '@/styles/FeedbackModal.module.css';
 
 export type ModalActionButtonProps = {
   text: string;
