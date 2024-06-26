@@ -13,6 +13,7 @@ export function PlinkoBoard() {
   const [cols, setCols] = useState(11);
   const [pinRadius, setPinRadius] = useState(9);
   const [ballRadius, setBallRadius] = useState(7);
+  const [maxBallsAmount, setMaxBallsAmount] = useState(3)
   const [ballYPosition, setBallYPosition] = useState<number>(0);
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
@@ -98,7 +99,7 @@ export function PlinkoBoard() {
       (body) => body.label === 'ball'
     );
 
-    if (allBalls.length < 3) {
+    if (allBalls.length < maxBallsAmount) {
       const currentXPosition = e.clientX;
       drawNewBall(currentXPosition);
     }
