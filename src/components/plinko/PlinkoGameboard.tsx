@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Engine, Render, Bodies, World, Events } from 'matter-js';
 import { color } from 'framer-motion';
 import { Button } from '@chakra-ui/react';
+import { sep } from 'path';
 
 export function PlinkoBoard() {
   const [points, setPoints] = useState(0);
@@ -10,15 +11,16 @@ export function PlinkoBoard() {
 
   const [rows, setRows] = useState(9);
   const [cols, setCols] = useState(11);
-  const [pinRadius, setPinRadius] = useState(14);
-  const [ballRadius, setBallRadius] = useState(10);
+  const [pinRadius, setPinRadius] = useState(9);
+  const [ballRadius, setBallRadius] = useState(7);
+  const [ballYPosition, setBallYPosition] = useState<number>(0);
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
 
   engine.current.world.gravity.y = 0.5;
   // const [cw, setCw] = useState<number>(document.body.clientWidth);
   // const [ch, setCh] = useState<number>(document.body.clientHeight);
-  const [cw, setCw] = useState<number>(600);
+  const [cw, setCw] = useState<number>(360);
   const [ch, setCh] = useState<number>(700);
   const [pinSpacing, setPinSpacing] = useState<number>(cw / cols);
 
@@ -38,12 +40,36 @@ export function PlinkoBoard() {
   function handleNewGameButton() {
     const ball = engine.current.world.bodies.find(
       (body) => body.label === 'ball'
-    ) ;
+    );
     if (ball && ball.position.y >= 655) {
       removeLastBall(ball);
       drawNewBall();
     }
   }
+  
+  useEffect(() => {
+    const ball = engine.current.world.bodies.find(
+      (body) => body.label === 'ball'
+    );
+    if(!ball) {
+      setBallYPosition(1 - ballYPosition);
+    } else if(ball.position.y < 655) {
+      const newYPosition = ballYPosition === ball?.position.y ? ballYPosition - 1 : ball?.position.y;
+      setTimeout(() => {
+        setBallYPosition(newYPosition || 0);
+      }, 500)
+    } else {
+      const separatorArray = engine.current.world.bodies.filter(
+        (body) => body.label === 'separator'
+      );
+      const index = separatorArray.findIndex((separator, index) => {
+        if(ball?.position.x < separator.position.x) {
+          return true;
+        }
+      })
+      console.log("Sep", index - 1)
+    }
+  }, [ballYPosition])
 
   function removeLastBall(ball: any) {
     World.remove(engine.current.world, ball);
@@ -76,20 +102,23 @@ export function PlinkoBoard() {
           background: 'transparent',
         },
       });
-
+      if(engine.current.world.bodies.length > 0) {
+        World.clear(engine.current.world, false)
+      }
+      
       //Create world
       // Left wall
       World.add(engine.current.world, [
-        Bodies.rectangle(-35, 0, pinSpacing, ch * 2, {
+        Bodies.rectangle(-pinSpacing + 10, 0, pinSpacing, ch * 2, {
           isStatic: true,
           restitution: 1,
-          render: { fillStyle: 'transparent' },
+          render: { fillStyle: 'black' },
         }),
         // Right wall
-        Bodies.rectangle(cw + 35, 0, pinSpacing, ch * 2, {
+        Bodies.rectangle(cw + pinSpacing - 10, 0, pinSpacing, ch * 2, {
           isStatic: true,
           restitution: 1,
-          render: { fillStyle: 'transparent' },
+          render: { fillStyle: 'blue' },
         }),
         // // Bodies.rectangle(0, (2 * rows - 2) * pinSpacing, 2 * cw, ch, {
         // //   isStatic: true,
@@ -97,7 +126,7 @@ export function PlinkoBoard() {
         // // }),
 
         // Bottom wall
-        Bodies.rectangle(cw / 2, ch + 20, cw, 100, {
+        Bodies.rectangle(cw / 2, ch + 30, cw, 100, {
           isStatic: true,
           render: { fillStyle: 'orange' },
         }),
@@ -127,17 +156,29 @@ export function PlinkoBoard() {
         }
       }
 
-      //Create finish boxes
+      // pinSpacing (600/11)
+      // 0 -> 5 --> 54.54
+      //Create finish boxes      
       for (let i = 0; i < cols + 1; i++) {
         const separator = Bodies.rectangle(i * pinSpacing, ch - 50, 10, 100, {
           isStatic: true,
+          label: 'separator',
           render: { fillStyle: 'black' },
         });
-        World.add(engine.current.world, [separator]);
+        const triangle = Bodies.polygon(i * pinSpacing, ch - 103, 3, 6.1, {
+          isStatic: true,
+          angle: Math.PI / 2,
+          label: 'tip-separator',
+          render: { fillStyle: 'black' },
+        })
+        World.add(engine.current.world, [separator, triangle]);
       }
 
       //Draw ball
       drawNewBall();
+      for(let i = 0; i < 10; i++) {
+        drawNewBall()
+      }
 
       //Start running and rendering
       Engine.run(engine.current);
@@ -150,7 +191,7 @@ export function PlinkoBoard() {
         render.canvas.remove();
       };
     }
-  }, [document.body.clientWidth, document.body.clientHeight]);
+  }, []/*[document.body.clientWidth, document.body.clientHeight]*/);
 
   return (
     <div style={{ height: '80vh' }}>
