@@ -64,6 +64,8 @@ export function GameboardContainer({
     timerStarted,
     setGameOverMessage,
     saveResponse,
+    plinkoModalOpened,
+    onClosePlinkoModal,
   } = useContext(GameContext);
 
   const {
@@ -213,7 +215,6 @@ export function GameboardContainer({
               <svg
                 stroke="currentColor"
                 fill="currentColor"
-                stroke-width="0"
                 viewBox="0 0 448 512"
                 height="1em"
                 width="1em"
@@ -230,7 +231,6 @@ export function GameboardContainer({
               <svg
                 stroke="currentColor"
                 fill="currentColor"
-                stroke-width="0"
                 viewBox="0 0 512 512"
                 height="1em"
                 width="1em"
@@ -391,6 +391,14 @@ export function GameboardContainer({
         onClose={onCloseScoreboard}
       >
         <Scoreboard />
+      </ModalContainer>
+
+      <ModalContainer
+        title={'Plinko game!'}
+        isOpen={plinkoModalOpened}
+        onClose={onClosePlinkoModal}
+      >
+        <PlinkoBoard />
       </ModalContainer>
     </div>
   );

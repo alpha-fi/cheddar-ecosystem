@@ -22,6 +22,7 @@ import {
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
+import { useDisclosure } from '@chakra-ui/react';
 
 interface props {
   children: ReactNode;
@@ -37,6 +38,7 @@ export interface MazeTileData {
   hasEnemy: boolean;
   hasExit: boolean;
   hasCartel: boolean;
+  hasPlinko: boolean;
 }
 
 const amountOfCheddarInBag = 5;
@@ -46,6 +48,7 @@ const pointsOfActions = {
   bagFound: 1,
   enemyDefeated: 1,
   moveWithoutDying: 0,
+  plinkoGameFound: 2,
 };
 
 interface GameContextProps {
@@ -143,6 +146,10 @@ interface GameContextProps {
 
   scoreboardResponse: ScoreboardResponse | null | undefined;
   isLoadingScoreboard: boolean;
+
+  plinkoModalOpened: boolean;
+  onOpenPlinkoModal: () => void;
+  onClosePlinkoModal: () => void;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -339,6 +346,7 @@ export const GameContextProvider = ({ children }: props) => {
         hasExit: false,
         enemyWon: false,
         hasCartel: false,
+        hasPlinko: false,
       }))
     );
 
@@ -521,6 +529,26 @@ export const GameContextProvider = ({ children }: props) => {
     );
   }
 
+  function handlePlinkoGameFound(
+    clonedMazeData: MazeTileData[][],
+    x: number,
+    y: number
+  ) {
+    // 5.5% chance of winning cheese
+    clonedMazeData[y][x].hasPlinko = true;
+    setCellsWithItemAmount(cellsWithItemAmount + 1);
+    setScore(score + pointsOfActions.plinkoGameFound);
+    // setCheddarFound(cheddarFound + 1);
+    // setCheeseCooldown(true);
+    // setTimeout(
+    //   () => {
+    //     setCheeseCooldown(false);
+    //   },
+    //   rng.nextRange(1000, 6000)
+    // );    
+    onOpenPlinkoModal();
+  }
+
   function handleBagFound(
     clonedMazeData: MazeTileData[][],
     x: number,
@@ -567,6 +595,7 @@ export const GameContextProvider = ({ children }: props) => {
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
+    plinko: 1,
   };
 
   const NFTCheeseBuffMultiplier = 1.28;
@@ -605,6 +634,8 @@ export const GameContextProvider = ({ children }: props) => {
       pathLength - cellsWithItemAmount === 1
     ) {
       handleExitFound(clonedMazeData, newX, newY);
+    } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.plinko) {
+      handlePlinkoGameFound(clonedMazeData, newX, newY)
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
       handleEnemyFound(clonedMazeData, newX, newY);
     } else if (
@@ -851,6 +882,12 @@ export const GameContextProvider = ({ children }: props) => {
   const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
     useGetScoreboard();
 
+  const {
+    isOpen: plinkoModalOpened,
+    onOpen: onOpenPlinkoModal,
+    onClose: onClosePlinkoModal,
+  } = useDisclosure();
+
   return (
     <GameContext.Provider
       value={{
@@ -918,6 +955,9 @@ export const GameContextProvider = ({ children }: props) => {
         endGameResponse,
         scoreboardResponse,
         isLoadingScoreboard,
+        plinkoModalOpened,
+        onOpenPlinkoModal,
+        onClosePlinkoModal,
       }}
     >
       {children}
