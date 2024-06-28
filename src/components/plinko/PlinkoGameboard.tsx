@@ -47,7 +47,7 @@ export function PlinkoBoard() {
       const currentBallYPositions = balls.map((ball) => ball.position.y);
       if (
         //If at least 1 ball is not in the end
-        currentBallYPositions.filter((ballYPosition) => ballYPosition < 421) //*change this if ch change*
+        currentBallYPositions.filter((ballYPosition) => ballYPosition < 350) //*change this if ch change*
           .length > 0
       ) {
         const newYPositions = [] as number[];

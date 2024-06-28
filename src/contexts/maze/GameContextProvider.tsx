@@ -138,6 +138,7 @@ interface GameContextProps {
   handleTouchMove: (event: React.TouchEvent<HTMLDivElement>) => void;
 
   cheddarFound: number;
+  setCheddarFound: React.Dispatch<React.SetStateAction<number>>;
 
   saveResponse: string[] | undefined;
   hasWon: undefined | boolean;
@@ -538,14 +539,6 @@ export const GameContextProvider = ({ children }: props) => {
     clonedMazeData[y][x].hasPlinko = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     setScore(score + pointsOfActions.plinkoGameFound);
-    // setCheddarFound(cheddarFound + 1);
-    // setCheeseCooldown(true);
-    // setTimeout(
-    //   () => {
-    //     setCheeseCooldown(false);
-    //   },
-    //   rng.nextRange(1000, 6000)
-    // );    
     onOpenPlinkoModal();
   }
 
@@ -635,7 +628,7 @@ export const GameContextProvider = ({ children }: props) => {
     ) {
       handleExitFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.plinko) {
-      handlePlinkoGameFound(clonedMazeData, newX, newY)
+      handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
       handleEnemyFound(clonedMazeData, newX, newY);
     } else if (
@@ -949,6 +942,7 @@ export const GameContextProvider = ({ children }: props) => {
         handleTouchStart,
         handleTouchMove,
         cheddarFound,
+        setCheddarFound,
         saveResponse,
         hasWon,
         pendingCheddarToMint,

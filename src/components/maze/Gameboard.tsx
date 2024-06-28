@@ -148,7 +148,7 @@ export function Gameboard({
             //====================================================== Start plinko logo options ======================================================
             // else if(cell.hasPlinko) cellContent = '🎮'
             // else if(cell.hasPlinko) cellContent = '🕹️'
-            else if(cell.hasPlinko) cellContent = '🎰'
+            else if (cell.hasPlinko) cellContent = '🎰';
             //====================================================== End plinko logo options ======================================================
 
             return (
