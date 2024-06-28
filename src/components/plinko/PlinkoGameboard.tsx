@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { Engine, Render, Bodies, World, Events, Body } from 'matter-js';
+import Matter, { Engine, Render, Bodies, World, Body } from 'matter-js';
 import { color } from 'framer-motion';
-import { Button } from '@chakra-ui/react';
+import { Button, useDisclosure } from '@chakra-ui/react';
 import { sep } from 'path';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
+import ModalRules from './ModalRules';
 
 export function PlinkoBoard() {
   const { onClosePlinkoModal, cheddarFound, setCheddarFound } =
@@ -35,6 +36,12 @@ export function PlinkoBoard() {
   const engine = useRef(Engine.create());
 
   engine.current.world.gravity.y = 0.6;
+
+  const {
+    isOpen: isOpenModalRules,
+    onOpen: onOpenModalRules,
+    onClose: onCloseModalRules,
+  } = useDisclosure();
 
   useEffect(() => {
     const balls = engine.current.world.bodies.filter(
@@ -104,6 +111,23 @@ export function PlinkoBoard() {
     World.remove(engine.current.world, ball);
   }
 
+  const drawBallPreview = (xPosition: number) => {
+    const ballXPosDeviation = Math.floor(Math.random() * 11) - 5;
+    const ballPreview = Bodies.circle(
+      xPosition + ballXPosDeviation,
+      pinSpacing,
+      ballRadius,
+      {
+        restitution: 0,
+        friction: 0,
+        isStatic: true,
+        label: 'ballPreview',
+        render: { fillStyle: 'red' },
+      }
+    );
+    World.add(engine.current.world, [ballPreview]);
+  };
+
   const drawNewBall = (xPosition: number) => {
     const ballXPosDeviation = Math.floor(Math.random() * 11) - 5;
     const ball = Bodies.circle(
@@ -120,14 +144,47 @@ export function PlinkoBoard() {
     World.add(engine.current.world, [ball]);
   };
 
+  function getCurrentXPosition(x: number) {
+    return x - document.body.clientWidth / 2 + cw / 2 - ballRadius;
+  }
+
+  function handleShowNewBallPreview(e: React.MouseEvent<HTMLDivElement>) {
+    const allBalls = engine.current.world.bodies.filter(
+      (body) => body.label === 'ball'
+    );
+
+    const preview = engine.current.world.bodies.find(
+      (body) => body.label === 'ballPreview'
+    );
+
+    if (allBalls.length < maxBallsAmount) {
+      const currentXPosition = getCurrentXPosition(e.clientX);
+
+      if (preview) {
+        //Move preview ball
+        Matter.Body.setPosition(preview, {
+          x: currentXPosition,
+          y: pinSpacing,
+        });
+      } else {
+        drawBallPreview(currentXPosition);
+      }
+    } else {
+      if (preview) {
+        //Remove preview ball
+        World.remove(engine.current.world, preview);
+      }
+    }
+  }
+
   function handleDropNewBall(e: React.MouseEvent<HTMLDivElement>) {
     const allBalls = engine.current.world.bodies.filter(
       (body) => body.label === 'ball'
     );
 
     if (allBalls.length < maxBallsAmount) {
-      const currentXPosition =
-        e.clientX - document.body.clientWidth / 2 + cw / 2 - ballRadius;
+      const currentXPosition = getCurrentXPosition(e.clientX);
+
       drawNewBall(currentXPosition);
       setBallsQuantity(ballsQuantity + 1);
     }
@@ -259,10 +316,25 @@ export function PlinkoBoard() {
         alignItems: 'center',
       }}
     >
-      <div style={{ width: '100%', display: 'flex', justifyContent: 'left' }}>
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'left',
+          gap: '1rem',
+        }}
+      >
         <Button onClick={pushBall}>Hit machine</Button>
+        <Button onClick={onOpenModalRules}>Rules</Button>
+        <span>Balls left: {maxBallsAmount - ballsQuantity}</span>
       </div>
-      <div ref={scene} onClick={handleDropNewBall} />
+      <div
+        ref={scene}
+        onMouseMove={handleShowNewBallPreview}
+        onMouseUp={handleDropNewBall}
+      />
+
+      <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
     </div>
   );
 }

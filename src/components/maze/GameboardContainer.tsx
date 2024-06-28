@@ -396,7 +396,7 @@ export function GameboardContainer({
       <ModalContainer
         title={'Plinko game!'}
         isOpen={plinkoModalOpened}
-        onClose={onClosePlinkoModal}
+        onClose={() => {}}
       >
         <PlinkoBoard />
       </ModalContainer>
