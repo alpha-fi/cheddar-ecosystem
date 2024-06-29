@@ -148,18 +148,35 @@ export function PlinkoBoard() {
     return x - document.body.clientWidth / 2 + cw / 2 - ballRadius;
   }
 
-  function handleShowNewBallPreview(e: React.MouseEvent<HTMLDivElement>) {
-    const allBalls = engine.current.world.bodies.filter(
-      (body) => body.label === 'ball'
-    );
+  function handleShowNewBallPreviewMouse(e: React.MouseEvent<HTMLDivElement>) {
+    const eventX = e.clientX;
+    handleShowNewBallPreview(eventX);
+  }
 
+  function handleShowNewBallPreviewTouch(e: React.TouchEvent<HTMLDivElement>) {
+    const eventX = e.touches[e.touches.length - 1].clientX;
+    handleShowNewBallPreview(eventX);
+  }
+
+  function handleTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
     const preview = engine.current.world.bodies.find(
       (body) => body.label === 'ballPreview'
     );
 
-    if (allBalls.length < maxBallsAmount) {
-      const currentXPosition = getCurrentXPosition(e.clientX);
+    if (preview) World.remove(engine.current.world, preview!);
+  }
 
+  function handleShowNewBallPreview(x: number) {
+    const allBalls = engine.current.world.bodies.filter(
+      (body) => body.label === 'ball'
+    );
+    const preview = engine.current.world.bodies.find(
+      (body) => body.label === 'ballPreview'
+    );
+
+    const currentXPosition = getCurrentXPosition(x);
+
+    if (allBalls.length < maxBallsAmount) {
       if (preview) {
         //Move preview ball
         Matter.Body.setPosition(preview, {
@@ -173,17 +190,24 @@ export function PlinkoBoard() {
       if (preview) {
         //Remove preview ball
         World.remove(engine.current.world, preview);
+
+        handleDropNewBall(currentXPosition);
       }
     }
   }
 
-  function handleDropNewBall(e: React.MouseEvent<HTMLDivElement>) {
+  function handleMouseDropNewBall(e: React.MouseEvent<HTMLDivElement>) {
+    const eventX = e.clientX;
+    handleDropNewBall(eventX);
+  }
+
+  function handleDropNewBall(x: number) {
     const allBalls = engine.current.world.bodies.filter(
       (body) => body.label === 'ball'
     );
 
     if (allBalls.length < maxBallsAmount) {
-      const currentXPosition = getCurrentXPosition(e.clientX);
+      const currentXPosition = getCurrentXPosition(x);
 
       drawNewBall(currentXPosition);
       setBallsQuantity(ballsQuantity + 1);
@@ -330,8 +354,11 @@ export function PlinkoBoard() {
       </div>
       <div
         ref={scene}
-        onMouseMove={handleShowNewBallPreview}
-        onMouseUp={handleDropNewBall}
+        onMouseMove={handleShowNewBallPreviewMouse}
+        onTouchMove={handleShowNewBallPreviewTouch}
+        onTouchStart={handleShowNewBallPreviewTouch}
+        onTouchEnd={handleTouchEnd}
+        onMouseUp={handleMouseDropNewBall}
       />
 
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
