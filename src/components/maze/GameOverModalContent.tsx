@@ -17,7 +17,7 @@ export const GameOverModalContent = () => {
 
   const toast = useToast();
 
-  const propperSecondsFormat =
+  const properSecondsFormat =
     remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
 
   function getMessageStyles() {
@@ -31,7 +31,7 @@ export const GameOverModalContent = () => {
       endGameResponse.cheddarMinted > 0
     ) {
       toast({
-        title: 'Cheddar Minted Succesfully!',
+        title: 'Cheddar Minted Successfully!',
         status: 'success',
         duration: 9000,
         position: 'bottom-right',
@@ -55,7 +55,7 @@ export const GameOverModalContent = () => {
       <p className={getMessageStyles()}>{gameOverMessage}</p>
       <p className={styles.score}>{score} Points!</p>
       <p className={styles.timeRemaining}>
-        Time remaining: {remainingMinutes}:{propperSecondsFormat}
+        Time remaining: {remainingMinutes}:{properSecondsFormat}
       </p>
       {cheddarFound > 0 && hasWon && (
         <p className={styles.earnings}>

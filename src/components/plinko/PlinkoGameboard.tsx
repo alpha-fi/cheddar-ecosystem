@@ -25,7 +25,7 @@ export function PlinkoBoard() {
   const [ballRadius, setBallRadius] = useState(7);
   const [ballBouncines, setBallBouncines] = useState(1);
   const [ballFriction, setBallFriction] = useState(0.1);
-  const [isGameFinished, setIsGameFinished] = useState(false)
+  const [isGameFinished, setIsGameFinished] = useState(false);
 
   const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
   const [ballsYPosition, setBallsYPosition] = useState<number[]>(
@@ -35,7 +35,7 @@ export function PlinkoBoard() {
     number[] | undefined
   >();
 
-  const [currentXPreview, setCurrentXPreview] = useState<undefined|number>()
+  const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
@@ -103,9 +103,9 @@ export function PlinkoBoard() {
   }
 
   function finishGame() {
-    if(isGameFinished) return
+    if (isGameFinished) return;
     setCheddarFound(cheddarFound + getCheddarEarnedOnPlinko());
-    setIsGameFinished(true)
+    setIsGameFinished(true);
   }
 
   function removeLastBall(ball: any) {
@@ -113,10 +113,11 @@ export function PlinkoBoard() {
   }
 
   const drawBallPreview = (xPosition: number) => {
-    const ballXPosDeviation = Math.floor(Math.random() * 11) - 5;
+    // const ballXPosDeviation = Math.floor(Math.random() * 11) - 5;
+    const yPosition = pinSpacing;
     const ballPreview = Bodies.circle(
-      xPosition + ballXPosDeviation,
-      pinSpacing,
+      xPosition - pinSpacing,
+      yPosition,
       ballRadius,
       {
         restitution: 0,
@@ -136,9 +137,10 @@ export function PlinkoBoard() {
 
   const drawNewBall = (xPosition: number) => {
     const ballXPosDeviation = Math.floor(Math.random() * 11) - 5;
+    const yPosition = pinSpacing;
     const ball = Bodies.circle(
-      xPosition + ballXPosDeviation,
-      pinSpacing,
+      xPosition + ballXPosDeviation + ballRadius,
+      yPosition,
       ballRadius,
       {
         restitution: ballBouncines,
@@ -155,8 +157,11 @@ export function PlinkoBoard() {
   }
 
   function handleShowNewBallPreviewMouse(e: React.MouseEvent<HTMLDivElement>) {
-    if(thrownBallsQuantity >= maxBallsAmount) return;
+    console.log(1);
+    if (thrownBallsQuantity >= maxBallsAmount) return;
     const eventX = e.clientX;
+    setCurrentXPreview(eventX);
+
     handleShowNewBallPreview(eventX);
   }
 
@@ -175,8 +180,8 @@ export function PlinkoBoard() {
 
     if (preview) World.remove(engine.current.world, preview!);
 
-    handleDropNewBall(currentXPreview!);
-    setCurrentXPreview(undefined)
+    handleDropNewBall(/*currentXPreview!*/);
+    setCurrentXPreview(undefined);
   }
 
   function handleShowNewBallPreview(x: number) {
@@ -187,34 +192,29 @@ export function PlinkoBoard() {
       (body) => body.label === 'ballPreview'
     );
 
-    const currentXPosition = getCurrentXPosition(x);
+    // const currentXPosition = getCurrentXPosition(x);
+    const currentXPosition = x;
 
     if (allBalls.length < maxBallsAmount) {
       if (preview) {
         //Move preview ball
         Matter.Body.setPosition(preview, {
-          x: currentXPosition,
+          x: currentXPosition - pinSpacing,
           y: pinSpacing,
         });
       } else {
         drawBallPreview(currentXPosition);
       }
-    // } else {
-    //   if (preview) {
-    //     //Remove preview ball
-    //     World.remove(engine.current.world, preview);
-
-    //     // handleDropNewBall(currentXPosition);
-    //   }
     }
   }
 
   function handleMouseDropNewBall(e: React.MouseEvent<HTMLDivElement>) {
+    console.log(2);
     const eventX = e.clientX;
-    handleDropNewBall(eventX);
+    handleDropNewBall(/*eventX*/);
   }
 
-  function handleDropNewBall(x: number) {
+  function handleDropNewBall(/*x: number*/) {
     const preview = engine.current.world.bodies.find(
       (body) => body.label === 'ballPreview'
     );
@@ -222,11 +222,11 @@ export function PlinkoBoard() {
       (body) => body.label === 'ball'
     );
 
-    if(preview) {
+    if (preview) {
       World.remove(engine.current.world, preview);
     }
     if (allBalls.length < maxBallsAmount) {
-      const currentXPosition = getCurrentXPosition(x);
+      const currentXPosition = getCurrentXPosition(currentXPreview!);
 
       drawNewBall(currentXPosition);
       setThrownBallsQuantity(thrownBallsQuantity + 1);
