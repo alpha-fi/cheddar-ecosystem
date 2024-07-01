@@ -52,6 +52,8 @@ const pointsOfActions = {
 };
 
 interface GameContextProps {
+  isMobile: boolean;
+
   mazeData: MazeTileData[][];
   setMazeData: React.Dispatch<React.SetStateAction<MazeTileData[][]>>;
 
@@ -159,6 +161,7 @@ export const GameContext = createContext<GameContextProps>(
 
 export const GameContextProvider = ({ children }: props) => {
   const gameOverRefSent = useRef(false);
+  const isMobile = useRef(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
 
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
@@ -884,6 +887,7 @@ export const GameContextProvider = ({ children }: props) => {
   return (
     <GameContext.Provider
       value={{
+        isMobile: isMobile.current,
         mazeData,
         setMazeData,
         playerPosition,

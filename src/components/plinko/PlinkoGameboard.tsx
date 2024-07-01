@@ -8,7 +8,7 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
 
 export function PlinkoBoard() {
-  const { onClosePlinkoModal, cheddarFound, setCheddarFound } =
+  const { cheddarFound, setCheddarFound, isMobile } =
     React.useContext(GameContext);
 
   const [rows, setRows] = useState(7); //This number should be odd to maximize the randomnes of the game
@@ -25,9 +25,12 @@ export function PlinkoBoard() {
   const [ballRadius, setBallRadius] = useState(7);
   const [ballBouncines, setBallBouncines] = useState(1);
   const [ballFriction, setBallFriction] = useState(0.1);
+  const [isGameFinished, setIsGameFinished] = useState(false)
 
-  const [ballsQuantity, setBallsQuantity] = useState(0);
-  const [ballsYPosition, setBallsYPosition] = useState<number[]>([0]);
+  const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
+  const [ballsYPosition, setBallsYPosition] = useState<number[]>(
+    Array.from(Array(maxBallsAmount).keys()).fill(0)
+  );
   const [ballFinishLines, setBallFinishLines] = useState<
     number[] | undefined
   >();
@@ -46,58 +49,53 @@ export function PlinkoBoard() {
   } = useDisclosure();
 
   useEffect(() => {
-    const balls = engine.current.world.bodies.filter(
+    const thrownBalls = engine.current.world.bodies.filter(
       (body) => body.label === 'ball'
     );
 
-    if (balls.length === 0) {
-      setBallsYPosition([1 - ballsYPosition[0]]);
-    } else {
-      const currentBallYPositions = balls.map((ball) => ball.position.y);
-      if (
-        //If at least 1 ball is not in the end
-        currentBallYPositions.filter((ballYPosition) => ballYPosition < 350) //*change this if ch change*
-          .length > 0
-      ) {
-        const newYPositions = [] as number[];
+    const currentBallYPositions = thrownBalls.map((ball) => ball.position.y);
+    if (
+      //If at least 1 ball is not in the end
+      currentBallYPositions.filter((ballYPosition) => ballYPosition < 350) //*change this if ch change*
+        .length > 0
+    ) {
+      const newYPositions = [] as number[];
 
-        balls.forEach((ball, index) => {
-          newYPositions.push(
-            ballsYPosition[index] === ball?.position.y
-              ? ballsYPosition[index] - 1
-              : ball?.position.y
-          );
+      ballsYPosition.forEach((ballYPosition, index) => {
+        const ball = thrownBalls[index];
+        newYPositions.push(
+          ballYPosition === ball?.position.y
+            ? ballYPosition - 1
+            : ball?.position.y
+        );
+      });
+
+      setTimeout(() => {
+        setBallsYPosition(newYPositions);
+      }, 500);
+    } else {
+      const separatorArray = engine.current.world.bodies.filter(
+        (body) => body.label === 'separator'
+      );
+      const ballSeparatorIndexArray = [];
+      for (let i = 0; i < thrownBalls.length; i++) {
+        const ball = thrownBalls[i];
+
+        const index = separatorArray.findIndex((separator) => {
+          return ball?.position.x < separator.position.x;
         });
 
-        setTimeout(() => {
-          setBallsYPosition(newYPositions || [0]);
-        }, 500);
-      } else {
-        const separatorArray = engine.current.world.bodies.filter(
-          (body) => body.label === 'separator'
-        );
-        const ballInSeparators = [];
-        for (let i = 0; i < balls.length; i++) {
-          const ball = balls[i];
-
-          const index = separatorArray.findIndex((separator) => {
-            if (ball?.position.x < separator.position.x) {
-              return true;
-            }
-          });
-
-          ballInSeparators.push(index);
-        }
-        if (ballInSeparators !== ballFinishLines) {
-          setBallFinishLines(ballInSeparators);
-        }
+        ballSeparatorIndexArray.push(index);
+      }
+      if (ballSeparatorIndexArray !== ballFinishLines) {
+        setBallFinishLines(ballSeparatorIndexArray);
       }
     }
 
     if (ballFinishLines && ballFinishLines.length === maxBallsAmount) {
       finishGame();
     }
-  }, [ballsYPosition, ballsQuantity]);
+  }, [ballsYPosition, thrownBallsQuantity]);
 
   function getCheddarEarnedOnPlinko() {
     //TODO do this function
@@ -105,8 +103,9 @@ export function PlinkoBoard() {
   }
 
   function finishGame() {
+    if(isGameFinished) return
     setCheddarFound(cheddarFound + getCheddarEarnedOnPlinko());
-    onClosePlinkoModal();
+    setIsGameFinished(true)
   }
 
   function removeLastBall(ball: any) {
@@ -124,7 +123,12 @@ export function PlinkoBoard() {
         friction: 0,
         isStatic: true,
         label: 'ballPreview',
-        render: { fillStyle: 'red' },
+        render: { fillStyle: '#FF0000AA' },
+        collisionFilter: {
+          group: -1,
+          category: 0x0002,
+          mask: 0x0002,
+        },
       }
     );
     World.add(engine.current.world, [ballPreview]);
@@ -151,6 +155,7 @@ export function PlinkoBoard() {
   }
 
   function handleShowNewBallPreviewMouse(e: React.MouseEvent<HTMLDivElement>) {
+    if(thrownBallsQuantity >= maxBallsAmount) return;
     const eventX = e.clientX;
     handleShowNewBallPreview(eventX);
   }
@@ -194,13 +199,13 @@ export function PlinkoBoard() {
       } else {
         drawBallPreview(currentXPosition);
       }
-    } else {
-      if (preview) {
-        //Remove preview ball
-        World.remove(engine.current.world, preview);
+    // } else {
+    //   if (preview) {
+    //     //Remove preview ball
+    //     World.remove(engine.current.world, preview);
 
-        handleDropNewBall(currentXPosition);
-      }
+    //     // handleDropNewBall(currentXPosition);
+    //   }
     }
   }
 
@@ -210,19 +215,25 @@ export function PlinkoBoard() {
   }
 
   function handleDropNewBall(x: number) {
+    const preview = engine.current.world.bodies.find(
+      (body) => body.label === 'ballPreview'
+    );
     const allBalls = engine.current.world.bodies.filter(
       (body) => body.label === 'ball'
     );
 
+    if(preview) {
+      World.remove(engine.current.world, preview);
+    }
     if (allBalls.length < maxBallsAmount) {
       const currentXPosition = getCurrentXPosition(x);
 
       drawNewBall(currentXPosition);
-      setBallsQuantity(ballsQuantity + 1);
+      setThrownBallsQuantity(thrownBallsQuantity + 1);
     }
   }
 
-  //This function aply a force in the balls. It's used to unstuck balls if necesary.
+  //This function aply a force in the balls. It's used to unstuck balls if necessary.
   const pushBall = () => {
     const allBalls = engine.current.world.bodies.filter(
       (body) => body.label === 'ball'
@@ -358,15 +369,15 @@ export function PlinkoBoard() {
       >
         <Button onClick={pushBall}>Hit machine</Button>
         <Button onClick={onOpenModalRules}>Rules</Button>
-        <span>Balls left: {maxBallsAmount - ballsQuantity}</span>
+        <span>Balls left: {maxBallsAmount - thrownBallsQuantity}</span>
       </div>
       <div
         ref={scene}
-        onMouseMove={handleShowNewBallPreviewMouse}
+        onMouseMove={isMobile ? () => {} : handleShowNewBallPreviewMouse}
         onTouchMove={handleShowNewBallPreviewTouch}
         onTouchStart={handleShowNewBallPreviewTouch}
         onTouchEnd={handleTouchEnd}
-        onMouseUp={handleMouseDropNewBall}
+        onMouseUp={isMobile ? () => {} : handleMouseDropNewBall}
       />
 
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />

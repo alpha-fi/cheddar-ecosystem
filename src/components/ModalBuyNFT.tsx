@@ -129,12 +129,12 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
           </FormControl>
 
           <FormLabel>
-            {payingOptions.map((option) => {
+            {payingOptions.map((option, index) => {
               if (option.name === tokenToPayWith) {
                 return (
-                  <>
+                  <div key={index}>
                     {`Cost: ${option.price}`} {option.icon}
-                  </>
+                  </div>
                 );
               }
               return <></>;
