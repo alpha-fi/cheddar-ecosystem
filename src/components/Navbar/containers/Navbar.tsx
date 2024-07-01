@@ -13,13 +13,15 @@ import {
 import { ButtonConnectWallet } from '../components/ButtonConnectWallet';
 import { DrawerMenu } from '../components/DrawerMenu';
 import { useContext } from 'react';
-import { useGetCheddarTotalSupply } from '@/hooks/cheddar';
+import { useGetCheddarBalance, useGetCheddarTotalSupply } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
-import { GameContext } from '@/contexts/maze/GameContextProvider';
+import { GameContext, GameContextProvider } from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 
 export default function Navbar() {
   const { onOpenVideoModal, onOpenScoreboard } = useContext(GameContext);
+  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
+    useGetCheddarBalance();
 
   const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
     useGetCheddarTotalSupply();
@@ -84,7 +86,7 @@ export default function Navbar() {
               🎶
             </Button>
           </Stack>
-          <ButtonConnectWallet cheddarBalanceData={/*cheddarBalanceData*/ 0} />
+          <ButtonConnectWallet cheddarBalanceData={cheddarBalanceData} />
           <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
             <DrawerMenu
               onOpenVideoModal={onOpenVideoModal}
