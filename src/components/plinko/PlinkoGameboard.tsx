@@ -32,6 +32,8 @@ export function PlinkoBoard() {
     number[] | undefined
   >();
 
+  const [currentXPreview, setCurrentXPreview] = useState<undefined|number>()
+
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
 
@@ -155,6 +157,9 @@ export function PlinkoBoard() {
 
   function handleShowNewBallPreviewTouch(e: React.TouchEvent<HTMLDivElement>) {
     const eventX = e.touches[e.touches.length - 1].clientX;
+
+    setCurrentXPreview(eventX);
+
     handleShowNewBallPreview(eventX);
   }
 
@@ -164,6 +169,9 @@ export function PlinkoBoard() {
     );
 
     if (preview) World.remove(engine.current.world, preview!);
+
+    handleDropNewBall(currentXPreview!);
+    setCurrentXPreview(undefined)
   }
 
   function handleShowNewBallPreview(x: number) {
