@@ -8,27 +8,26 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
 
 export function PlinkoBoard() {
-  const {
-    cheddarFound,
-    setCheddarFound,
-    isMobile,
-  } = React.useContext(GameContext);
+  const { cheddarFound, setCheddarFound, isMobile } =
+    React.useContext(GameContext);
 
   const [rows, setRows] = useState(7); //This number should be odd to maximize the randomnes of the game
-  const [cols, setCols] = useState(11);
+  const [cols, setCols] = useState(8);
   const [cw, setCw] = useState<number>(330);
   const [ch, setCh] = useState<number>(450); //If this get's changed don't forget to change the value on the reference "*change this if ch change*"
 
   const [pinSpacing, setPinSpacing] = useState<number>(cw / cols);
   const [pinRadius, setPinRadius] = useState(8);
 
-  const [wallPositionAdjust, setWallPositionAdjust] = useState(8);
+  const [wallPositionAdjust, setWallPositionAdjust] = useState(9);
 
   const [maxBallsAmount, setMaxBallsAmount] = useState(3);
-  const [ballRadius, setBallRadius] = useState(7);
+  const [ballRadius, setBallRadius] = useState(12);
   const [ballBouncines, setBallBouncines] = useState(1);
   const [ballFriction, setBallFriction] = useState(0.1);
   const [isGameFinished, setIsGameFinished] = useState(false);
+
+  const [hitMachineForceMagnitude, setHitMachineForceMagnitude] = useState(0.05)
 
   const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
   const [ballsYPosition, setBallsYPosition] = useState<number[]>(
@@ -43,7 +42,7 @@ export function PlinkoBoard() {
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
 
-  engine.current.world.gravity.y = 0.6;
+  engine.current.world.gravity.y = 0.3;
 
   const {
     isOpen: isOpenModalRules,
@@ -116,7 +115,6 @@ export function PlinkoBoard() {
   }
 
   const drawBallPreview = (xPosition: number) => {
-    // const ballXPosDeviation = Math.floor(Math.random() * 11) - 5;
     const yPosition = pinSpacing;
     const ballPreview = Bodies.circle(xPosition, yPosition, ballRadius, {
       restitution: 0,
@@ -134,7 +132,7 @@ export function PlinkoBoard() {
   };
 
   const drawNewBall = (xPosition: number) => {
-    const ballXPosDeviation = Math.floor(Math.random() * 11) - 5;
+    const ballXPosDeviation = Math.floor(Math.random() * 17) - 5;
     const yPosition = pinSpacing;
     const ball = Bodies.circle(
       xPosition + ballXPosDeviation,
@@ -237,10 +235,9 @@ export function PlinkoBoard() {
     );
 
     allBalls.forEach((ball) => {
-      const forceMagnitude = 0.02;
       const forceDirection = Math.random() < 0.5 ? -0.05 : 0.05;
       Body.applyForce(ball, ball.position, {
-        x: forceMagnitude * forceDirection,
+        x: hitMachineForceMagnitude * forceDirection,
         y: 0,
       });
     });
@@ -314,7 +311,19 @@ export function PlinkoBoard() {
               fillStyle: 'black',
             },
           });
-          World.add(engine.current.world, [pin]);
+
+          const pinDecorative = Bodies.circle(x, y, pinRadius * 2, {
+            isStatic: true,
+            collisionFilter: {
+              group: -1,
+              category: 0x0002,
+              mask: 0x0002,
+            },
+            render: {
+              fillStyle: 'rgb(200, 129, 247, 0.5)',
+            },
+          });
+          World.add(engine.current.world, [pin, pinDecorative]);
         }
       }
 
