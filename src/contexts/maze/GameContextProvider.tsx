@@ -761,42 +761,42 @@ export const GameContextProvider = ({ children }: props) => {
     let intervalId: NodeJS.Timeout | null = null;
     if (timerStarted && !gameOverFlag && startTimestamp) {
       intervalId = setInterval(() => {
-        setRemainingTime((prevTime) => {
-          if (
-            prevTime <= 0 &&
-            intervalId &&
-            //The game is not stopped (Prevent entering this flow when minigame is open)
-            timestampStartStopTimerArray.length ===
-              timestampEndStopTimerArray.length
-          ) {
-            clearInterval(intervalId);
-            setStartTimestamp(null);
-            setTimestampStartStopTimerArray([]);
-            setTimestampEndStopTimerArray([]);
-            gameOver("⏰ Time's up! Game Over!", false);
-            return prevTime;
-          }
-          
-          let secondsWithTimerStoped = 0;
+        if (
+          //The game is not stopped (Prevent entering this flow when minigame is open)
+          timestampStartStopTimerArray.length ===
+          timestampEndStopTimerArray.length
+        ) {
+          setRemainingTime((prevTime) => {
+            if (prevTime <= 0 && intervalId) {
+              clearInterval(intervalId);
+              setStartTimestamp(null);
+              setTimestampStartStopTimerArray([]);
+              setTimestampEndStopTimerArray([]);
+              gameOver("⏰ Time's up! Game Over!", false);
+              return prevTime;
+            }
 
-          if (
-            timestampStartStopTimerArray.length > 0 &&
-            timestampEndStopTimerArray.length > 0
-          ) {
-            timestampStartStopTimerArray.forEach((startTimestamp, index) => {
-              secondsWithTimerStoped +=
-                timestampEndStopTimerArray[index] / 1000 -
-                startTimestamp / 1000;
-            });
-          }
+            let secondsWithTimerStoped = 0;
 
-          return Math.floor(
-            startTimestamp / 1000 +
-              timeLimitInSeconds +
-              secondsWithTimerStoped -
-              Date.now() / 1000
-          );
-        });
+            if (
+              timestampStartStopTimerArray.length > 0 &&
+              timestampEndStopTimerArray.length > 0
+            ) {
+              timestampStartStopTimerArray.forEach((startTimestamp, index) => {
+                secondsWithTimerStoped +=
+                  timestampEndStopTimerArray[index] / 1000 -
+                  startTimestamp / 1000;
+              });
+            }
+
+            return Math.floor(
+              startTimestamp / 1000 +
+                timeLimitInSeconds +
+                secondsWithTimerStoped -
+                Date.now() / 1000
+            );
+          });
+        }
       }, 500);
     } else {
       if (intervalId) clearInterval(intervalId);
