@@ -156,12 +156,18 @@ interface GameContextProps {
   showMovementButtons: boolean;
   setShowMovementButtons: React.Dispatch<React.SetStateAction<boolean>>;
 
+  timestampStartStopTimerArray: number[];
+  timestampEndStopTimerArray: number[];
+
   scoreboardResponse: ScoreboardResponse | null | undefined;
   isLoadingScoreboard: boolean;
 
   plinkoModalOpened: boolean;
   onOpenPlinkoModal: () => void;
   onClosePlinkoModal: () => void;
+
+  closePlinkoModal: () => void;
+
   videoModalOpened: boolean;
   onOpenVideoModal: () => void;
   onCloseVideoModal: () => void;
@@ -233,6 +239,13 @@ export const GameContextProvider = ({ children }: props) => {
   const [endGameResponse, setEndGameResponse] = useState();
 
   const [showMovementButtons, setShowMovementButtons] = useState(true);
+
+  const [timestampStartStopTimerArray, setTimestampStartStopTimerArray] =
+    useState<number[]>([]);
+
+  const [timestampEndStopTimerArray, setTimestampEndStopTimerArray] = useState<
+    number[]
+  >([]);
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -585,10 +598,16 @@ export const GameContextProvider = ({ children }: props) => {
     x: number,
     y: number
   ) {
+    setTimestampStartStopTimerArray([
+      ...timestampStartStopTimerArray,
+      Date.now(),
+    ]);
+
     // 5.5% chance of winning cheese
     clonedMazeData[y][x].hasPlinko = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     setScore(score + pointsOfActions.plinkoGameFound);
+
     onOpenPlinkoModal();
   }
 
@@ -743,15 +762,39 @@ export const GameContextProvider = ({ children }: props) => {
     if (timerStarted && !gameOverFlag && startTimestamp) {
       intervalId = setInterval(() => {
         setRemainingTime((prevTime) => {
-          if (prevTime <= 0 && intervalId) {
-            // if (intervalId && true) {
+          if (
+            prevTime <= 0 &&
+            intervalId &&
+            //The game is not stopped (Prevent entering this flow when minigame is open)
+            timestampStartStopTimerArray.length ===
+              timestampEndStopTimerArray.length
+          ) {
             clearInterval(intervalId);
             setStartTimestamp(null);
+            setTimestampStartStopTimerArray([]);
+            setTimestampEndStopTimerArray([]);
             gameOver("⏰ Time's up! Game Over!", false);
             return prevTime;
           }
+          
+          let secondsWithTimerStoped = 0;
+
+          if (
+            timestampStartStopTimerArray.length > 0 &&
+            timestampEndStopTimerArray.length > 0
+          ) {
+            timestampStartStopTimerArray.forEach((startTimestamp, index) => {
+              secondsWithTimerStoped +=
+                timestampEndStopTimerArray[index] / 1000 -
+                startTimestamp / 1000;
+            });
+          }
+
           return Math.floor(
-            startTimestamp / 1000 + timeLimitInSeconds - Date.now() / 1000
+            startTimestamp / 1000 +
+              timeLimitInSeconds +
+              secondsWithTimerStoped -
+              Date.now() / 1000
           );
         });
       }, 500);
@@ -762,7 +805,12 @@ export const GameContextProvider = ({ children }: props) => {
     return () => {
       if (intervalId) clearInterval(intervalId);
     }; // Cleanup function to clear interval on unmount or when timer conditions change
-  }, [timerStarted, gameOverFlag]);
+  }, [
+    timerStarted,
+    gameOverFlag,
+    timestampStartStopTimerArray,
+    timestampEndStopTimerArray,
+  ]);
 
   function handleMoveByArrow(direction: string) {
     if (gameOverFlag) return; // If game over, prevent further movement
@@ -944,6 +992,17 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onClosePlinkoModal,
   } = useDisclosure();
 
+  function closePlinkoModal() {
+    console.log('in closePlinkoModal');
+    const newTimestampEndStopTimer = [
+      ...timestampEndStopTimerArray,
+      Date.now(),
+    ];
+
+    setTimestampEndStopTimerArray(newTimestampEndStopTimer);
+    onClosePlinkoModal();
+  }
+
   return (
     <GameContext.Provider
       value={{
@@ -1016,14 +1075,16 @@ export const GameContextProvider = ({ children }: props) => {
         onOpenVideoModal,
         onCloseVideoModal,
         nfts,
-
         showMovementButtons,
         setShowMovementButtons,
+        timestampStartStopTimerArray,
+        timestampEndStopTimerArray,
         scoreboardResponse,
         isLoadingScoreboard,
         plinkoModalOpened,
         onOpenPlinkoModal,
         onClosePlinkoModal,
+        closePlinkoModal,
         isScoreboardOpen,
         onOpenScoreboard,
         onCloseScoreboard,

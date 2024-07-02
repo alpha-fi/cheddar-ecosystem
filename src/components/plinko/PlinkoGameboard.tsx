@@ -8,8 +8,11 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
 
 export function PlinkoBoard() {
-  const { cheddarFound, setCheddarFound, isMobile } =
-    React.useContext(GameContext);
+  const {
+    cheddarFound,
+    setCheddarFound,
+    isMobile,
+  } = React.useContext(GameContext);
 
   const [rows, setRows] = useState(7); //This number should be odd to maximize the randomnes of the game
   const [cols, setCols] = useState(11);
@@ -115,23 +118,18 @@ export function PlinkoBoard() {
   const drawBallPreview = (xPosition: number) => {
     // const ballXPosDeviation = Math.floor(Math.random() * 11) - 5;
     const yPosition = pinSpacing;
-    const ballPreview = Bodies.circle(
-      xPosition,
-      yPosition,
-      ballRadius,
-      {
-        restitution: 0,
-        friction: 0,
-        isStatic: true,
-        label: 'ballPreview',
-        render: { fillStyle: '#FF0000AA' },
-        collisionFilter: {
-          group: -1,
-          category: 0x0002,
-          mask: 0x0002,
-        },
-      }
-    );
+    const ballPreview = Bodies.circle(xPosition, yPosition, ballRadius, {
+      restitution: 0,
+      friction: 0,
+      isStatic: true,
+      label: 'ballPreview',
+      render: { fillStyle: '#FF0000AA' },
+      collisionFilter: {
+        group: -1,
+        category: 0x0002,
+        mask: 0x0002,
+      },
+    });
     World.add(engine.current.world, [ballPreview]);
   };
 
@@ -166,7 +164,7 @@ export function PlinkoBoard() {
 
   function handleShowNewBallPreviewTouch(e: React.TouchEvent<HTMLDivElement>) {
     const touchXPosition = e.touches[e.touches.length - 1].clientX;
-    const previewBallXPosition = touchXPosition - pinSpacing
+    const previewBallXPosition = touchXPosition - pinSpacing;
 
     setCurrentXPreview(previewBallXPosition);
 
