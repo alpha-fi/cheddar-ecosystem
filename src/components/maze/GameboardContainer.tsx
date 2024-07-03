@@ -380,7 +380,8 @@ export function GameboardContainer({
         title={'Plinko game!'}
         isOpen={plinkoModalOpened}
         onClose={closePlinkoModal}
-        size={"full"}
+        size={'full'}
+        neverCloseOnOverlayClick={true}
       >
         <PlinkoBoard />
       </ModalContainer>

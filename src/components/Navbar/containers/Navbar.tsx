@@ -13,9 +13,15 @@ import {
 import { ButtonConnectWallet } from '../components/ButtonConnectWallet';
 import { DrawerMenu } from '../components/DrawerMenu';
 import { useContext } from 'react';
-import { useGetCheddarBalance, useGetCheddarTotalSupply } from '@/hooks/cheddar';
+import {
+  useGetCheddarBalance,
+  useGetCheddarTotalSupply,
+} from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
-import { GameContext, GameContextProvider } from '@/contexts/maze/GameContextProvider';
+import {
+  GameContext,
+  GameContextProvider,
+} from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 
 export default function Navbar() {

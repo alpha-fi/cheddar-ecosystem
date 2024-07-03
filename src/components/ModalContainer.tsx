@@ -38,7 +38,8 @@ interface ModContainerProps extends ModalContentProps {
   hasCancelButton?: boolean;
   hideButtons?: boolean;
   closeOnOverlayClick?: boolean;
-  size?: "xs"|"sm"|"md"|"lg"|"xl"|"full";
+  neverCloseOnOverlayClick?: boolean;
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
 }
 
 export const ModalContainer = ({
@@ -51,16 +52,19 @@ export const ModalContainer = ({
   hasCancelButton,
   hideButtons = false,
   closeOnOverlayClick: closeOnOverlayClickProp = true,
+  neverCloseOnOverlayClick = false,
+
   size,
   ...props
 }: ModContainerProps) => {
   const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(
-    closeOnOverlayClickProp
+    neverCloseOnOverlayClick ? false : closeOnOverlayClickProp
   );
 
   // It was required that modals can be closed by clicking on the overlay after 5 seconds
   useEffect(() => {
-    if (!closeOnOverlayClick) {
+    console.log(1, closeOnOverlayClick, neverCloseOnOverlayClick);
+    if (!closeOnOverlayClick && !neverCloseOnOverlayClick) {
       setTimeout(() => {
         setCloseOnOverlayClick(true);
       }, 5000);
