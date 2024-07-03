@@ -380,6 +380,7 @@ export function GameboardContainer({
         title={'Plinko game!'}
         isOpen={plinkoModalOpened}
         onClose={closePlinkoModal}
+        size={"full"}
       >
         <PlinkoBoard />
       </ModalContainer>

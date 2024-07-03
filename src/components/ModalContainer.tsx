@@ -38,6 +38,7 @@ interface ModContainerProps extends ModalContentProps {
   hasCancelButton?: boolean;
   hideButtons?: boolean;
   closeOnOverlayClick?: boolean;
+  size?: "xs"|"sm"|"md"|"lg"|"xl"|"full";
 }
 
 export const ModalContainer = ({
@@ -50,6 +51,7 @@ export const ModalContainer = ({
   hasCancelButton,
   hideButtons = false,
   closeOnOverlayClick: closeOnOverlayClickProp = true,
+  size,
   ...props
 }: ModContainerProps) => {
   const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(
@@ -70,6 +72,7 @@ export const ModalContainer = ({
       isOpen={isOpen}
       onClose={onClose}
       closeOnOverlayClick={closeOnOverlayClick}
+      size={size}
     >
       <ModalOverlay />
       <ModalContent
