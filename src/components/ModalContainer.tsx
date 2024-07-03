@@ -63,7 +63,6 @@ export const ModalContainer = ({
 
   // It was required that modals can be closed by clicking on the overlay after 5 seconds
   useEffect(() => {
-    console.log(1, closeOnOverlayClick, neverCloseOnOverlayClick);
     if (!closeOnOverlayClick && !neverCloseOnOverlayClick) {
       setTimeout(() => {
         setCloseOnOverlayClick(true);

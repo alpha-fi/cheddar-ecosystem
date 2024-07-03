@@ -43,10 +43,7 @@ export function PlinkoBoard() {
   const [ballsYPosition, setBallsYPosition] = useState<number[]>(
     Array.from(Array(maxBallsAmount).keys()).fill(0)
   );
-  const [ballFinishLines, setBallFinishLines] = useState<
-    number[] | undefined
-  >();
-
+  const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
   const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
@@ -85,29 +82,45 @@ export function PlinkoBoard() {
       setTimeout(() => {
         setBallsYPosition(newYPositions);
       }, 500);
-    } else {
+    }
+
+    const ballsInGoal = thrownBalls.filter(
+      (ball) => ball.position.y > 350 // change this if ch change
+    );
+
+    if (
+      /*If a ball have reach a goal*/
+      ballsInGoal.length > 0
+    ) {
       const separatorArray = engine.current.world.bodies.filter(
         (body) => body.label === 'separator'
       );
-      const ballSeparatorIndexArray = [];
-      for (let i = 0; i < thrownBalls.length; i++) {
-        const ball = thrownBalls[i];
+      const ballSeparatorIndexArray = [] as number[];
+
+      //Loops on every ball
+      for (let i = 0; i < ballsInGoal.length; i++) {
+        const ball = ballsInGoal[i];
 
         const index = separatorArray.findIndex((separator) => {
           return ball?.position.x < separator.position.x;
         });
 
         ballSeparatorIndexArray.push(index);
-      }
-      if (ballSeparatorIndexArray !== ballFinishLines) {
-        setBallFinishLines(ballSeparatorIndexArray);
+
+        if (
+          //If the ball is out of the screen
+          ball.position.y > ch
+        ) {
+          setBallFinishLines([...ballFinishLines, ...ballSeparatorIndexArray]);
+          removeBody(ball);
+        }
       }
     }
 
     if (ballFinishLines && ballFinishLines.length === maxBallsAmount) {
       finishGame();
     }
-  }, [ballsYPosition, thrownBallsQuantity]);
+  }, [ballsYPosition, thrownBallsQuantity, ballFinishLines]);
 
   function getCheddarEarnedOnPlinko() {
     //TODO do this function
@@ -120,8 +133,8 @@ export function PlinkoBoard() {
     setIsGameFinished(true);
   }
 
-  function removeLastBall(ball: any) {
-    World.remove(engine.current.world, ball);
+  function removeBody(body: Matter.Body) {
+    World.remove(engine.current.world, body);
   }
 
   const drawBallPreview = (xPosition: number) => {
@@ -139,6 +152,26 @@ export function PlinkoBoard() {
       },
     });
     World.add(engine.current.world, [ballPreview]);
+  };
+
+  const createLetter = (char: string, x: number, y: number) => {
+    const letter = Matter.Bodies.rectangle(x, y, 40, 60, {
+      isStatic: true,
+      label: 'text',
+      render: {
+        sprite: {
+          texture: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="60"><text x="10%" y="10%" dominant-baseline="middle" font-weight="bold" text-anchor="middle" font-family="Arial" font-size="14" fill="black">${char}</text></svg>`,
+          xScale: 1,
+          yScale: 1,
+        },
+      },
+      collisionFilter: {
+        group: -1,
+        category: 0x0002,
+        mask: 0x0002,
+      },
+    });
+    return letter;
   };
 
   const drawNewBall = (xPosition: number) => {
@@ -184,7 +217,7 @@ export function PlinkoBoard() {
       (body) => body.label === 'ballPreview'
     );
 
-    if (preview) World.remove(engine.current.world, preview!);
+    if (preview) removeBody(preview!);
 
     handleDropNewBall();
     setCurrentXPreview(undefined);
@@ -227,9 +260,9 @@ export function PlinkoBoard() {
     );
 
     if (preview) {
-      World.remove(engine.current.world, preview);
+      removeBody(preview);
     }
-    if (allBalls.length < maxBallsAmount) {
+    if (allBalls.length + ballFinishLines.length < maxBallsAmount) {
       // const currentXPosition = getCurrentXPosition(currentXPreview!);
       const currentXPosition = currentXPreview!;
 
@@ -303,7 +336,12 @@ export function PlinkoBoard() {
         // Bottom wall
         Bodies.rectangle(cw / 2, ch + 30, cw, 100, {
           isStatic: true,
-          render: { fillStyle: 'white' },
+          collisionFilter: {
+            group: -1,
+            category: 0x0002,
+            mask: 0x0002,
+          },
+          render: { fillStyle: 'rgb(255, 255, 255, 0.7)' },
         }),
       ]);
 
@@ -353,31 +391,12 @@ export function PlinkoBoard() {
         }
       }
 
-      const createLetter = (char: string, x: number, y: number) => {
-        const letter = Matter.Bodies.rectangle(x, y, 40, 60, {
-          isStatic: true,
-          label: 'text',
-          render: {
-            sprite: {
-              texture: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="60"><text x="10%" y="10%" dominant-baseline="middle" font-weight="bold" text-anchor="middle" font-family="Arial" font-size="14" fill="black">${char}</text></svg>`,
-              xScale: 1,
-              yScale: 1,
-            },
-          },
-          collisionFilter: {
-            group: -1,
-            category: 0x0002,
-            mask: 0x0002,
-          },
-        });
-        return letter;
-      };
-
       //Create finish boxes
       for (let i = 0; i < goals.length + 1; i++) {
         const separator = Bodies.rectangle(i * pinSpacing, ch - 50, 10, 100, {
           isStatic: true,
           label: 'separator',
+          friction: 3,
           render: { fillStyle: 'white' },
         });
         const border = Bodies.circle(i * pinSpacing, ch - 100, 5.1, {
@@ -414,6 +433,8 @@ export function PlinkoBoard() {
       };
     }
   }, []);
+
+  console.log('ballFinishLines: ', ballFinishLines);
 
   return (
     <div
