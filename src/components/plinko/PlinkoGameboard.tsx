@@ -12,11 +12,20 @@ export function PlinkoBoard() {
     React.useContext(GameContext);
 
   const [rows, setRows] = useState(7); //This number should be odd to maximize the randomnes of the game
-  const [cols, setCols] = useState(8);
+  const [goals, setGoals] = useState([
+    'NANO',
+    'MICRO',
+    'SPLAT',
+    'MEGA',
+    'MICRO',
+    'GIGA',
+    'SPLAT',
+    'NANO',
+  ]);
   const [cw, setCw] = useState<number>(330);
   const [ch, setCh] = useState<number>(450); //If this get's changed don't forget to change the value on the reference "*change this if ch change*"
 
-  const [pinSpacing, setPinSpacing] = useState<number>(cw / cols);
+  const [pinSpacing, setPinSpacing] = useState<number>(cw / goals.length);
   const [pinRadius, setPinRadius] = useState(8);
 
   const [wallPositionAdjust, setWallPositionAdjust] = useState(9);
@@ -299,7 +308,7 @@ export function PlinkoBoard() {
       ]);
 
       for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols + 1; col++) {
+        for (let col = 0; col < goals.length + 1; col++) {
           let x = col * pinSpacing;
           if (row % 2 === 0) {
             x += pinSpacing / 2;
@@ -344,8 +353,28 @@ export function PlinkoBoard() {
         }
       }
 
+      const createLetter = (char: string, x: number, y: number) => {
+        const letter = Matter.Bodies.rectangle(x, y, 40, 60, {
+          isStatic: true,
+          label: 'text',
+          render: {
+            sprite: {
+              texture: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="60"><text x="10%" y="10%" dominant-baseline="middle" font-weight="bold" text-anchor="middle" font-family="Arial" font-size="14" fill="black">${char}</text></svg>`,
+              xScale: 1,
+              yScale: 1,
+            },
+          },
+          collisionFilter: {
+            group: -1,
+            category: 0x0002,
+            mask: 0x0002,
+          },
+        });
+        return letter;
+      };
+
       //Create finish boxes
-      for (let i = 0; i < cols + 1; i++) {
+      for (let i = 0; i < goals.length + 1; i++) {
         const separator = Bodies.rectangle(i * pinSpacing, ch - 50, 10, 100, {
           isStatic: true,
           label: 'separator',
@@ -356,7 +385,21 @@ export function PlinkoBoard() {
           label: 'separator-tip',
           render: { fillStyle: 'white' },
         });
-        World.add(engine.current.world, [separator, border]);
+
+        if (!goals[i]) {
+          World.add(engine.current.world, [separator, border]);
+        } else {
+          const goalName = goals[i]
+            .split('')
+            .map((char, charIndex) =>
+              createLetter(
+                char,
+                i * pinSpacing + pinSpacing,
+                ch - 60 + 12 * charIndex
+              )
+            );
+          World.add(engine.current.world, [separator, border, ...goalName]);
+        }
       }
 
       //Start running and rendering
