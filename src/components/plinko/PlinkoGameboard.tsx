@@ -27,7 +27,8 @@ export function PlinkoBoard() {
   const [ballFriction, setBallFriction] = useState(0.1);
   const [isGameFinished, setIsGameFinished] = useState(false);
 
-  const [hitMachineForceMagnitude, setHitMachineForceMagnitude] = useState(0.05)
+  const [hitMachineForceMagnitude, setHitMachineForceMagnitude] =
+    useState(0.05);
 
   const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
   const [ballsYPosition, setBallsYPosition] = useState<number[]>(
@@ -121,7 +122,7 @@ export function PlinkoBoard() {
       friction: 0,
       isStatic: true,
       label: 'ballPreview',
-      render: { fillStyle: '#FF0000AA' },
+      render: { fillStyle: 'rgb(245, 152, 47, 0.8)' },
       collisionFilter: {
         group: -1,
         category: 0x0002,
@@ -142,7 +143,7 @@ export function PlinkoBoard() {
         restitution: ballBouncines,
         friction: ballFriction,
         label: 'ball',
-        render: { fillStyle: 'red' },
+        render: { fillStyle: 'rgb(245, 152, 47)' },
       }
     );
     World.add(engine.current.world, [ball]);
@@ -293,7 +294,7 @@ export function PlinkoBoard() {
         // Bottom wall
         Bodies.rectangle(cw / 2, ch + 30, cw, 100, {
           isStatic: true,
-          render: { fillStyle: 'orange' },
+          render: { fillStyle: 'white' },
         }),
       ]);
 
@@ -308,11 +309,11 @@ export function PlinkoBoard() {
           const pin = Bodies.circle(x, y, pinRadius, {
             isStatic: true,
             render: {
-              fillStyle: 'black',
+              fillStyle: 'white',
             },
           });
 
-          const pinDecorative = Bodies.circle(x, y, pinRadius * 2, {
+          const pinDecorative1 = Bodies.circle(x, y, pinRadius * 1.5, {
             isStatic: true,
             collisionFilter: {
               group: -1,
@@ -320,10 +321,26 @@ export function PlinkoBoard() {
               mask: 0x0002,
             },
             render: {
-              fillStyle: 'rgb(200, 129, 247, 0.5)',
+              fillStyle: 'rgb(250, 250, 250, 0.5)',
             },
           });
-          World.add(engine.current.world, [pin, pinDecorative]);
+
+          const pinDecorative2 = Bodies.circle(x, y, pinRadius * 2, {
+            isStatic: true,
+            collisionFilter: {
+              group: -1,
+              category: 0x0002,
+              mask: 0x0002,
+            },
+            render: {
+              fillStyle: 'rgb(0, 0, 0, 0.1)',
+            },
+          });
+          World.add(engine.current.world, [
+            pinDecorative2,
+            pinDecorative1,
+            pin,
+          ]);
         }
       }
 
@@ -332,15 +349,14 @@ export function PlinkoBoard() {
         const separator = Bodies.rectangle(i * pinSpacing, ch - 50, 10, 100, {
           isStatic: true,
           label: 'separator',
-          render: { fillStyle: 'black' },
+          render: { fillStyle: 'white' },
         });
-        const triangle = Bodies.polygon(i * pinSpacing, ch - 103, 3, 6.1, {
+        const border = Bodies.circle(i * pinSpacing, ch - 100, 5.1, {
           isStatic: true,
-          angle: Math.PI / 2,
-          label: 'tip-separator',
-          render: { fillStyle: 'black' },
+          label: 'separator-tip',
+          render: { fillStyle: 'white' },
         });
-        World.add(engine.current.world, [separator, triangle]);
+        World.add(engine.current.world, [separator, border]);
       }
 
       //Start running and rendering
