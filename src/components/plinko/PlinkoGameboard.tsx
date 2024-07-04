@@ -54,7 +54,7 @@ export function PlinkoBoard() {
   const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
 
   const [prize, setPrize] = useState<number>();
-  const [displayablePrize, setDisplayablePrize] = useState('');
+  const [showPrize, setShowPrize] = useState(false);
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
@@ -91,7 +91,7 @@ export function PlinkoBoard() {
 
       setTimeout(() => {
         setBallsYPosition(newYPositions);
-      }, 500);
+      }, 700);
     }
 
     const ballsInGoal = thrownBalls.filter(
@@ -130,49 +130,51 @@ export function PlinkoBoard() {
     if (ballFinishLines && ballFinishLines.length === maxBallsAmount) {
       finishGame();
     }
+  }, [ballsYPosition, thrownBallsQuantity, ballFinishLines]);
 
+  console.log('ballFinishLines: ', ballFinishLines);
+
+  useEffect(() => {
     let finalPrize = 0;
     ballFinishLines.forEach((finishGoal) => {
       switch (finishGoal) {
-        case 1:
+        case 1: //Nano
           finalPrize += 5;
           break;
-        case 2:
+        case 2: //Micro
           finalPrize += 10;
           break;
-        case 3:
+        case 3: //Splat
           finalPrize += 0;
           break;
-        case 4:
+        case 4: //Mega
           finalPrize += 25;
           break;
-        case 5:
+        case 5: //Micro
           finalPrize += 10;
           break;
-        case 6:
+        case 6: //Giga
           finalPrize += 55;
           break;
-        case 7:
+        case 7: //Splat
           finalPrize += 0;
           break;
-        case 8:
+        case 8: //Nano
           finalPrize += 5;
           break;
       }
     });
 
-    if (finalPrize > 0) setPrize(finalPrize);
+    if(ballFinishLines.length > 0) setPrize(finalPrize);
 
     if (prize !== undefined) {
-      const prizeInString = `+${prize.toString()}`;
-
-      setDisplayablePrize(prizeInString);
+      setShowPrize(true);
 
       setTimeout(() => {
-        setDisplayablePrize('');
+        setShowPrize(false);
       }, 2000);
     }
-  }, [ballsYPosition, thrownBallsQuantity, ballFinishLines]);
+  }, [prize, ballFinishLines]);
 
   function getCheddarEarnedOnPlinko() {
     //TODO do this function
@@ -536,14 +538,13 @@ export function PlinkoBoard() {
 
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
 
-      {displayablePrize !== '' && (
-        <div className={styles.displayablePrizeContainer}>
-          <span className={styles.displayablePrize}>
-            {displayablePrize}{' '}
-            {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
-          </span>
-        </div>
-      )}
+      <div className={styles.displayablePrizeContainer}>
+        <span
+          className={`${styles.displayablePrize} ${showPrize ? styles.show : styles.hide}`}
+        >
+          +{prize} {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
+        </span>
+      </div>
     </div>
   );
 }
