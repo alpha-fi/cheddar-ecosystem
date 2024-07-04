@@ -91,7 +91,7 @@ export function PlinkoBoard() {
 
       setTimeout(() => {
         setBallsYPosition(newYPositions);
-      }, 700);
+      }, 1000);
     }
 
     const ballsInGoal = thrownBalls.filter(
@@ -116,7 +116,8 @@ export function PlinkoBoard() {
         });
 
         ballSeparatorIndexArray.push(index);
-
+        
+        
         if (
           //If the ball is out of the screen
           ball.position.y > ch
