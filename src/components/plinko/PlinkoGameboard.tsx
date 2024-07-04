@@ -2,10 +2,16 @@ import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import Matter, { Engine, Render, Bodies, World, Body } from 'matter-js';
 import { color } from 'framer-motion';
-import { Button, useDisclosure } from '@chakra-ui/react';
+import styles from '@/styles/PlinkoGameboard.module.css';
+import {
+  Button,
+  useDisclosure,
+  withDefaultColorScheme,
+} from '@chakra-ui/react';
 import { sep } from 'path';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
+import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';
 
 export function PlinkoBoard() {
   const { cheddarFound, setCheddarFound, isMobile } =
@@ -44,7 +50,11 @@ export function PlinkoBoard() {
     Array.from(Array(maxBallsAmount).keys()).fill(0)
   );
   const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
+
   const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
+
+  const [prize, setPrize] = useState<number>();
+  const [displayablePrize, setDisplayablePrize] = useState('');
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
@@ -120,6 +130,48 @@ export function PlinkoBoard() {
     if (ballFinishLines && ballFinishLines.length === maxBallsAmount) {
       finishGame();
     }
+
+    let finalPrize = 0;
+    ballFinishLines.forEach((finishGoal) => {
+      switch (finishGoal) {
+        case 1:
+          finalPrize += 5;
+          break;
+        case 2:
+          finalPrize += 10;
+          break;
+        case 3:
+          finalPrize += 0;
+          break;
+        case 4:
+          finalPrize += 25;
+          break;
+        case 5:
+          finalPrize += 10;
+          break;
+        case 6:
+          finalPrize += 55;
+          break;
+        case 7:
+          finalPrize += 0;
+          break;
+        case 8:
+          finalPrize += 5;
+          break;
+      }
+    });
+
+    if (finalPrize > 0) setPrize(finalPrize);
+
+    if (prize !== undefined) {
+      const prizeInString = `+${prize.toString()}`;
+
+      setDisplayablePrize(prizeInString);
+
+      setTimeout(() => {
+        setDisplayablePrize('');
+      }, 2000);
+    }
   }, [ballsYPosition, thrownBallsQuantity, ballFinishLines]);
 
   function getCheddarEarnedOnPlinko() {
@@ -154,13 +206,40 @@ export function PlinkoBoard() {
     World.add(engine.current.world, [ballPreview]);
   };
 
-  const createLetter = (char: string, x: number, y: number) => {
+  const createLetter = (
+    char: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    fontSize: number,
+    fillColor: string,
+    label: string
+  ) => {
     const letter = Matter.Bodies.rectangle(x, y, 40, 60, {
       isStatic: true,
-      label: 'text',
+      label: label,
       render: {
         sprite: {
-          texture: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="60"><text x="10%" y="10%" dominant-baseline="middle" font-weight="bold" text-anchor="middle" font-family="Arial" font-size="14" fill="black">${char}</text></svg>`,
+          texture: `data:image/svg+xml;utf8,
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="${width}"
+              height="${height}"
+            >
+              <text
+                x="10%"
+                y="10%"
+                dominant-baseline="middle"
+                font-weight="bold"
+                text-anchor="middle"
+                font-family="Arial"
+                font-size="${fontSize}"
+                fill="${fillColor}"
+              >
+                ${char}
+              </text>
+            </svg>`,
           xScale: 1,
           yScale: 1,
         },
@@ -414,7 +493,12 @@ export function PlinkoBoard() {
               createLetter(
                 char,
                 i * pinSpacing + pinSpacing,
-                ch - 60 + 12 * charIndex
+                ch - 60 + 12 * charIndex,
+                50,
+                60,
+                14,
+                'black',
+                'goalName'
               )
             );
           World.add(engine.current.world, [separator, border, ...goalName]);
@@ -434,26 +518,10 @@ export function PlinkoBoard() {
     }
   }, []);
 
-  console.log('ballFinishLines: ', ballFinishLines);
-
   return (
-    <div
-      style={{
-        height: '70%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      <div
-        style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'left',
-          gap: '1rem',
-        }}
-      >
-        <Button onClick={pushBall}>Hit machine</Button>
+    <div className={styles.plinkoBoardContainer}>
+      <div className={styles.headerContainer}>
+        <Button onClick={pushBall}>Shake</Button>
         <Button onClick={onOpenModalRules}>Rules</Button>
         <span>Balls left: {maxBallsAmount - thrownBallsQuantity}</span>
       </div>
@@ -467,6 +535,15 @@ export function PlinkoBoard() {
       />
 
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
+
+      {displayablePrize !== '' && (
+        <div className={styles.displayablePrizeContainer}>
+          <span className={styles.displayablePrize}>
+            {displayablePrize}{' '}
+            {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
