@@ -100,11 +100,18 @@
   border: 1px solid mediumslateblue;
   cursor: pointer;;
 }
+.warningText{
+  display: flex;
+  align-items: center;
+  gap:0.2rem;
+}
+
 .notEnoughBalanceMsg {
   font-size: 18px;
   font-weight: bold;
-  margin: 1rem auto 0.5rem auto;
+  margin-inline: 0.1rem;
   color: #8542eb !important;
+  text-decoration: underline !important;
 }
 .mazeContainer {
   border-radius: 5px;
@@ -153,6 +160,7 @@
   display: flex;
   justify-content: space-between;
   background-color: #8542eb;
+  align-items: center;
 }
 .tooltip {
   position: relative;

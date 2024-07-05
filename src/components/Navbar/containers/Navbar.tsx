@@ -23,7 +23,7 @@ interface Props {
 }
 
 export default function Navbar({ cheddarBalanceData }: Props) {
-  const { onOpenVideoModal, onOpenScoreboard } = useContext(GameContext);
+  const { onOpenVideoModal } = useContext(GameContext);
 
   const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
     useGetCheddarTotalSupply();
@@ -45,6 +45,7 @@ export default function Navbar({ cheddarBalanceData }: Props) {
         justifyContent="space-between"
         alignItems="center"
         px="14px"
+        gap="1rem"
         height="100%"
       >
         <Flex alignContent="center">
@@ -52,26 +53,10 @@ export default function Navbar({ cheddarBalanceData }: Props) {
             <HStack spacing={0}>
               <Img src={'/assets/cheddar-logo.png'} alt="" height="25px" />
             </HStack>
-
-            <Text
-              display={{ base: 'none', lg: 'flex' }}
-              justifyContent="space-between"
-              w="100%"
-            >
-              <Text as="i">
-                Total supply:{' '}
-                {isLoadingCheddarTotalSupply
-                  ? 'Loading'
-                  : new Intl.NumberFormat('de-DE', {
-                      maximumFractionDigits: 0,
-                    }).format(yton(cheddarTotalSupply!))}{' '}
-                <RenderCheddarIcon />
-              </Text>
-            </Text>
           </Flex>
         </Flex>
 
-        <Flex flexDir="row" justifyContent="end" gap="0.5rem">
+        <Flex flexDir="row" justifyContent="end" gap="1rem" alignItems="center">
           <Stack
             direction={{ base: 'column', md: 'row' }}
             display={{ base: 'none', lg: 'flex' }}
@@ -83,11 +68,25 @@ export default function Navbar({ cheddarBalanceData }: Props) {
             fontWeight="700"
             lineHeight="1"
           >
-            <Button onClick={onOpenScoreboard}>Scoreboard</Button>
             <Button colorScheme="blue" onClick={onOpenVideoModal}>
               🎶
             </Button>
           </Stack>
+
+          <Text justifyContent="space-between" textColor="white">
+            <Text as="i">
+              Total supply:{' '}
+              <div style={{ width: 'max-content' }}>
+                {isLoadingCheddarTotalSupply
+                  ? 'Loading'
+                  : new Intl.NumberFormat('de-DE', {
+                      maximumFractionDigits: 0,
+                    }).format(yton(cheddarTotalSupply!))}{' '}
+                {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
+              </div>
+            </Text>
+          </Text>
+
           <ButtonConnectWallet cheddarBalanceData={cheddarBalanceData} />
           <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
             <DrawerMenu

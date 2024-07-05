@@ -63,6 +63,20 @@ export const SocialMedia = () => {
           <Img src={'/assets/gitbook.svg'} alt="" width="24px" height="24px" />
         </Box>
       </Link>
+
+      <Link
+        p="16px 24px"
+        display="flex"
+        href="https://near.social/chatter.cheddar.near/widget/home"
+        target="_blank"
+        _hover={{ bg: 'yellowCheddar' }}
+        _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
+        _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
+      >
+        <Box minW="30px" ml="5px">
+          <Img src={'/assets/chat.svg'} alt="" width="20px" height="20px" />
+        </Box>
+      </Link>
     </Box>
   );
 };

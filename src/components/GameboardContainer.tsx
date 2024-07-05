@@ -1,6 +1,6 @@
 import { Gameboard } from './Gameboard';
 import styles from '../styles/GameboardContainer.module.css';
-import { Button, Link, Show, useDisclosure } from '@chakra-ui/react';
+import { Button, Link, Show, Tooltip, useDisclosure } from '@chakra-ui/react';
 import { MouseEventHandler, useContext, useMemo, useState } from 'react';
 
 import { GameContext } from '@/contexts/GameContextProvider';
@@ -203,6 +203,16 @@ export function GameboardContainer({
     );
   };
 
+  function getPowerUpBtnText() {
+    if (accountId) {
+      if (nfts?.length) {
+        return '⚡';
+      } else return 'Buy ⚡';
+    } else {
+      return 'Buy ⚡';
+    }
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -212,23 +222,29 @@ export function GameboardContainer({
       }}
     >
       <div className={styles.publicityDecoration}></div>
-
       {accountId && (!hasEnoughBalance || userIsNotAllowedToPlay) && (
-        <Link
-          target="_blank"
-          className={styles.notEnoughBalanceMsg}
-          href="https://app.ref.finance/#a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near%7Ctoken.cheddar.near"
-        >
-          Must have {minCheddarRequired}
-          {RenderCheddarIcon({ width: '2rem' })} and Verified Human to play.
-        </Link>
+        <div className={styles.warningText}>
+          Must have
+          <Link
+            target="_blank"
+            className={styles.notEnoughBalanceMsg}
+            href="https://app.ref.finance/#a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near%7Ctoken.cheddar.near"
+          >
+            {minCheddarRequired}
+            {RenderCheddarIcon({ width: '2rem' })}
+          </Link>
+          and
+          <Link
+            target="_blank"
+            className={styles.notEnoughBalanceMsg}
+            href="https://app.nada.bot/"
+          >
+            Verified Human
+          </Link>
+          to play.
+        </div>
       )}
-
       <h1 className={styles.gameName}>Cheddar Maze</h1>
-
-      {/* <div className={styles.gameHeaderContainer}>
-        <Button onClick={onOpenScoreboard}>Scoreboard</Button>
-      </div> */}
       <div className={styles.gameInfo}>
         <div className={styles.score}>Score: {score}</div>
         <div className={styles.time}>
@@ -237,43 +253,37 @@ export function GameboardContainer({
           {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
         </div>
       </div>
-
       <div className={styles.mazeContainer} tabIndex={0}>
         <div className={styles.toolbar}>
           <span className={styles.rulesButton}>
             <Button onClick={onOpenModalRules}>Rules</Button>
           </span>
-
-          <span className={getStartButtonStyles()}>
-            {hasEnoughBalance && (
+          {hasEnoughBalance && (
+            <span className={getStartButtonStyles()}>
               <Button onClick={getStartGameButtonHandler()}>
                 {gameOverFlag ? 'Restart Game' : 'Start Game'}
               </Button>
-            )}
-          </span>
-
-          <div className={styles.tooltip}>
+            </span>
+          )}
+          <Button onClick={onOpenScoreboard}>🏆</Button>
+          <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
             <Button
-              colorScheme={nfts && nfts.length > 0 ? 'yellow' : 'gray'}
+              colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
               onClick={handleBuyClick}
             >
-              ⚡
+              {getPowerUpBtnText()}
             </Button>
-            <span className={styles.tooltipText}>
-              Cheddy PowerUp NFT provides in-game features
-            </span>
-
-            <Show below="lg">
-              <Button
-                onClick={() => handleToggleShowMovementButtons()}
-                colorScheme="gray"
-              >
-                <div className={styles.togglePlayModeIconContainer}>
-                  {showMovementButtons ? renderSwipeIcon() : renderArrowsIcon()}
-                </div>
-              </Button>
-            </Show>
-          </div>
+          </Tooltip>
+          <Show below="lg">
+            <Button
+              onClick={() => handleToggleShowMovementButtons()}
+              colorScheme="gray"
+            >
+              <div className={styles.togglePlayModeIconContainer}>
+                {showMovementButtons ? renderSwipeIcon() : renderArrowsIcon()}
+              </div>
+            </Button>
+          </Show>
         </div>
         <Gameboard
           openLogIn={modal.show}
@@ -316,7 +326,6 @@ export function GameboardContainer({
           </Show>
         )}
       </div>
-
       <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
         <ModalNotAllowedToPlay
@@ -362,7 +371,6 @@ export function GameboardContainer({
           ></video>
         </div>
       </ModalContainer>
-
       <ModalContainer
         title={'Maze scoreboard'}
         isOpen={isScoreboardOpen}
