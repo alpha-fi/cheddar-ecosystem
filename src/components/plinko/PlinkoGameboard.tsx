@@ -35,6 +35,13 @@ export function PlinkoBoard() {
   const [currentHeight, setCurrentHeight] = useState<number>(
     INITIAL_CURRENT_HEIGHT
   );
+  const prizesData = [
+    { name: 'SPLAT', cheddar: 0 },
+    { name: 'NANO', cheddar: 5 },
+    { name: 'MICRO', cheddar: 10 },
+    { name: 'MEGA', cheddar: 25 },
+    { name: 'GIGA', cheddar: 55 },
+  ];
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
   const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
@@ -118,32 +125,13 @@ export function PlinkoBoard() {
   useEffect(() => {
     let finalPrize = 0;
     ballFinishLines.forEach((finishGoal) => {
-      switch (finishGoal) {
-        case 1: //Nano
-          finalPrize += 5;
-          break;
-        case 2: //Micro
-          finalPrize += 10;
-          break;
-        case 3: //Splat
-          finalPrize += 0;
-          break;
-        case 4: //Mega
-          finalPrize += 25;
-          break;
-        case 5: //Micro
-          finalPrize += 10;
-          break;
-        case 6: //Giga
-          finalPrize += 55;
-          break;
-        case 7: //Splat
-          finalPrize += 0;
-          break;
-        case 8: //Nano
-          finalPrize += 5;
-          break;
-      }
+      const cheddarEarned = prizesData.find((prizeData) => {
+        return (
+          prizeData.name.toUpperCase() === GOALS[finishGoal - 1].toUpperCase()
+        );
+      })?.cheddar;
+
+      finalPrize += cheddarEarned!;
     });
 
     if (ballFinishLines.length > 0) setPrize(finalPrize); // si se obtiene el mismo valor que una pasada anterior el useeffect de prize no se disparara

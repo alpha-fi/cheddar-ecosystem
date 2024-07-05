@@ -247,6 +247,8 @@ export const GameContextProvider = ({ children }: props) => {
     number[]
   >([]);
 
+  const [hasFoundPlinko, setHasFoundPlinko] = useState(false);
+
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
 
@@ -608,7 +610,7 @@ export const GameContextProvider = ({ children }: props) => {
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     setScore(score + pointsOfActions.plinkoGameFound);
 
-    onOpenPlinkoModal();
+    openPlinkoModal();
   }
 
   function handleBagFound(
@@ -696,7 +698,7 @@ export const GameContextProvider = ({ children }: props) => {
       pathLength - cellsWithItemAmount === 1
     ) {
       handleExitFound(clonedMazeData, newX, newY);
-    } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.plinko) {
+    } else if (rng.nextFloat() < chancesOfFinding.plinko && !hasFoundPlinko) {
       handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
       handleEnemyFound(clonedMazeData, newX, newY);
@@ -992,8 +994,12 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onClosePlinkoModal,
   } = useDisclosure();
 
+  function openPlinkoModal() {
+    onOpenPlinkoModal();
+    setHasFoundPlinko(true);
+  }
+
   function closePlinkoModal() {
-    console.log('in closePlinkoModal');
     const newTimestampEndStopTimer = [
       ...timestampEndStopTimerArray,
       Date.now(),
