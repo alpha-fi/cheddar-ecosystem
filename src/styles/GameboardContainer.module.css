@@ -100,10 +100,15 @@
   border: 1px solid mediumslateblue;
   cursor: pointer;;
 }
+.warningText{
+  display: flex;
+  align-items: center;
+  gap:0.2rem;
+}
 .notEnoughBalanceMsg {
   font-size: 18px;
   font-weight: bold;
-  margin: 1rem auto 0.5rem auto;
+  margin-inline: 0.2rem;
   color: #8542eb !important;
 }
 .mazeContainer {
