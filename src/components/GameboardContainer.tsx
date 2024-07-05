@@ -239,14 +239,12 @@ export function GameboardContainer({
             className={styles.notEnoughBalanceMsg}
             href="https://app.nada.bot/"
           >
-            Verified Human to play.
+            Verified Human
           </Link>
+          to play.
         </div>
       )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
-      {/* <div className={styles.gameHeaderContainer}>
-        <Button onClick={onOpenScoreboard}>Scoreboard</Button>
-      </div> */}
       <div className={styles.gameInfo}>
         <div className={styles.score}>Score: {score}</div>
         <div className={styles.time}>
@@ -260,14 +258,14 @@ export function GameboardContainer({
           <span className={styles.rulesButton}>
             <Button onClick={onOpenModalRules}>Rules</Button>
           </span>
-
-          <span className={getStartButtonStyles()}>
-            {hasEnoughBalance && (
+          {hasEnoughBalance && (
+            <span className={getStartButtonStyles()}>
               <Button onClick={getStartGameButtonHandler()}>
                 {gameOverFlag ? 'Restart Game' : 'Start Game'}
               </Button>
-            )}
-          </span>
+            </span>
+          )}
+          <Button onClick={onOpenScoreboard}>🏆</Button>
           <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
             <Button
               colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}

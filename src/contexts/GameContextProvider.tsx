@@ -220,6 +220,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [endGameResponse, setEndGameResponse] = useState();
 
   const [showMovementButtons, setShowMovementButtons] = useState(true);
+  const [renderBoard, setRenderBoard] = useState(false); // to update board color on restart
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -354,6 +355,7 @@ export const GameContextProvider = ({ children }: props) => {
     setSaveResponse(undefined);
     setEndGameResponse(undefined);
     setCellsWithItemAmount(0);
+    setRenderBoard(!renderBoard);
 
     gameOverRefSent.current = false;
 
@@ -464,7 +466,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     const playerStartCell = getRandomPathCell(newMazeData);
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
-  }, [totalCells]); // Empty dependency array to run this effect only once on component mount
+  }, [totalCells, renderBoard]); // Empty dependency array to run this effect only once on component mount
 
   function movePlayer(newX: number, newY: number) {
     if (

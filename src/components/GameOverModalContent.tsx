@@ -59,7 +59,7 @@ export const GameOverModalContent = () => {
       </p>
       {cheddarFound > 0 && hasWon && (
         <p className={styles.earnings}>
-          You have earned{' '}
+          You have farmed{' '}
           {cheddarFound <= pendingCheddarToMint
             ? cheddarFound
             : pendingCheddarToMint}{' '}
@@ -67,7 +67,7 @@ export const GameOverModalContent = () => {
         </p>
       )}
       {cheddarFound > 0 && !hasWon && (
-        <p className={styles.loseEarnings}>Enemy drained ur Cheddar bag</p>
+        <p className={styles.loseEarnings}>You have lost {cheddarFound} 🧀</p>
       )}
     </div>
   );
