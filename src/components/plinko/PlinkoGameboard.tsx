@@ -18,7 +18,14 @@ export function PlinkoBoard() {
     React.useContext(GameContext);
 
   const [rows, setRows] = useState(7); //This number should be odd to maximize the randomnes of the game
-  const [goals, setGoals] = useState([
+  const prizesData = [
+    { name: 'SPLAT', cheddar: 0 },
+    { name: 'NANO', cheddar: 5 },
+    { name: 'MICRO', cheddar: 10 },
+    { name: 'MEGA', cheddar: 25 },
+    { name: 'GIGA', cheddar: 55 },
+  ];
+  const goals = [
     'NANO',
     'MICRO',
     'SPLAT',
@@ -27,7 +34,7 @@ export function PlinkoBoard() {
     'GIGA',
     'SPLAT',
     'NANO',
-  ]);
+  ];
   const [cw, setCw] = useState<number>(330);
   const [ch, setCh] = useState<number>(450); //If this get's changed don't forget to change the value on the reference "*change this if ch change*"
 
@@ -116,8 +123,7 @@ export function PlinkoBoard() {
         });
 
         ballSeparatorIndexArray.push(index);
-        
-        
+
         if (
           //If the ball is out of the screen
           ball.position.y > ch
@@ -133,42 +139,23 @@ export function PlinkoBoard() {
     }
   }, [ballsYPosition, thrownBallsQuantity, ballFinishLines]);
 
-  console.log('ballFinishLines: ', ballFinishLines);
+  // console.log('ballFinishLines: ', ballFinishLines);
 
   useEffect(() => {
     let finalPrize = 0;
     ballFinishLines.forEach((finishGoal) => {
-      switch (finishGoal) {
-        case 1: //Nano
-          finalPrize += 5;
-          break;
-        case 2: //Micro
-          finalPrize += 10;
-          break;
-        case 3: //Splat
-          finalPrize += 0;
-          break;
-        case 4: //Mega
-          finalPrize += 25;
-          break;
-        case 5: //Micro
-          finalPrize += 10;
-          break;
-        case 6: //Giga
-          finalPrize += 55;
-          break;
-        case 7: //Splat
-          finalPrize += 0;
-          break;
-        case 8: //Nano
-          finalPrize += 5;
-          break;
-      }
+      const cheddarEarned = prizesData.find((prizeData) => {
+        return prizeData.name.toUpperCase() === goals[finishGoal - 1].toUpperCase();
+      })?.cheddar;
+
+      finalPrize += cheddarEarned!;
     });
 
-    if(ballFinishLines.length > 0) setPrize(finalPrize);
+    console.log('finalPrize:', finalPrize);
 
-    if (prize !== undefined) {
+    if (ballFinishLines.length > 0) {
+      setPrize(finalPrize);
+
       setShowPrize(true);
 
       setTimeout(() => {

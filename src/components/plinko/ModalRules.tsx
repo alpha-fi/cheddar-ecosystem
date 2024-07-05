@@ -18,8 +18,10 @@ export default function ModalRules({ isOpen, onClose }: Props) {
           get's unstucked.
         </ListItem>
         <ListItem>
-          The more balls end up in the same goal, the more cheddar you
-          accumulate!
+          You'll get CHEDDAR acording to the goal you get to.
+        </ListItem>
+        <ListItem>
+          SPLAT = 0, NANO = 5, MICRO = 10, MEGA: 25, GIGA = 55
         </ListItem>
         <ListItem>
           The game end's when every ball is on the bottom. You can keep
