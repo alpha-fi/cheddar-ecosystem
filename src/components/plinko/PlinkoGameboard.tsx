@@ -16,6 +16,9 @@ import {
   BALL_BOUNCINES,
   BALL_FRICTION,
   BALL_RADIUS,
+  BALL_OPTIONS,
+  BALL_PREVIEW_OPTIONS,
+  COLLISION_FILTER_1,
   CURRENT_WIDTH,
   GOALS,
   GRAVITY,
@@ -24,33 +27,53 @@ import {
   MAX_BALLS_AMOUNT,
   PIN_RADIUS,
   PIN_SPACING,
+  PRIZES_DATA,
   ROWS,
+  SIDE_WALLS_OPTIONS,
   WALL_POSITION_ADJUST,
+  BOTTOM_WALL_OPTIONS,
+  PIN_OPTIONS,
+  PIN_DECORATIVE_1_OPTIONS,
+  PIN_DECORATIVE_2_OPTIONS,
+  GOALS_OPTIONS,
+  GOALS_TIPS_OPTIONS,
 } from '@/constants/plinko';
+import { callEndGame } from '@/queries/plinko/api';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { createLetter } from './RenderLetterInWorld';
+import { ModalContainer } from '../ModalContainer';
+import { GameOverModalContent } from './GameOverModalContent';
+
+interface CheddarEarnedData {
+  name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
+  cheddar: number;
+}
 
 export function PlinkoBoard() {
-  const { cheddarFound, setCheddarFound, isMobile } =
-    React.useContext(GameContext);
+  const { isMobile, seedId, closePlinkoModal } = React.useContext(GameContext);
+
+  const { accountId, selector } = useWalletSelector();
 
   const [currentHeight, setCurrentHeight] = useState<number>(
     INITIAL_CURRENT_HEIGHT
   );
-  const prizesData = [
-    { name: 'SPLAT', cheddar: 0 },
-    { name: 'NANO', cheddar: 5 },
-    { name: 'MICRO', cheddar: 10 },
-    { name: 'MEGA', cheddar: 25 },
-    { name: 'GIGA', cheddar: 55 },
-  ];
-  const [isGameFinished, setIsGameFinished] = useState(false);
+  const [saveResponse, setSaveResponse] = useState<string[] | undefined>();
+  const [endGameResponse, setEndGameResponse] = useState<undefined | any>();
   const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
   const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
   const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
   const [prize, setPrize] = useState<number>();
+  const [prizeNames, setPrizeNames] = useState<
+    ('giga' | 'mega' | 'micro' | 'nano' | 'splat')[]
+  >([]);
   const [showPrize, setShowPrize] = useState(false);
   const [ballsYPosition, setBallsYPosition] = useState<number[]>(
     Array.from(Array(MAX_BALLS_AMOUNT).keys()).fill(0)
   );
+
+  const [gameOverFlag, setGameOverFlag] = useState(false);
+  const [gameOverMessage, setGameOverMessage] = useState('');
+  const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
@@ -60,6 +83,20 @@ export function PlinkoBoard() {
     onOpen: onOpenModalRules,
     onClose: onCloseModalRules,
   } = useDisclosure();
+
+  function closeGameOverModal() {
+    closePlinkoModal();
+    setGameOverMessage('');
+    onClose();
+    setAllowOpenGameOverModal(false);
+  }
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
+    onOpen();
+    setAllowOpenGameOverModal(true);
+  }
 
   useEffect(() => {
     engine.current.world.gravity.y = GRAVITY;
@@ -116,6 +153,7 @@ export function PlinkoBoard() {
             ...prevState,
             ...ballSeparatorIndexArray,
           ]);
+
           removeBody(ball);
         }
       }
@@ -125,20 +163,30 @@ export function PlinkoBoard() {
   useEffect(() => {
     let finalPrize = 0;
     ballFinishLines.forEach((finishGoal) => {
-      const cheddarEarned = prizesData.find((prizeData) => {
-        return (
-          prizeData.name.toUpperCase() === GOALS[finishGoal - 1].toUpperCase()
-        );
-      })?.cheddar;
+      const cheddarEarnedData = PRIZES_DATA.find((prizeData) => {
+        return prizeData.name === GOALS[finishGoal - 1];
+      }) as CheddarEarnedData;
 
-      finalPrize += cheddarEarned!;
+      if (cheddarEarnedData) {
+        const cheddarEarned = cheddarEarnedData?.cheddar;
+        const cheddarPrizeName = cheddarEarnedData?.name;
+
+        setPrizeNames((prevState) => [...prevState, cheddarPrizeName]);
+
+        finalPrize += cheddarEarned!;
+      }
     });
 
-    if (ballFinishLines.length > 0) setPrize(finalPrize); // si se obtiene el mismo valor que una pasada anterior el useeffect de prize no se disparara
+    if (ballFinishLines.length > 0) {
+      setPrize(finalPrize);
+    }
+  }, [ballFinishLines]);
+
+  useEffect(() => {
     if (ballFinishLines && ballFinishLines.length === MAX_BALLS_AMOUNT) {
       finishGame();
     }
-  }, [ballFinishLines]);
+  }, [prizeNames, prize]);
 
   useEffect(() => {
     if (prize !== undefined) {
@@ -150,15 +198,24 @@ export function PlinkoBoard() {
     }
   }, [prize]);
 
-  function getCheddarEarnedOnPlinko() {
-    //TODO do this function
-    return 0;
-  }
+  async function finishGame() {
+    if (prizeNames[0]) {
+      const endGameRequestData = {
+        data: {
+          prizeEarned: prizeNames[0],
+        },
+        metadata: {
+          accountId: accountId!,
+          seedId,
+        },
+      };
 
-  function finishGame() {
-    if (isGameFinished) return;
-    setCheddarFound(cheddarFound + getCheddarEarnedOnPlinko());
-    setIsGameFinished(true);
+      setGameOverFlag(true);
+      setGameOverMessage(`Your ball fell in ${prizeNames[0]} goal`);
+      const endGameResponse = await callEndGame(endGameRequestData);
+      setEndGameResponse(endGameResponse);
+      if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+    }
   }
 
   function removeBody(body: Matter.Body) {
@@ -167,66 +224,13 @@ export function PlinkoBoard() {
 
   const drawBallPreview = (xPosition: number) => {
     const yPosition = PIN_SPACING;
-    const ballPreview = Bodies.circle(xPosition, yPosition, BALL_RADIUS, {
-      restitution: 0,
-      friction: 0,
-      isStatic: true,
-      label: 'ballPreview',
-      render: { fillStyle: 'rgb(245, 152, 47, 0.8)' },
-      collisionFilter: {
-        group: -1,
-        category: 0x0002,
-        mask: 0x0002,
-      },
-    });
+    const ballPreview = Bodies.circle(
+      xPosition,
+      yPosition,
+      BALL_RADIUS,
+      BALL_PREVIEW_OPTIONS
+    );
     World.add(engine.current.world, [ballPreview]);
-  };
-
-  const createLetter = (
-    char: string,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    fontSize: number,
-    fillColor: string,
-    label: string
-  ) => {
-    const letter = Matter.Bodies.rectangle(x, y, 40, 60, {
-      isStatic: true,
-      label: label,
-      render: {
-        sprite: {
-          texture: `data:image/svg+xml;utf8,
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="${width}"
-              height="${height}"
-            >
-              <text
-                x="10%"
-                y="10%"
-                dominant-baseline="middle"
-                font-weight="bold"
-                text-anchor="middle"
-                font-family="Arial"
-                font-size="${fontSize}"
-                fill="${fillColor}"
-              >
-                ${char}
-              </text>
-            </svg>`,
-          xScale: 1,
-          yScale: 1,
-        },
-      },
-      collisionFilter: {
-        group: -1,
-        category: 0x0002,
-        mask: 0x0002,
-      },
-    });
-    return letter;
   };
 
   const drawNewBall = (xPosition: number) => {
@@ -236,12 +240,7 @@ export function PlinkoBoard() {
       xPosition + ballXPosDeviation,
       yPosition,
       BALL_RADIUS,
-      {
-        restitution: BALL_BOUNCINES,
-        friction: BALL_FRICTION,
-        label: 'ball',
-        render: { fillStyle: 'rgb(245, 152, 47)' },
-      }
+      BALL_OPTIONS
     );
     World.add(engine.current.world, [ball]);
   };
@@ -286,7 +285,6 @@ export function PlinkoBoard() {
       (body) => body.label === 'ballPreview'
     );
 
-    // const currentXPosition = getCurrentXPosition(x);
     const currentXPosition = x;
 
     if (allBalls.length < MAX_BALLS_AMOUNT) {
@@ -318,7 +316,6 @@ export function PlinkoBoard() {
       removeBody(preview);
     }
     if (allBalls.length + ballFinishLines.length < MAX_BALLS_AMOUNT) {
-      // const currentXPosition = getCurrentXPosition(currentXPreview!);
       const currentXPosition = currentXPreview!;
 
       drawNewBall(currentXPosition);
@@ -370,11 +367,7 @@ export function PlinkoBoard() {
           0,
           PIN_SPACING,
           currentHeight * 2,
-          {
-            isStatic: true,
-            restitution: 1,
-            render: { fillStyle: 'transparent' },
-          }
+          SIDE_WALLS_OPTIONS
         ),
         // Right wall
         Bodies.rectangle(
@@ -382,11 +375,7 @@ export function PlinkoBoard() {
           0,
           PIN_SPACING,
           currentHeight * 2,
-          {
-            isStatic: true,
-            restitution: 1,
-            render: { fillStyle: 'transparent' },
-          }
+          SIDE_WALLS_OPTIONS
         ),
 
         // Bottom wall
@@ -395,15 +384,7 @@ export function PlinkoBoard() {
           currentHeight + 30,
           CURRENT_WIDTH,
           100,
-          {
-            isStatic: true,
-            collisionFilter: {
-              group: -1,
-              category: 0x0002,
-              mask: 0x0002,
-            },
-            render: { fillStyle: 'rgb(255, 255, 255, 0.7)' },
-          }
+          BOTTOM_WALL_OPTIONS
         ),
       ]);
 
@@ -415,36 +396,21 @@ export function PlinkoBoard() {
           }
           const y = PIN_SPACING + row * PIN_SPACING + currentHeight / 20;
 
-          const pin = Bodies.circle(x, y, PIN_RADIUS, {
-            isStatic: true,
-            render: {
-              fillStyle: 'white',
-            },
-          });
+          const pin = Bodies.circle(x, y, PIN_RADIUS, PIN_OPTIONS);
 
-          const pinDecorative1 = Bodies.circle(x, y, PIN_RADIUS * 1.5, {
-            isStatic: true,
-            collisionFilter: {
-              group: -1,
-              category: 0x0002,
-              mask: 0x0002,
-            },
-            render: {
-              fillStyle: 'rgb(250, 250, 250, 0.5)',
-            },
-          });
+          const pinDecorative1 = Bodies.circle(
+            x,
+            y,
+            PIN_RADIUS * 1.5,
+            PIN_DECORATIVE_1_OPTIONS
+          );
 
-          const pinDecorative2 = Bodies.circle(x, y, PIN_RADIUS * 2, {
-            isStatic: true,
-            collisionFilter: {
-              group: -1,
-              category: 0x0002,
-              mask: 0x0002,
-            },
-            render: {
-              fillStyle: 'rgb(0, 0, 0, 0.1)',
-            },
-          });
+          const pinDecorative2 = Bodies.circle(
+            x,
+            y,
+            PIN_RADIUS * 2,
+            PIN_DECORATIVE_2_OPTIONS
+          );
           World.add(engine.current.world, [
             pinDecorative2,
             pinDecorative1,
@@ -460,22 +426,13 @@ export function PlinkoBoard() {
           currentHeight - 50,
           10,
           100,
-          {
-            isStatic: true,
-            label: 'separator',
-            friction: 3,
-            render: { fillStyle: 'white' },
-          }
+          GOALS_OPTIONS
         );
         const border = Bodies.circle(
           i * PIN_SPACING,
           currentHeight - 100,
           5.1,
-          {
-            isStatic: true,
-            label: 'separator-tip',
-            render: { fillStyle: 'white' },
-          }
+          GOALS_TIPS_OPTIONS
         );
 
         if (!GOALS[i]) {
@@ -537,6 +494,32 @@ export function PlinkoBoard() {
           +{prize} {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
         </span>
       </div>
+      {saveResponse && (
+        <ModalContainer
+          title={'Error saving plinko game'}
+          isOpen={isOpen}
+          onClose={onClose}
+        >
+          <div>
+            {saveResponse.map((error, index) => {
+              return <div key={index}>{error}</div>;
+            })}
+          </div>
+        </ModalContainer>
+      )}
+      {gameOverFlag && gameOverMessage.length > 0 && (
+        <ModalContainer
+          title={'Game over'}
+          isOpen={isOpen}
+          onClose={closeGameOverModal}
+          closeOnOverlayClick={false}
+        >
+          <GameOverModalContent
+            cheddarFound={prize!}
+            endGameResponse={endGameResponse}
+          />
+        </ModalContainer>
+      )}
     </div>
   );
 }

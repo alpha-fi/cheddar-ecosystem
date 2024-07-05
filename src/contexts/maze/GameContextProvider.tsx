@@ -175,6 +175,8 @@ interface GameContextProps {
   isScoreboardOpen: boolean;
   onOpenScoreboard: () => void;
   onCloseScoreboard: () => void;
+
+  seedId: number;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -752,6 +754,7 @@ export const GameContextProvider = ({ children }: props) => {
     setGameOverFlag(true);
     setGameOverMessage(message);
     stopTimer();
+    setHasFoundPlinko(false);
 
     const endGameResponse = await callEndGame(endGameRequestData);
     setEndGameResponse(endGameResponse);
@@ -1094,6 +1097,7 @@ export const GameContextProvider = ({ children }: props) => {
         isScoreboardOpen,
         onOpenScoreboard,
         onCloseScoreboard,
+        seedId,
       }}
     >
       {children}
