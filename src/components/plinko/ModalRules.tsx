@@ -17,9 +17,7 @@ export default function ModalRules({ isOpen, onClose }: Props) {
           If a ball get's stuck use the "Hit machine" button until the ball
           get's unstucked.
         </ListItem>
-        <ListItem>
-          You'll get CHEDDAR acording to the goal you get to.
-        </ListItem>
+        <ListItem>You'll get CHEDDAR acording to the goal you get to.</ListItem>
         <ListItem>
           SPLAT = 0, NANO = 5, MICRO = 10, MEGA: 25, GIGA = 55
         </ListItem>
