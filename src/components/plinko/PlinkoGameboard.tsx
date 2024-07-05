@@ -12,54 +12,41 @@ import { sep } from 'path';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
 import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';
+import {
+  BALL_BOUNCINES,
+  BALL_FRICTION,
+  BALL_RADIUS,
+  CURRENT_WIDTH,
+  GOALS,
+  GRAVITY,
+  HIT_MACHINE_FORCE_MAGNITUDE,
+  INITIAL_CURRENT_HEIGHT,
+  MAX_BALLS_AMOUNT,
+  PIN_RADIUS,
+  PIN_SPACING,
+  ROWS,
+  WALL_POSITION_ADJUST,
+} from '@/constants/plinko';
 
 export function PlinkoBoard() {
   const { cheddarFound, setCheddarFound, isMobile } =
     React.useContext(GameContext);
 
-  const [rows, setRows] = useState(7); //This number should be odd to maximize the randomnes of the game
-  const [goals, setGoals] = useState([
-    'NANO',
-    'MICRO',
-    'SPLAT',
-    'MEGA',
-    'MICRO',
-    'GIGA',
-    'SPLAT',
-    'NANO',
-  ]);
-  const [cw, setCw] = useState<number>(330);
-  const [ch, setCh] = useState<number>(450); //If this get's changed don't forget to change the value on the reference "*change this if ch change*"
-
-  const [pinSpacing, setPinSpacing] = useState<number>(cw / goals.length);
-  const [pinRadius, setPinRadius] = useState(8);
-
-  const [wallPositionAdjust, setWallPositionAdjust] = useState(9);
-
-  const [maxBallsAmount, setMaxBallsAmount] = useState(3);
-  const [ballRadius, setBallRadius] = useState(12);
-  const [ballBouncines, setBallBouncines] = useState(1);
-  const [ballFriction, setBallFriction] = useState(0.1);
-  const [isGameFinished, setIsGameFinished] = useState(false);
-
-  const [hitMachineForceMagnitude, setHitMachineForceMagnitude] =
-    useState(0.05);
-
-  const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
-  const [ballsYPosition, setBallsYPosition] = useState<number[]>(
-    Array.from(Array(maxBallsAmount).keys()).fill(0)
+  const [currentHeight, setCurrentHeight] = useState<number>(
+    INITIAL_CURRENT_HEIGHT
   );
+  const [isGameFinished, setIsGameFinished] = useState(false);
+  const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
   const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
-
   const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
-
   const [prize, setPrize] = useState<number>();
   const [showPrize, setShowPrize] = useState(false);
+  const [ballsYPosition, setBallsYPosition] = useState<number[]>(
+    Array.from(Array(MAX_BALLS_AMOUNT).keys()).fill(0)
+  );
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
-
-  engine.current.world.gravity.y = 0.3;
 
   const {
     isOpen: isOpenModalRules,
@@ -68,15 +55,19 @@ export function PlinkoBoard() {
   } = useDisclosure();
 
   useEffect(() => {
+    engine.current.world.gravity.y = GRAVITY;
+  }, []);
+
+  useEffect(() => {
     const thrownBalls = engine.current.world.bodies.filter(
       (body) => body.label === 'ball'
     );
 
     const currentBallYPositions = thrownBalls.map((ball) => ball.position.y);
     if (
-      //If at least 1 ball is not in the end
-      currentBallYPositions.filter((ballYPosition) => ballYPosition < 350) // change this if ch change
-        .length > 0
+      currentBallYPositions.filter(
+        (ballYPosition) => ballYPosition <= currentHeight
+      ).length > 0
     ) {
       const newYPositions = [] as number[];
 
@@ -91,23 +82,19 @@ export function PlinkoBoard() {
 
       setTimeout(() => {
         setBallsYPosition(newYPositions);
-      }, 1000);
+      }, 100);
     }
 
     const ballsInGoal = thrownBalls.filter(
-      (ball) => ball.position.y > 350 // change this if ch change
+      (ball) => ball.position.y > currentHeight
     );
 
-    if (
-      /*If a ball have reach a goal*/
-      ballsInGoal.length > 0
-    ) {
+    if (ballsInGoal.length > 0) {
       const separatorArray = engine.current.world.bodies.filter(
         (body) => body.label === 'separator'
       );
       const ballSeparatorIndexArray = [] as number[];
 
-      //Loops on every ball
       for (let i = 0; i < ballsInGoal.length; i++) {
         const ball = ballsInGoal[i];
 
@@ -116,24 +103,17 @@ export function PlinkoBoard() {
         });
 
         ballSeparatorIndexArray.push(index);
-        
-        
-        if (
-          //If the ball is out of the screen
-          ball.position.y > ch
-        ) {
-          setBallFinishLines([...ballFinishLines, ...ballSeparatorIndexArray]);
+
+        if (ball.position.y > currentHeight) {
+          setBallFinishLines((prevState) => [
+            ...prevState,
+            ...ballSeparatorIndexArray,
+          ]);
           removeBody(ball);
         }
       }
     }
-
-    if (ballFinishLines && ballFinishLines.length === maxBallsAmount) {
-      finishGame();
-    }
-  }, [ballsYPosition, thrownBallsQuantity, ballFinishLines]);
-
-  console.log('ballFinishLines: ', ballFinishLines);
+  }, [ballsYPosition, thrownBallsQuantity]);
 
   useEffect(() => {
     let finalPrize = 0;
@@ -166,8 +146,13 @@ export function PlinkoBoard() {
       }
     });
 
-    if(ballFinishLines.length > 0) setPrize(finalPrize);
+    if (ballFinishLines.length > 0) setPrize(finalPrize); // si se obtiene el mismo valor que una pasada anterior el useeffect de prize no se disparara
+    if (ballFinishLines && ballFinishLines.length === MAX_BALLS_AMOUNT) {
+      finishGame();
+    }
+  }, [ballFinishLines]);
 
+  useEffect(() => {
     if (prize !== undefined) {
       setShowPrize(true);
 
@@ -175,7 +160,7 @@ export function PlinkoBoard() {
         setShowPrize(false);
       }, 2000);
     }
-  }, [prize, ballFinishLines]);
+  }, [prize]);
 
   function getCheddarEarnedOnPlinko() {
     //TODO do this function
@@ -193,8 +178,8 @@ export function PlinkoBoard() {
   }
 
   const drawBallPreview = (xPosition: number) => {
-    const yPosition = pinSpacing;
-    const ballPreview = Bodies.circle(xPosition, yPosition, ballRadius, {
+    const yPosition = PIN_SPACING;
+    const ballPreview = Bodies.circle(xPosition, yPosition, BALL_RADIUS, {
       restitution: 0,
       friction: 0,
       isStatic: true,
@@ -258,14 +243,14 @@ export function PlinkoBoard() {
 
   const drawNewBall = (xPosition: number) => {
     const ballXPosDeviation = Math.floor(Math.random() * 17) - 5;
-    const yPosition = pinSpacing;
+    const yPosition = PIN_SPACING;
     const ball = Bodies.circle(
       xPosition + ballXPosDeviation,
       yPosition,
-      ballRadius,
+      BALL_RADIUS,
       {
-        restitution: ballBouncines,
-        friction: ballFriction,
+        restitution: BALL_BOUNCINES,
+        friction: BALL_FRICTION,
         label: 'ball',
         render: { fillStyle: 'rgb(245, 152, 47)' },
       }
@@ -274,11 +259,11 @@ export function PlinkoBoard() {
   };
 
   function getCurrentXPosition(x: number) {
-    return x - document.body.clientWidth / 2 + cw / 2 + ballRadius;
+    return x - document.body.clientWidth / 2 + CURRENT_WIDTH / 2 + BALL_RADIUS;
   }
 
   function handleShowNewBallPreviewMouse(e: React.MouseEvent<HTMLDivElement>) {
-    if (thrownBallsQuantity >= maxBallsAmount) return;
+    if (thrownBallsQuantity >= MAX_BALLS_AMOUNT) return;
     const mouseXPosition = getCurrentXPosition(e.clientX);
     setCurrentXPreview(mouseXPosition);
 
@@ -287,7 +272,7 @@ export function PlinkoBoard() {
 
   function handleShowNewBallPreviewTouch(e: React.TouchEvent<HTMLDivElement>) {
     const touchXPosition = e.touches[e.touches.length - 1].clientX;
-    const previewBallXPosition = touchXPosition - pinSpacing;
+    const previewBallXPosition = touchXPosition - PIN_SPACING;
 
     setCurrentXPreview(previewBallXPosition);
 
@@ -316,12 +301,12 @@ export function PlinkoBoard() {
     // const currentXPosition = getCurrentXPosition(x);
     const currentXPosition = x;
 
-    if (allBalls.length < maxBallsAmount) {
+    if (allBalls.length < MAX_BALLS_AMOUNT) {
       if (preview) {
         //Move preview ball
         Matter.Body.setPosition(preview, {
           x: currentXPosition,
-          y: pinSpacing,
+          y: PIN_SPACING,
         });
       } else {
         drawBallPreview(currentXPosition);
@@ -344,7 +329,7 @@ export function PlinkoBoard() {
     if (preview) {
       removeBody(preview);
     }
-    if (allBalls.length + ballFinishLines.length < maxBallsAmount) {
+    if (allBalls.length + ballFinishLines.length < MAX_BALLS_AMOUNT) {
       // const currentXPosition = getCurrentXPosition(currentXPreview!);
       const currentXPosition = currentXPreview!;
 
@@ -353,7 +338,7 @@ export function PlinkoBoard() {
     }
   }
 
-  //This function aply a force in the balls. It's used to unstuck balls if necessary.
+  //This function apply a force in the balls. It's used to unstuck balls if necessary.
   const pushBall = () => {
     const allBalls = engine.current.world.bodies.filter(
       (body) => body.label === 'ball'
@@ -362,24 +347,25 @@ export function PlinkoBoard() {
     allBalls.forEach((ball) => {
       const forceDirection = Math.random() < 0.5 ? -0.05 : 0.05;
       Body.applyForce(ball, ball.position, {
-        x: hitMachineForceMagnitude * forceDirection,
+        x: HIT_MACHINE_FORCE_MAGNITUDE * forceDirection,
         y: 0,
       });
     });
   };
 
   useEffect(() => {
-    if (ch === 0) {
+    if (currentHeight === 0) {
       const currentCh = document.body.clientHeight;
-      setCh(currentCh);
+      setCurrentHeight(currentCh);
     }
     if (scene) {
       const render = Render.create({
+        //@ts-ignore
         element: scene!.current,
         engine: engine.current,
         options: {
-          width: cw,
-          height: ch,
+          width: CURRENT_WIDTH,
+          height: currentHeight,
           wireframes: false,
           background: 'transparent',
         },
@@ -392,10 +378,10 @@ export function PlinkoBoard() {
       // Left wall
       World.add(engine.current.world, [
         Bodies.rectangle(
-          -pinSpacing + wallPositionAdjust,
+          -PIN_SPACING + WALL_POSITION_ADJUST,
           0,
-          pinSpacing,
-          ch * 2,
+          PIN_SPACING,
+          currentHeight * 2,
           {
             isStatic: true,
             restitution: 1,
@@ -404,10 +390,10 @@ export function PlinkoBoard() {
         ),
         // Right wall
         Bodies.rectangle(
-          cw + pinSpacing - wallPositionAdjust,
+          CURRENT_WIDTH + PIN_SPACING - WALL_POSITION_ADJUST,
           0,
-          pinSpacing,
-          ch * 2,
+          PIN_SPACING,
+          currentHeight * 2,
           {
             isStatic: true,
             restitution: 1,
@@ -416,33 +402,39 @@ export function PlinkoBoard() {
         ),
 
         // Bottom wall
-        Bodies.rectangle(cw / 2, ch + 30, cw, 100, {
-          isStatic: true,
-          collisionFilter: {
-            group: -1,
-            category: 0x0002,
-            mask: 0x0002,
-          },
-          render: { fillStyle: 'rgb(255, 255, 255, 0.7)' },
-        }),
+        Bodies.rectangle(
+          CURRENT_WIDTH / 2,
+          currentHeight + 30,
+          CURRENT_WIDTH,
+          100,
+          {
+            isStatic: true,
+            collisionFilter: {
+              group: -1,
+              category: 0x0002,
+              mask: 0x0002,
+            },
+            render: { fillStyle: 'rgb(255, 255, 255, 0.7)' },
+          }
+        ),
       ]);
 
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < goals.length + 1; col++) {
-          let x = col * pinSpacing;
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < GOALS.length + 1; col++) {
+          let x = col * PIN_SPACING;
           if (row % 2 === 0) {
-            x += pinSpacing / 2;
+            x += PIN_SPACING / 2;
           }
-          const y = pinSpacing + row * pinSpacing + ch / 20;
+          const y = PIN_SPACING + row * PIN_SPACING + currentHeight / 20;
 
-          const pin = Bodies.circle(x, y, pinRadius, {
+          const pin = Bodies.circle(x, y, PIN_RADIUS, {
             isStatic: true,
             render: {
               fillStyle: 'white',
             },
           });
 
-          const pinDecorative1 = Bodies.circle(x, y, pinRadius * 1.5, {
+          const pinDecorative1 = Bodies.circle(x, y, PIN_RADIUS * 1.5, {
             isStatic: true,
             collisionFilter: {
               group: -1,
@@ -454,7 +446,7 @@ export function PlinkoBoard() {
             },
           });
 
-          const pinDecorative2 = Bodies.circle(x, y, pinRadius * 2, {
+          const pinDecorative2 = Bodies.circle(x, y, PIN_RADIUS * 2, {
             isStatic: true,
             collisionFilter: {
               group: -1,
@@ -474,29 +466,40 @@ export function PlinkoBoard() {
       }
 
       //Create finish boxes
-      for (let i = 0; i < goals.length + 1; i++) {
-        const separator = Bodies.rectangle(i * pinSpacing, ch - 50, 10, 100, {
-          isStatic: true,
-          label: 'separator',
-          friction: 3,
-          render: { fillStyle: 'white' },
-        });
-        const border = Bodies.circle(i * pinSpacing, ch - 100, 5.1, {
-          isStatic: true,
-          label: 'separator-tip',
-          render: { fillStyle: 'white' },
-        });
+      for (let i = 0; i < GOALS.length + 1; i++) {
+        const separator = Bodies.rectangle(
+          i * PIN_SPACING,
+          currentHeight - 50,
+          10,
+          100,
+          {
+            isStatic: true,
+            label: 'separator',
+            friction: 3,
+            render: { fillStyle: 'white' },
+          }
+        );
+        const border = Bodies.circle(
+          i * PIN_SPACING,
+          currentHeight - 100,
+          5.1,
+          {
+            isStatic: true,
+            label: 'separator-tip',
+            render: { fillStyle: 'white' },
+          }
+        );
 
-        if (!goals[i]) {
+        if (!GOALS[i]) {
           World.add(engine.current.world, [separator, border]);
         } else {
-          const goalName = goals[i]
+          const goalName = GOALS[i]
             .split('')
             .map((char, charIndex) =>
               createLetter(
                 char,
-                i * pinSpacing + pinSpacing,
-                ch - 60 + 12 * charIndex,
+                i * PIN_SPACING + PIN_SPACING,
+                currentHeight - 60 + 12 * charIndex,
                 50,
                 60,
                 14,
@@ -526,7 +529,7 @@ export function PlinkoBoard() {
       <div className={styles.headerContainer}>
         <Button onClick={pushBall}>Shake</Button>
         <Button onClick={onOpenModalRules}>Rules</Button>
-        <span>Balls left: {maxBallsAmount - thrownBallsQuantity}</span>
+        <span>Balls left: {MAX_BALLS_AMOUNT - thrownBallsQuantity}</span>
       </div>
       <div
         ref={scene}
