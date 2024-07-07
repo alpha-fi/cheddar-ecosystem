@@ -2,40 +2,81 @@ import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import Matter, { Engine, Render, Bodies, World, Body } from 'matter-js';
 import { color } from 'framer-motion';
-import { Button, useDisclosure } from '@chakra-ui/react';
+import styles from '@/styles/PlinkoGameboard.module.css';
+import {
+  Button,
+  useDisclosure,
+  withDefaultColorScheme,
+} from '@chakra-ui/react';
 import { sep } from 'path';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
+import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';
+import {
+  BALL_BOUNCINES,
+  BALL_FRICTION,
+  BALL_RADIUS,
+  BALL_OPTIONS,
+  BALL_PREVIEW_OPTIONS,
+  COLLISION_FILTER_1,
+  CURRENT_WIDTH,
+  GOALS,
+  GRAVITY,
+  HIT_MACHINE_FORCE_MAGNITUDE,
+  INITIAL_CURRENT_HEIGHT,
+  MAX_BALLS_AMOUNT,
+  PIN_RADIUS,
+  PIN_SPACING,
+  PRIZES_DATA,
+  ROWS,
+  SIDE_WALLS_OPTIONS,
+  WALL_POSITION_ADJUST,
+  BOTTOM_WALL_OPTIONS,
+  PIN_OPTIONS,
+  PIN_DECORATIVE_1_OPTIONS,
+  PIN_DECORATIVE_2_OPTIONS,
+  GOALS_OPTIONS,
+  GOALS_TIPS_OPTIONS,
+} from '@/constants/plinko';
+import { callEndGame } from '@/queries/plinko/api';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { createLetter } from './RenderLetterInWorld';
+import { ModalContainer } from '../ModalContainer';
+import { GameOverModalContent } from './GameOverModalContent';
+
+interface CheddarEarnedData {
+  name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
+  cheddar: number;
+}
 
 export function PlinkoBoard() {
-  const { onClosePlinkoModal, cheddarFound, setCheddarFound } =
-    React.useContext(GameContext);
+  const { isMobile, seedId, closePlinkoModal } = React.useContext(GameContext);
 
-  const [rows, setRows] = useState(7); //This number should be odd to maximize the randomnes of the game
-  const [cols, setCols] = useState(11);
-  const [cw, setCw] = useState<number>(330);
-  const [ch, setCh] = useState<number>(450); //If this get's changed don't forget to change the value on the reference "*change this if ch change*"
+  const { accountId, selector } = useWalletSelector();
 
-  const [pinSpacing, setPinSpacing] = useState<number>(cw / cols);
-  const [pinRadius, setPinRadius] = useState(8);
+  const [currentHeight, setCurrentHeight] = useState<number>(
+    INITIAL_CURRENT_HEIGHT
+  );
+  const [saveResponse, setSaveResponse] = useState<string[] | undefined>();
+  const [endGameResponse, setEndGameResponse] = useState<undefined | any>();
+  const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
+  const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
+  const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
+  const [prize, setPrize] = useState<number>();
+  const [prizeNames, setPrizeNames] = useState<
+    ('giga' | 'mega' | 'micro' | 'nano' | 'splat')[]
+  >([]);
+  const [showPrize, setShowPrize] = useState(false);
+  const [ballsYPosition, setBallsYPosition] = useState<number[]>(
+    Array.from(Array(MAX_BALLS_AMOUNT).keys()).fill(0)
+  );
 
-  const [wallPositionAdjust, setWallPositionAdjust] = useState(8);
-
-  const [maxBallsAmount, setMaxBallsAmount] = useState(3);
-  const [ballRadius, setBallRadius] = useState(7);
-  const [ballBouncines, setBallBouncines] = useState(1);
-  const [ballFriction, setBallFriction] = useState(0.1);
-
-  const [ballsQuantity, setBallsQuantity] = useState(0);
-  const [ballsYPosition, setBallsYPosition] = useState<number[]>([0]);
-  const [ballFinishLines, setBallFinishLines] = useState<
-    number[] | undefined
-  >();
+  const [gameOverFlag, setGameOverFlag] = useState(false);
+  const [gameOverMessage, setGameOverMessage] = useState('');
+  const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
-
-  engine.current.world.gravity.y = 0.6;
 
   const {
     isOpen: isOpenModalRules,
@@ -43,119 +84,186 @@ export function PlinkoBoard() {
     onClose: onCloseModalRules,
   } = useDisclosure();
 
+  function closeGameOverModal() {
+    closePlinkoModal();
+    setGameOverMessage('');
+    onClose();
+    setAllowOpenGameOverModal(false);
+  }
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
+    onOpen();
+    setAllowOpenGameOverModal(true);
+  }
+
   useEffect(() => {
-    const balls = engine.current.world.bodies.filter(
+    engine.current.world.gravity.y = GRAVITY;
+  }, []);
+
+  useEffect(() => {
+    const thrownBalls = engine.current.world.bodies.filter(
       (body) => body.label === 'ball'
     );
 
-    if (balls.length === 0) {
-      setBallsYPosition([1 - ballsYPosition[0]]);
-    } else {
-      const currentBallYPositions = balls.map((ball) => ball.position.y);
-      if (
-        //If at least 1 ball is not in the end
-        currentBallYPositions.filter((ballYPosition) => ballYPosition < 350) //*change this if ch change*
-          .length > 0
-      ) {
-        const newYPositions = [] as number[];
+    const currentBallYPositions = thrownBalls.map((ball) => ball.position.y);
+    if (
+      currentBallYPositions.filter(
+        (ballYPosition) => ballYPosition <= currentHeight
+      ).length > 0
+    ) {
+      const newYPositions = [] as number[];
 
-        balls.forEach((ball, index) => {
-          newYPositions.push(
-            ballsYPosition[index] === ball?.position.y
-              ? ballsYPosition[index] - 1
-              : ball?.position.y
-          );
+      ballsYPosition.forEach((ballYPosition, index) => {
+        const ball = thrownBalls[index];
+        newYPositions.push(
+          ballYPosition === ball?.position.y
+            ? ballYPosition - 1
+            : ball?.position.y
+        );
+      });
+
+      setTimeout(() => {
+        setBallsYPosition(newYPositions);
+      }, 100);
+    }
+
+    const ballsInGoal = thrownBalls.filter(
+      (ball) => ball.position.y > currentHeight
+    );
+
+    if (ballsInGoal.length > 0) {
+      const separatorArray = engine.current.world.bodies.filter(
+        (body) => body.label === 'separator'
+      );
+      const ballSeparatorIndexArray = [] as number[];
+
+      for (let i = 0; i < ballsInGoal.length; i++) {
+        const ball = ballsInGoal[i];
+
+        const index = separatorArray.findIndex((separator) => {
+          return ball?.position.x < separator.position.x;
         });
 
-        setTimeout(() => {
-          setBallsYPosition(newYPositions || [0]);
-        }, 500);
-      } else {
-        const separatorArray = engine.current.world.bodies.filter(
-          (body) => body.label === 'separator'
-        );
-        const ballInSeparators = [];
-        for (let i = 0; i < balls.length; i++) {
-          const ball = balls[i];
+        ballSeparatorIndexArray.push(index);
 
-          const index = separatorArray.findIndex((separator) => {
-            if (ball?.position.x < separator.position.x) {
-              return true;
-            }
-          });
+        if (ball.position.y > currentHeight) {
+          setBallFinishLines((prevState) => [
+            ...prevState,
+            ...ballSeparatorIndexArray,
+          ]);
 
-          ballInSeparators.push(index);
-        }
-        if (ballInSeparators !== ballFinishLines) {
-          setBallFinishLines(ballInSeparators);
+          removeBody(ball);
         }
       }
     }
+  }, [ballsYPosition, thrownBallsQuantity]);
 
-    if (ballFinishLines && ballFinishLines.length === maxBallsAmount) {
+  useEffect(() => {
+    let finalPrize = 0;
+    ballFinishLines.forEach((finishGoal) => {
+      const cheddarEarnedData = PRIZES_DATA.find((prizeData) => {
+        return prizeData.name === GOALS[finishGoal - 1];
+      }) as CheddarEarnedData;
+
+      if (cheddarEarnedData) {
+        const cheddarEarned = cheddarEarnedData?.cheddar;
+        const cheddarPrizeName = cheddarEarnedData?.name;
+
+        setPrizeNames((prevState) => [...prevState, cheddarPrizeName]);
+
+        finalPrize += cheddarEarned!;
+      }
+    });
+
+    if (ballFinishLines.length > 0) {
+      setPrize(finalPrize);
+    }
+  }, [ballFinishLines]);
+
+  useEffect(() => {
+    if (ballFinishLines && ballFinishLines.length === MAX_BALLS_AMOUNT) {
       finishGame();
     }
-  }, [ballsYPosition, ballsQuantity]);
+  }, [prizeNames, prize]);
 
-  function getCheddarEarnedOnPlinko() {
-    //TODO do this function
-    return 0;
+  useEffect(() => {
+    if (prize !== undefined) {
+      setShowPrize(true);
+
+      setTimeout(() => {
+        setShowPrize(false);
+      }, 2000);
+    }
+  }, [prize]);
+
+  async function finishGame() {
+    if (prizeNames[0]) {
+      const endGameRequestData = {
+        data: {
+          prizeEarned: prizeNames[0],
+        },
+        metadata: {
+          accountId: accountId!,
+          seedId,
+        },
+      };
+
+      setGameOverFlag(true);
+      setGameOverMessage(`Your ball fell in ${prizeNames[0]} goal`);
+      const endGameResponse = await callEndGame(endGameRequestData);
+      setEndGameResponse(endGameResponse);
+      if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+    }
   }
 
-  function finishGame() {
-    setCheddarFound(cheddarFound + getCheddarEarnedOnPlinko());
-    onClosePlinkoModal();
-  }
-
-  function removeLastBall(ball: any) {
-    World.remove(engine.current.world, ball);
+  function removeBody(body: Matter.Body) {
+    World.remove(engine.current.world, body);
   }
 
   const drawBallPreview = (xPosition: number) => {
-    const ballXPosDeviation = Math.floor(Math.random() * 11) - 5;
+    const yPosition = PIN_SPACING;
     const ballPreview = Bodies.circle(
-      xPosition + ballXPosDeviation,
-      pinSpacing,
-      ballRadius,
-      {
-        restitution: 0,
-        friction: 0,
-        isStatic: true,
-        label: 'ballPreview',
-        render: { fillStyle: 'red' },
-      }
+      xPosition,
+      yPosition,
+      BALL_RADIUS,
+      BALL_PREVIEW_OPTIONS
     );
     World.add(engine.current.world, [ballPreview]);
   };
 
   const drawNewBall = (xPosition: number) => {
-    const ballXPosDeviation = Math.floor(Math.random() * 11) - 5;
+    const ballXPosDeviation = Math.floor(Math.random() * 17) - 5;
+    const yPosition = PIN_SPACING;
     const ball = Bodies.circle(
       xPosition + ballXPosDeviation,
-      pinSpacing,
-      ballRadius,
-      {
-        restitution: ballBouncines,
-        friction: ballFriction,
-        label: 'ball',
-        render: { fillStyle: 'red' },
-      }
+      yPosition,
+      BALL_RADIUS,
+      BALL_OPTIONS
     );
     World.add(engine.current.world, [ball]);
   };
 
   function getCurrentXPosition(x: number) {
-    return x - document.body.clientWidth / 2 + cw / 2 - ballRadius;
+    return x - document.body.clientWidth / 2 + CURRENT_WIDTH / 2 + BALL_RADIUS;
   }
 
   function handleShowNewBallPreviewMouse(e: React.MouseEvent<HTMLDivElement>) {
-    const eventX = e.clientX;
-    handleShowNewBallPreview(eventX);
+    if (thrownBallsQuantity >= MAX_BALLS_AMOUNT) return;
+    const mouseXPosition = getCurrentXPosition(e.clientX);
+    setCurrentXPreview(mouseXPosition);
+
+    handleShowNewBallPreview(mouseXPosition);
   }
 
   function handleShowNewBallPreviewTouch(e: React.TouchEvent<HTMLDivElement>) {
-    const eventX = e.touches[e.touches.length - 1].clientX;
-    handleShowNewBallPreview(eventX);
+    const touchXPosition = e.touches[e.touches.length - 1].clientX;
+    const previewBallXPosition = touchXPosition - PIN_SPACING;
+
+    setCurrentXPreview(previewBallXPosition);
+
+    handleShowNewBallPreview(previewBallXPosition);
   }
 
   function handleTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
@@ -163,7 +271,10 @@ export function PlinkoBoard() {
       (body) => body.label === 'ballPreview'
     );
 
-    if (preview) World.remove(engine.current.world, preview!);
+    if (preview) removeBody(preview!);
+
+    handleDropNewBall();
+    setCurrentXPreview(undefined);
   }
 
   function handleShowNewBallPreview(x: number) {
@@ -174,74 +285,72 @@ export function PlinkoBoard() {
       (body) => body.label === 'ballPreview'
     );
 
-    const currentXPosition = getCurrentXPosition(x);
+    const currentXPosition = x;
 
-    if (allBalls.length < maxBallsAmount) {
+    if (allBalls.length < MAX_BALLS_AMOUNT) {
       if (preview) {
         //Move preview ball
         Matter.Body.setPosition(preview, {
           x: currentXPosition,
-          y: pinSpacing,
+          y: PIN_SPACING,
         });
       } else {
         drawBallPreview(currentXPosition);
-      }
-    } else {
-      if (preview) {
-        //Remove preview ball
-        World.remove(engine.current.world, preview);
-
-        handleDropNewBall(currentXPosition);
       }
     }
   }
 
   function handleMouseDropNewBall(e: React.MouseEvent<HTMLDivElement>) {
-    const eventX = e.clientX;
-    handleDropNewBall(eventX);
+    handleDropNewBall();
   }
 
-  function handleDropNewBall(x: number) {
+  function handleDropNewBall() {
+    const preview = engine.current.world.bodies.find(
+      (body) => body.label === 'ballPreview'
+    );
     const allBalls = engine.current.world.bodies.filter(
       (body) => body.label === 'ball'
     );
 
-    if (allBalls.length < maxBallsAmount) {
-      const currentXPosition = getCurrentXPosition(x);
+    if (preview) {
+      removeBody(preview);
+    }
+    if (allBalls.length + ballFinishLines.length < MAX_BALLS_AMOUNT) {
+      const currentXPosition = currentXPreview!;
 
       drawNewBall(currentXPosition);
-      setBallsQuantity(ballsQuantity + 1);
+      setThrownBallsQuantity(thrownBallsQuantity + 1);
     }
   }
 
-  //This function aply a force in the balls. It's used to unstuck balls if necesary.
+  //This function apply a force in the balls. It's used to unstuck balls if necessary.
   const pushBall = () => {
     const allBalls = engine.current.world.bodies.filter(
       (body) => body.label === 'ball'
     );
 
     allBalls.forEach((ball) => {
-      const forceMagnitude = 0.02;
       const forceDirection = Math.random() < 0.5 ? -0.05 : 0.05;
       Body.applyForce(ball, ball.position, {
-        x: forceMagnitude * forceDirection,
+        x: HIT_MACHINE_FORCE_MAGNITUDE * forceDirection,
         y: 0,
       });
     });
   };
 
   useEffect(() => {
-    if (ch === 0) {
+    if (currentHeight === 0) {
       const currentCh = document.body.clientHeight;
-      setCh(currentCh);
+      setCurrentHeight(currentCh);
     }
     if (scene) {
       const render = Render.create({
+        //@ts-ignore
         element: scene!.current,
         engine: engine.current,
         options: {
-          width: cw,
-          height: ch,
+          width: CURRENT_WIDTH,
+          height: currentHeight,
           wireframes: false,
           background: 'transparent',
         },
@@ -254,68 +363,97 @@ export function PlinkoBoard() {
       // Left wall
       World.add(engine.current.world, [
         Bodies.rectangle(
-          -pinSpacing + wallPositionAdjust,
+          -PIN_SPACING + WALL_POSITION_ADJUST,
           0,
-          pinSpacing,
-          ch * 2,
-          {
-            isStatic: true,
-            restitution: 1,
-            render: { fillStyle: 'transparent' },
-          }
+          PIN_SPACING,
+          currentHeight * 2,
+          SIDE_WALLS_OPTIONS
         ),
         // Right wall
         Bodies.rectangle(
-          cw + pinSpacing - wallPositionAdjust,
+          CURRENT_WIDTH + PIN_SPACING - WALL_POSITION_ADJUST,
           0,
-          pinSpacing,
-          ch * 2,
-          {
-            isStatic: true,
-            restitution: 1,
-            render: { fillStyle: 'transparent' },
-          }
+          PIN_SPACING,
+          currentHeight * 2,
+          SIDE_WALLS_OPTIONS
         ),
 
         // Bottom wall
-        Bodies.rectangle(cw / 2, ch + 30, cw, 100, {
-          isStatic: true,
-          render: { fillStyle: 'orange' },
-        }),
+        Bodies.rectangle(
+          CURRENT_WIDTH / 2,
+          currentHeight + 30,
+          CURRENT_WIDTH,
+          100,
+          BOTTOM_WALL_OPTIONS
+        ),
       ]);
 
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols + 1; col++) {
-          let x = col * pinSpacing;
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < GOALS.length + 1; col++) {
+          let x = col * PIN_SPACING;
           if (row % 2 === 0) {
-            x += pinSpacing / 2;
+            x += PIN_SPACING / 2;
           }
-          const y = pinSpacing + row * pinSpacing + ch / 20;
+          const y = PIN_SPACING + row * PIN_SPACING + currentHeight / 20;
 
-          const pin = Bodies.circle(x, y, pinRadius, {
-            isStatic: true,
-            render: {
-              fillStyle: 'black',
-            },
-          });
-          World.add(engine.current.world, [pin]);
+          const pin = Bodies.circle(x, y, PIN_RADIUS, PIN_OPTIONS);
+
+          const pinDecorative1 = Bodies.circle(
+            x,
+            y,
+            PIN_RADIUS * 1.5,
+            PIN_DECORATIVE_1_OPTIONS
+          );
+
+          const pinDecorative2 = Bodies.circle(
+            x,
+            y,
+            PIN_RADIUS * 2,
+            PIN_DECORATIVE_2_OPTIONS
+          );
+          World.add(engine.current.world, [
+            pinDecorative2,
+            pinDecorative1,
+            pin,
+          ]);
         }
       }
 
       //Create finish boxes
-      for (let i = 0; i < cols + 1; i++) {
-        const separator = Bodies.rectangle(i * pinSpacing, ch - 50, 10, 100, {
-          isStatic: true,
-          label: 'separator',
-          render: { fillStyle: 'black' },
-        });
-        const triangle = Bodies.polygon(i * pinSpacing, ch - 103, 3, 6.1, {
-          isStatic: true,
-          angle: Math.PI / 2,
-          label: 'tip-separator',
-          render: { fillStyle: 'black' },
-        });
-        World.add(engine.current.world, [separator, triangle]);
+      for (let i = 0; i < GOALS.length + 1; i++) {
+        const separator = Bodies.rectangle(
+          i * PIN_SPACING,
+          currentHeight - 50,
+          10,
+          100,
+          GOALS_OPTIONS
+        );
+        const border = Bodies.circle(
+          i * PIN_SPACING,
+          currentHeight - 100,
+          5.1,
+          GOALS_TIPS_OPTIONS
+        );
+
+        if (!GOALS[i]) {
+          World.add(engine.current.world, [separator, border]);
+        } else {
+          const goalName = GOALS[i]
+            .split('')
+            .map((char, charIndex) =>
+              createLetter(
+                char,
+                i * PIN_SPACING + PIN_SPACING,
+                currentHeight - 60 + 12 * charIndex,
+                50,
+                60,
+                14,
+                'black',
+                'goalName'
+              )
+            );
+          World.add(engine.current.world, [separator, border, ...goalName]);
+        }
       }
 
       //Start running and rendering
@@ -332,36 +470,56 @@ export function PlinkoBoard() {
   }, []);
 
   return (
-    <div
-      style={{
-        height: '70%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      <div
-        style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'left',
-          gap: '1rem',
-        }}
-      >
-        <Button onClick={pushBall}>Hit machine</Button>
+    <div className={styles.plinkoBoardContainer}>
+      <div className={styles.headerContainer}>
+        <Button onClick={pushBall}>Shake</Button>
         <Button onClick={onOpenModalRules}>Rules</Button>
-        <span>Balls left: {maxBallsAmount - ballsQuantity}</span>
+        <span>Balls left: {MAX_BALLS_AMOUNT - thrownBallsQuantity}</span>
       </div>
       <div
         ref={scene}
-        onMouseMove={handleShowNewBallPreviewMouse}
+        onMouseMove={isMobile ? () => {} : handleShowNewBallPreviewMouse}
         onTouchMove={handleShowNewBallPreviewTouch}
         onTouchStart={handleShowNewBallPreviewTouch}
         onTouchEnd={handleTouchEnd}
-        onMouseUp={handleMouseDropNewBall}
+        onMouseUp={isMobile ? () => {} : handleMouseDropNewBall}
       />
 
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
+
+      <div className={styles.displayablePrizeContainer}>
+        <span
+          className={`${styles.displayablePrize} ${showPrize ? styles.show : styles.hide}`}
+        >
+          +{prize} {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
+        </span>
+      </div>
+      {saveResponse && (
+        <ModalContainer
+          title={'Error saving plinko game'}
+          isOpen={isOpen}
+          onClose={onClose}
+        >
+          <div>
+            {saveResponse.map((error, index) => {
+              return <div key={index}>{error}</div>;
+            })}
+          </div>
+        </ModalContainer>
+      )}
+      {gameOverFlag && gameOverMessage.length > 0 && (
+        <ModalContainer
+          title={'Game over'}
+          isOpen={isOpen}
+          onClose={closeGameOverModal}
+          closeOnOverlayClick={false}
+        >
+          <GameOverModalContent
+            cheddarFound={prize!}
+            endGameResponse={endGameResponse}
+          />
+        </ModalContainer>
+      )}
     </div>
   );
 }

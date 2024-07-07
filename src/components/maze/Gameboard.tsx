@@ -44,8 +44,8 @@ export function Gameboard({
     (lastCellX !== playerPosition.x || lastCellY !== playerPosition.y);
 
   // Update last player position
-  setLastCellX(playerPosition!.x);
-  setLastCellY(playerPosition!.y);
+  // setLastCellX(playerPosition!.x);
+  // setLastCellY(playerPosition!.y);
 
   function getPlayerImgDirection() {
     return styles[

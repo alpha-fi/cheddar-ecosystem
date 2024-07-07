@@ -1,5 +1,5 @@
 import { getConfig } from '@/configs/config';
-import { ModalContainer } from '../FeedbackModal';
+import { ModalContainer } from '../ModalContainer';
 import { ListItem, OrderedList, UnorderedList } from '@chakra-ui/react';
 import Link from 'next/link';
 
@@ -17,9 +17,9 @@ export default function ModalRules({ isOpen, onClose }: Props) {
           If a ball get's stuck use the "Hit machine" button until the ball
           get's unstucked.
         </ListItem>
+        <ListItem>You'll get CHEDDAR acording to the goal you get to.</ListItem>
         <ListItem>
-          The more balls end up in the same goal, the more cheddar you
-          accumulate!
+          SPLAT = 0, NANO = 5, MICRO = 10, MEGA: 25, GIGA = 55
         </ListItem>
         <ListItem>
           The game end's when every ball is on the bottom. You can keep

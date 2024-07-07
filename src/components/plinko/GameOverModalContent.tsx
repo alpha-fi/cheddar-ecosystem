@@ -3,22 +3,22 @@ import styles from '@/styles/GameOverModalContent.module.css';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useToast } from '@chakra-ui/react';
 
-export const GameOverModalContent = () => {
-  const {
-    remainingMinutes,
-    remainingSeconds,
-    score,
-    cheddarFound,
-    gameOverMessage,
-    hasWon,
-    pendingCheddarToMint,
-    endGameResponse,
-  } = useContext(GameContext);
+interface Props {
+  cheddarFound: number;
+  endGameResponse: any;
+}
+
+export const GameOverModalContent = ({
+  cheddarFound,
+  endGameResponse,
+}: Props) => {
+  const { pendingCheddarToMint } = useContext(GameContext);
+
+  const hasWon = cheddarFound > 0;
+
+  const gameOverMessage = hasWon ? 'So nice!' : `Splat!`;
 
   const toast = useToast();
-
-  const properSecondsFormat =
-    remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
 
   function getMessageStyles() {
     return `${styles.gameOver} ${hasWon ? styles.win : styles.lost}`;
@@ -53,11 +53,7 @@ export const GameOverModalContent = () => {
   return (
     <div className={styles.gameOverModal}>
       <p className={getMessageStyles()}>{gameOverMessage}</p>
-      <p className={styles.score}>{score} Points!</p>
-      <p className={styles.timeRemaining}>
-        Time remaining: {remainingMinutes}:{properSecondsFormat}
-      </p>
-      {cheddarFound > 0 && hasWon && (
+      {hasWon && (
         <p className={styles.earnings}>
           You have earned{' '}
           {cheddarFound <= pendingCheddarToMint
@@ -66,9 +62,7 @@ export const GameOverModalContent = () => {
           🧀
         </p>
       )}
-      {cheddarFound > 0 && !hasWon && (
-        <p className={styles.loseEarnings}>Enemy drained ur Cheddar bag</p>
-      )}
+      {!hasWon && <p className={styles.loseEarnings}>Better luck next time!</p>}
     </div>
   );
 };
