@@ -2,6 +2,8 @@
 
 import { Inter } from 'next/font/google';
 import './globals.css';
+import '../../public/assets/css/style.css';
+import '../../public/assets/css/near.css';
 import '@near-wallet-selector/modal-ui/styles.css';
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -20,6 +22,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"
+          async
+        />
+
+        <script src="/assets/js/near.js" async />
+        <script src="/assets/js/script.js" async />
+
+        <title>NEAR Checkers-(React UI Blockchain Game)</title>
+      </head>
       <body className={inter.className}>
         <WalletSelectorContextProvider>
           <ChakraProvider>
