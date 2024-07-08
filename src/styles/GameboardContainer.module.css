@@ -214,10 +214,6 @@
   overflow-y: scroll;
   max-height: 400px;
 }
-.videoContainer {
-  display: flex;
-  justify-content: center;
-}
 .togglePlayModeIconContainer {
   width: 20px;
   height: 20px;

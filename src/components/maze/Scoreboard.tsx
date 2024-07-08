@@ -5,6 +5,7 @@ import { getScoreBoard } from '@/queries/maze/api';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { PlusSquareIcon } from '@chakra-ui/icons';
+import { useGetScoreboard } from '@/hooks/maze';
 
 export interface PlayerScoreData {
   accountId: string;
@@ -14,8 +15,10 @@ export interface PlayerScoreData {
 
 export const Scoreboard = () => {
   const { accountId } = useWalletSelector();
-  const { scoreboardResponse } = useContext(GameContext);
   const [rowAmount, setRowAmount] = useState(4);
+
+  const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
+    useGetScoreboard();
 
   const firstLoggedUserOccurrence = useRef(-1);
 

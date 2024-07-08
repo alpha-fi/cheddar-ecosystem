@@ -13,9 +13,6 @@ import { callEndGame, getScoreBoard, getSeedId } from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
-  IsAllowedResponse,
-  ScoreboardResponse,
-  useGetIsAllowedResponse,
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
@@ -159,22 +156,11 @@ interface GameContextProps {
   timestampStartStopTimerArray: number[];
   timestampEndStopTimerArray: number[];
 
-  scoreboardResponse: ScoreboardResponse | null | undefined;
-  isLoadingScoreboard: boolean;
-
   plinkoModalOpened: boolean;
   onOpenPlinkoModal: () => void;
   onClosePlinkoModal: () => void;
 
   closePlinkoModal: () => void;
-
-  videoModalOpened: boolean;
-  onOpenVideoModal: () => void;
-  onCloseVideoModal: () => void;
-
-  isScoreboardOpen: boolean;
-  onOpenScoreboard: () => void;
-  onCloseScoreboard: () => void;
 
   seedId: number;
 }
@@ -190,12 +176,6 @@ export const GameContextProvider = ({ children }: props) => {
       navigator.userAgent
     )
   );
-
-  const {
-    isOpen: isScoreboardOpen,
-    onOpen: onOpenScoreboard,
-    onClose: onCloseScoreboard,
-  } = useDisclosure();
 
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
@@ -253,12 +233,6 @@ export const GameContextProvider = ({ children }: props) => {
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
-
-  const {
-    isOpen: videoModalOpened,
-    onOpen: onOpenVideoModal,
-    onClose: onCloseVideoModal,
-  } = useDisclosure();
 
   const mazeRows = 11;
   const [mazeCols, setMazeCols] = useState(8);
@@ -988,9 +962,6 @@ export const GameContextProvider = ({ children }: props) => {
     return square?.id || '';
   };
 
-  const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
-    useGetScoreboard();
-
   const {
     isOpen: plinkoModalOpened,
     onOpen: onOpenPlinkoModal,
@@ -1080,23 +1051,15 @@ export const GameContextProvider = ({ children }: props) => {
         hasWon,
         pendingCheddarToMint,
         endGameResponse,
-        videoModalOpened,
-        onOpenVideoModal,
-        onCloseVideoModal,
         nfts,
         showMovementButtons,
         setShowMovementButtons,
         timestampStartStopTimerArray,
         timestampEndStopTimerArray,
-        scoreboardResponse,
-        isLoadingScoreboard,
         plinkoModalOpened,
         onOpenPlinkoModal,
         onClosePlinkoModal,
         closePlinkoModal,
-        isScoreboardOpen,
-        onOpenScoreboard,
-        onCloseScoreboard,
         seedId,
       }}
     >

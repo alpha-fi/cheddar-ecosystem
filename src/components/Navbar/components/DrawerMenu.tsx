@@ -23,14 +23,15 @@ interface Props {
   onOpenVideoModal: () => void;
   cheddarTotalSupply: bigint | undefined;
   isLoadingCheddarTotalSupply: boolean;
+  onOpenScoreboard: ()=> void;
 }
 
 export function DrawerMenu({
   onOpenVideoModal,
   cheddarTotalSupply,
   isLoadingCheddarTotalSupply,
+  onOpenScoreboard,
 }: Props) {
-  const { onOpenScoreboard } = useContext(GameContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>

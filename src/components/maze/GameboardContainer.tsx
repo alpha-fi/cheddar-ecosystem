@@ -58,12 +58,6 @@ export function GameboardContainer({
     saveResponse,
     plinkoModalOpened,
     closePlinkoModal,
-    videoModalOpened,
-    onOpenVideoModal,
-    onCloseVideoModal,
-    isScoreboardOpen,
-    onOpenScoreboard,
-    onCloseScoreboard,
     nfts,
     handleArrowPress,
     showMovementButtons,
@@ -354,27 +348,6 @@ export function GameboardContainer({
           </div>
         </ModalContainer>
       )}
-      <ModalContainer
-        title={'Cheddar rap'}
-        isOpen={videoModalOpened}
-        onClose={onCloseVideoModal}
-      >
-        <div className={styles.videoContainer}>
-          <video
-            src="../../../assets/cheddar_rap.mp4"
-            autoPlay
-            controls
-          ></video>
-        </div>
-      </ModalContainer>
-
-      <ModalContainer
-        title={'Maze scoreboard'}
-        isOpen={isScoreboardOpen}
-        onClose={onCloseScoreboard}
-      >
-        <Scoreboard />
-      </ModalContainer>
 
       <ModalContainer
         title={'Plinko game!'}
