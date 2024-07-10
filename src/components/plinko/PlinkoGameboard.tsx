@@ -381,10 +381,16 @@ export function PlinkoBoard() {
         // Bottom wall
         Bodies.rectangle(
           CURRENT_WIDTH / 2,
-          currentHeight + 30,
+          200,
           CURRENT_WIDTH,
-          100,
+          600,
           BOTTOM_WALL_OPTIONS
+
+          // CURRENT_WIDTH / 2,
+          // currentHeight,
+          // CURRENT_WIDTH,
+          // 200,
+          // BOTTOM_WALL_OPTIONS
         ),
       ]);
 
@@ -477,6 +483,7 @@ export function PlinkoBoard() {
         <span>Balls left: {MAX_BALLS_AMOUNT - thrownBallsQuantity}</span>
       </div>
       <div
+        className={styles.plinkoGame}
         ref={scene}
         onMouseMove={isMobile ? () => {} : handleShowNewBallPreviewMouse}
         onTouchMove={handleShowNewBallPreviewTouch}

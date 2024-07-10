@@ -12,6 +12,12 @@
   gap: 1rem;
 }
 
+.plinkoGame {
+  margin-top: 0.5rem;
+  background-image: url("../../public/assets/modal-background.jpg");
+  background-size: 350px 500px;
+}
+
 .displayablePrizeContainer {
   position: absolute;
   top: 25vh;

@@ -55,7 +55,7 @@ export const SIDE_WALLS_OPTIONS = {
 export const BOTTOM_WALL_OPTIONS = {
   isStatic: true,
   collisionFilter: COLLISION_FILTER_1,
-  render: { fillStyle: 'rgb(255, 255, 255, 0.7)' },
+  render: { fillStyle: 'rgb(255, 255, 255, 0.5)' },
 };
 export const PIN_OPTIONS = {
   isStatic: true,
