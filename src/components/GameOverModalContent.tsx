@@ -67,7 +67,9 @@ export const GameOverModalContent = () => {
         </p>
       )}
       {cheddarFound > 0 && !hasWon && (
-        <p className={styles.loseEarnings}>You have lost {cheddarFound} 🧀</p>
+        <p className={styles.loseEarnings}>
+          Your {cheddarFound} 🧀 was swallowed by the enemy.
+        </p>
       )}
     </div>
   );
