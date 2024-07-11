@@ -14,8 +14,7 @@
 
 .plinkoGame {
   margin-top: 0.5rem;
-  background-image: url("../../public/assets/modal-background.jpg");
-  background-size: 350px 500px;
+  background-image: url("../../public/assets/modal-background.svg");
   border: 0.4rem solid white;
   border-radius: 8px;
 }
