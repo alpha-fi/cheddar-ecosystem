@@ -630,12 +630,12 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const chancesOfFinding = {
-    exit: 0.002,
+    exit: 0.0021,
     enemy: 0.19,
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
-    plinko: 1,
+    plinko: 0.001,
   };
 
   const NFTCheeseBuffMultiplier = 1.28;
@@ -674,7 +674,7 @@ export const GameContextProvider = ({ children }: props) => {
       pathLength - cellsWithItemAmount === 1
     ) {
       handleExitFound(clonedMazeData, newX, newY);
-    } else if (rng.nextFloat() < chancesOfFinding.plinko && !hasFoundPlinko) {
+    } else if (rng.nextFloat() < chancesOfFinding.plinko && !hasFoundPlinko && remainingTime < 60) {
       handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
       handleEnemyFound(clonedMazeData, newX, newY);
