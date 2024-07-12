@@ -9,6 +9,7 @@ import { WalletSelectorContextProvider } from '@/contexts/WalletSelectorContext'
 import { GameContextProvider } from '@/contexts/maze/GameContextProvider';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import Navbar from '@/components/Navbar/containers/Navbar';
+import { getCheddarBalance } from '@/contracts/cheddarCalls';
 
 const inter = Inter({ subsets: ['latin'] });
 

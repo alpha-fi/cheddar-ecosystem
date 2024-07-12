@@ -29,7 +29,6 @@ interface Props {
   hasEnoughBalance: boolean | null;
   minCheddarRequired: number;
   isAllowedResponse: IsAllowedResponse | null | undefined;
-  cheddarBalanceData: bigint | null | undefined;
 }
 
 export function GameboardContainer({
@@ -202,7 +201,6 @@ export function GameboardContainer({
         maxWidth: `${mazeData[0].length * cellSize + 50}px`,
       }}
     >
-      <div className={styles.publicityDecoration}></div>
       {accountId && (!hasEnoughBalance || userIsNotAllowedToPlay) && (
         <div className={styles.warningText}>
           Must have

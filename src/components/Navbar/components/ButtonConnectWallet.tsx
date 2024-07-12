@@ -5,6 +5,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Spinner,
   Text,
 } from '@chakra-ui/react';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
@@ -13,13 +14,12 @@ import { yton } from '@/contracts/contractUtils';
 import Link from 'next/link';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { smartTrim } from '@/utilities/exportableFunctions';
+import { useGetCheddarBalance } from '@/hooks/cheddar';
 
-interface Props {
-  cheddarBalanceData: bigint | null | undefined;
-}
-
-export function ButtonConnectWallet({ cheddarBalanceData }: Props) {
+export function ButtonConnectWallet() {
   const walletSelector = useWalletSelector();
+  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
+    useGetCheddarBalance();
 
   const handleOnClick = async () => {
     if (
@@ -45,7 +45,11 @@ export function ButtonConnectWallet({ cheddarBalanceData }: Props) {
             rightIcon={<ChevronDownIcon />}
           >
             <Text mr="5px" display="inline-block">
-              {cheddarBalanceData ? yton(`${cheddarBalanceData}`) : 0}
+              {isLoadingCheddarBalance ? (
+                <Spinner size="sm" />
+              ) : (
+                yton(`${cheddarBalanceData}`)
+              )}
             </Text>
             <RenderCheddarIcon />
           </MenuButton>

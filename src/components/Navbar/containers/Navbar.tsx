@@ -21,11 +21,7 @@ import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { ModalContainer } from '@/components/ModalContainer';
 import { SocialMedia } from '@/components/SocialMediaContainer';
 
-interface Props {
-  cheddarBalanceData: bigint | null | undefined;
-}
-
-export default function Navbar({ cheddarBalanceData }: Props) {
+export default function Navbar() {
   const {
     isOpen: isVideoModalOpened,
     onOpen: onOpenVideoModal,
@@ -72,7 +68,7 @@ export default function Navbar({ cheddarBalanceData }: Props) {
                   height="25px"
                 />
               </HStack>
-              <Box display={{ base: 'none', lg: 'flex' }} >
+              <Box display={{ base: 'none', lg: 'flex' }}>
                 <SocialMedia />
               </Box>
             </Flex>
@@ -113,7 +109,7 @@ export default function Navbar({ cheddarBalanceData }: Props) {
               </Text>
             </Text>
 
-            <ButtonConnectWallet cheddarBalanceData={cheddarBalanceData} />
+            <ButtonConnectWallet />
             <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
               <DrawerMenu
                 onOpenVideoModal={onOpenVideoModal}
@@ -138,6 +134,7 @@ export default function Navbar({ cheddarBalanceData }: Props) {
           ></video>
         </div>
       </ModalContainer>
+      <div className={styles.publicityDecoration}></div>
     </>
   );
 }
