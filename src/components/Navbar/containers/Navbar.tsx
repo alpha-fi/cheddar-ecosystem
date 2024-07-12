@@ -54,17 +54,10 @@ export default function Navbar() {
         >
           <Flex alignContent="center">
             <Flex flexDirection="column" mr="20px">
-              <HStack spacing={0}>
+              <HStack spacing={0} minW={'25px'}>
                 <Img
                   src={'/assets/cheddar-logo.png'}
-                  display={{ base: 'none', lg: 'flex' }}
                   alt="Cheddar icon"
-                  height="25px"
-                />
-                <Img
-                  src={'/assets/cheddar-logo-reduced.png'}
-                  display={{ base: 'flex', lg: 'none' }}
-                  alt="Cheddy icon"
                   height="25px"
                 />
               </HStack>
@@ -95,7 +88,11 @@ export default function Navbar() {
               </Button>
             </Stack>
 
-            <Text justifyContent="space-between" textColor="white">
+            <Text
+              display={{ base: 'none', lg: 'flex' }}
+              justifyContent="space-between"
+              textColor="white"
+            >
               <Text as="i">
                 Total supply:{' '}
                 <div style={{ width: 'max-content' }}>
