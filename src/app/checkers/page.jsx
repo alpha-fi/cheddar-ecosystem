@@ -13,6 +13,7 @@ import {
 } from '@/contracts/checkers/checkersCalls';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { Image } from '@chakra-ui/react';
+import { yton } from '@/contracts/contractUtils';
 
 const nft_web4_url = 'https://checkers.cheddar.testnet.page/style';
 const NEKO_TOKEN_CONTRACT = 'ftv2.nekotoken.near';
@@ -175,9 +176,18 @@ function App() {
     return arr;
   }
 
+  function reverseArrayPlayer1(arr) {
+    return [arr[7], arr[6], arr[5], arr[4], arr[3], arr[2], arr[1], arr[0]];
+  }
+
   const handleClickPiece = (piece, row, col, playerIndex) => {
     console.log(selectedPiece);
-    if (gameData.current_player_index !== playerIndex) return;
+    if (
+      gameData.current_player_index !== playerIndex ||
+      getPlayerByIndex(gameData, gameData.current_player_index) !== accountId ||
+      moveBuffer
+    )
+      return;
     setSelectedPiece({ row, col, piece });
   };
 
@@ -185,7 +195,12 @@ function App() {
     console.log(selectedPiece);
     const move = inRange({ row, col });
     console.log(move);
-    if (move === 'jump' || move === 'regular') {
+    if (
+      move === 'jump' ||
+      move === 'regular' ||
+      (selectedPiece.piece < 0 &&
+        (move === 'jump back' || move === 'regular back'))
+    ) {
       movePiece({ row, col }, selectedPiece);
     }
   };
@@ -195,7 +210,7 @@ function App() {
   };
 
   const inRange = (tile) => {
-    if (!selectedPiece.row || !selectedPiece.col) {
+    if (!selectedPiece.row === null || !selectedPiece.col === null) {
       return;
     }
 
@@ -229,15 +244,16 @@ function App() {
     }
     return false;
   };
-
-  // console.log(gameBoard[0]);
-  // console.log(gameBoard[1]);
-  // console.log(gameBoard[2]);
-  // console.log(gameBoard[3]);
-  // console.log(gameBoard[4]);
-  // console.log(gameBoard[5]);
-  // console.log(gameBoard[6]);
-  // console.log(gameBoard[7]);
+  if (gameData) {
+    console.log(gameData.board[0]);
+    console.log(gameData.board[1]);
+    console.log(gameData.board[2]);
+    console.log(gameData.board[3]);
+    console.log(gameData.board[4]);
+    console.log(gameData.board[5]);
+    console.log(gameData.board[6]);
+    console.log(gameData.board[7]);
+  }
 
   const movePiece = async (tile, piece) => {
     let current_move =
@@ -247,10 +263,12 @@ function App() {
       c1(tile.col, gameData.current_player_index) +
       c2(tile.row, gameData.current_player_index);
 
-    const newBoard = gameBoard;
-    newBoard[piece.row][piece.col] = 0;
-    newBoard[tile.row][tile.col] = piece.piece;
-    setGameBoard(newBoard);
+    setGameBoard((prevState) => {
+      const newBoard = prevState;
+      newBoard[piece.row][piece.col] = 0;
+      newBoard[tile.row][tile.col] = piece.piece;
+      return newBoard;
+    });
 
     let double_move = document.getElementById('near-game-double-move').checked;
     // || (e !== undefined && e.shiftKey);
@@ -263,21 +281,32 @@ function App() {
       } else {
         setMoveBuffer(current_move);
       }
+      setSelectedPiece((prevState) => {
+        return { ...prevState, row: tile.row, col: tile.col };
+      });
       document.getElementById('near-game-double-move').checked = false;
     } else {
-      const wallet = await selector.wallet();
       if (moveBuffer) {
-        makeMove(
-          wallet,
-          currentGameId,
-          moveBuffer +
-            ' ' +
-            c1(tile.col, gameData.current_player_index) +
-            c2(tile.row, gameData.current_player_index)
-        );
-      } else {
-        makeMove(wallet, currentGameId, current_move);
+        current_move +=
+          ' ' +
+          c1(tile.col, gameData.current_player_index) +
+          c2(tile.row, gameData.current_player_index);
       }
+      try {
+        const wallet = await selector.wallet();
+        await makeMove(wallet, currentGameId, current_move);
+      } catch (error) {
+        let string = JSON.stringify(error);
+        let error_begins = string.indexOf('***');
+        if (error_begins !== -1) {
+          let error_ends = string.indexOf("'", error_begins);
+          alert(string.substring(error_begins + 4, error_ends));
+        } else {
+          alert(error);
+        }
+        setUpdateBoardByQuery(true);
+      }
+      setSelectedPiece({ row: null, col: null, piece: null });
       setMoveBuffer('');
     }
 
@@ -304,15 +333,26 @@ function App() {
     setCurrentGameId(myGames.length > 0 ? myGames[0][0] : -1);
   }, [availableGamesData, accountId]);
 
+  const [updateBoardByQuery, setUpdateBoardByQuery] = useState(true);
+
   useEffect(() => {
-    if (gameData) {
+    if (
+      gameData &&
+      (getPlayerByIndex(gameData, gameData.current_player_index) !==
+        accountId ||
+        updateBoardByQuery)
+    ) {
       setGameBoard(
-        gameData.player1 === accountId
-          ? gameData.board
+        gameData.player_1 === accountId
+          ? reverseArrayPlayer1(gameData.board)
           : reverseArray(gameData.board)
       );
+      setUpdateBoardByQuery(
+        getPlayerByIndex(gameData, gameData.current_player_index) !== accountId
+      );
     }
-  }, [gameData, accountId]);
+  }, [gameData, accountId, updateBoardByQuery]);
+
   return (
     <>
       {!isRule && (
@@ -481,55 +521,81 @@ function App() {
               </a>
             </div>
           </div>
-          <div id="near-game-stats" className="stats ">
-            <h2>Game Statistics</h2>
-            <div className="wrapper">
-              <div id="player1">
-                <h3>
-                  <div style={{ paddingBottom: '5px' }}>
-                    <p id="near-game-player-1" style={{ color: '#e4a6ae' }}></p>
+          {gameData && (
+            <div id="near-game-stats" className="stats ">
+              <h2>Game Statistics</h2>
+              <div className="wrapper">
+                <div id="player1">
+                  <h3>
+                    <div style={{ paddingBottom: '5px' }}>
+                      <p id="near-game-player-1" style={{ color: '#e4a6ae' }}>
+                        {gameData.player_1}
+                      </p>
+                    </div>
+                    <div style={{ height: '30px' }}>
+                      {gameData && gameData.current_player_index === 0 && (
+                        <span
+                          id="near-active-player-1"
+                          className="active-player "
+                        >
+                          (Active)
+                        </span>
+                      )}
+                    </div>
+                  </h3>
+                  <div id="near-player-1-deposit">
+                    {yton(gameData.reward.balance)} {gameData.reward.token_id}
                   </div>
-                  <div style={{ height: '30px' }}>
-                    <span id="near-active-player-1" className="active-player ">
-                      (Active)
-                    </span>
+                  <div id="near-player-1-time-spent"></div>
+                  <div id="near-player-1-stop-game" className="">
+                    <button
+                      onClick={handleStopGame}
+                      className="button centered"
+                    >
+                      Stop game and get reward
+                    </button>
                   </div>
-                </h3>
-                <div id="near-player-1-deposit"></div>
-                <div id="near-player-1-time-spent"></div>
-                <div id="near-player-1-stop-game" className="">
-                  <button onClick={handleStopGame} className="button centered">
-                    Stop game and get reward
-                  </button>
+                </div>
+                <div id="player2">
+                  <h3>
+                    <div style={{ paddingBottom: '5px' }}>
+                      <p id="near-game-player-2" style={{ color: '#8b8bff' }}>
+                        {gameData.player_2}
+                      </p>
+                    </div>
+                    <div style={{ height: '30px' }}>
+                      {gameData && gameData.current_player_index === 1 && (
+                        <span
+                          id="near-active-player-2"
+                          className="active-player "
+                        >
+                          (Active)
+                        </span>
+                      )}{' '}
+                    </div>
+                  </h3>
+                  <div id="near-player-2-deposit">
+                    {yton(gameData.reward.balance)} {gameData.reward.token_id}
+                  </div>
+                  <div id="near-player-2-time-spent"></div>
+                  <div id="near-player-2-stop-game" className="">
+                    <button
+                      onClick={handleStopGame}
+                      className="button centered"
+                    >
+                      Stop game and get reward
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div id="player2">
-                <h3>
-                  <div style={{ paddingBottom: '5px' }}>
-                    <p id="near-game-player-2" style={{ color: '#8b8bff' }}></p>
-                  </div>
-                  <div style={{ height: '30px' }}>
-                    <span id="near-active-player-2" className="active-player ">
-                      (Active)
-                    </span>
-                  </div>
-                </h3>
-                <div id="near-player-2-deposit"></div>
-                <div id="near-player-2-time-spent"></div>
-                <div id="near-player-2-stop-game" className="">
-                  <button onClick={handleStopGame} className="button centered">
-                    Stop game and get reward
-                  </button>
-                </div>
+              <div className="clearfix"></div>
+              <div className="turn"></div>
+              <span id="winner"></span>
+              <div className="">
+                <button id="cleargame">Reload</button>
               </div>
             </div>
-            <div className="clearfix"></div>
-            <div className="turn"></div>
-            <span id="winner"></span>
-            <div className="">
-              <button id="cleargame">Reload</button>
-            </div>
-          </div>
+          )}
           <div className="account only-after-login">
             <div>
               <div id="near-account-ref"></div>
