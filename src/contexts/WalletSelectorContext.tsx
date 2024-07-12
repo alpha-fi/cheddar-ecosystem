@@ -78,7 +78,13 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
 
   const init = useCallback(async () => {
     const _selector = await setupWalletSelector({
-      network: NETWORK_ID as NetworkId,
+      network: {
+        networkId: networkData.networkId,
+        nodeUrl: networkData.nodeUrl,
+        helperUrl: networkData.helperUrl,
+        explorerUrl: networkData.explorerUrl,
+        indexerUrl: networkData.indexerUrl,
+      },
       debug: true,
       modules: setupWallets(),
     });
