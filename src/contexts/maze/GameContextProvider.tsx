@@ -188,12 +188,17 @@ export const GameContextProvider = ({ children }: props) => {
       navigator.userAgent
     )
   );
+
   const {
     isOpen: isScoreboardOpen,
     onOpen: onOpenScoreboard,
     onClose: onCloseScoreboard,
   } = useDisclosure();
 
+  function openScoreboard() {
+    console.log('open scoreboard');
+    onOpenScoreboard();
+  }
 
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
@@ -661,7 +666,7 @@ export const GameContextProvider = ({ children }: props) => {
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
-    plinko: 1,
+    plinko: 0.01,
   };
 
   const NFTCheeseBuffMultiplier = 1.28;
@@ -700,7 +705,11 @@ export const GameContextProvider = ({ children }: props) => {
       pathLength - cellsWithItemAmount === 1
     ) {
       handleExitFound(clonedMazeData, newX, newY);
-    } else if (rng.nextFloat() < chancesOfFinding.plinko && !hasFoundPlinko && remainingTime < 60) {
+    } else if (
+      rng.nextFloat() < chancesOfFinding.plinko &&
+      !hasFoundPlinko &&
+      remainingTime < 60
+    ) {
       handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
       handleEnemyFound(clonedMazeData, newX, newY);
@@ -1089,8 +1098,8 @@ export const GameContextProvider = ({ children }: props) => {
         onOpenPlinkoModal,
         onClosePlinkoModal,
         closePlinkoModal,
-        isVideoModalOpened, 
-        onOpenVideoModal, 
+        isVideoModalOpened,
+        onOpenVideoModal,
         onCloseVideoModal,
         scoreboardResponse,
         isLoadingScoreboard,

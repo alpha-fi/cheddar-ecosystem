@@ -1,9 +1,8 @@
 .container {
-    position: absolute;
-    bottom: 0;
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    padding: 3px 0;
+    border-radius: 10px;
     background-color: #FFFFFF;
 }

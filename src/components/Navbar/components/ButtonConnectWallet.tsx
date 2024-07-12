@@ -12,6 +12,7 @@ import { YellowButton } from './YellowButton';
 import { yton } from '@/contracts/contractUtils';
 import Link from 'next/link';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
+import { smartTrim } from '@/utilities/exportableFunctions';
 
 interface Props {
   cheddarBalanceData: bigint | null | undefined;
@@ -19,23 +20,6 @@ interface Props {
 
 export function ButtonConnectWallet({ cheddarBalanceData }: Props) {
   const walletSelector = useWalletSelector();
-
-  function smartTrim(string: string, maxLength: number) {
-    if (!string) return string;
-    if (maxLength < 1) return string;
-    if (string.length <= maxLength) return string;
-    if (maxLength == 1) return string.substring(0, 1) + '...';
-
-    var midpoint = Math.ceil(string.length / 2);
-    var toremove = string.length - maxLength;
-    var lstrip = Math.ceil(toremove / 2);
-    var rstrip = toremove - lstrip;
-    return (
-      string.substring(0, midpoint - lstrip) +
-      '...' +
-      string.substring(midpoint + rstrip)
-    );
-  }
 
   const handleOnClick = async () => {
     if (

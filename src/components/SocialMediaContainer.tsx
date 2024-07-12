@@ -6,10 +6,9 @@ export const SocialMedia = () => {
     <Box
       className={
         styles.container
-      } /* display="flex" justifyContent="center" mt="20px" bgColor={'white'} flex={2}*/
+      }
     >
       <Link
-        p="16px 24px"
         display="flex"
         href="https://t.me/cheddarfarm"
         target="_blank"
@@ -23,7 +22,6 @@ export const SocialMedia = () => {
       </Link>
 
       <Link
-        p="16px 24px"
         display="flex"
         href="https://discord.com/invite/G9PTbmPUwe"
         target="_blank"
@@ -37,7 +35,6 @@ export const SocialMedia = () => {
       </Link>
 
       <Link
-        p="16px 24px"
         display="flex"
         href="https://twitter.com/CheddarFi"
         target="_blank"
@@ -51,7 +48,6 @@ export const SocialMedia = () => {
       </Link>
 
       <Link
-        p="16px 24px"
         display="flex"
         href="https://cheddarfarm.gitbook.io/docs"
         target="_blank"
@@ -65,7 +61,6 @@ export const SocialMedia = () => {
       </Link>
 
       <Link
-        p="16px 24px"
         display="flex"
         href="https://near.social/chatter.cheddar.near/widget/home"
         target="_blank"

@@ -6,6 +6,7 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { PlusSquareIcon } from '@chakra-ui/icons';
 import { useGetScoreboard } from '@/hooks/maze';
+import { smartTrim } from '@/utilities/exportableFunctions';
 
 export interface PlayerScoreData {
   accountId: string;
@@ -70,7 +71,7 @@ export const Scoreboard = () => {
                     className={`${styles.content} ${styles.position}`}
                   >{`${index + 1}`}</td>
                   <td className={`${styles.content} ${styles.userName}`}>
-                    {playerScoreData.accountId}
+                    {smartTrim(playerScoreData.accountId ?? '', 12)}
                   </td>
                   <td className={`${styles.content} ${styles.cheddarEarned}`}>
                     {playerScoreData.cheddarEarned}

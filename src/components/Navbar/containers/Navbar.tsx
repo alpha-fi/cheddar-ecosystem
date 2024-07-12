@@ -14,22 +14,18 @@ import { DrawerMenu } from '../components/DrawerMenu';
 import styles from '@/styles/NavBar.module.css';
 import { useContext } from 'react';
 
-import {
-  useGetCheddarTotalSupply,
-} from '@/hooks/cheddar';
+import { useGetCheddarTotalSupply } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
-import {
-  GameContext,
-} from '@/contexts/maze/GameContextProvider';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { ModalContainer } from '@/components/ModalContainer';
+import { SocialMedia } from '@/components/SocialMediaContainer';
 
 interface Props {
   cheddarBalanceData: bigint | null | undefined;
 }
 
 export default function Navbar({ cheddarBalanceData }: Props) {
-
   const {
     isOpen: isVideoModalOpened,
     onOpen: onOpenVideoModal,
@@ -41,76 +37,95 @@ export default function Navbar({ cheddarBalanceData }: Props) {
 
   return (
     <>
-    <Box
-      position="relative"
-      as="nav"
-      w="100%"
-      h="60px"
-      bg="#8542eb"
-      css={{ backdropFilter: 'blur(2px)' }}
-      zIndex={1}
-    >
-      <Container
-        display="flex"
-        alignContent="center"
-        maxW="container.xl"
-        justifyContent="space-between"
-        alignItems="center"
-        px="14px"
-        gap="1rem"
-        height="100%"
+      <Box
+        position="relative"
+        as="nav"
+        w="100%"
+        h="60px"
+        bg="#8542eb"
+        css={{ backdropFilter: 'blur(2px)' }}
+        zIndex={1}
       >
-        <Flex alignContent="center">
-          <Flex flexDirection="column" rowGap={1} mr="20px">
-            <HStack spacing={0}>
-              <Img src={'/assets/cheddar-logo.png'} alt="" height="25px" />
-            </HStack>
+        <Container
+          display="flex"
+          alignContent="center"
+          maxW="container.xl"
+          justifyContent="space-between"
+          alignItems="center"
+          px="14px"
+          gap="1rem"
+          height="100%"
+        >
+          <Flex alignContent="center">
+            <Flex flexDirection="column" mr="20px">
+              <HStack spacing={0}>
+                <Img
+                  src={'/assets/cheddar-logo.png'}
+                  display={{ base: 'none', lg: 'flex' }}
+                  alt="Cheddar icon"
+                  height="25px"
+                />
+                <Img
+                  src={'/assets/cheddar-logo-reduced.png'}
+                  display={{ base: 'flex', lg: 'none' }}
+                  alt="Cheddy icon"
+                  height="25px"
+                />
+              </HStack>
+              <Box display={{ base: 'none', lg: 'flex' }} >
+                <SocialMedia />
+              </Box>
+            </Flex>
           </Flex>
-        </Flex>
-        <Flex flexDir="row" justifyContent="end" gap="1rem" alignItems="center">
-          <Stack
-            direction={{ base: 'column', md: 'row' }}
-            display={{ base: 'none', lg: 'flex' }}
-            width={{ base: 'full', md: 'auto' }}
+          <Flex
+            flexDir="row"
+            justifyContent="end"
+            gap="1rem"
             alignItems="center"
-            justifyContent="center"
-            flexGrow={1}
-            mt={{ base: 4, md: 0 }}
-            fontWeight="700"
-            lineHeight="1"
           >
-            <Button colorScheme="blue" onClick={onOpenVideoModal}>
-              🎶
-            </Button>
-          </Stack>
+            <Stack
+              direction={{ base: 'column', md: 'row' }}
+              display={{ base: 'none', lg: 'flex' }}
+              width={{ base: 'full', md: 'auto' }}
+              alignItems="center"
+              justifyContent="center"
+              flexGrow={1}
+              mt={{ base: 4, md: 0 }}
+              fontWeight="700"
+              lineHeight="1"
+            >
+              <Button colorScheme="blue" onClick={onOpenVideoModal}>
+                🎶
+              </Button>
+            </Stack>
 
-          <Text justifyContent="space-between" textColor="white">
-            <Text as="i">
-              Total supply:{' '}
-              <div style={{ width: 'max-content' }}>
-                {isLoadingCheddarTotalSupply
-                  ? 'Loading'
-                  : new Intl.NumberFormat('de-DE', {
-                      maximumFractionDigits: 0,
-                    }).format(yton(cheddarTotalSupply!))}{' '}
-                {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
-              </div>
+            <Text justifyContent="space-between" textColor="white">
+              <Text as="i">
+                Total supply:{' '}
+                <div style={{ width: 'max-content' }}>
+                  {isLoadingCheddarTotalSupply
+                    ? 'Loading'
+                    : new Intl.NumberFormat('de-DE', {
+                        maximumFractionDigits: 0,
+                      }).format(yton(cheddarTotalSupply!))}{' '}
+                  {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
+                </div>
+              </Text>
             </Text>
-          </Text>
 
-          <ButtonConnectWallet cheddarBalanceData={cheddarBalanceData} />
-          <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
-            <DrawerMenu
-              onOpenVideoModal={onOpenVideoModal}
-              cheddarTotalSupply={cheddarTotalSupply}
-              isLoadingCheddarTotalSupply={isLoadingCheddarTotalSupply}
-            />
-          </Box>
-        </Flex>
-      </Container>
-    </Box>
+            <ButtonConnectWallet cheddarBalanceData={cheddarBalanceData} />
+            <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
+              <DrawerMenu
+                onOpenVideoModal={onOpenVideoModal}
+                cheddarTotalSupply={cheddarTotalSupply}
+                isLoadingCheddarTotalSupply={isLoadingCheddarTotalSupply}
+              />
+            </Box>
+          </Flex>
+        </Container>
+      </Box>
 
-    <ModalContainer
+      <ModalContainer
         title={'Cheddar rap'}
         isOpen={isVideoModalOpened}
         onClose={onCloseVideoModal}

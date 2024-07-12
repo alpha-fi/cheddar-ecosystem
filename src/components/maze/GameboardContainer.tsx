@@ -46,7 +46,6 @@ export function GameboardContainer({
     score,
     gameOverFlag,
     gameOverMessage,
-    selectedColorSet,
     hasPowerUp,
     handleKeyPress,
     restartGame,
@@ -59,9 +58,9 @@ export function GameboardContainer({
     handleArrowPress,
     showMovementButtons,
     setShowMovementButtons,
-    isVideoModalOpened,
     onOpenScoreboard,
-    onCloseVideoModal,
+    isScoreboardOpen,
+    onCloseScoreboard,
   } = useContext(GameContext);
 
   const {
@@ -137,23 +136,6 @@ export function GameboardContainer({
     setGameOverMessage('');
     onClose();
     setAllowOpenGameOverModal(false);
-  }
-
-  function smartTrim(string: string, maxLength: number) {
-    if (!string) return string;
-    if (maxLength < 1) return string;
-    if (string.length <= maxLength) return string;
-    if (maxLength == 1) return string.substring(0, 1) + '...';
-
-    var midpoint = Math.ceil(string.length / 2);
-    var toremove = string.length - maxLength;
-    var lstrip = Math.ceil(toremove / 2);
-    var rstrip = toremove - lstrip;
-    return (
-      string.substring(0, midpoint - lstrip) +
-      '...' +
-      string.substring(midpoint + rstrip)
-    );
   }
 
   function handleToggleShowMovementButtons() {
@@ -260,7 +242,7 @@ export function GameboardContainer({
           {hasEnoughBalance && (
             <span className={getStartButtonStyles()}>
               <Button onClick={getStartGameButtonHandler()}>
-                {gameOverFlag ? 'Restart Game' : 'Start Game'}
+                {gameOverFlag ? 'Restart' : 'Start'}
               </Button>
             </span>
           )}
@@ -367,7 +349,13 @@ export function GameboardContainer({
         <PlinkoBoard />
       </ModalContainer>
 
-      
+      <ModalContainer
+        title={'Maze scoreboard'}
+        isOpen={isScoreboardOpen}
+        onClose={onCloseScoreboard}
+      >
+        <Scoreboard />
+      </ModalContainer>
     </div>
   );
 }
