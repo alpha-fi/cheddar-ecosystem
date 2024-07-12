@@ -24,10 +24,12 @@ const nearConfig = {
 };
 
 let current_game_id = -1;
+let loadPlayersInterval;
 let loadGamesInterval;
 let loadGameInterval;
 
 async function load() {
+  if (loadPlayersInterval) clearInterval(loadPlayersInterval);
   if (loadGamesInterval) clearInterval(loadGamesInterval);
   if (loadGameInterval) clearInterval(loadGameInterval);
   // console.log("loadGameInterval")
@@ -36,6 +38,12 @@ async function load() {
   loadAvailableGames().then(async (my_games) => {
     update_game_ui(my_games);
     if (!my_games.length) {
+      loadPlayers().then(() => {
+        loadPlayersInterval = setInterval(async () => {
+          await loadPlayers();
+        }, 10000);
+      });
+
       // check for new game
       loadGamesInterval = setInterval(async () => {
         await loadAvailableGames().then(async (my_games) => {

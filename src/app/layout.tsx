@@ -28,11 +28,7 @@ export default function RootLayout({
           src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"
           async
         />
-
-        <script src="/assets/js/near.js" async />
-        <script src="/assets/js/script.js" async />
-
-        <title>NEAR Checkers-(React UI Blockchain Game)</title>
+        <script src="https://nearspace.info/js/near-api-js.min.js" async />
       </head>
       <body className={inter.className + ' backgroundImg'}>
         <WalletSelectorContextProvider>
