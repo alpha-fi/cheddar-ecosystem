@@ -13,24 +13,25 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { RenderCheddarIcon } from '@/components/RenderCheddarIcon';
 import { SocialMedia } from '@/components/SocialMediaContainer';
 import { yton } from '@/contracts/contractUtils';
 import { useContext } from 'react';
-import { GameContext } from '@/contexts/GameContextProvider';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
+import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 
 interface Props {
   onOpenVideoModal: () => void;
   cheddarTotalSupply: bigint | undefined;
   isLoadingCheddarTotalSupply: boolean;
+  onOpenScoreboard: ()=> void;
 }
 
 export function DrawerMenu({
   onOpenVideoModal,
   cheddarTotalSupply,
   isLoadingCheddarTotalSupply,
+  onOpenScoreboard,
 }: Props) {
-  const { onOpenScoreboard } = useContext(GameContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>

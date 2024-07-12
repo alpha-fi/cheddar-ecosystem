@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
-import styles from '../styles/GameOverModalContent.module.css';
-import { GameContext } from '@/contexts/GameContextProvider';
+import styles from '@/styles/GameOverModalContent.module.css';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useToast } from '@chakra-ui/react';
 
 export const GameOverModalContent = () => {
@@ -67,7 +67,7 @@ export const GameOverModalContent = () => {
         </p>
       )}
       {cheddarFound > 0 && !hasWon && (
-        <p className={styles.loseEarnings}>Enemy drained ur Cheddar bag</p>
+        <p className={styles.loseEarnings}>Enemy drained your Cheddar bag</p>
       )}
     </div>
   );

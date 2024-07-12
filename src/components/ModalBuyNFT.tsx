@@ -11,13 +11,13 @@ import {
 } from '@chakra-ui/react';
 import { ModalContainer } from './ModalContainer';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { RadioButtonBroup } from './RadioButtonGroup';
+import { RadioButtonBroup } from './maze/RadioButtonGroup';
 import { useEffect, useState } from 'react';
-import { RenderCheddarIcon } from './RenderCheddarIcon';
-import { RenderNearIcon } from './RenderNearIcon';
+import { RenderCheddarIcon } from './maze/RenderCheddarIcon';
+import { RenderNearIcon } from './maze/RenderNearIcon';
 import { buyNFT } from '@/contracts/cheddarCalls';
 
-import styles from '../styles/BuyNFTSection.module.css';
+import styles from '@/styles/BuyNFTSection.module.css';
 import { useGetCheddarNFTPrice } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
@@ -147,12 +147,12 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
           </FormControl>
 
           <FormLabel>
-            {payingOptions.map((option) => {
+            {payingOptions.map((option, index) => {
               if (option.name === tokenToPayWith) {
                 return (
-                  <>
+                  <div key={index}>
                     {`Cost: ${option.price}`} {option.icon}
-                  </>
+                  </div>
                 );
               }
               return <></>;

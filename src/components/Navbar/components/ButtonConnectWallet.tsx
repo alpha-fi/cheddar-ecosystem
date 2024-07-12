@@ -10,8 +10,8 @@ import {
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { YellowButton } from './YellowButton';
 import { yton } from '@/contracts/contractUtils';
-import { RenderCheddarIcon } from '@/components/RenderCheddarIcon';
 import Link from 'next/link';
+import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 
 interface Props {
   cheddarBalanceData: bigint | null | undefined;
