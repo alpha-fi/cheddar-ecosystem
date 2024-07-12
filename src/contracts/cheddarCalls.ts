@@ -24,7 +24,7 @@ export const getCheddarBalance = async (accountId: string): Promise<bigint> => {
 };
 
 export const getTotalSupply = async (): Promise<bigint> => {
-  return view(cheddarToken, tokenViewMethods.ftTotalSupply).then(BigInt);
+  return view(cheddarToken, tokenViewMethods.ftTotalSupply).then(BigInt).then(a => {console.log(a); return a;});
 };
 
 export const getCheddarMetadata = async (): Promise<Metadata> => {

@@ -23,15 +23,14 @@ interface Props {
   onOpenVideoModal: () => void;
   cheddarTotalSupply: bigint | undefined;
   isLoadingCheddarTotalSupply: boolean;
-  onOpenScoreboard: ()=> void;
 }
 
 export function DrawerMenu({
   onOpenVideoModal,
   cheddarTotalSupply,
   isLoadingCheddarTotalSupply,
-  onOpenScoreboard,
 }: Props) {
+  const { onOpenScoreboard } = useContext(GameContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
@@ -53,9 +52,9 @@ export function DrawerMenu({
           <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
 
           <DrawerBody display="flex" flexDirection="column" gap="0.5rem" px="0">
-            <Button colorScheme="blue" onClick={onOpenVideoModal}>
+            {/* <Button colorScheme="blue" onClick={onOpenVideoModal}>
               🎶
-            </Button>
+            </Button> */}
             <Button onClick={onOpenScoreboard}>Scoreboard</Button>
           </DrawerBody>
 
