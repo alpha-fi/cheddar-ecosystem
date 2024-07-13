@@ -3,10 +3,7 @@ import { Icon } from '@chakra-ui/react';
 export const RenderCheddarIcon = (styles: any) => {
   return (
     <>
-      <Icon
-        {...styles}
-        viewBox="0 0 56 56"
-      >
+      <Icon {...styles} viewBox="0 0 56 56">
         <path
           fill="#f4c647"
           d="M45 19.5V25l4.8.6V14.2c-.1-3.2-11.2-6.7-24.9-6.7S.1 11.1 0 14.2v18.3c0 3.2 10.7 7.1 24.5 7.1h.5V21.5l-4.7-7.2L45 19.5z"
