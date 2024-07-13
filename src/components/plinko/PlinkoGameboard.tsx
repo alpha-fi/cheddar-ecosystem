@@ -23,7 +23,7 @@ import {
   GOALS,
   GRAVITY,
   HIT_MACHINE_FORCE_MAGNITUDE,
-  INITIAL_CURRENT_HEIGHT,
+  INITIAL_CLIENT_HEIGHT as INITIAL_CLIENT_HEIGHT,
   MAX_BALLS_AMOUNT,
   PIN_RADIUS,
   PIN_SPACING,
@@ -50,12 +50,13 @@ interface CheddarEarnedData {
 }
 
 export function PlinkoBoard() {
-  const { isMobile, seedId, closePlinkoModal } = React.useContext(GameContext);
+  const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
+    React.useContext(GameContext);
 
   const { accountId, selector } = useWalletSelector();
 
-  const [currentHeight, setCurrentHeight] = useState<number>(
-    INITIAL_CURRENT_HEIGHT
+  const [clientHeight, setClientHeight] = useState<number>(
+    INITIAL_CLIENT_HEIGHT
   );
   const [saveResponse, setSaveResponse] = useState<string[] | undefined>();
   const [endGameResponse, setEndGameResponse] = useState<undefined | any>();
@@ -110,7 +111,7 @@ export function PlinkoBoard() {
     const currentBallYPositions = thrownBalls.map((ball) => ball.position.y);
     if (
       currentBallYPositions.filter(
-        (ballYPosition) => ballYPosition <= currentHeight
+        (ballYPosition) => ballYPosition <= clientHeight
       ).length > 0
     ) {
       const newYPositions = [] as number[];
@@ -130,7 +131,7 @@ export function PlinkoBoard() {
     }
 
     const ballsInGoal = thrownBalls.filter(
-      (ball) => ball.position.y > currentHeight
+      (ball) => ball.position.y > clientHeight
     );
 
     if (ballsInGoal.length > 0) {
@@ -148,7 +149,7 @@ export function PlinkoBoard() {
 
         ballSeparatorIndexArray.push(index);
 
-        if (ball.position.y > currentHeight) {
+        if (ball.position.y > clientHeight) {
           setBallFinishLines((prevState) => [
             ...prevState,
             ...ballSeparatorIndexArray,
@@ -170,7 +171,7 @@ export function PlinkoBoard() {
       if (cheddarEarnedData) {
         const cheddarEarned = cheddarEarnedData?.cheddar;
         const cheddarPrizeName = cheddarEarnedData?.name;
-
+        console.log(1, cheddarPrizeName);
         setPrizeNames((prevState) => [...prevState, cheddarPrizeName]);
 
         finalPrize += cheddarEarned!;
@@ -178,6 +179,7 @@ export function PlinkoBoard() {
     });
 
     if (ballFinishLines.length > 0) {
+      finalPrize = Math.min(pendingCheddarToMint, finalPrize);
       setPrize(finalPrize);
     }
   }, [ballFinishLines]);
@@ -339,9 +341,9 @@ export function PlinkoBoard() {
   };
 
   useEffect(() => {
-    if (currentHeight === 0) {
+    if (clientHeight === 0) {
       const currentCh = document.body.clientHeight;
-      setCurrentHeight(currentCh);
+      setClientHeight(currentCh);
     }
     if (scene) {
       const render = Render.create({
@@ -350,7 +352,7 @@ export function PlinkoBoard() {
         engine: engine.current,
         options: {
           width: CURRENT_WIDTH,
-          height: currentHeight,
+          height: clientHeight,
           wireframes: false,
           background: 'transparent',
         },
@@ -366,7 +368,7 @@ export function PlinkoBoard() {
           -PIN_SPACING + WALL_POSITION_ADJUST,
           0,
           PIN_SPACING,
-          currentHeight * 2,
+          clientHeight * 2,
           SIDE_WALLS_OPTIONS
         ),
         // Right wall
@@ -374,7 +376,7 @@ export function PlinkoBoard() {
           CURRENT_WIDTH + PIN_SPACING - WALL_POSITION_ADJUST,
           0,
           PIN_SPACING,
-          currentHeight * 2,
+          clientHeight * 2,
           SIDE_WALLS_OPTIONS
         ),
 
@@ -387,7 +389,7 @@ export function PlinkoBoard() {
           // BOTTOM_WALL_OPTIONS
 
           CURRENT_WIDTH / 2,
-          currentHeight,
+          clientHeight,
           CURRENT_WIDTH,
           200,
           BOTTOM_WALL_OPTIONS
@@ -400,7 +402,7 @@ export function PlinkoBoard() {
           if (row % 2 === 0) {
             x += PIN_SPACING / 2;
           }
-          const y = PIN_SPACING + row * PIN_SPACING + currentHeight / 20;
+          const y = PIN_SPACING + row * PIN_SPACING + clientHeight / 20;
 
           const pin = Bodies.circle(x, y, PIN_RADIUS, PIN_OPTIONS);
 
@@ -429,14 +431,14 @@ export function PlinkoBoard() {
       for (let i = 0; i < GOALS.length + 1; i++) {
         const separator = Bodies.rectangle(
           i * PIN_SPACING,
-          currentHeight - 50,
+          clientHeight - 50,
           10,
           100,
           GOALS_OPTIONS
         );
         const border = Bodies.circle(
           i * PIN_SPACING,
-          currentHeight - 100,
+          clientHeight - 100,
           5.1,
           GOALS_TIPS_OPTIONS
         );
@@ -450,7 +452,7 @@ export function PlinkoBoard() {
               createLetter(
                 char,
                 i * PIN_SPACING + PIN_SPACING,
-                currentHeight - 60 + 12 * charIndex,
+                clientHeight - 60 + 12 * charIndex,
                 50,
                 60,
                 14,
@@ -478,8 +480,12 @@ export function PlinkoBoard() {
   return (
     <div className={styles.plinkoBoardContainer}>
       <div className={styles.headerContainer}>
-        <Button onClick={pushBall}>Shake</Button>
-        <Button onClick={onOpenModalRules}>Rules</Button>
+        <Button onClick={pushBall} mr={'1rem'}>
+          Shake
+        </Button>
+        <Button onClick={onOpenModalRules} mr={'1rem'}>
+          Rules
+        </Button>
         <span>Balls left: {MAX_BALLS_AMOUNT - thrownBallsQuantity}</span>
       </div>
       <div
@@ -522,6 +528,7 @@ export function PlinkoBoard() {
           closeOnOverlayClick={false}
         >
           <GameOverModalContent
+            prizeName={prizeNames[0]}
             cheddarFound={prize!}
             endGameResponse={endGameResponse}
           />

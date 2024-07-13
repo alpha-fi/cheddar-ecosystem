@@ -60,6 +60,7 @@ export function GameboardContainer({
     onOpenScoreboard,
     isScoreboardOpen,
     onCloseScoreboard,
+    isMobile,
   } = useContext(GameContext);
 
   const {
@@ -342,7 +343,7 @@ export function GameboardContainer({
         title={'Plinko game!'}
         isOpen={plinkoModalOpened}
         onClose={closePlinkoModal}
-        size={'full'}
+        size={isMobile ? 'full' : 'xl'}
         neverCloseOnOverlayClick={true}
       >
         <PlinkoBoard />

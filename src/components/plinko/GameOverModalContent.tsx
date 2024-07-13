@@ -4,17 +4,19 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useToast } from '@chakra-ui/react';
 
 interface Props {
+  prizeName: string;
   cheddarFound: number;
   endGameResponse: any;
 }
 
 export const GameOverModalContent = ({
+  prizeName,
   cheddarFound,
   endGameResponse,
 }: Props) => {
   const { pendingCheddarToMint } = useContext(GameContext);
 
-  const hasWon = cheddarFound > 0;
+  const hasWon = prizeName !== 'splat';
 
   const gameOverMessage = hasWon ? 'So nice!' : `Splat!`;
 
