@@ -380,17 +380,17 @@ export function PlinkoBoard() {
 
         // Bottom wall
         Bodies.rectangle(
-          CURRENT_WIDTH / 2,
-          200,
-          CURRENT_WIDTH,
-          600,
-          BOTTOM_WALL_OPTIONS
-
           // CURRENT_WIDTH / 2,
-          // currentHeight,
-          // CURRENT_WIDTH,
           // 200,
+          // CURRENT_WIDTH,
+          // 600,
           // BOTTOM_WALL_OPTIONS
+
+          CURRENT_WIDTH / 2,
+          currentHeight,
+          CURRENT_WIDTH,
+          200,
+          BOTTOM_WALL_OPTIONS
         ),
       ]);
 

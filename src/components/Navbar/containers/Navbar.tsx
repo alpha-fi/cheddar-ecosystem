@@ -61,9 +61,6 @@ export default function Navbar() {
                   height="25px"
                 />
               </HStack>
-              <Box display={{ base: 'none', lg: 'flex' }}>
-                <SocialMedia />
-              </Box>
             </Flex>
           </Flex>
           <Flex

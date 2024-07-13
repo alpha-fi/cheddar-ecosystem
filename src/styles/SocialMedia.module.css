@@ -1,8 +1,16 @@
 .container {
+    position: absolute;
+    bottom: 0;
     width: 100%;
     display: flex;
     justify-content: center;
-    padding: 3px 0;
-    border-radius: 10px;
+    padding: 0.5rem 0;
     background-color: #FFFFFF;
+}
+
+.secondContainer {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    justify-content: space-around;
 }
