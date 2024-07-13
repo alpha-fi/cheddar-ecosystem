@@ -13,11 +13,11 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { RenderCheddarIcon } from '@/components/RenderCheddarIcon';
 import { SocialMedia } from '@/components/SocialMediaContainer';
 import { yton } from '@/contracts/contractUtils';
 import { useContext } from 'react';
-import { GameContext } from '@/contexts/GameContextProvider';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
+import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 
 interface Props {
   onOpenVideoModal: () => void;
@@ -30,7 +30,6 @@ export function DrawerMenu({
   cheddarTotalSupply,
   isLoadingCheddarTotalSupply,
 }: Props) {
-  const { onOpenScoreboard } = useContext(GameContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
@@ -55,7 +54,6 @@ export function DrawerMenu({
             <Button colorScheme="blue" onClick={onOpenVideoModal}>
               🎶
             </Button>
-            <Button onClick={onOpenScoreboard}>Scoreboard</Button>
           </DrawerBody>
 
           <DrawerFooter
@@ -65,7 +63,7 @@ export function DrawerMenu({
           >
             <SocialMedia />
             <Text display="flex" justifyContent="space-between" w="100%">
-              <Text as="i">
+              <Text as="i" pb="2.5rem">
                 Total supply:{' '}
                 {isLoadingCheddarTotalSupply
                   ? 'Loading'

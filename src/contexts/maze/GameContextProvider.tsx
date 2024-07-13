@@ -9,17 +9,15 @@ import React, {
   useRef,
 } from 'react';
 
-import { callEndGame, getScoreBoard, getSeedId } from '../queries/api/maze';
-import { useWalletSelector } from './WalletSelectorContext';
-import { RNG } from '@/entities/RNG';
+import { callEndGame, getScoreBoard, getSeedId } from '@/queries/maze/api';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { RNG } from '@/entities/maze/RNG';
 import {
-  IsAllowedResponse,
   ScoreboardResponse,
-  useGetIsAllowedResponse,
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
-import { PlayerScoreData } from '@/components/Scoreboard';
+import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
 import { useDisclosure } from '@chakra-ui/react';
@@ -39,6 +37,7 @@ export interface MazeTileData {
   hasEnemy: boolean;
   hasExit: boolean;
   hasCartel: boolean;
+  hasPlinko: boolean;
 }
 
 const amountOfCheddarInBag = 5;
@@ -48,9 +47,12 @@ const pointsOfActions = {
   bagFound: 1,
   enemyDefeated: 1,
   moveWithoutDying: 0,
+  plinkoGameFound: 2,
 };
 
 interface GameContextProps {
+  isMobile: boolean;
+
   mazeData: MazeTileData[][];
   setMazeData: React.Dispatch<React.SetStateAction<MazeTileData[][]>>;
 
@@ -140,6 +142,7 @@ interface GameContextProps {
   handleTouchMove: (event: React.TouchEvent<HTMLDivElement>) => void;
 
   cheddarFound: number;
+  setCheddarFound: React.Dispatch<React.SetStateAction<number>>;
 
   saveResponse: string[] | undefined;
   hasWon: undefined | boolean;
@@ -151,16 +154,27 @@ interface GameContextProps {
   showMovementButtons: boolean;
   setShowMovementButtons: React.Dispatch<React.SetStateAction<boolean>>;
 
+  timestampStartStopTimerArray: number[];
+  timestampEndStopTimerArray: number[];
+
+  plinkoModalOpened: boolean;
+  onOpenPlinkoModal: () => void;
+  onClosePlinkoModal: () => void;
+
+  closePlinkoModal: () => void;
+
   scoreboardResponse: ScoreboardResponse | null | undefined;
   isLoadingScoreboard: boolean;
 
-  videoModalOpened: boolean;
+  isVideoModalOpened: boolean;
   onOpenVideoModal: () => void;
   onCloseVideoModal: () => void;
 
   isScoreboardOpen: boolean;
   onOpenScoreboard: () => void;
   onCloseScoreboard: () => void;
+
+  seedId: number;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -169,12 +183,22 @@ export const GameContext = createContext<GameContextProps>(
 
 export const GameContextProvider = ({ children }: props) => {
   const gameOverRefSent = useRef(false);
+  const isMobile = useRef(
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  );
 
   const {
     isOpen: isScoreboardOpen,
     onOpen: onOpenScoreboard,
     onClose: onCloseScoreboard,
   } = useDisclosure();
+
+  function openScoreboard() {
+    console.log('open scoreboard');
+    onOpenScoreboard();
+  }
 
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
@@ -222,11 +246,20 @@ export const GameContextProvider = ({ children }: props) => {
   const [showMovementButtons, setShowMovementButtons] = useState(true);
   const [renderBoard, setRenderBoard] = useState(false); // to update board color on restart
 
+  const [timestampStartStopTimerArray, setTimestampStartStopTimerArray] =
+    useState<number[]>([]);
+
+  const [timestampEndStopTimerArray, setTimestampEndStopTimerArray] = useState<
+    number[]
+  >([]);
+
+  const [hasFoundPlinko, setHasFoundPlinko] = useState(false);
+
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
 
   const {
-    isOpen: videoModalOpened,
+    isOpen: isVideoModalOpened,
     onOpen: onOpenVideoModal,
     onClose: onCloseVideoModal,
   } = useDisclosure();
@@ -386,6 +419,7 @@ export const GameContextProvider = ({ children }: props) => {
         hasExit: false,
         enemyWon: false,
         hasCartel: false,
+        hasPlinko: false,
       }))
     );
 
@@ -568,6 +602,24 @@ export const GameContextProvider = ({ children }: props) => {
     );
   }
 
+  function handlePlinkoGameFound(
+    clonedMazeData: MazeTileData[][],
+    x: number,
+    y: number
+  ) {
+    setTimestampStartStopTimerArray([
+      ...timestampStartStopTimerArray,
+      Date.now(),
+    ]);
+
+    // 5.5% chance of winning cheese
+    clonedMazeData[y][x].hasPlinko = true;
+    setCellsWithItemAmount(cellsWithItemAmount + 1);
+    setScore(score + pointsOfActions.plinkoGameFound);
+
+    openPlinkoModal();
+  }
+
   function handleBagFound(
     clonedMazeData: MazeTileData[][],
     x: number,
@@ -609,11 +661,12 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const chancesOfFinding = {
-    exit: 0.002,
+    exit: 0.0021,
     enemy: 0.19,
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
+    plinko: 0.001,
   };
 
   const NFTCheeseBuffMultiplier = 1.28;
@@ -652,6 +705,12 @@ export const GameContextProvider = ({ children }: props) => {
       pathLength - cellsWithItemAmount === 1
     ) {
       handleExitFound(clonedMazeData, newX, newY);
+    } else if (
+      rng.nextFloat() < chancesOfFinding.plinko &&
+      !hasFoundPlinko &&
+      remainingTime < 60
+    ) {
+      handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
       handleEnemyFound(clonedMazeData, newX, newY);
     } else if (
@@ -704,6 +763,7 @@ export const GameContextProvider = ({ children }: props) => {
     setGameOverFlag(true);
     setGameOverMessage(message);
     stopTimer();
+    setHasFoundPlinko(false);
 
     const endGameResponse = await callEndGame(endGameRequestData);
     setEndGameResponse(endGameResponse);
@@ -715,18 +775,42 @@ export const GameContextProvider = ({ children }: props) => {
     let intervalId: NodeJS.Timeout | null = null;
     if (timerStarted && !gameOverFlag && startTimestamp) {
       intervalId = setInterval(() => {
-        setRemainingTime((prevTime) => {
-          if (prevTime <= 0 && intervalId) {
-            // if (intervalId && true) {
-            clearInterval(intervalId);
-            setStartTimestamp(null);
-            gameOver("⏰ Time's up! Game Over!", false);
-            return prevTime;
-          }
-          return Math.floor(
-            startTimestamp / 1000 + timeLimitInSeconds - Date.now() / 1000
-          );
-        });
+        if (
+          //The game is not stopped (Prevent entering this flow when minigame is open)
+          timestampStartStopTimerArray.length ===
+          timestampEndStopTimerArray.length
+        ) {
+          setRemainingTime((prevTime) => {
+            if (prevTime <= 0 && intervalId) {
+              clearInterval(intervalId);
+              setStartTimestamp(null);
+              setTimestampStartStopTimerArray([]);
+              setTimestampEndStopTimerArray([]);
+              gameOver("⏰ Time's up! Game Over!", false);
+              return prevTime;
+            }
+
+            let secondsWithTimerStoped = 0;
+
+            if (
+              timestampStartStopTimerArray.length > 0 &&
+              timestampEndStopTimerArray.length > 0
+            ) {
+              timestampStartStopTimerArray.forEach((startTimestamp, index) => {
+                secondsWithTimerStoped +=
+                  timestampEndStopTimerArray[index] / 1000 -
+                  startTimestamp / 1000;
+              });
+            }
+
+            return Math.floor(
+              startTimestamp / 1000 +
+                timeLimitInSeconds +
+                secondsWithTimerStoped -
+                Date.now() / 1000
+            );
+          });
+        }
       }, 500);
     } else {
       if (intervalId) clearInterval(intervalId);
@@ -735,7 +819,12 @@ export const GameContextProvider = ({ children }: props) => {
     return () => {
       if (intervalId) clearInterval(intervalId);
     }; // Cleanup function to clear interval on unmount or when timer conditions change
-  }, [timerStarted, gameOverFlag]);
+  }, [
+    timerStarted,
+    gameOverFlag,
+    timestampStartStopTimerArray,
+    timestampEndStopTimerArray,
+  ]);
 
   function handleMoveByArrow(direction: string) {
     if (gameOverFlag) return; // If game over, prevent further movement
@@ -911,9 +1000,31 @@ export const GameContextProvider = ({ children }: props) => {
   const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
     useGetScoreboard();
 
+  const {
+    isOpen: plinkoModalOpened,
+    onOpen: onOpenPlinkoModal,
+    onClose: onClosePlinkoModal,
+  } = useDisclosure();
+
+  function openPlinkoModal() {
+    onOpenPlinkoModal();
+    setHasFoundPlinko(true);
+  }
+
+  function closePlinkoModal() {
+    const newTimestampEndStopTimer = [
+      ...timestampEndStopTimerArray,
+      Date.now(),
+    ];
+
+    setTimestampEndStopTimerArray(newTimestampEndStopTimer);
+    onClosePlinkoModal();
+  }
+
   return (
     <GameContext.Provider
       value={{
+        isMobile: isMobile.current,
         mazeData,
         setMazeData,
         playerPosition,
@@ -973,22 +1084,29 @@ export const GameContextProvider = ({ children }: props) => {
         handleTouchStart,
         handleTouchMove,
         cheddarFound,
+        setCheddarFound,
         saveResponse,
         hasWon,
         pendingCheddarToMint,
         endGameResponse,
-        videoModalOpened,
-        onOpenVideoModal,
-        onCloseVideoModal,
         nfts,
-
         showMovementButtons,
         setShowMovementButtons,
+        timestampStartStopTimerArray,
+        timestampEndStopTimerArray,
+        plinkoModalOpened,
+        onOpenPlinkoModal,
+        onClosePlinkoModal,
+        closePlinkoModal,
+        isVideoModalOpened,
+        onOpenVideoModal,
+        onCloseVideoModal,
         scoreboardResponse,
         isLoadingScoreboard,
         isScoreboardOpen,
         onOpenScoreboard,
         onCloseScoreboard,
+        seedId,
       }}
     >
       {children}

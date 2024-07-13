@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
-import styles from '../styles/GameOverModalContent.module.css';
-import { GameContext } from '@/contexts/GameContextProvider';
+import styles from '@/styles/GameOverModalContent.module.css';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useToast } from '@chakra-ui/react';
 
 export const GameOverModalContent = () => {

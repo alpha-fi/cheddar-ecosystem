@@ -1,12 +1,13 @@
 import { Gameboard } from './Gameboard';
-import styles from '../styles/GameboardContainer.module.css';
+import { PlinkoBoard } from '../plinko/PlinkoGameboard';
+import styles from '@/styles/GameboardContainer.module.css';
 import { Button, Link, Show, Tooltip, useDisclosure } from '@chakra-ui/react';
 import { MouseEventHandler, useContext, useMemo, useState } from 'react';
 
-import { GameContext } from '@/contexts/GameContextProvider';
-import { ModalBuyNFT } from './ModalBuyNFT';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
+import { ModalBuyNFT } from '../ModalBuyNFT';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { ModalContainer } from './ModalContainer';
+import { ModalContainer } from '../ModalContainer';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { IsAllowedResponse } from '@/hooks/maze';
 import ModalNotAllowedToPlay from './ModalNotAllowedToPlay';
@@ -19,7 +20,6 @@ import {
   ArrowUpIcon,
 } from '@chakra-ui/icons';
 import { Scoreboard } from './Scoreboard';
-import classNames from 'classnames';
 
 interface Props {
   remainingMinutes: number;
@@ -29,7 +29,6 @@ interface Props {
   hasEnoughBalance: boolean | null;
   minCheddarRequired: number;
   isAllowedResponse: IsAllowedResponse | null | undefined;
-  cheddarBalanceData: bigint | null | undefined;
 }
 
 export function GameboardContainer({
@@ -46,23 +45,22 @@ export function GameboardContainer({
     score,
     gameOverFlag,
     gameOverMessage,
-    selectedColorSet,
     hasPowerUp,
     handleKeyPress,
     restartGame,
     timerStarted,
     setGameOverMessage,
     saveResponse,
-    videoModalOpened,
-    onOpenVideoModal,
-    onCloseVideoModal,
-    isScoreboardOpen,
-    onOpenScoreboard,
-    onCloseScoreboard,
+    plinkoModalOpened,
+    closePlinkoModal,
     nfts,
     handleArrowPress,
     showMovementButtons,
     setShowMovementButtons,
+    onOpenScoreboard,
+    isScoreboardOpen,
+    onCloseScoreboard,
+    isMobile,
   } = useContext(GameContext);
 
   const {
@@ -140,23 +138,6 @@ export function GameboardContainer({
     setAllowOpenGameOverModal(false);
   }
 
-  function smartTrim(string: string, maxLength: number) {
-    if (!string) return string;
-    if (maxLength < 1) return string;
-    if (string.length <= maxLength) return string;
-    if (maxLength == 1) return string.substring(0, 1) + '...';
-
-    var midpoint = Math.ceil(string.length / 2);
-    var toremove = string.length - maxLength;
-    var lstrip = Math.ceil(toremove / 2);
-    var rstrip = toremove - lstrip;
-    return (
-      string.substring(0, midpoint - lstrip) +
-      '...' +
-      string.substring(midpoint + rstrip)
-    );
-  }
-
   function handleToggleShowMovementButtons() {
     setShowMovementButtons(!showMovementButtons);
   }
@@ -169,7 +150,7 @@ export function GameboardContainer({
         <g
           id="Page-1"
           stroke="none"
-          stroke-width="1"
+          strokeWidth="1"
           fill="none"
           fill-rule="evenodd"
         >
@@ -261,7 +242,7 @@ export function GameboardContainer({
           {hasEnoughBalance && (
             <span className={getStartButtonStyles()}>
               <Button onClick={getStartGameButtonHandler()}>
-                {gameOverFlag ? 'Restart Game' : 'Start Game'}
+                {gameOverFlag ? 'Restart' : 'Start'}
               </Button>
             </span>
           )}
@@ -359,17 +340,13 @@ export function GameboardContainer({
         </ModalContainer>
       )}
       <ModalContainer
-        title={'Cheddar rap'}
-        isOpen={videoModalOpened}
-        onClose={onCloseVideoModal}
+        title={'Plinko game!'}
+        isOpen={plinkoModalOpened}
+        onClose={closePlinkoModal}
+        size={isMobile ? 'full' : 'xl'}
+        neverCloseOnOverlayClick={true}
       >
-        <div className={styles.videoContainer}>
-          <video
-            src="../../../assets/cheddar_rap.mp4"
-            autoPlay
-            controls
-          ></video>
-        </div>
+        <PlinkoBoard />
       </ModalContainer>
       <ModalContainer
         title={'Maze scoreboard'}

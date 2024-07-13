@@ -4,6 +4,13 @@
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    padding: 1rem 0;
     background-color: #FFFFFF;
+}
+
+.secondContainer {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    justify-content: space-between;
 }

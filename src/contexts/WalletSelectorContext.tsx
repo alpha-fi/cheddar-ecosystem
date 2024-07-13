@@ -12,7 +12,7 @@ import { setupHereWallet } from '@near-wallet-selector/here-wallet';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
-import { store } from '../stores/walletSelector.store';
+import { store } from '@/stores/walletSelector.store';
 import { getConfig } from '@/configs/config';
 
 declare global {
