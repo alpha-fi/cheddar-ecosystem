@@ -348,7 +348,6 @@ export function GameboardContainer({
       >
         <PlinkoBoard />
       </ModalContainer>
-
       <ModalContainer
         title={'Maze scoreboard'}
         isOpen={isScoreboardOpen}
