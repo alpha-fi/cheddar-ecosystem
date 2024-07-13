@@ -9,7 +9,7 @@
   width: 100%;
   display: flex;
   justify-content: left;
-  gap: 1rem;
+  /* gap: 1rem; */
 }
 
 .plinkoGame {

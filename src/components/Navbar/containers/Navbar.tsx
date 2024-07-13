@@ -4,49 +4,32 @@ import {
   Container,
   Flex,
   HStack,
-  Heading,
   Img,
-  Link,
   Stack,
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
 import { ButtonConnectWallet } from '../components/ButtonConnectWallet';
 import { DrawerMenu } from '../components/DrawerMenu';
+import styles from '@/styles/NavBar.module.css';
 import { useContext } from 'react';
 
-import styles from '@/styles/NavBar.module.css';
-import {
-  useGetCheddarBalance,
-  useGetCheddarTotalSupply,
-} from '@/hooks/cheddar';
+import { useGetCheddarTotalSupply } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
-import {
-  GameContext,
-  GameContextProvider,
-} from '@/contexts/maze/GameContextProvider';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { ModalContainer } from '@/components/ModalContainer';
-import { Scoreboard } from '@/components/maze/Scoreboard';
+import { SocialMedia } from '@/components/SocialMediaContainer';
 
 export default function Navbar() {
-  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
-    useGetCheddarBalance();
-
-  const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
-    useGetCheddarTotalSupply();
-
   const {
-    isOpen: isScoreboardOpen,
-    onOpen: onOpenScoreboard,
-    onClose: onCloseScoreboard,
-  } = useDisclosure();
-
-  const {
-    isOpen: videoModalOpened,
+    isOpen: isVideoModalOpened,
     onOpen: onOpenVideoModal,
     onClose: onCloseVideoModal,
   } = useDisclosure();
+
+  const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
+    useGetCheddarTotalSupply();
 
   return (
     <>
@@ -66,33 +49,26 @@ export default function Navbar() {
           justifyContent="space-between"
           alignItems="center"
           px="14px"
+          gap="1rem"
           height="100%"
         >
           <Flex alignContent="center">
-            <Flex flexDirection="column" rowGap={1} mr="20px">
-              <HStack spacing={0}>
-                <Img src={'/assets/cheddar-logo.png'} alt="" height="25px" />
+            <Flex flexDirection="column" mr="20px">
+              <HStack spacing={0} minW={'25px'}>
+                <Img
+                  src={'/assets/cheddar-logo.png'}
+                  alt="Cheddar icon"
+                  height="25px"
+                />
               </HStack>
-
-              <Text
-                display={{ base: 'none', lg: 'flex' }}
-                justifyContent="space-between"
-                w="100%"
-              >
-                <Text as="i">
-                  Total supply:{' '}
-                  {isLoadingCheddarTotalSupply
-                    ? 'Loading'
-                    : new Intl.NumberFormat('de-DE', {
-                        maximumFractionDigits: 0,
-                      }).format(yton(cheddarTotalSupply!))}{' '}
-                  <RenderCheddarIcon />
-                </Text>
-              </Text>
             </Flex>
           </Flex>
-
-          <Flex flexDir="row" justifyContent="end" gap="0.5rem">
+          <Flex
+            flexDir="row"
+            justifyContent="end"
+            gap="1rem"
+            alignItems="center"
+          >
             <Stack
               direction={{ base: 'column', md: 'row' }}
               display={{ base: 'none', lg: 'flex' }}
@@ -104,18 +80,35 @@ export default function Navbar() {
               fontWeight="700"
               lineHeight="1"
             >
-              <Button onClick={onOpenScoreboard}>Scoreboard</Button>
               <Button colorScheme="blue" onClick={onOpenVideoModal}>
                 🎶
               </Button>
             </Stack>
-            <ButtonConnectWallet cheddarBalanceData={cheddarBalanceData} />
+
+            <Text
+              display={{ base: 'none', lg: 'flex' }}
+              justifyContent="space-between"
+              textColor="white"
+            >
+              <Text as="i">
+                Total supply:{' '}
+                <div style={{ width: 'max-content' }}>
+                  {isLoadingCheddarTotalSupply
+                    ? 'Loading'
+                    : new Intl.NumberFormat('de-DE', {
+                        maximumFractionDigits: 0,
+                      }).format(yton(cheddarTotalSupply!))}{' '}
+                  {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
+                </div>
+              </Text>
+            </Text>
+
+            <ButtonConnectWallet />
             <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
               <DrawerMenu
                 onOpenVideoModal={onOpenVideoModal}
                 cheddarTotalSupply={cheddarTotalSupply}
                 isLoadingCheddarTotalSupply={isLoadingCheddarTotalSupply}
-                onOpenScoreboard={onOpenScoreboard}
               />
             </Box>
           </Flex>
@@ -124,7 +117,7 @@ export default function Navbar() {
 
       <ModalContainer
         title={'Cheddar rap'}
-        isOpen={videoModalOpened}
+        isOpen={isVideoModalOpened}
         onClose={onCloseVideoModal}
       >
         <div className={styles.videoContainer}>
@@ -135,14 +128,7 @@ export default function Navbar() {
           ></video>
         </div>
       </ModalContainer>
-
-      <ModalContainer
-        title={'Maze scoreboard'}
-        isOpen={isScoreboardOpen}
-        onClose={onCloseScoreboard}
-      >
-        <Scoreboard />
-      </ModalContainer>
+      <div className={styles.publicityDecoration}></div>
     </>
   );
 }

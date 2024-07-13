@@ -5,6 +5,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Spinner,
   Text,
 } from '@chakra-ui/react';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
@@ -12,30 +13,13 @@ import { YellowButton } from './YellowButton';
 import { yton } from '@/contracts/contractUtils';
 import Link from 'next/link';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
+import { smartTrim } from '@/utilities/exportableFunctions';
+import { useGetCheddarBalance } from '@/hooks/cheddar';
 
-interface Props {
-  cheddarBalanceData: bigint | null | undefined;
-}
-
-export function ButtonConnectWallet({ cheddarBalanceData }: Props) {
+export function ButtonConnectWallet() {
   const walletSelector = useWalletSelector();
-
-  function smartTrim(string: string, maxLength: number) {
-    if (!string) return string;
-    if (maxLength < 1) return string;
-    if (string.length <= maxLength) return string;
-    if (maxLength == 1) return string.substring(0, 1) + '...';
-
-    var midpoint = Math.ceil(string.length / 2);
-    var toremove = string.length - maxLength;
-    var lstrip = Math.ceil(toremove / 2);
-    var rstrip = toremove - lstrip;
-    return (
-      string.substring(0, midpoint - lstrip) +
-      '...' +
-      string.substring(midpoint + rstrip)
-    );
-  }
+  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
+    useGetCheddarBalance();
 
   const handleOnClick = async () => {
     if (
@@ -61,7 +45,11 @@ export function ButtonConnectWallet({ cheddarBalanceData }: Props) {
             rightIcon={<ChevronDownIcon />}
           >
             <Text mr="5px" display="inline-block">
-              {cheddarBalanceData ? yton(`${cheddarBalanceData}`) : 0}
+              {isLoadingCheddarBalance ? (
+                <Spinner size="sm" />
+              ) : (
+                yton(`${cheddarBalanceData}`)
+              )}
             </Text>
             <RenderCheddarIcon />
           </MenuButton>

@@ -18,7 +18,7 @@ export const PRIZES_DATA = [
 ];
 export const CURRENT_WIDTH = 330;
 export const PIN_SPACING = CURRENT_WIDTH / GOALS.length;
-export const INITIAL_CURRENT_HEIGHT = 450;
+export const INITIAL_CLIENT_HEIGHT = 450;
 export const PIN_RADIUS = 8;
 export const WALL_POSITION_ADJUST = 9;
 export const MAX_BALLS_AMOUNT = 1;

@@ -13,6 +13,7 @@ import { callEndGame, getScoreBoard, getSeedId } from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
+  ScoreboardResponse,
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
@@ -162,6 +163,17 @@ interface GameContextProps {
 
   closePlinkoModal: () => void;
 
+  scoreboardResponse: ScoreboardResponse | null | undefined;
+  isLoadingScoreboard: boolean;
+
+  isVideoModalOpened: boolean;
+  onOpenVideoModal: () => void;
+  onCloseVideoModal: () => void;
+
+  isScoreboardOpen: boolean;
+  onOpenScoreboard: () => void;
+  onCloseScoreboard: () => void;
+
   seedId: number;
 }
 
@@ -176,6 +188,17 @@ export const GameContextProvider = ({ children }: props) => {
       navigator.userAgent
     )
   );
+
+  const {
+    isOpen: isScoreboardOpen,
+    onOpen: onOpenScoreboard,
+    onClose: onCloseScoreboard,
+  } = useDisclosure();
+
+  function openScoreboard() {
+    console.log('open scoreboard');
+    onOpenScoreboard();
+  }
 
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
@@ -221,6 +244,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [endGameResponse, setEndGameResponse] = useState();
 
   const [showMovementButtons, setShowMovementButtons] = useState(true);
+  const [renderBoard, setRenderBoard] = useState(false); // to update board color on restart
 
   const [timestampStartStopTimerArray, setTimestampStartStopTimerArray] =
     useState<number[]>([]);
@@ -233,6 +257,12 @@ export const GameContextProvider = ({ children }: props) => {
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
+
+  const {
+    isOpen: isVideoModalOpened,
+    onOpen: onOpenVideoModal,
+    onClose: onCloseVideoModal,
+  } = useDisclosure();
 
   const mazeRows = 11;
   const [mazeCols, setMazeCols] = useState(8);
@@ -358,6 +388,7 @@ export const GameContextProvider = ({ children }: props) => {
     setSaveResponse(undefined);
     setEndGameResponse(undefined);
     setCellsWithItemAmount(0);
+    setRenderBoard(!renderBoard);
 
     gameOverRefSent.current = false;
 
@@ -469,7 +500,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     const playerStartCell = getRandomPathCell(newMazeData);
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
-  }, [totalCells]); // Empty dependency array to run this effect only once on component mount
+  }, [totalCells, renderBoard]); // Empty dependency array to run this effect only once on component mount
 
   function movePlayer(newX: number, newY: number) {
     if (
@@ -674,7 +705,11 @@ export const GameContextProvider = ({ children }: props) => {
       pathLength - cellsWithItemAmount === 1
     ) {
       handleExitFound(clonedMazeData, newX, newY);
-    } else if (rng.nextFloat() < chancesOfFinding.plinko && !hasFoundPlinko && remainingTime < 60) {
+    } else if (
+      rng.nextFloat() < chancesOfFinding.plinko &&
+      !hasFoundPlinko &&
+      remainingTime < 60
+    ) {
       handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
       handleEnemyFound(clonedMazeData, newX, newY);
@@ -962,6 +997,9 @@ export const GameContextProvider = ({ children }: props) => {
     return square?.id || '';
   };
 
+  const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
+    useGetScoreboard();
+
   const {
     isOpen: plinkoModalOpened,
     onOpen: onOpenPlinkoModal,
@@ -1060,6 +1098,14 @@ export const GameContextProvider = ({ children }: props) => {
         onOpenPlinkoModal,
         onClosePlinkoModal,
         closePlinkoModal,
+        isVideoModalOpened,
+        onOpenVideoModal,
+        onCloseVideoModal,
+        scoreboardResponse,
+        isLoadingScoreboard,
+        isScoreboardOpen,
+        onOpenScoreboard,
+        onCloseScoreboard,
         seedId,
       }}
     >
