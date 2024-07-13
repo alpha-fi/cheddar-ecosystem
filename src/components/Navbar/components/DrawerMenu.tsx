@@ -63,7 +63,7 @@ export function DrawerMenu({
           >
             <SocialMedia />
             <Text display="flex" justifyContent="space-between" w="100%">
-              <Text as="i">
+              <Text as="i" pb="2.5rem">
                 Total supply:{' '}
                 {isLoadingCheddarTotalSupply
                   ? 'Loading'
