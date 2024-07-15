@@ -50,7 +50,7 @@ const pointsOfActions = {
   plinkoGameFound: 2,
 };
 
-const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
+const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 interface GameContextProps {
   isMobile: boolean;
