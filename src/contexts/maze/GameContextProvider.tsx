@@ -50,6 +50,8 @@ const pointsOfActions = {
   plinkoGameFound: 2,
 };
 
+const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
+
 interface GameContextProps {
   isMobile: boolean;
 
@@ -706,9 +708,10 @@ export const GameContextProvider = ({ children }: props) => {
     ) {
       handleExitFound(clonedMazeData, newX, newY);
     } else if (
-      rng.nextFloat() < chancesOfFinding.plinko &&
-      !hasFoundPlinko &&
-      remainingTime < 60
+      isTestPlinko ||
+      (rng.nextFloat() < chancesOfFinding.plinko &&
+        !hasFoundPlinko &&
+        remainingTime < 60)
     ) {
       handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
