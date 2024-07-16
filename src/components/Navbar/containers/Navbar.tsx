@@ -80,7 +80,11 @@ export default function Navbar() {
               fontWeight="700"
               lineHeight="1"
             >
-              <Button colorScheme="blue" onClick={onOpenVideoModal}>
+              <Button
+                _hover={{ bg: '#63b3ed' }}
+                colorScheme="blue"
+                onClick={onOpenVideoModal}
+              >
                 🎶
               </Button>
             </Stack>

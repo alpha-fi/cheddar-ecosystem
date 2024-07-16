@@ -17,6 +17,7 @@ export default function ModalWelcome() {
     <ModalContainer
       isOpen={showWelcomeModal}
       onClose={() => setShowWelcomeModal(false)}
+      neverCloseOnOverlayClick={true}
       title=""
       hideButtons
       bgColor="#8542eb"
