@@ -359,6 +359,7 @@ export function GameboardContainer({
         title={'Maze scoreboard'}
         isOpen={isScoreboardOpen}
         onClose={onCloseScoreboard}
+        neverCloseOnOverlayClick={true}
       >
         <Scoreboard />
       </ModalContainer>
