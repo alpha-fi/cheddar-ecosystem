@@ -266,8 +266,8 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseVideoModal,
   } = useDisclosure();
 
-  const mazeRows = 11;
   const [mazeCols, setMazeCols] = useState(8);
+  const [mazeRows, setMazeRows] = useState(11);
   const [totalCells, setTotalCells] = useState(0);
 
   useEffect(() => {
@@ -277,6 +277,7 @@ export const GameContextProvider = ({ children }: props) => {
         setMazeCols(9); // Larger devices
       } else {
         setMazeCols(8); // Smaller devices
+        setMazeRows(10);
       }
     };
 

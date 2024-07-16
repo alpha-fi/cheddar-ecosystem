@@ -237,16 +237,23 @@ export function GameboardContainer({
       <div className={styles.mazeContainer} tabIndex={0}>
         <div className={styles.toolbar}>
           <span className={styles.rulesButton}>
-            <Button onClick={onOpenModalRules}>Rules</Button>
+            <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenModalRules}>
+              Rules
+            </Button>
           </span>
           {hasEnoughBalance && (
             <span className={getStartButtonStyles()}>
-              <Button onClick={getStartGameButtonHandler()}>
+              <Button
+                _hover={{ bg: 'yellowgreen' }}
+                onClick={getStartGameButtonHandler()}
+              >
                 {gameOverFlag ? 'Restart' : 'Start'}
               </Button>
             </span>
           )}
-          <Button onClick={onOpenScoreboard}>🏆</Button>
+          <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenScoreboard}>
+            🏆
+          </Button>
           <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
             <Button
               colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
@@ -278,7 +285,7 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsFirstLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowUp')}
-                  disabled={!hasPowerUp}
+                  disabled={!accountId}
                 >
                   <ArrowUpIcon />
                 </Button>
@@ -286,19 +293,19 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsSecondLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowLeft')}
-                  disabled={!hasPowerUp}
+                  disabled={!accountId}
                 >
                   <ArrowBackIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowDown')}
-                  disabled={!hasPowerUp}
+                  disabled={!accountId}
                 >
                   <ArrowDownIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowRight')}
-                  disabled={!hasPowerUp}
+                  disabled={!accountId}
                 >
                   <ArrowForwardIcon />
                 </Button>
