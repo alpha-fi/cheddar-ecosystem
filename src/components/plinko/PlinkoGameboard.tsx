@@ -1,29 +1,23 @@
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import Matter, { Engine, Render, Bodies, World, Body } from 'matter-js';
-import { color } from 'framer-motion';
 import styles from '@/styles/PlinkoGameboard.module.css';
 import {
   Button,
   useDisclosure,
-  withDefaultColorScheme,
 } from '@chakra-ui/react';
-import { sep } from 'path';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
 import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';
 import {
-  BALL_BOUNCINES,
-  BALL_FRICTION,
   BALL_RADIUS,
   BALL_OPTIONS,
   BALL_PREVIEW_OPTIONS,
-  COLLISION_FILTER_1,
   CURRENT_WIDTH,
   GOALS,
   GRAVITY,
   HIT_MACHINE_FORCE_MAGNITUDE,
-  INITIAL_CLIENT_HEIGHT as INITIAL_CLIENT_HEIGHT,
+  INITIAL_CLIENT_HEIGHT,
   MAX_BALLS_AMOUNT,
   PIN_RADIUS,
   PIN_SPACING,
@@ -494,7 +488,7 @@ export function PlinkoBoard() {
         <Button onClick={onOpenModalRules} mr={'1rem'}>
           Rules
         </Button>
-        <span>Balls left: {MAX_BALLS_AMOUNT - thrownBallsQuantity}</span>
+        <span>Chips left: {MAX_BALLS_AMOUNT - thrownBallsQuantity}</span>
       </div>
       <div
         className={styles.plinkoGame}

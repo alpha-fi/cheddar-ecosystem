@@ -5,17 +5,21 @@
   align-items: center;
 }
 
+.gameOverModal > * {
+  text-align: center;
+}
+
 .gameOver {
   font-size: 1.5rem;
   font-weight: bold;
 }
 
 .win {
-  color: green;
+  color: #7ED957;
 }
 
 .lost {
-  color: red;
+  color: #F1506B;
 }
 
 .score {

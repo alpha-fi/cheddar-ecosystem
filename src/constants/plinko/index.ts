@@ -38,14 +38,14 @@ export const BALL_PREVIEW_OPTIONS = {
   friction: 0,
   isStatic: true,
   label: 'ballPreview',
-  render: { fillStyle: 'rgb(245, 152, 47, 0.8)' },
+  render: { fillStyle: 'rgb(255, 102, 51, 0.8)' },
   collisionFilter: COLLISION_FILTER_1,
 };
 export const BALL_OPTIONS = {
   restitution: BALL_BOUNCINES,
   friction: BALL_FRICTION,
   label: 'ball',
-  render: { fillStyle: 'rgb(245, 152, 47)' },
+  render: { fillStyle: 'rgb(255, 102, 51)' },
 };
 export const SIDE_WALLS_OPTIONS = {
   isStatic: true,
@@ -56,7 +56,8 @@ export const BOTTOM_WALL_OPTIONS = {
   isStatic: true,
   collisionFilter: COLLISION_FILTER_1,
   // render: { fillStyle: 'rgb(255, 255, 255, 0.5)' },
-  render: { fillStyle: 'rgb(134, 66, 235, 0.6)' },
+  // render: { fillStyle: 'rgb(134, 66, 235, 0.6)' },
+  render: { fillStyle: 'rgb(134, 66, 235, 0.8)' },
   // render: { fillStyle: 'rgb(99, 45, 144, 0.7)' },
   // render: { fillStyle: 'rgb(134, 66, 235)' },
 };

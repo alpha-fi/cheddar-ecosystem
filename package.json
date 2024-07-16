@@ -36,6 +36,7 @@
     "@near-wallet-selector/sender": "^8.9.10",
     "@near-wallet-selector/wallet-connect": "^8.9.10",
     "@near-wallet-selector/xdefi": "^8.9.10",
+    "@next/font": "^14.2.5",
     "@tanstack/react-query": "^5.51.1",
     "@tanstack/react-query-devtools": "^5.51.1",
     "classnames": "^2.5.1",
