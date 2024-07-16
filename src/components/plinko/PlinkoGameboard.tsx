@@ -382,11 +382,15 @@ export function PlinkoBoard() {
 
         // Bottom wall
         Bodies.rectangle(
+          //All background
+
           // CURRENT_WIDTH / 2,
           // 200,
           // CURRENT_WIDTH,
           // 600,
           // BOTTOM_WALL_OPTIONS
+
+          //Band
 
           CURRENT_WIDTH / 2,
           clientHeight,
@@ -402,28 +406,32 @@ export function PlinkoBoard() {
           if (row % 2 === 0) {
             x += PIN_SPACING / 2;
           }
-          const y = PIN_SPACING + row * PIN_SPACING + clientHeight / 20;
 
-          const pin = Bodies.circle(x, y, PIN_RADIUS, PIN_OPTIONS);
+          //Do not create first row
+          if (row > 0) {
+            const y = PIN_SPACING + row * PIN_SPACING + clientHeight / 20;
 
-          const pinDecorative1 = Bodies.circle(
-            x,
-            y,
-            PIN_RADIUS * 1.5,
-            PIN_DECORATIVE_1_OPTIONS
-          );
+            const pin = Bodies.circle(x, y, PIN_RADIUS, PIN_OPTIONS);
 
-          const pinDecorative2 = Bodies.circle(
-            x,
-            y,
-            PIN_RADIUS * 2,
-            PIN_DECORATIVE_2_OPTIONS
-          );
-          World.add(engine.current.world, [
-            pinDecorative2,
-            pinDecorative1,
-            pin,
-          ]);
+            const pinDecorative1 = Bodies.circle(
+              x,
+              y,
+              PIN_RADIUS * 1.5,
+              PIN_DECORATIVE_1_OPTIONS
+            );
+
+            const pinDecorative2 = Bodies.circle(
+              x,
+              y,
+              PIN_RADIUS * 2,
+              PIN_DECORATIVE_2_OPTIONS
+            );
+            World.add(engine.current.world, [
+              pinDecorative2,
+              pinDecorative1,
+              pin,
+            ]);
+          }
         }
       }
 
@@ -456,7 +464,7 @@ export function PlinkoBoard() {
                 50,
                 60,
                 14,
-                'black',
+                'white',
                 'goalName'
               )
             );
