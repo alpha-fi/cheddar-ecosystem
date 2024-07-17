@@ -399,7 +399,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     // Regenerate maze data
     const rng = new RNG(newSeedIdResponse.seedId);
-    console.log(1, newSeedIdResponse.seedId)
+    console.log(1, newSeedIdResponse.seedId);
     setRng(rng);
 
     const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
@@ -706,10 +706,10 @@ export const GameContextProvider = ({ children }: props) => {
     }
     let clonedMazeData = [...newMazeData];
     if (
-      ( isTestWin ||
-        (rng.nextFloat() < getChancesOfFindingExit() &&
+      isTestWin ||
+      (rng.nextFloat() < getChancesOfFindingExit() &&
         coveredCells.length >= 0.75 * pathLength) ||
-      pathLength - cellsWithItemAmount === 1)
+      pathLength - cellsWithItemAmount === 1
     ) {
       handleExitFound(clonedMazeData, newX, newY);
     } else if (
