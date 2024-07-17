@@ -51,6 +51,8 @@ const pointsOfActions = {
 };
 
 const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 interface GameContextProps {
   isMobile: boolean;
@@ -397,6 +399,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     // Regenerate maze data
     const rng = new RNG(newSeedIdResponse.seedId);
+    console.log(1, newSeedIdResponse.seedId);
     setRng(rng);
 
     const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
@@ -703,6 +706,7 @@ export const GameContextProvider = ({ children }: props) => {
     }
     let clonedMazeData = [...newMazeData];
     if (
+      isTestWin ||
       (rng.nextFloat() < getChancesOfFindingExit() &&
         coveredCells.length >= 0.75 * pathLength) ||
       pathLength - cellsWithItemAmount === 1
@@ -724,7 +728,7 @@ export const GameContextProvider = ({ children }: props) => {
       handleCheeseFound(clonedMazeData, newX, newY);
     } else if (!bagCooldown && rng.nextFloat() < chancesOfFinding.bag) {
       handleBagFound(clonedMazeData, newX, newY);
-    } else if (rng.nextFloat() < chancesOfFinding.cartel) {
+    } else if (isTestCartel || rng.nextFloat() < chancesOfFinding.cartel) {
       handleCartelFound(clonedMazeData, newX, newY);
     } else {
       setScore(score + pointsOfActions.moveWithoutDying);

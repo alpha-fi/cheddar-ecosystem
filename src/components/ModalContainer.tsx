@@ -87,7 +87,7 @@ export const ModalContainer = ({
         fontSize="16px"
         fontWeight="600"
       >
-        <ModalHeader>{title}</ModalHeader>
+        <ModalHeader fontSize={'28px'}>{title}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           {children}

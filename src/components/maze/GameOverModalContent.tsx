@@ -53,11 +53,7 @@ export const GameOverModalContent = () => {
   return (
     <div className={styles.gameOverModal}>
       <p className={getMessageStyles()}>{gameOverMessage}</p>
-      <p className={styles.score}>{score} Points!</p>
-      <p className={styles.timeRemaining}>
-        Time remaining: {remainingMinutes}:{properSecondsFormat}
-      </p>
-      {cheddarFound > 0 && hasWon && (
+      {hasWon && (
         <p className={styles.earnings}>
           You have farmed{' '}
           {cheddarFound <= pendingCheddarToMint
@@ -71,6 +67,10 @@ export const GameOverModalContent = () => {
           Your {cheddarFound} 🧀 was swallowed by the enemy.
         </p>
       )}
+      <p className={styles.timeRemaining}>
+        Time remaining: {remainingMinutes}:{properSecondsFormat}
+      </p>
+      <p className={styles.score}>{score} Points!</p>
     </div>
   );
 };
