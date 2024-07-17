@@ -1,15 +1,19 @@
 import { Gameboard } from './Gameboard';
 import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import styles from '@/styles/GameboardContainer.module.css';
-import { Button, Link, Show, useDisclosure } from '@chakra-ui/react';
+import {
+  Button,
+  Heading,
+  Link,
+  Show,
+  Tooltip,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { MouseEventHandler, useContext, useMemo, useState } from 'react';
 
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { ModalBuyNFT } from '../ModalBuyNFT';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
-import { useGetCheddarNFTs } from '@/hooks/cheddar';
-// import { ModalContainer } from '../FeedbackModal';
 import { ModalContainer } from '../ModalContainer';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { IsAllowedResponse } from '@/hooks/maze';
@@ -32,7 +36,6 @@ interface Props {
   hasEnoughBalance: boolean | null;
   minCheddarRequired: number;
   isAllowedResponse: IsAllowedResponse | null | undefined;
-  cheddarBalanceData: bigint | null | undefined;
 }
 
 export function GameboardContainer({
@@ -49,7 +52,6 @@ export function GameboardContainer({
     score,
     gameOverFlag,
     gameOverMessage,
-    selectedColorSet,
     hasPowerUp,
     handleKeyPress,
     restartGame,
@@ -58,16 +60,14 @@ export function GameboardContainer({
     saveResponse,
     plinkoModalOpened,
     closePlinkoModal,
-    videoModalOpened,
-    onOpenVideoModal,
-    onCloseVideoModal,
-    isScoreboardOpen,
-    onOpenScoreboard,
-    onCloseScoreboard,
     nfts,
     handleArrowPress,
     showMovementButtons,
     setShowMovementButtons,
+    onOpenScoreboard,
+    isScoreboardOpen,
+    onCloseScoreboard,
+    isMobile,
   } = useContext(GameContext);
 
   const {
@@ -145,23 +145,6 @@ export function GameboardContainer({
     setAllowOpenGameOverModal(false);
   }
 
-  function smartTrim(string: string, maxLength: number) {
-    if (!string) return string;
-    if (maxLength < 1) return string;
-    if (string.length <= maxLength) return string;
-    if (maxLength == 1) return string.substring(0, 1) + '...';
-
-    var midpoint = Math.ceil(string.length / 2);
-    var toremove = string.length - maxLength;
-    var lstrip = Math.ceil(toremove / 2);
-    var rstrip = toremove - lstrip;
-    return (
-      string.substring(0, midpoint - lstrip) +
-      '...' +
-      string.substring(midpoint + rstrip)
-    );
-  }
-
   function handleToggleShowMovementButtons() {
     setShowMovementButtons(!showMovementButtons);
   }
@@ -208,6 +191,16 @@ export function GameboardContainer({
     );
   };
 
+  function getPowerUpBtnText() {
+    if (accountId) {
+      if (nfts?.length) {
+        return '⚡';
+      } else return 'Buy ⚡';
+    } else {
+      return 'Buy ⚡';
+    }
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -217,23 +210,29 @@ export function GameboardContainer({
       }}
     >
       <div className={styles.publicityDecoration}></div>
-
       {accountId && (!hasEnoughBalance || userIsNotAllowedToPlay) && (
-        <Link
-          target="_blank"
-          className={styles.notEnoughBalanceMsg}
-          href="https://app.ref.finance/#a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near%7Ctoken.cheddar.near"
-        >
-          Must have {minCheddarRequired}
-          {RenderCheddarIcon({ width: '2rem' })} and Verified Human to play.
-        </Link>
+        <div className={styles.warningText}>
+          Must have
+          <Link
+            target="_blank"
+            className={styles.notEnoughBalanceMsg}
+            href="https://app.ref.finance/#a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near%7Ctoken.cheddar.near"
+          >
+            {minCheddarRequired}
+            {RenderCheddarIcon({ width: '2rem' })}
+          </Link>
+          and
+          <Link
+            target="_blank"
+            className={styles.notEnoughBalanceMsg}
+            href="https://app.nada.bot/"
+          >
+            Verified Human
+          </Link>
+          to play.
+        </div>
       )}
-
       <h1 className={styles.gameName}>Cheddar Maze</h1>
-
-      {/* <div className={styles.gameHeaderContainer}>
-        <Button onClick={onOpenScoreboard}>Scoreboard</Button>
-      </div> */}
       <div className={styles.gameInfo}>
         <div className={styles.score}>Score: {score}</div>
         <div className={styles.time}>
@@ -242,57 +241,64 @@ export function GameboardContainer({
           {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
         </div>
       </div>
-
       <div className={styles.mazeContainer} tabIndex={0}>
         <div className={styles.toolbar}>
           <span className={styles.rulesButton}>
-            <Button onClick={onOpenModalRules}>Rules</Button>
-          </span>
-
-          <span className={getStartButtonStyles()}>
-            {hasEnoughBalance && (
-              <Button onClick={getStartGameButtonHandler()}>
-                {gameOverFlag ? 'Restart Game' : 'Start Game'}
-              </Button>
-            )}
-          </span>
-
-          <div className={styles.tooltip}>
-            <Button
-              colorScheme={nfts && nfts.length > 0 ? 'yellow' : 'gray'}
-              onClick={handleBuyClick}
-            >
-              ⚡
+            <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenModalRules}>
+              Rules
             </Button>
-            <span className={styles.tooltipText}>
-              Cheddy PowerUp NFT provides in-game features
-            </span>
-
-            <Show below="lg">
+          </span>
+          <div className={styles.toolbar}>
+            <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenScoreboard}>
+              🏆
+            </Button>
+            <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
               <Button
-                onClick={() => handleToggleShowMovementButtons()}
-                colorScheme="gray"
+                colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
+                onClick={handleBuyClick}
               >
-                <div className={styles.togglePlayModeIconContainer}>
-                  {showMovementButtons ? renderSwipeIcon() : renderArrowsIcon()}
-                </div>
+                {getPowerUpBtnText()}
               </Button>
-            </Show>
+            </Tooltip>
           </div>
+          <Show below="lg">
+            <Button
+              onClick={() => handleToggleShowMovementButtons()}
+              colorScheme="gray"
+            >
+              <div className={styles.togglePlayModeIconContainer}>
+                {showMovementButtons ? renderSwipeIcon() : renderArrowsIcon()}
+              </div>
+            </Button>
+          </Show>
         </div>
-        <Gameboard
-          openLogIn={modal.show}
-          isUserLoggedIn={selector.isSignedIn()}
-          isAllowedResponse={isAllowedResponse!}
-        />
-
+        <div style={{ position: 'relative' }}>
+          <Gameboard
+            openLogIn={modal.show}
+            isUserLoggedIn={selector.isSignedIn()}
+            isAllowedResponse={isAllowedResponse!}
+          />
+        </div>
+        {hasEnoughBalance && !timerStarted && (
+          <div className={styles.startGameBg}>
+            <Heading as="h6" size="md">
+              Play Cheddar Maze
+            </Heading>
+            <Button
+              _hover={{ bg: 'yellowgreen' }}
+              onClick={getStartGameButtonHandler()}
+            >
+              {gameOverFlag ? 'Restart' : 'Start'}
+            </Button>
+          </div>
+        )}
         {showMovementButtons && (
           <Show below="lg">
             <div className={styles.arrowButtonsContainer}>
               <div className={styles.arrowButtonsFirstLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowUp')}
-                  disabled={!hasPowerUp}
+                  isDisabled={!accountId || !timerStarted}
                 >
                   <ArrowUpIcon />
                 </Button>
@@ -300,19 +306,19 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsSecondLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowLeft')}
-                  disabled={!hasPowerUp}
+                  isDisabled={!accountId || !timerStarted}
                 >
                   <ArrowBackIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowDown')}
-                  disabled={!hasPowerUp}
+                  isDisabled={!accountId || !timerStarted}
                 >
                   <ArrowDownIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowRight')}
-                  disabled={!hasPowerUp}
+                  isDisabled={!accountId || !timerStarted}
                 >
                   <ArrowForwardIcon />
                 </Button>
@@ -321,7 +327,6 @@ export function GameboardContainer({
           </Show>
         )}
       </div>
-
       <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
       {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
         <ModalNotAllowedToPlay
@@ -355,35 +360,21 @@ export function GameboardContainer({
         </ModalContainer>
       )}
       <ModalContainer
-        title={'Cheddar rap'}
-        isOpen={videoModalOpened}
-        onClose={onCloseVideoModal}
+        title={'Plinko game!'}
+        isOpen={plinkoModalOpened}
+        onClose={closePlinkoModal}
+        size={isMobile ? 'full' : 'xl'}
+        neverCloseOnOverlayClick={true}
       >
-        <div className={styles.videoContainer}>
-          <video
-            src="../../../assets/cheddar_rap.mp4"
-            autoPlay
-            controls
-          ></video>
-        </div>
+        <PlinkoBoard />
       </ModalContainer>
-
       <ModalContainer
         title={'Maze scoreboard'}
         isOpen={isScoreboardOpen}
         onClose={onCloseScoreboard}
-      >
-        <Scoreboard />
-      </ModalContainer>
-
-      <ModalContainer
-        title={'Plinko game!'}
-        isOpen={plinkoModalOpened}
-        onClose={closePlinkoModal}
-        size={'full'}
         neverCloseOnOverlayClick={true}
       >
-        <PlinkoBoard />
+        <Scoreboard />
       </ModalContainer>
     </div>
   );

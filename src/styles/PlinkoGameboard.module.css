@@ -9,7 +9,14 @@
   width: 100%;
   display: flex;
   justify-content: left;
-  gap: 1rem;
+  /* gap: 1rem; */
+}
+
+.plinkoGame {
+  margin-top: 0.5rem;
+  background-image: url("../../public/assets/modal-background.svg");
+  border: 0.4rem solid white;
+  border-radius: 8px;
 }
 
 .displayablePrizeContainer {

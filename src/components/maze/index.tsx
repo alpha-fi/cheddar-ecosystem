@@ -6,6 +6,7 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ntoy, yton } from '@/contracts/contractUtils';
 import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse } from '@/hooks/maze';
+import ModalWelcome from '../ModalWelcome';
 
 export default function MazeContainer() {
   const {
@@ -89,6 +90,7 @@ export default function MazeContainer() {
 
   return (
     <>
+      <ModalWelcome />
       {initialized() && ( // Replace `condition` with your actual condition
         <GameboardContainer
           remainingMinutes={Math.floor(remainingTime / 60)}

@@ -13,9 +13,7 @@ import { callEndGame, getScoreBoard, getSeedId } from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
-  IsAllowedResponse,
   ScoreboardResponse,
-  useGetIsAllowedResponse,
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
@@ -51,6 +49,10 @@ const pointsOfActions = {
   moveWithoutDying: 0,
   plinkoGameFound: 2,
 };
+
+const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 interface GameContextProps {
   isMobile: boolean;
@@ -159,16 +161,16 @@ interface GameContextProps {
   timestampStartStopTimerArray: number[];
   timestampEndStopTimerArray: number[];
 
-  scoreboardResponse: ScoreboardResponse | null | undefined;
-  isLoadingScoreboard: boolean;
-
   plinkoModalOpened: boolean;
   onOpenPlinkoModal: () => void;
   onClosePlinkoModal: () => void;
 
   closePlinkoModal: () => void;
 
-  videoModalOpened: boolean;
+  scoreboardResponse: ScoreboardResponse | null | undefined;
+  isLoadingScoreboard: boolean;
+
+  isVideoModalOpened: boolean;
   onOpenVideoModal: () => void;
   onCloseVideoModal: () => void;
 
@@ -196,6 +198,11 @@ export const GameContextProvider = ({ children }: props) => {
     onOpen: onOpenScoreboard,
     onClose: onCloseScoreboard,
   } = useDisclosure();
+
+  function openScoreboard() {
+    console.log('open scoreboard');
+    onOpenScoreboard();
+  }
 
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
@@ -241,6 +248,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [endGameResponse, setEndGameResponse] = useState();
 
   const [showMovementButtons, setShowMovementButtons] = useState(true);
+  const [renderBoard, setRenderBoard] = useState(false); // to update board color on restart
 
   const [timestampStartStopTimerArray, setTimestampStartStopTimerArray] =
     useState<number[]>([]);
@@ -255,13 +263,13 @@ export const GameContextProvider = ({ children }: props) => {
   // const [rarity, setRarity] = useState('');
 
   const {
-    isOpen: videoModalOpened,
+    isOpen: isVideoModalOpened,
     onOpen: onOpenVideoModal,
     onClose: onCloseVideoModal,
   } = useDisclosure();
 
-  const mazeRows = 11;
   const [mazeCols, setMazeCols] = useState(8);
+  const [mazeRows, setMazeRows] = useState(11);
   const [totalCells, setTotalCells] = useState(0);
 
   useEffect(() => {
@@ -271,6 +279,7 @@ export const GameContextProvider = ({ children }: props) => {
         setMazeCols(9); // Larger devices
       } else {
         setMazeCols(8); // Smaller devices
+        setMazeRows(10);
       }
     };
 
@@ -384,11 +393,13 @@ export const GameContextProvider = ({ children }: props) => {
     setSaveResponse(undefined);
     setEndGameResponse(undefined);
     setCellsWithItemAmount(0);
+    setRenderBoard(!renderBoard);
 
     gameOverRefSent.current = false;
 
     // Regenerate maze data
     const rng = new RNG(newSeedIdResponse.seedId);
+    console.log(1, newSeedIdResponse.seedId);
     setRng(rng);
 
     const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
@@ -495,7 +506,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     const playerStartCell = getRandomPathCell(newMazeData);
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
-  }, [totalCells]); // Empty dependency array to run this effect only once on component mount
+  }, [totalCells, renderBoard]); // Empty dependency array to run this effect only once on component mount
 
   function movePlayer(newX: number, newY: number) {
     if (
@@ -656,12 +667,12 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const chancesOfFinding = {
-    exit: 0.002,
+    exit: 0.0021,
     enemy: 0.19,
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
-    plinko: 1,
+    plinko: 0.001,
   };
 
   const NFTCheeseBuffMultiplier = 1.28;
@@ -695,12 +706,18 @@ export const GameContextProvider = ({ children }: props) => {
     }
     let clonedMazeData = [...newMazeData];
     if (
+      isTestWin ||
       (rng.nextFloat() < getChancesOfFindingExit() &&
         coveredCells.length >= 0.75 * pathLength) ||
       pathLength - cellsWithItemAmount === 1
     ) {
       handleExitFound(clonedMazeData, newX, newY);
-    } else if (rng.nextFloat() < chancesOfFinding.plinko && !hasFoundPlinko) {
+    } else if (
+      isTestPlinko ||
+      (rng.nextFloat() < chancesOfFinding.plinko &&
+        !hasFoundPlinko &&
+        remainingTime < 60)
+    ) {
       handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
       handleEnemyFound(clonedMazeData, newX, newY);
@@ -711,7 +728,7 @@ export const GameContextProvider = ({ children }: props) => {
       handleCheeseFound(clonedMazeData, newX, newY);
     } else if (!bagCooldown && rng.nextFloat() < chancesOfFinding.bag) {
       handleBagFound(clonedMazeData, newX, newY);
-    } else if (rng.nextFloat() < chancesOfFinding.cartel) {
+    } else if (isTestCartel || rng.nextFloat() < chancesOfFinding.cartel) {
       handleCartelFound(clonedMazeData, newX, newY);
     } else {
       setScore(score + pointsOfActions.moveWithoutDying);
@@ -1080,20 +1097,20 @@ export const GameContextProvider = ({ children }: props) => {
         hasWon,
         pendingCheddarToMint,
         endGameResponse,
-        videoModalOpened,
-        onOpenVideoModal,
-        onCloseVideoModal,
         nfts,
         showMovementButtons,
         setShowMovementButtons,
         timestampStartStopTimerArray,
         timestampEndStopTimerArray,
-        scoreboardResponse,
-        isLoadingScoreboard,
         plinkoModalOpened,
         onOpenPlinkoModal,
         onClosePlinkoModal,
         closePlinkoModal,
+        isVideoModalOpened,
+        onOpenVideoModal,
+        onCloseVideoModal,
+        scoreboardResponse,
+        isLoadingScoreboard,
         isScoreboardOpen,
         onOpenScoreboard,
         onCloseScoreboard,

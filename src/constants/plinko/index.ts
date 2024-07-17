@@ -18,7 +18,7 @@ export const PRIZES_DATA = [
 ];
 export const CURRENT_WIDTH = 330;
 export const PIN_SPACING = CURRENT_WIDTH / GOALS.length;
-export const INITIAL_CURRENT_HEIGHT = 450;
+export const INITIAL_CLIENT_HEIGHT = 450;
 export const PIN_RADIUS = 8;
 export const WALL_POSITION_ADJUST = 9;
 export const MAX_BALLS_AMOUNT = 1;
@@ -38,14 +38,14 @@ export const BALL_PREVIEW_OPTIONS = {
   friction: 0,
   isStatic: true,
   label: 'ballPreview',
-  render: { fillStyle: 'rgb(245, 152, 47, 0.8)' },
+  render: { fillStyle: 'rgb(255, 102, 51, 0.8)' },
   collisionFilter: COLLISION_FILTER_1,
 };
 export const BALL_OPTIONS = {
   restitution: BALL_BOUNCINES,
   friction: BALL_FRICTION,
   label: 'ball',
-  render: { fillStyle: 'rgb(245, 152, 47)' },
+  render: { fillStyle: 'rgb(255, 102, 51)' },
 };
 export const SIDE_WALLS_OPTIONS = {
   isStatic: true,
@@ -55,7 +55,11 @@ export const SIDE_WALLS_OPTIONS = {
 export const BOTTOM_WALL_OPTIONS = {
   isStatic: true,
   collisionFilter: COLLISION_FILTER_1,
-  render: { fillStyle: 'rgb(255, 255, 255, 0.7)' },
+  // render: { fillStyle: 'rgb(255, 255, 255, 0.5)' },
+  // render: { fillStyle: 'rgb(134, 66, 235, 0.6)' },
+  render: { fillStyle: 'rgb(134, 66, 235, 0.8)' },
+  // render: { fillStyle: 'rgb(99, 45, 144, 0.7)' },
+  // render: { fillStyle: 'rgb(134, 66, 235)' },
 };
 export const PIN_OPTIONS = {
   isStatic: true,

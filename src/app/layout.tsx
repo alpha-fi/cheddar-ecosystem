@@ -5,12 +5,14 @@ import './globals.css';
 import '../../public/assets/css/style.css';
 import '../../public/assets/css/near.css';
 import '@near-wallet-selector/modal-ui/styles.css';
-import { ChakraProvider } from '@chakra-ui/react';
+import { Box, ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletSelectorContextProvider } from '@/contexts/WalletSelectorContext';
 import { GameContextProvider } from '@/contexts/maze/GameContextProvider';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import Navbar from '@/components/Navbar/containers/Navbar';
+import { getCheddarBalance } from '@/contracts/cheddarCalls';
+import { SocialMedia } from '@/components/SocialMediaContainer';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -40,6 +42,9 @@ export default function RootLayout({
               </>
               <ReactQueryDevtools initialIsOpen={false} />
             </QueryClientProvider>
+            <Box display={{ base: 'none', lg: 'flex' }}>
+              <SocialMedia />
+            </Box>
           </ChakraProvider>
         </WalletSelectorContextProvider>
       </body>
