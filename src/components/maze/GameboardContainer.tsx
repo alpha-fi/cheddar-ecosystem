@@ -341,7 +341,7 @@ export function GameboardContainer({
           title={'Game over'}
           isOpen={isOpen}
           onClose={closeGameOverModal}
-          closeOnOverlayClick={false}
+          neverCloseOnOverlayClick={true}
         >
           <GameOverModalContent />
         </ModalContainer>
