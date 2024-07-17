@@ -153,6 +153,7 @@
   justify-content: space-between;
   background-color: #8542eb;
   align-items: center;
+  gap:0.5rem;
 }
 .tooltip {
   position: relative;

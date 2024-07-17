@@ -248,18 +248,19 @@ export function GameboardContainer({
               Rules
             </Button>
           </span>
-
-          <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenScoreboard}>
-            🏆
-          </Button>
-          <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
-            <Button
-              colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
-              onClick={handleBuyClick}
-            >
-              {getPowerUpBtnText()}
+          <div className={styles.toolbar}>
+            <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenScoreboard}>
+              🏆
             </Button>
-          </Tooltip>
+            <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
+              <Button
+                colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
+                onClick={handleBuyClick}
+              >
+                {getPowerUpBtnText()}
+              </Button>
+            </Tooltip>
+          </div>
           <Show below="lg">
             <Button
               onClick={() => handleToggleShowMovementButtons()}
