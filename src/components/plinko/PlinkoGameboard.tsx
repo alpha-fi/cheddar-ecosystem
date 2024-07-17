@@ -2,10 +2,7 @@ import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import Matter, { Engine, Render, Bodies, World, Body } from 'matter-js';
 import styles from '@/styles/PlinkoGameboard.module.css';
-import {
-  Button,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Button, useDisclosure } from '@chakra-ui/react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
 import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';

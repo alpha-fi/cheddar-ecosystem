@@ -1,7 +1,14 @@
 import { Gameboard } from './Gameboard';
 import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import styles from '@/styles/GameboardContainer.module.css';
-import { Button, Link, Show, Tooltip, useDisclosure } from '@chakra-ui/react';
+import {
+  Button,
+  Heading,
+  Link,
+  Show,
+  Tooltip,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { MouseEventHandler, useContext, useMemo, useState } from 'react';
 
 import { GameContext } from '@/contexts/maze/GameContextProvider';
@@ -241,16 +248,7 @@ export function GameboardContainer({
               Rules
             </Button>
           </span>
-          {hasEnoughBalance && (
-            <span className={getStartButtonStyles()}>
-              <Button
-                _hover={{ bg: 'yellowgreen' }}
-                onClick={getStartGameButtonHandler()}
-              >
-                {gameOverFlag ? 'Restart' : 'Start'}
-              </Button>
-            </span>
-          )}
+
           <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenScoreboard}>
             🏆
           </Button>
@@ -273,19 +271,33 @@ export function GameboardContainer({
             </Button>
           </Show>
         </div>
-        <Gameboard
-          openLogIn={modal.show}
-          isUserLoggedIn={selector.isSignedIn()}
-          isAllowedResponse={isAllowedResponse!}
-        />
-
+        <div style={{ position: 'relative' }}>
+          <Gameboard
+            openLogIn={modal.show}
+            isUserLoggedIn={selector.isSignedIn()}
+            isAllowedResponse={isAllowedResponse!}
+          />
+        </div>
+        {hasEnoughBalance && !timerStarted && (
+          <div className={styles.startGameBg}>
+            <Heading as="h6" size="md">
+              Play Cheddar Maze
+            </Heading>
+            <Button
+              _hover={{ bg: 'yellowgreen' }}
+              onClick={getStartGameButtonHandler()}
+            >
+              {gameOverFlag ? 'Restart' : 'Start'}
+            </Button>
+          </div>
+        )}
         {showMovementButtons && (
           <Show below="lg">
             <div className={styles.arrowButtonsContainer}>
               <div className={styles.arrowButtonsFirstLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowUp')}
-                  disabled={!accountId}
+                  isDisabled={!accountId || !timerStarted}
                 >
                   <ArrowUpIcon />
                 </Button>
@@ -293,19 +305,19 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsSecondLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowLeft')}
-                  disabled={!accountId}
+                  isDisabled={!accountId || !timerStarted}
                 >
                   <ArrowBackIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowDown')}
-                  disabled={!accountId}
+                  isDisabled={!accountId || !timerStarted}
                 >
                   <ArrowDownIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowRight')}
-                  disabled={!accountId}
+                  isDisabled={!accountId || !timerStarted}
                 >
                   <ArrowForwardIcon />
                 </Button>

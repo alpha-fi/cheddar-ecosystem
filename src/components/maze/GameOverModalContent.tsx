@@ -51,26 +51,26 @@ export const GameOverModalContent = () => {
   }, [endGameResponse, toast]);
 
   return (
-      <div className={styles.gameOverModal}>
-        <p className={getMessageStyles()}>{gameOverMessage}</p>
-        {hasWon && (
-          <p className={styles.earnings}>
-            You have farmed{' '}
-            {cheddarFound <= pendingCheddarToMint
-              ? cheddarFound
-              : pendingCheddarToMint}{' '}
-            🧀
-          </p>
-        )}
-        {cheddarFound > 0 && !hasWon && (
-          <p className={styles.loseEarnings}>
-            Your {cheddarFound} 🧀 was swallowed by the enemy.
-          </p>
-        )}
-        <p className={styles.timeRemaining}>
-          Time remaining: {remainingMinutes}:{properSecondsFormat}
+    <div className={styles.gameOverModal}>
+      <p className={getMessageStyles()}>{gameOverMessage}</p>
+      {hasWon && (
+        <p className={styles.earnings}>
+          You have farmed{' '}
+          {cheddarFound <= pendingCheddarToMint
+            ? cheddarFound
+            : pendingCheddarToMint}{' '}
+          🧀
         </p>
-        <p className={styles.score}>{score} Points!</p>
-      </div>
+      )}
+      {cheddarFound > 0 && !hasWon && (
+        <p className={styles.loseEarnings}>
+          Your {cheddarFound} 🧀 was swallowed by the enemy.
+        </p>
+      )}
+      <p className={styles.timeRemaining}>
+        Time remaining: {remainingMinutes}:{properSecondsFormat}
+      </p>
+      <p className={styles.score}>{score} Points!</p>
+    </div>
   );
 };
