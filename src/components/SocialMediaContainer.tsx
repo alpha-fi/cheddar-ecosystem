@@ -1,5 +1,6 @@
-import { Box, Img, Link } from '@chakra-ui/react';
+import { Box, Link } from '@chakra-ui/react';
 import styles from '../styles/SocialMedia.module.css';
+import { Chatter, Discord, GitBook, Telegram, Twitter } from './icons';
 
 export const SocialMedia = () => {
   return (
@@ -13,14 +14,7 @@ export const SocialMedia = () => {
           _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
           _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
         >
-          <Box minW="30px" ml="5px">
-            <Img
-              src={'/assets/telegram.svg'}
-              alt=""
-              width="24px"
-              height="24px"
-            />
-          </Box>
+          <Telegram boxSize={6} color={'#8542eb'} />
         </Link>
 
         <Link
@@ -31,14 +25,7 @@ export const SocialMedia = () => {
           _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
           _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
         >
-          <Box minW="30px" ml="5px">
-            <Img
-              src={'/assets/discord.svg'}
-              alt=""
-              width="24px"
-              height="24px"
-            />
-          </Box>
+          <Discord boxSize={6} color={'#8542eb'} />
         </Link>
 
         <Link
@@ -49,14 +36,7 @@ export const SocialMedia = () => {
           _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
           _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
         >
-          <Box minW="30px" ml="5px">
-            <Img
-              src={'/assets/twitter.svg'}
-              alt=""
-              width="24px"
-              height="24px"
-            />
-          </Box>
+          <Twitter boxSize={5} color={'#8542eb'} />
         </Link>
 
         <Link
@@ -67,14 +47,7 @@ export const SocialMedia = () => {
           _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
           _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
         >
-          <Box minW="30px" ml="5px">
-            <Img
-              src={'/assets/gitbook.svg'}
-              alt=""
-              width="24px"
-              height="24px"
-            />
-          </Box>
+          <GitBook boxSize={7} color={'#8542eb'} />
         </Link>
 
         <Link
@@ -85,9 +58,7 @@ export const SocialMedia = () => {
           _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
           _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
         >
-          <Box minW="30px" ml="5px">
-            <Img src={'/assets/chat.svg'} alt="" width="20px" height="20px" />
-          </Box>
+          <Chatter boxSize={6} color={'#8542eb'} />
         </Link>
       </Box>
     </Box>

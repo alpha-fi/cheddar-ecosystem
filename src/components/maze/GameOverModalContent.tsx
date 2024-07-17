@@ -2,6 +2,7 @@ import { useContext, useEffect } from 'react';
 import styles from '@/styles/GameOverModalContent.module.css';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useToast } from '@chakra-ui/react';
+import { Facebook, Telegram, Twitter } from '../icons';
 
 export const GameOverModalContent = () => {
   const {
@@ -50,6 +51,22 @@ export const GameOverModalContent = () => {
     }
   }, [endGameResponse, toast]);
 
+  const shareText = `I just ${hasWon ? 'won' : 'lost'} ${cheddarFound} Cheddar playing the Cheddar Maze game. Check it out its fun and with more features coming.`;
+  const encodedText = encodeURIComponent(shareText);
+  const encodedLink = encodeURIComponent('https://cheddar.farm/');
+
+  function getTwitterUrl() {
+    return `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedLink}`;
+  }
+
+  function getFbUrl() {
+    return `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}&quote=${encodedText}`;
+  }
+
+  function getTelegramUrl() {
+    return `https://telegram.me/share/url?url=${encodedLink}&text=${encodedText}`;
+  }
+
   return (
     <div className={styles.gameOverModal}>
       <p className={getMessageStyles()}>{gameOverMessage}</p>
@@ -71,6 +88,25 @@ export const GameOverModalContent = () => {
         Time remaining: {remainingMinutes}:{properSecondsFormat}
       </p>
       <p className={styles.score}>{score} Points!</p>
+      <div
+        style={{
+          display: 'flex',
+          gap: 15,
+          alignItems: 'center',
+          marginTop: 20,
+        }}
+      >
+        Share on
+        <a href={getTwitterUrl()} target="_blank" rel="noreferrer">
+          <Twitter boxSize={5} />
+        </a>
+        <a href={getFbUrl()} target="_blank" rel="noreferrer">
+          <Facebook boxSize={5} />
+        </a>
+        <a href={getTelegramUrl()} target="_blank" rel="noreferrer">
+          <Telegram boxSize={6} />
+        </a>
+      </div>
     </div>
   );
 };
