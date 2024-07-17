@@ -88,23 +88,21 @@ export const GameOverModalContent = () => {
         Time remaining: {remainingMinutes}:{properSecondsFormat}
       </p>
       <p className={styles.score}>{score} Points!</p>
-      <div
-        style={{
-          display: 'flex',
-          gap: 15,
-          alignItems: 'center',
-          marginTop: 20,
-        }}
-      >
+      <div className={styles.shareContainer}>
         Share on
         <a href={getTwitterUrl()} target="_blank" rel="noreferrer">
-          <Twitter boxSize={5} />
+          <Twitter boxSize={6} />
         </a>
         <a href={getFbUrl()} target="_blank" rel="noreferrer">
-          <Facebook boxSize={5} />
+          <Facebook boxSize={6} />
         </a>
-        <a href={getTelegramUrl()} target="_blank" rel="noreferrer">
-          <Telegram boxSize={6} />
+        <a
+          href={getTelegramUrl()}
+          target="_blank"
+          rel="noreferrer"
+          style={{ paddingTop: 3 }}
+        >
+          <Telegram boxSize={7} />
         </a>
       </div>
     </div>
