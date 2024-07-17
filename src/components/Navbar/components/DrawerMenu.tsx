@@ -1,6 +1,5 @@
 import { HamburgerIcon } from '@chakra-ui/icons';
 import {
-  Box,
   Button,
   Drawer,
   DrawerBody,
@@ -9,6 +8,7 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
+  VStack,
   IconButton,
   Text,
   useDisclosure,
@@ -18,6 +18,7 @@ import { yton } from '@/contracts/contractUtils';
 import { useContext } from 'react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
+import Link from 'next/link';
 
 interface Props {
   onOpenVideoModal: () => void;
@@ -54,6 +55,21 @@ export function DrawerMenu({
             <Button colorScheme="blue" onClick={onOpenVideoModal}>
               🎶
             </Button>
+            <VStack spacing={'16px'} minW={'25px'}>
+              <Link href={'/maze'} style={{ textDecorationColor: 'purple' }}>
+                <Text fontSize={'16px'} fontWeight="600" color="purple">
+                  Maze
+                </Text>
+              </Link>
+              <Link
+                href={'/checkers'}
+                style={{ textDecorationColor: 'purple' }}
+              >
+                <Text fontSize={'16px'} fontWeight="600" color="purple">
+                  Checkers
+                </Text>
+              </Link>
+            </VStack>
           </DrawerBody>
 
           <DrawerFooter

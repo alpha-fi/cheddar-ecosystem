@@ -7,6 +7,7 @@ import {
   Img,
   Stack,
   Text,
+  useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react';
 import { ButtonConnectWallet } from '../components/ButtonConnectWallet';
@@ -20,6 +21,7 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { ModalContainer } from '@/components/ModalContainer';
 import { SocialMedia } from '@/components/SocialMediaContainer';
+import Link from 'next/link';
 
 export default function Navbar() {
   const {
@@ -30,6 +32,8 @@ export default function Navbar() {
 
   const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
     useGetCheddarTotalSupply();
+
+  const isDesktop = useBreakpointValue({ base: false, md: true });
 
   return (
     <>
@@ -63,6 +67,29 @@ export default function Navbar() {
               </HStack>
             </Flex>
           </Flex>
+
+          {isDesktop && (
+            <Flex alignContent="center">
+              <Flex flexDirection="column" mr="20px">
+                <HStack spacing={'16px'} minW={'25px'}>
+                  <Link href={'/maze'} style={{ textDecorationColor: 'white' }}>
+                    <Text fontSize={'16px'} fontWeight="600" color="white">
+                      Maze
+                    </Text>
+                  </Link>
+                  <Link
+                    href={'/checkers'}
+                    style={{ textDecorationColor: 'white' }}
+                  >
+                    <Text fontSize={'16px'} fontWeight="600" color="white">
+                      Checkers
+                    </Text>
+                  </Link>
+                </HStack>
+              </Flex>
+            </Flex>
+          )}
+
           <Flex
             flexDir="row"
             justifyContent="end"
