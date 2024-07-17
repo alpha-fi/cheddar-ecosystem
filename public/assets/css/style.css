@@ -102,7 +102,6 @@ body .clearfix {
 div.column {
   position: relative;
   height: 100%;
-  min-height: 100%;
   width: 45%;
   margin: 10px;
 }
@@ -829,4 +828,12 @@ div#board .player2pieces.inverted .piece {
 .invitation-input-line svg {
   cursor: pointer;
   margin: 5px;
+}
+
+@media screen and (max-width: 768px) {
+  div.info,
+  div.stats,
+  div.account {
+    width: 100%;
+  }
 }

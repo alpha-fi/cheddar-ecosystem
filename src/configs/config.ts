@@ -14,6 +14,7 @@ export interface Config {
     cheddarToken: string;
     nearSocial: string;
     checkers: string;
+    nekoToken: string;
   };
   socialKeys: {
     ecosystem: string;
@@ -44,6 +45,7 @@ export const getConfig = (): Config => {
           cheddarToken: 'token.cheddar.near',
           nearSocial: 'social.near',
           checkers: 'checkers.cheddar.near',
+          nekoToken: 'ftv2.nekotoken.near',
         },
         socialKeys: {
           ecosystem: 'cheddarEcosystem',
@@ -70,6 +72,7 @@ export const getConfig = (): Config => {
           cheddarToken: 'token-v3.cheddar.testnet',
           nearSocial: 'v1.social08.testnet',
           checkers: 'checkers.cheddar.testnet',
+          nekoToken: '',
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
@@ -96,6 +99,7 @@ export const getConfig = (): Config => {
           cheddarToken: 'token-v3.cheddar.testnet',
           nearSocial: 'v1.social08.testnet',
           checkers: 'checkers.cheddar.testnet',
+          nekoToken: '',
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',

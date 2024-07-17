@@ -41,8 +41,8 @@ function App() {
 
   return (
     <>
-      <script src="/assets/js/near2.js" async />
-      <script src="/assets/js/script2.js" async />
+      <script src="/assets/js/near.js" async />
+      <script src="/assets/js/script.js" async />
       <header>
         <div id="cheddar-mark">
           <a href="#" className="logo">

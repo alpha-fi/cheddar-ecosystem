@@ -1,188 +1,154 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import styles from '@/styles/style.module.sass';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import {
+  Button,
+  Image,
+  Stack,
+  useClipboard,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { ntoy, yton } from '@/contracts/contractUtils';
+import { getConfig } from '@/configs/config';
+import { DICTIONARY, INITIAL_GAME_BOARD } from '@/constants/checkers';
 import {
   useGetAvailableCheckersPlayers,
   useGetAvailableCheckersGames,
   useGetCheckersGame,
 } from '@/hooks/checkers';
 import {
-  getAvailableGames,
+  giveUp,
   makeMove,
+  makeAvailable,
+  selectOpponent,
+  stopGame,
+  makeUnavailable,
+  makeAvailableFt,
 } from '@/contracts/checkers/checkersCalls';
-import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { Image } from '@chakra-ui/react';
-import { yton } from '@/contracts/contractUtils';
-
-const nft_web4_url = 'https://checkers.cheddar.testnet.page/style';
-const NEKO_TOKEN_CONTRACT = 'ftv2.nekotoken.near';
-const NEAR = 'NEAR';
-// const CHEDDAR_TOKEN_CONTRACT = 'token.cheddar.near';
-const CHEDDAR_TOKEN_CONTRACT = 'token-v3.cheddar.testnet';
-const players_css = ['player-1', 'player-2'];
-
-// const nft_contract = 'nft.cheddar.near';
-const nft_contract = 'nft.cheddar.testnet';
-
-const nearConfig = {
-  // networkId: 'mainnet',
-  // nodeUrl: 'https://rpc.mainnet.near.org',
-  // contractName: 'checkers.cheddar.near',
-  // walletUrl: 'https://app.mynearwallet.com',
-  // helperUrl: 'https://helper.mainnet.near.org',
-  // explorerUrl: 'https://explorer.mainnet.near.org',
-
-  networkId: 'testnet',
-  nodeUrl: 'https://rpc.testnet.near.org',
-  contractName: 'checkers.cheddar.testnet',
-  walletUrl: 'https://testnet.mynearwallet.com',
-  helperUrl: 'https://helper.testnet.near.org',
-  explorerUrl: 'https://explorer.testnet.near.org',
-};
-
-const GAS_START_GAME = 50000000000000;
-const GAS_GIVE_UP = 50000000000000;
-const GAS_MOVE = 30000000000000;
-const DICTIONARY = [
-  '0%',
-  '12.5%',
-  '25%',
-  '37.5%',
-  '50%',
-  '62.5%',
-  '75%',
-  '87.5%',
-];
-const INITIAL_GAME_BOARD = [
-  [0, 2, 0, 2, 0, 2, 0, 2],
-  [2, 0, 2, 0, 2, 0, 2, 0],
-  [0, 2, 0, 2, 0, 2, 0, 2],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [1, 0, 1, 0, 1, 0, 1, 0],
-  [0, 1, 0, 1, 0, 1, 0, 1],
-  [1, 0, 1, 0, 1, 0, 1, 0],
-];
-
-function reverseArray(arr) {
-  // https://www.geeksforgeeks.org/program-to-reverse-the-rows-in-a-2d-array/
-  // Traverse each row of arr
-  for (var i = 0; i < 8; i++) {
-    // Initialise start and end index
-    var start = 0;
-    var end = 8 - 1;
-
-    // Till start < end, swap the element
-    // at start and end index
-    while (start < end) {
-      // Swap the element
-      var temp = arr[i][start];
-      arr[i][start] = arr[i][end];
-      arr[i][end] = temp;
-
-      // Increment start and decrement
-      // end for next pair of swapping
-      start++;
-      end--;
-    }
-  }
-
-  return arr;
-}
+import {
+  reverseArray,
+  getPlayerByIndex,
+  reverseArrayPlayer1,
+  getTokenName,
+  c1,
+  c2,
+  getTimeSpent,
+  formatTimestamp,
+  isOpponentTimeSpent,
+  inRange,
+  getReferralId,
+} from '@/lib/checkers';
+import { ModalContainer } from '@/components/ModalContainer';
 
 function App() {
-  const [isRule, setRule] = useState('true');
   const [currentGameId, setCurrentGameId] = useState(-1);
   const [gameBoard, setGameBoard] = useState(INITIAL_GAME_BOARD);
-  const [userInfoShown, setUserInfoShown] = useState(false);
-  const [showBurguerMenu, setShowBurguerMenu] = useState(true);
   const [moveBuffer, setMoveBuffer] = useState('');
-  const [force_reload, setForce_reload] = useState(false);
-  const [last_updated_turn, setLast_updated_turn] = useState(-1);
+  const [updateBoardByQuery, setUpdateBoardByQuery] = useState(true);
+  const [isCheckedDoubleJump, setIsCheckedDoubleJump] = useState(false);
   const [selectedPiece, setSelectedPiece] = useState({
     row: null,
     col: null,
     piece: null,
   });
+  const [error, setError] = useState('');
 
   const { accountId } = useWalletSelector();
-  const { data: availablePlayersData } = useGetAvailableCheckersPlayers();
+  const { data: availablePlayersData = [] } = useGetAvailableCheckersPlayers();
   const { data: availableGamesData = [] } = useGetAvailableCheckersGames();
   const { data: gameData } = useGetCheckersGame(currentGameId);
   const { selector } = useWalletSelector();
+  const {
+    onCopy: onCopyRef,
+    setValue: setRefValue,
+    value: refValue,
+  } = useClipboard(
+    window.location.origin +
+      window.location.pathname +
+      '/?r=' +
+      (accountId ?? '')
+  );
 
-  const handleRuleToggle = (e) => {
-    if (
-      e.target.tagName.toLowerCase() == 'a' ||
-      e.target.tagName.toLowerCase() == 'svg' ||
-      e.target.tagName.toLowerCase() == 'path' ||
-      e.target.id == 'rules-layer'
-    ) {
-      setRule(!isRule);
-    }
-  };
-
-  const userDropdownHandler = () => {
-    setUserInfoShown(!userInfoShown);
-  };
-
-  const handlerBurgerMenu = () => {
-    setShowBurguerMenu(!showBurguerMenu);
-  };
-
-  const handleGiveUp = () => {
-    window.give_up();
-  };
-
-  const handleStopGame = () => {
-    window.stop_game();
-  };
-
-  function getPlayerByIndex(game, index) {
-    if (index === 0) {
-      return game.player_1;
-    } else if (index === 1) {
-      return game.player_2;
-    } else {
-      alert('Error with player index');
-      return -1;
-    }
-  }
-
-  function reverseArray(arr) {
-    // https://www.geeksforgeeks.org/program-to-reverse-the-rows-in-a-2d-array/
-    // Traverse each row of arr
-    for (var i = 0; i < 8; i++) {
-      // Initialise start and end index
-      var start = 0;
-      var end = 8 - 1;
-
-      // Till start < end, swap the element
-      // at start and end index
-      while (start < end) {
-        // Swap the element
-        var temp = arr[i][start];
-        arr[i][start] = arr[i][end];
-        arr[i][end] = temp;
-
-        // Increment start and decrement
-        // end for next pair of swapping
-        start++;
-        end--;
+  const handleGiveUp = async () => {
+    try {
+      const wallet = await selector.wallet();
+      await giveUp(wallet, currentGameId);
+    } catch (error) {
+      let string = JSON.stringify(error);
+      let error_begins = string.indexOf('***');
+      if (error_begins !== -1) {
+        let error_ends = string.indexOf("'", error_begins);
+        setError(string.substring(error_begins + 4, error_ends));
+      } else {
+        setError(error);
       }
+      setUpdateBoardByQuery(true);
     }
+  };
 
-    return arr;
-  }
+  const handleStopGame = async () => {
+    try {
+      const wallet = await selector.wallet();
+      await stopGame(wallet, currentGameId);
+    } catch (error) {
+      let string = JSON.stringify(error);
+      let error_begins = string.indexOf('***');
+      if (error_begins !== -1) {
+        let error_ends = string.indexOf("'", error_begins);
+        setError(string.substring(error_begins + 4, error_ends));
+      } else {
+        setError(error);
+      }
+      setUpdateBoardByQuery(true);
+    }
+  };
 
-  function reverseArrayPlayer1(arr) {
-    return [arr[7], arr[6], arr[5], arr[4], arr[3], arr[2], arr[1], arr[0]];
-  }
+  const handleSelectOpponent = async (opponentId, deposit, tokenId) => {
+    try {
+      const referrerId = getReferralId(window.location.href);
+      const wallet = await selector.wallet();
+      await selectOpponent(
+        wallet,
+        opponentId,
+        deposit,
+        tokenId,
+        accountId,
+        referrerId
+      );
+    } catch (error) {
+      let string = JSON.stringify(error);
+      let error_begins = string.indexOf('***');
+      if (error_begins !== -1) {
+        let error_ends = string.indexOf("'", error_begins);
+        setError(string.substring(error_begins + 4, error_ends));
+      } else {
+        setError(error);
+      }
+      setUpdateBoardByQuery(true);
+    }
+  };
+
+  const handleMakeUnavailable = async (opponentId, deposit, tokenId) => {
+    try {
+      const wallet = await selector.wallet();
+      await makeUnavailable(wallet);
+    } catch (error) {
+      let string = JSON.stringify(error);
+      let error_begins = string.indexOf('***');
+      if (error_begins !== -1) {
+        let error_ends = string.indexOf("'", error_begins);
+        setError(string.substring(error_begins + 4, error_ends));
+      } else {
+        setError(error);
+      }
+      setUpdateBoardByQuery(true);
+    }
+  };
 
   const handleClickPiece = (piece, row, col, playerIndex) => {
-    console.log(selectedPiece);
     if (
+      !gameData ||
       gameData.current_player_index !== playerIndex ||
       getPlayerByIndex(gameData, gameData.current_player_index) !== accountId ||
       moveBuffer
@@ -193,7 +159,7 @@ function App() {
 
   const handleClickTile = (row, col) => {
     console.log(selectedPiece);
-    const move = inRange({ row, col });
+    const move = inRange({ row, col }, selectedPiece, gameBoard);
     console.log(move);
     if (
       move === 'jump' ||
@@ -204,56 +170,6 @@ function App() {
       movePiece({ row, col }, selectedPiece);
     }
   };
-
-  const dist = (x1, y1, x2, y2) => {
-    return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-  };
-
-  const inRange = (tile) => {
-    if (!selectedPiece.row === null || !selectedPiece.col === null) {
-      return;
-    }
-
-    if (!isValidPlacetoMove(tile.row, tile.col)) {
-      return 'wrong';
-    }
-
-    if (
-      dist(tile.row, tile.col, selectedPiece.row, selectedPiece.col) ==
-      Math.sqrt(2)
-    ) {
-      if (selectedPiece.piece > 0 && tile.row > selectedPiece.row) {
-        return 'regular back';
-      }
-      return 'regular';
-    } else if (
-      dist(tile.row, tile.col, selectedPiece.row, selectedPiece.col) ==
-      2 * Math.sqrt(2)
-    ) {
-      if (selectedPiece.piece > 0 && tile.row > selectedPiece.row) {
-        return 'jump back';
-      }
-      return 'jump';
-    }
-  };
-
-  const isValidPlacetoMove = (row, col) => {
-    if (row < 0 || row > 7 || col < 0 || col > 7) return false;
-    if (gameBoard[row][col] == 0) {
-      return true;
-    }
-    return false;
-  };
-  if (gameData) {
-    console.log(gameData.board[0]);
-    console.log(gameData.board[1]);
-    console.log(gameData.board[2]);
-    console.log(gameData.board[3]);
-    console.log(gameData.board[4]);
-    console.log(gameData.board[5]);
-    console.log(gameData.board[6]);
-    console.log(gameData.board[7]);
-  }
 
   const movePiece = async (tile, piece) => {
     let current_move =
@@ -270,9 +186,7 @@ function App() {
       return newBoard;
     });
 
-    let double_move = document.getElementById('near-game-double-move').checked;
-    // || (e !== undefined && e.shiftKey);
-    if (double_move) {
+    if (isCheckedDoubleJump) {
       if (moveBuffer) {
         setMoveBuffer(
           (prevState) =>
@@ -284,7 +198,7 @@ function App() {
       setSelectedPiece((prevState) => {
         return { ...prevState, row: tile.row, col: tile.col };
       });
-      document.getElementById('near-game-double-move').checked = false;
+      setIsCheckedDoubleJump(false);
     } else {
       if (moveBuffer) {
         current_move +=
@@ -300,9 +214,9 @@ function App() {
         let error_begins = string.indexOf('***');
         if (error_begins !== -1) {
           let error_ends = string.indexOf("'", error_begins);
-          alert(string.substring(error_begins + 4, error_ends));
+          setError(string.substring(error_begins + 4, error_ends));
         } else {
-          alert(error);
+          setError(error);
         }
         setUpdateBoardByQuery(true);
       }
@@ -313,17 +227,34 @@ function App() {
     return true;
   };
 
-  function c1(i, current_player) {
-    if (current_player === 0)
-      return ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][parseInt(i)];
-    else if (current_player === 1)
-      return ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][7 - parseInt(i)];
-  }
-
-  function c2(i, current_player) {
-    if (current_player === 0) return (8 - parseInt(i)).toString();
-    else if (current_player === 1) return (1 + parseInt(i)).toString();
-  }
+  const handleBid = async () => {
+    let bidNEAR = parseFloat(document.getElementById('near-bid-deposit').value);
+    let bidCheddar = parseFloat(
+      document.getElementById('cheddar-bid-deposit').value
+    );
+    let bidNeko = parseFloat(document.getElementById('neko-bid-deposit').value);
+    const wallet = await selector.wallet();
+    if (bidNEAR >= 0.01) {
+      const referrerId = getReferralId(window.location.href);
+      await makeAvailable(wallet, referrerId, ntoy(bidNEAR.toString()));
+    } else if (bidCheddar >= 1) {
+      await makeAvailableFt(
+        wallet,
+        ntoy(bidCheddar.toString()),
+        getConfig().contracts.cheddarToken,
+        accountId
+      );
+    } else if (bidNeko >= 5) {
+      await makeAvailableFt(
+        wallet,
+        ntoy(bidNeko.toString()),
+        getConfig().contracts.nekoToken,
+        accountId
+      );
+    } else {
+      setError('Bid should be > 0.01 NEAR or > 1 Cheddar or > 5 Neko');
+    }
+  };
 
   useEffect(() => {
     let myGames = availableGamesData.filter(
@@ -332,8 +263,6 @@ function App() {
 
     setCurrentGameId(myGames.length > 0 ? myGames[0][0] : -1);
   }, [availableGamesData, accountId]);
-
-  const [updateBoardByQuery, setUpdateBoardByQuery] = useState(true);
 
   useEffect(() => {
     if (
@@ -353,170 +282,243 @@ function App() {
     }
   }, [gameData, accountId, updateBoardByQuery]);
 
+  useEffect(() => {
+    setRefValue(
+      window.location.origin +
+        window.location.pathname +
+        '/?r=' +
+        (accountId ?? '')
+    );
+  }, [accountId]);
+
+  const currentPlayerIsAvailable = useMemo(
+    () => availablePlayersData.find((player) => player[0] == accountId),
+    [accountId, availablePlayersData]
+  );
+
+  const { onOpen, onClose, isOpen } = useDisclosure();
+
   return (
     <>
-      {!isRule && (
-        <>
-          <div id="rules-layer" onClick={handleRuleToggle}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              fill="currentColor"
-              className="bi bi-x-circle-fill"
-              viewBox="0 0 16 16"
-            >
-              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" />
-            </svg>
-          </div>
-          <div id="near-game-rules">
-            <h2>How to play:</h2>
-            <ul>
-              <li>
-                Click a checkbox &quot;double jump&quot; on the top of the board
-                before every double jump. Shift key makes the same trick.
-              </li>
-              <li>
-                Set a bid and join waiting list or select an available player to
-                start the game.
-              </li>
-              <li>The winner takes the pot.</li>
-              <li>
-                Invite a friend to get a 10% referral bonus from his rewards.
-              </li>
-              <li>
-                Hold shift button (or check a checkbox) to perform a double
-                jump. Release a shift button before a final move.
-              </li>
-              <li>
-                If you spent more than an hour, your opponent may stop the game
-                and get the reward.
-              </li>
-              <li>
-                Service fee is 10%, referral reward is half of the service fee.
-              </li>
-              <li>Various game stats are storing onchain.</li>
-            </ul>
-            <div className="subtitle">
-              General Game Rules (
-              <a
-                href="https://en.wikipedia.org/wiki/Draughts"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                source
-              </a>
-              )
-            </div>
-            <ul>
-              <li>
-                Capturing is mandatory. Double capturing is not mandatory.
-              </li>
-              <li>
-                Uncrowned pieces (men) move one step diagonally forwards, and
-                capture an opponent&quot;s piece. Men can jump only forwards.
-                Multiple enemy pieces can be captured in a single turn provided
-                this is done by successive jumps made by a single piece.
-              </li>
-              <li>
-                Kings acquires additional powers including the ability to move
-                backwards and capture backwards.
-              </li>
-            </ul>
-          </div>
-        </>
-      )}
+      <ModalContainer
+        onClose={onClose}
+        onOpen={onOpen}
+        isOpen={isOpen}
+        maxW={{ base: '385px', md: '600px' }}
+      >
+        <h2>How to play:</h2>
+        <ul style={{ marginLeft: '16px' }}>
+          <li>
+            Click a checkbox &quot;double jump&quot; on the top of the board
+            before every double jump.
+            {/* Shift key makes the same trick. */}
+          </li>
+          <li>
+            Set a bid and join waiting list or select an available player to
+            start the game.
+          </li>
+          <li>The winner takes the pot.</li>
+          <li>Invite a friend to get a 10% referral bonus from his rewards.</li>
+          <li>
+            Check a checkbox to perform a double jump. don&quot;t check before a
+            final move.
+          </li>
+          {/* <li>
+            Hold shift button (or check a checkbox) to perform a double jump.
+            Release a shift button before a final move.
+          </li> */}
+          <li>
+            If you spent more than an hour, your opponent may stop the game and
+            get the reward.
+          </li>
+          <li>
+            Service fee is 10%, referral reward is half of the service fee.
+          </li>
+          <li>Various game stats are storing onchain.</li>
+        </ul>
+        <div className="subtitle">
+          General Game Rules (
+          <a
+            href="https://en.wikipedia.org/wiki/Draughts"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'white', textDecoration: 'underline' }}
+          >
+            source
+          </a>
+          )
+        </div>
+        <ul style={{ marginLeft: '16px' }}>
+          <li>Capturing is mandatory. Double capturing is not mandatory.</li>
+          <li>
+            Uncrowned pieces (men) move one step diagonally forwards, and
+            capture an opponent&quot;s piece. Men can jump only forwards.
+            Multiple enemy pieces can be captured in a single turn provided this
+            is done by successive jumps made by a single piece.
+          </li>
+          <li>
+            Kings acquires additional powers including the ability to move
+            backwards and capture backwards.
+          </li>
+        </ul>
+      </ModalContainer>
 
-      <div className="game-container">
+      <Stack
+        direction={{ base: gameData ? 'column-reverse' : 'column', md: 'row' }}
+      >
         <div className="column" style={{ minHeight: 0, paddingBottom: '30px' }}>
           <div className="info">
             <h1>Cheddar Checkers</h1>
 
-            <div className="only-before-login">
-              <div className="subtitle">
-                Login with NEAR account (or{' '}
-                <a href="//wallet.near.org" target="_blank">
-                  create one for free!
-                </a>
-                )
-              </div>
-            </div>
-
-            <div className="only-after-login">
-              <div id="near-available-players" className="">
+            {!accountId && (
+              <div className="only-before-login">
                 <div className="subtitle">
-                  Available players
-                  <span id="near-available-players-hint" className="">
-                    {' '}
-                    (click on a player to start a game)
-                  </span>
-                  :
-                </div>
-                <div id="near-available-players-list"></div>
-              </div>
-              <div id="near-waiting-list" className="">
-                <div id="near-make-available-block" className="">
-                  <div className="subtitle">
-                    <label htmlFor="near-bid-deposit">Join waiting list:</label>
-                  </div>
-                  <div>
-                    My bid:{' '}
-                    <input
-                      type="text"
-                      id="near-bid-deposit"
-                      defaultValue={0}
-                      style={{ width: '30px' }}
-                    />{' '}
-                    NEAR
-                  </div>
-                  <div>
-                    Cheddar bid:{' '}
-                    <input
-                      type="text"
-                      id="cheddar-bid-deposit"
-                      defaultValue={0}
-                      style={{ width: '30px' }}
-                    />{' '}
-                    Cheddar
-                  </div>
-                  <div>
-                    Neko bid:{' '}
-                    <input
-                      type="text"
-                      id="neko-bid-deposit"
-                      defaultValue={0}
-                      style={{ width: '30px' }}
-                    />{' '}
-                    Neko
-                  </div>
-                  <button className="button" id="near-make-available">
-                    Join waiting list
-                  </button>
-                </div>
-                <div id="near-make-unavailable-block" className="">
-                  <button className="button" id="near-make-unavailable">
-                    Leave waiting list
-                  </button>
+                  Login with NEAR account (or{' '}
+                  <a href="https://www.mynearwallet.com/" target="_blank">
+                    create one for free!
+                  </a>
+                  )
                 </div>
               </div>
-              <div id="near-game" className="">
-                <div id="near-game-turn-block" className="subtitle">
-                  There is an ongoing game on turn #
-                  <span id="near-game-turn">...</span>
-                </div>
-                <div id="near-game-give-up">
-                  <button className="button" onClick={handleGiveUp}>
-                    Concede
-                  </button>
-                </div>
-                <div id="near-game-finished" className="subtitle ">
-                  Game winner: <span id="near-game-winner">...</span>.<br></br>
-                  Reward: <span id="near-game-reward">...</span>
-                </div>
+            )}
+            {accountId && (
+              <div className="only-after-login">
+                {!gameData && (
+                  <>
+                    <div id="near-available-players" className="">
+                      <div className="subtitle">
+                        Available players
+                        <span id="near-available-players-hint" className="">
+                          {' '}
+                          (click on a player to start a game)
+                        </span>
+                        :
+                      </div>
+                      <div id="near-available-players-list">
+                        {availablePlayersData.map((player) => {
+                          const token_id = player[1].token_id;
+                          let displayableTokenName = getTokenName(token_id);
+                          if (player[0] !== accountId) {
+                            return (
+                              <li key={player}>
+                                <div
+                                  onClick={() =>
+                                    handleSelectOpponent(
+                                      player[0],
+                                      player[1].deposit,
+                                      token_id
+                                    )
+                                  }
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  {player[0]}, bid: {yton(player[1].deposit)}{' '}
+                                  {displayableTokenName}
+                                </div>
+                              </li>
+                            );
+                          } else {
+                            return (
+                              <li key={player}>
+                                <strong>
+                                  {player[0]}, bid: {yton(player[1].deposit)}{' '}
+                                  {displayableTokenName}
+                                </strong>
+                              </li>
+                            );
+                          }
+                        })}
+                      </div>
+                    </div>
+                    <div id="near-waiting-list" className="">
+                      {currentPlayerIsAvailable ? (
+                        <div
+                          id="near-make-unavailable-block"
+                          className=""
+                          onClick={handleMakeUnavailable}
+                        >
+                          <Button
+                            colorScheme="purple"
+                            id="near-make-unavailable"
+                          >
+                            Leave waiting list
+                          </Button>
+                        </div>
+                      ) : (
+                        <div id="near-make-available-block" className="">
+                          <div className="subtitle">
+                            <label htmlFor="near-bid-deposit">
+                              Join waiting list:
+                            </label>
+                          </div>
+                          <div>
+                            My bid:{' '}
+                            <input
+                              type="text"
+                              id="near-bid-deposit"
+                              defaultValue={0}
+                              style={{ width: '30px' }}
+                            />{' '}
+                            NEAR
+                          </div>
+                          <div>
+                            Cheddar bid:{' '}
+                            <input
+                              type="text"
+                              id="cheddar-bid-deposit"
+                              defaultValue={0}
+                              style={{ width: '30px' }}
+                            />{' '}
+                            Cheddar
+                          </div>
+                          <div>
+                            Neko bid:{' '}
+                            <input
+                              type="text"
+                              id="neko-bid-deposit"
+                              defaultValue={0}
+                              style={{ width: '30px' }}
+                            />{' '}
+                            Neko
+                          </div>
+                          <Button
+                            colorScheme="purple"
+                            id="near-make-available"
+                            onClick={handleBid}
+                          >
+                            Join waiting list
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+                {gameData && (
+                  <div id="near-game" className="">
+                    <div id="near-game-turn-block" className="subtitle">
+                      There is an ongoing game on turn #
+                      <span id="near-game-turn">{gameData.turns}</span>
+                    </div>
+                    <div id="near-game-give-up">
+                      <Button colorScheme="purple" onClick={handleGiveUp}>
+                        Concede
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {gameData && gameData.winner_index && (
+                  <div id="near-game-finished" className="subtitle ">
+                    Game winner:{' '}
+                    <span id="near-game-winner">
+                      {getPlayerByIndex(gameData, gameData.winner_index)}
+                    </span>
+                    .<br></br>
+                    Reward: <span id="near-game-reward">...</span>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
             <div style={{ paddingTop: '10px' }}>
-              <a href="#" onClick={handleRuleToggle}>
+              <a onClick={onOpen} style={{ cursor: 'pointer' }}>
                 How to play / Rules (Click to view)
               </a>
             </div>
@@ -546,14 +548,33 @@ function App() {
                   <div id="near-player-1-deposit">
                     {yton(gameData.reward.balance)} {gameData.reward.token_id}
                   </div>
-                  <div id="near-player-1-time-spent"></div>
+                  {gameData && (
+                    <div id="near-player-1-time-spent">
+                      {formatTimestamp(
+                        getTimeSpent(
+                          gameData.total_time_spent[0],
+                          gameData.last_turn_timestamp,
+                          gameData.current_player_index === 0
+                        )
+                      )}
+                    </div>
+                  )}
                   <div id="near-player-1-stop-game" className="">
-                    <button
-                      onClick={handleStopGame}
-                      className="button centered"
-                    >
-                      Stop game and get reward
-                    </button>
+                    {gameData.player_1 === accountId &&
+                      isOpponentTimeSpent(
+                        getTimeSpent(
+                          gameData.total_time_spent[0],
+                          gameData.last_turn_timestamp,
+                          gameData.current_player_index === 0
+                        )
+                      ) && (
+                        <button
+                          onClick={handleStopGame}
+                          className="button centered"
+                        >
+                          Stop game and get reward
+                        </button>
+                      )}
                   </div>
                 </div>
                 <div id="player2">
@@ -577,28 +598,75 @@ function App() {
                   <div id="near-player-2-deposit">
                     {yton(gameData.reward.balance)} {gameData.reward.token_id}
                   </div>
-                  <div id="near-player-2-time-spent"></div>
+                  {gameData && (
+                    <div id="near-player-1-time-spent">
+                      {formatTimestamp(
+                        getTimeSpent(
+                          gameData.total_time_spent[1],
+                          gameData.last_turn_timestamp,
+                          gameData.current_player_index === 1
+                        )
+                      )}
+                    </div>
+                  )}
                   <div id="near-player-2-stop-game" className="">
-                    <button
-                      onClick={handleStopGame}
-                      className="button centered"
-                    >
-                      Stop game and get reward
-                    </button>
+                    {gameData.player_2 === accountId &&
+                      isOpponentTimeSpent(
+                        getTimeSpent(
+                          gameData.total_time_spent[1],
+                          gameData.last_turn_timestamp,
+                          gameData.current_player_index === 1
+                        )
+                      ) && (
+                        <button
+                          onClick={handleStopGame}
+                          className="button centered"
+                        >
+                          Stop game and get reward
+                        </button>
+                      )}
                   </div>
                 </div>
               </div>
               <div className="clearfix"></div>
               <div className="turn"></div>
               <span id="winner"></span>
-              <div className="">
+              {/* <div className="">
                 <button id="cleargame">Reload</button>
-              </div>
+              </div> */}
             </div>
           )}
           <div className="account only-after-login">
             <div>
-              <div id="near-account-ref"></div>
+              <div id="near-account-ref">
+                <div>Invite a friend to get a 10% referral bonus:</div>
+                <div class="invitation-input-line">
+                  <input class="invitation-code" type="text" value={refValue} />
+                  <svg
+                    onClick={onCopyRef}
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="feather feather-copy"
+                  >
+                    <rect
+                      x="9"
+                      y="9"
+                      width="13"
+                      height="13"
+                      rx="2"
+                      ry="2"
+                    ></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -607,7 +675,12 @@ function App() {
             className="double-jump-button-container"
             style={{ textAlign: 'center' }}
           >
-            <input type="checkbox" id="near-game-double-move" />
+            <input
+              type="checkbox"
+              id="near-game-double-move"
+              onClick={(e) => setIsCheckedDoubleJump(e.target.checked)}
+              checked={isCheckedDoubleJump}
+            />
             <label htmlFor="near-game-double-move">Double jump</label>
           </div>
           <div id="board">
@@ -694,7 +767,14 @@ function App() {
             </div>
           </div>
         </div>
-      </div>
+      </Stack>
+      <ModalContainer
+        title="Error"
+        isOpen={error !== ''}
+        onClose={() => setError('')}
+      >
+        {error}
+      </ModalContainer>
     </>
   );
 }
