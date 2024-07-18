@@ -459,12 +459,12 @@ export const GameContextProvider = ({ children }: props) => {
       const [cx, cy] = stack[stack.length - 1];
       const directions: number[][] = [];
 
-      // Check all possible directions with step size of 1
+      // Check all possible directions
       [
-        [1, 0], // Right
-        [-1, 0], // Left
-        [0, 1], // Down
-        [0, -1], // Up
+        [2, 0], // Increase step to 2 for wider paths
+        [-2, 0], // Increase step to 2 for wider paths
+        [0, 2], // Increase step to 2 for wider paths
+        [0, -2], // Increase step to 2 for wider paths
       ].forEach(([dx, dy]) => {
         const nx = cx + dx,
           ny = cy + dy;
@@ -475,54 +475,44 @@ export const GameContextProvider = ({ children }: props) => {
           ny < rows &&
           !maze[ny][nx].isPath
         ) {
-          directions.push([nx, ny]);
+          directions.push([nx, ny, cx + dx / 2, cy + dy / 2]); // Adjust coordinates for wider paths
         }
       });
 
       if (directions.length) {
-        const [nx, ny] = directions[rng.nextRange(0, directions.length)];
+        const [nx, ny, px, py] =
+          directions[rng.nextRange(0, directions.length)];
         maze[ny][nx].isPath = true;
+        maze[py][px].isPath = true;
         stack.push([nx, ny]);
       } else {
         stack.pop();
       }
     }
 
-    // Additional path connections for more path density
-    for (let i = 1; i < rows - 1; i++) {
-      for (let j = 1; j < cols - 1; j++) {
-        if (!maze[i][j].isPath) {
-          const neighbors = [
-            [i - 1, j],
-            [i + 1, j],
-            [i, j - 1],
-            [i, j + 1],
-          ].filter(([ni, nj]) => maze[ni][nj].isPath);
-
-          if (neighbors.length > 0) {
-            maze[i][j].isPath = true;
-          }
-        }
-      }
-    }
-
-    // Randomly set approximately 30% of the path cells to non-path
+    // Randomly turn a few non-path cells into paths
     const totalCells = rows * cols;
-    const pathCells = [];
+    const nonPathCells = [];
+
+    // Collect all non-path cells
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
-        if (maze[i][j].isPath) {
-          pathCells.push([i, j]);
+        if (!maze[i][j].isPath) {
+          nonPathCells.push([i, j]);
         }
       }
     }
 
-    const numCellsToUnset = Math.floor(totalCells * 0.3);
-    for (let i = 0; i < numCellsToUnset; i++) {
-      const [r, c] = pathCells.splice(rng.nextRange(0, pathCells.length), 1)[0];
-      maze[r][c].isPath = false;
-    }
+    // Determine how many cells to turn into paths (adjust percentage as needed)
+    const numToTurnIntoPaths = Math.floor(totalCells * 0.05); // 5% of total cells
 
+    // Randomly select and turn cells into paths
+    for (let i = 0; i < numToTurnIntoPaths; i++) {
+      const randomIndex = rng.nextRange(0, nonPathCells.length);
+      const [r, c] = nonPathCells[randomIndex];
+      maze[r][c].isPath = true;
+      nonPathCells.splice(randomIndex, 1); // Remove selected cell from array
+    }
     return maze;
   }
 
