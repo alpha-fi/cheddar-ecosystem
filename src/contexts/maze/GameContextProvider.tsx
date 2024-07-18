@@ -490,6 +490,29 @@ export const GameContextProvider = ({ children }: props) => {
       }
     }
 
+    // Randomly turn a few non-path cells into paths
+    const totalCells = rows * cols;
+    const nonPathCells = [];
+
+    // Collect all non-path cells
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        if (!maze[i][j].isPath) {
+          nonPathCells.push([i, j]);
+        }
+      }
+    }
+
+    // Determine how many cells to turn into paths (adjust percentage as needed)
+    const numToTurnIntoPaths = Math.floor(totalCells * 0.05); // 5% of total cells
+
+    // Randomly select and turn cells into paths
+    for (let i = 0; i < numToTurnIntoPaths; i++) {
+      const randomIndex = rng.nextRange(0, nonPathCells.length);
+      const [r, c] = nonPathCells[randomIndex];
+      maze[r][c].isPath = true;
+      nonPathCells.splice(randomIndex, 1); // Remove selected cell from array
+    }
     return maze;
   }
 
