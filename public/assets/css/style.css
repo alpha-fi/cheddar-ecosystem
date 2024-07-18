@@ -549,7 +549,7 @@ header nav a {
   height: max-content;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 991px) {
   div.column {
     width: 95vw !important;
     overflow: hidden;
@@ -594,7 +594,7 @@ header nav a {
 div.info,
 div.stats,
 div.account {
-  width: 70%;
+  width: 95%;
   margin: 5vmin auto 0;
   box-sizing: border-box;
   padding: 20px 30px;
@@ -830,7 +830,7 @@ div#board .player2pieces.inverted .piece {
   margin: 5px;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 992px) {
   div.info,
   div.stats,
   div.account {

@@ -33,7 +33,7 @@ export default function Navbar() {
   const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
     useGetCheddarTotalSupply();
 
-  const isDesktop = useBreakpointValue({ base: false, md: true });
+  const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   return (
     <>
@@ -52,11 +52,11 @@ export default function Navbar() {
           maxW="container.xl"
           justifyContent="space-between"
           alignItems="center"
-          px="14px"
+          px="32px"
           gap="1rem"
           height="100%"
         >
-          <Flex alignContent="center">
+          <Flex alignContent="center" minW={{ base: undefined, lg: '341px' }}>
             <Flex flexDirection="column" mr="20px">
               <HStack spacing={0} minW={'25px'}>
                 <Img

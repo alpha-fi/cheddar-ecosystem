@@ -3,7 +3,7 @@ import styles from '../styles/SocialMedia.module.css';
 
 export const SocialMedia = () => {
   return (
-    <Box className={styles.container}>
+    <Box className={styles.container} display={{ base: 'none', lg: 'flex' }}>
       <Box className={styles.secondContainer}>
         <Link
           display="flex"

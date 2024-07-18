@@ -364,7 +364,7 @@ function App() {
       </ModalContainer>
 
       <Stack
-        direction={{ base: gameData ? 'column-reverse' : 'column', md: 'row' }}
+        direction={{ base: gameData ? 'column-reverse' : 'column', lg: 'row' }}
       >
         <div className="column" style={{ minHeight: 0, paddingBottom: '30px' }}>
           <div className="info">
