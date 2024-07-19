@@ -14,7 +14,15 @@ export interface PlayerScoreData {
   cheddarEarned: number;
 }
 
-export const Scoreboard = () => {
+interface Props {
+  allowExpand?: boolean;
+  smallVersion?: boolean;
+}
+
+export const Scoreboard = ({
+  allowExpand = false,
+  smallVersion = false,
+}: Props) => {
   const { accountId } = useWalletSelector();
   const [rowAmount, setRowAmount] = useState(4);
 
@@ -24,7 +32,7 @@ export const Scoreboard = () => {
   const firstLoggedUserOccurrence = useRef(-1);
 
   function getRowStyles(index: number, playerScoreData: PlayerScoreData) {
-    let rowStyles = `${styles.rowContainer} ${index === 0 ? '' : styles.borderTop} ${accountId === playerScoreData.accountId ? styles.userBackground : ''}`;
+    let rowStyles = `${styles.rowContainer} ${smallVersion ? styles.smallVersionSize : styles.bigVersionSize} ${index === 0 ? '' : styles.borderTop} ${accountId === playerScoreData.accountId ? styles.userBackground : ''}`;
 
     return rowStyles;
   }
@@ -33,12 +41,16 @@ export const Scoreboard = () => {
     setRowAmount(rowAmount + 5);
   }
 
+  function getHeaderStyles() {
+    return `${styles.titlesContainer} ${smallVersion ? styles.smallVersionSize : styles.bigVersionSize}`;
+  }
+
   return (
     <>
       <table className={styles.tableContainer}>
-        <thead className={styles.titlesContainer}>
+        <thead className={getHeaderStyles()}>
           <tr>
-            <th className={styles.th}>#</th>
+            <th className={`${styles.th} ${styles.firstElement}`}>#</th>
             <th className={styles.th}>User</th>
             <th className={styles.th}>
               {RenderCheddarIcon({ width: '2rem' })}
@@ -68,10 +80,10 @@ export const Scoreboard = () => {
                   className={getRowStyles(index, playerScoreData)}
                 >
                   <td
-                    className={`${styles.content} ${styles.position}`}
+                    className={`${styles.firstElement} ${styles.position}`}
                   >{`${index + 1}`}</td>
                   <td className={`${styles.content} ${styles.userName}`}>
-                    {smartTrim(playerScoreData.accountId ?? '', 12)}
+                    {smartTrim(playerScoreData.accountId ?? '', 10)}
                   </td>
                   <td className={`${styles.content} ${styles.cheddarEarned}`}>
                     {playerScoreData.cheddarEarned}
@@ -84,11 +96,13 @@ export const Scoreboard = () => {
             })}
         </tbody>
       </table>
-      <div className={styles.tFoot}>
-        <p className={styles.showMore} onClick={handleIncreaseElementsToShow}>
-          <PlusSquareIcon />
-        </p>
-      </div>
+      {allowExpand && (
+        <div className={styles.tFoot}>
+          <p className={styles.showMore} onClick={handleIncreaseElementsToShow}>
+            <PlusSquareIcon />
+          </p>
+        </div>
+      )}
     </>
   );
 };

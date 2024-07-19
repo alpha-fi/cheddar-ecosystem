@@ -2,6 +2,7 @@ import { Gameboard } from './Gameboard';
 import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import styles from '@/styles/GameboardContainer.module.css';
 import {
+  Box,
   Button,
   Heading,
   Link,
@@ -296,6 +297,9 @@ export function GameboardContainer({
             <Heading as="h6" size="md">
               Play Cheddar Maze
             </Heading>
+            <Box w={'90%'}>
+              <Scoreboard smallVersion={true} />
+            </Box>
             <Button
               _hover={{ bg: 'yellowgreen' }}
               onClick={getStartGameButtonHandler()}
@@ -386,7 +390,7 @@ export function GameboardContainer({
         onClose={onCloseScoreboard}
         neverCloseOnOverlayClick={true}
       >
-        <Scoreboard />
+        <Scoreboard allowExpand={true} />
       </ModalContainer>
     </div>
   );
