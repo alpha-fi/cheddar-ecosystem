@@ -550,7 +550,8 @@ function App() {
                     </div>
                   </h3>
                   <div id="near-player-1-deposit">
-                    {yton(gameData.reward.balance)} {gameData.reward.token_id}
+                    {yton(gameData.reward.balance)}{' '}
+                    {getTokenName(gameData.reward.token_id)}
                   </div>
                   {gameData && (
                     <div id="near-player-1-time-spent">
@@ -600,7 +601,8 @@ function App() {
                     </div>
                   </h3>
                   <div id="near-player-2-deposit">
-                    {yton(gameData.reward.balance)} {gameData.reward.token_id}
+                    {yton(gameData.reward.balance)}{' '}
+                    {getTokenName(gameData.reward.token_id)}
                   </div>
                   {gameData && (
                     <div id="near-player-1-time-spent">
