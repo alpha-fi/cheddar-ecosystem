@@ -409,7 +409,11 @@ function App() {
                                       token_id
                                     )
                                   }
-                                  style={{ cursor: 'pointer' }}
+                                  style={{
+                                    cursor: 'pointer',
+                                    display: 'inline',
+                                    textDecoration: 'underline',
+                                  }}
                                 >
                                   {player[0]}, bid: {yton(player[1].deposit)}{' '}
                                   {displayableTokenName}
