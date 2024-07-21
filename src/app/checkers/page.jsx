@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import {
   Button,
+  HStack,
   Image,
   Stack,
   useClipboard,
@@ -275,6 +276,15 @@ function App() {
     } else {
       setError('Bid should be > 0.01 NEAR or > 1 Cheddar or > 5 Neko');
     }
+  };
+
+  const handleCancelMultiMove = () => {
+    setGameBoard(
+      gameData.player_1 === accountId
+        ? reverseArrayPlayer1(gameData.board)
+        : reverseArray(gameData.board)
+    );
+    setMoveBuffer('');
   };
 
   useEffect(() => {
@@ -700,18 +710,29 @@ function App() {
           </div>
         </div>
         <div className="column">
-          <div
-            className="double-jump-button-container"
-            style={{ textAlign: 'center' }}
-          >
-            <input
-              type="checkbox"
-              id="near-game-double-move"
-              onClick={(e) => setIsCheckedDoubleJump(e.target.checked)}
-              checked={isCheckedDoubleJump}
-            />
-            <label htmlFor="near-game-double-move">Double jump</label>
-          </div>
+          <HStack justifyContent="center">
+            <div
+              className="double-jump-button-container"
+              style={{ textAlign: 'center' }}
+            >
+              <input
+                type="checkbox"
+                id="near-game-double-move"
+                onClick={(e) => setIsCheckedDoubleJump(e.target.checked)}
+                checked={isCheckedDoubleJump}
+              />
+              <label htmlFor="near-game-double-move">Double jump</label>
+            </div>
+            {moveBuffer && (
+              <Button
+                colorScheme="purple"
+                onClick={handleCancelMultiMove}
+                h="34px"
+              >
+                Cancel move
+              </Button>
+            )}
+          </HStack>
           <div id="board">
             <div className="tiles">
               {DICTIONARY.map((row, indexRow) => {
