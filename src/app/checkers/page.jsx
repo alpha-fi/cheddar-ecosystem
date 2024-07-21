@@ -176,9 +176,7 @@ function App() {
   };
 
   const handleClickTile = (row, col) => {
-    console.log(selectedPiece);
     const move = inRange({ row, col }, selectedPiece, gameBoard);
-    console.log(move);
     if (
       move === 'jump' ||
       move === 'regular' ||
@@ -188,6 +186,7 @@ function App() {
       movePiece({ row, col }, selectedPiece);
     }
   };
+
   const movePiece = async (tile, piece) => {
     let current_move =
       c1(piece.col, gameData.current_player_index) +

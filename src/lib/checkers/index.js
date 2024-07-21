@@ -120,11 +120,17 @@ export const inRange = (tile, piece, gameBoard) => {
   }
 
   if (dist(tile.row, tile.col, piece.row, piece.col) == Math.sqrt(2)) {
+    if (tile.row > piece.row) {
+      return 'regular back';
+    }
     return 'regular';
   } else if (
     dist(tile.row, tile.col, piece.row, piece.col) ==
     2 * Math.sqrt(2)
   ) {
+    if (tile.row > piece.row) {
+      return 'jump back';
+    }
     return 'jump';
   }
 };
