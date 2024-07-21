@@ -186,7 +186,6 @@ function App() {
       movePiece({ row, col }, selectedPiece);
     }
   };
-
   const movePiece = async (tile, piece) => {
     let current_move =
       c1(piece.col, gameData.current_player_index) +
@@ -217,7 +216,8 @@ function App() {
       setIsCheckedDoubleJump(false);
     } else {
       if (moveBuffer) {
-        current_move +=
+        current_move =
+          moveBuffer +
           ' ' +
           c1(tile.col, gameData.current_player_index) +
           c2(tile.row, gameData.current_player_index);
