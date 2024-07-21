@@ -46,7 +46,7 @@ import { ModalContainer } from '@/components/ModalContainer';
 const networkId = getConfig().networkData.networkId;
 
 function App() {
-  const [currentGameId, setCurrentGameId] = useState(20);
+  const [currentGameId, setCurrentGameId] = useState(-1);
   const [gameBoard, setGameBoard] = useState(INITIAL_GAME_BOARD);
   const [timeSpent, setTimeSpent] = useState();
   const [moveBuffer, setMoveBuffer] = useState('');
