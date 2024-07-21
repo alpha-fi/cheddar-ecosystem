@@ -149,3 +149,15 @@ export const getReferralId = (currentUrl) => {
   const referrerId = params.get('r') || '';
   return referrerId;
 };
+
+export const checkValidBoard = (board) => {
+  let isValid = true;
+  board.forEach((row, rowIndex) => {
+    row.forEach((piece, colIndex) => {
+      if ((rowIndex + colIndex) % 2 === 1 && piece !== 0) {
+        isValid = false;
+      }
+    });
+  });
+  return isValid;
+};

@@ -39,6 +39,7 @@ import {
   isOpponentTimeSpent,
   inRange,
   getReferralId,
+  checkValidBoard,
 } from '@/lib/checkers';
 import { ModalContainer } from '@/components/ModalContainer';
 
@@ -62,6 +63,7 @@ function App() {
   const { data: availableGamesData = [] } = useGetAvailableCheckersGames();
   const { data: gameData } = useGetCheckersGame(currentGameId);
   const { selector } = useWalletSelector();
+  const { onOpen, onClose, isOpen } = useDisclosure();
   const {
     onCopy: onCopyRef,
     setValue: setRefValue,
@@ -71,6 +73,11 @@ function App() {
       window.location.pathname +
       '/?r=' +
       (accountId ?? '')
+  );
+
+  const currentPlayerIsAvailable = useMemo(
+    () => availablePlayersData.find((player) => player[0] == accountId),
+    [accountId, availablePlayersData]
   );
 
   const handleGiveUp = async () => {
@@ -168,6 +175,7 @@ function App() {
   const handleClickPiece = (piece, row, col, playerIndex) => {
     if (
       !gameData ||
+      gameData.winner_index !== null ||
       gameData.current_player_index !== playerIndex ||
       getPlayerByIndex(gameData, gameData.current_player_index) !== accountId ||
       moveBuffer
@@ -245,8 +253,6 @@ function App() {
       setSelectedPiece({ row: null, col: null, piece: null });
       setMoveBuffer('');
     }
-
-    return true;
   };
 
   const handleBid = async () => {
@@ -254,7 +260,11 @@ function App() {
     let bidCheddar = parseFloat(
       document.getElementById('cheddar-bid-deposit').value
     );
-    let bidNeko = parseFloat(document.getElementById('neko-bid-deposit').value);
+    let bidNeko = parseFloat(
+      networkId === 'mainnet'
+        ? document.getElementById('neko-bid-deposit').value
+        : '0'
+    );
     const wallet = await selector.wallet();
     if (bidNEAR >= 0.01) {
       const referrerId = getReferralId(window.location.href);
@@ -287,17 +297,23 @@ function App() {
     setMoveBuffer('');
   };
 
-  useEffect(() => {
-    let myGames = availableGamesData.filter(
-      (game) => game[1][0] === accountId || game[1][1] === accountId
-    );
+  const handleFinishGame = () => {
+    setCurrentGameId(-1);
+  };
 
-    setCurrentGameId(myGames.length > 0 ? myGames[0][0] : -1);
-  }, [availableGamesData, accountId]);
+  useEffect(() => {
+    if (currentGameId === -1) {
+      let myGames = availableGamesData.filter(
+        (game) => game[1][0] === accountId || game[1][1] === accountId
+      );
+      setCurrentGameId(myGames.length > 0 ? myGames[0][0] : -1);
+    }
+  }, [availableGamesData, accountId, currentGameId]);
 
   useEffect(() => {
     if (
       gameData &&
+      checkValidBoard(gameData.board) &&
       (getPlayerByIndex(gameData, gameData.current_player_index) !==
         accountId ||
         updateBoardByQuery)
@@ -311,7 +327,7 @@ function App() {
         getPlayerByIndex(gameData, gameData.current_player_index) !== accountId
       );
     }
-  }, [gameData, accountId, updateBoardByQuery]);
+  }, [accountId, updateBoardByQuery, gameData, gameData?.board]);
 
   useEffect(() => {
     setRefValue(
@@ -321,13 +337,6 @@ function App() {
         (accountId ?? '')
     );
   }, [accountId]);
-
-  const currentPlayerIsAvailable = useMemo(
-    () => availablePlayersData.find((player) => player[0] == accountId),
-    [accountId, availablePlayersData]
-  );
-
-  const { onOpen, onClose, isOpen } = useDisclosure();
 
   return (
     <>
@@ -529,7 +538,7 @@ function App() {
                     </div>
                   </>
                 )}
-                {gameData && (
+                {gameData && gameData.winner_index === null && (
                   <div id="near-game" className="">
                     <div id="near-game-turn-block" className="subtitle">
                       There is an ongoing game on turn #
@@ -542,15 +551,24 @@ function App() {
                     </div>
                   </div>
                 )}
-                {gameData && gameData.winner_index && (
-                  <div id="near-game-finished" className="subtitle ">
-                    Game winner:{' '}
-                    <span id="near-game-winner">
-                      {getPlayerByIndex(gameData, gameData.winner_index)}
-                    </span>
-                    .<br></br>
-                    Reward: <span id="near-game-reward">...</span>
-                  </div>
+                {gameData && gameData.winner_index !== null && (
+                  <>
+                    <div id="near-game-finished" className="subtitle ">
+                      Game winner:{' '}
+                      <span id="near-game-winner">
+                        {getPlayerByIndex(gameData, gameData.winner_index)}
+                      </span>
+                      <br></br>
+                      Reward:{' '}
+                      <span id="near-game-reward">
+                        {yton(gameData.reward.balance)}{' '}
+                        {getTokenName(gameData.reward.token_id)}
+                      </span>
+                    </div>
+                    <Button colorScheme="purple" onClick={handleFinishGame}>
+                      Close game
+                    </Button>
+                  </>
                 )}
               </div>
             )}
