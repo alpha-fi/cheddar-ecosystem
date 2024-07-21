@@ -80,8 +80,12 @@ function App() {
       if (error_begins !== -1) {
         let error_ends = string.indexOf("'", error_begins);
         setError(string.substring(error_begins + 4, error_ends));
+      } else if (error.message) {
+        setError(error.message);
       } else {
-        setError(error);
+        setError(
+          'An unexpected error has occurred, please try again later. If nothing works, contact cheddar support team.'
+        );
       }
       setUpdateBoardByQuery(true);
     }
@@ -97,8 +101,12 @@ function App() {
       if (error_begins !== -1) {
         let error_ends = string.indexOf("'", error_begins);
         setError(string.substring(error_begins + 4, error_ends));
+      } else if (error.message) {
+        setError(error.message);
       } else {
-        setError(error);
+        setError(
+          'An unexpected error has occurred, please try again later. If nothing works, contact cheddar support team.'
+        );
       }
       setUpdateBoardByQuery(true);
     }
@@ -122,8 +130,12 @@ function App() {
       if (error_begins !== -1) {
         let error_ends = string.indexOf("'", error_begins);
         setError(string.substring(error_begins + 4, error_ends));
+      } else if (error.message) {
+        setError(error.message);
       } else {
-        setError(error);
+        setError(
+          'An unexpected error has occurred, please try again later. If nothing works, contact cheddar support team.'
+        );
       }
       setUpdateBoardByQuery(true);
     }
@@ -139,8 +151,12 @@ function App() {
       if (error_begins !== -1) {
         let error_ends = string.indexOf("'", error_begins);
         setError(string.substring(error_begins + 4, error_ends));
+      } else if (error.message) {
+        setError(error.message);
       } else {
-        setError(error);
+        setError(
+          'An unexpected error has occurred, please try again later. If nothing works, contact cheddar support team.'
+        );
       }
       setUpdateBoardByQuery(true);
     }
@@ -215,8 +231,12 @@ function App() {
         if (error_begins !== -1) {
           let error_ends = string.indexOf("'", error_begins);
           setError(string.substring(error_begins + 4, error_ends));
+        } else if (error.message) {
+          setError(error.message);
         } else {
-          setError(error);
+          setError(
+            'An unexpected error has occurred, please try again later. If nothing works, contact cheddar support team.'
+          );
         }
         setUpdateBoardByQuery(true);
       }
