@@ -374,7 +374,7 @@ function App() {
           <li>Capturing is mandatory. Double capturing is not mandatory.</li>
           <li>
             Uncrowned pieces (men) move one step diagonally forwards, and
-            capture an opponent&quot;s piece. Men can jump only forwards.
+            capture an opponent&apos;s piece. Men can jump only forwards.
             Multiple enemy pieces can be captured in a single turn provided this
             is done by successive jumps made by a single piece.
           </li>
