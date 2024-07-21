@@ -41,6 +41,8 @@ import {
 } from '@/lib/checkers';
 import { ModalContainer } from '@/components/ModalContainer';
 
+const networkId = getConfig().networkData.networkId;
+
 function App() {
   const [currentGameId, setCurrentGameId] = useState(-1);
   const [gameBoard, setGameBoard] = useState(INITIAL_GAME_BOARD);
@@ -340,7 +342,7 @@ function App() {
           <li>The winner takes the pot.</li>
           <li>Invite a friend to get a 10% referral bonus from his rewards.</li>
           <li>
-            Check a checkbox to perform a double jump. don&quot;t check before a
+            Check a checkbox to perform a double jump. don&apos;t check before a
             final move.
           </li>
           {/* <li>
@@ -494,16 +496,18 @@ function App() {
                             />{' '}
                             Cheddar
                           </div>
-                          <div>
-                            Neko bid:{' '}
-                            <input
-                              type="text"
-                              id="neko-bid-deposit"
-                              defaultValue={0}
-                              style={{ width: '30px' }}
-                            />{' '}
-                            Neko
-                          </div>
+                          {networkId === 'mainnet' && (
+                            <div>
+                              Neko bid:{' '}
+                              <input
+                                type="text"
+                                id="neko-bid-deposit"
+                                defaultValue={0}
+                                style={{ width: '30px' }}
+                              />{' '}
+                              Neko
+                            </div>
+                          )}
                           <Button
                             colorScheme="purple"
                             id="near-make-available"
