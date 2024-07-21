@@ -46,8 +46,9 @@ import { ModalContainer } from '@/components/ModalContainer';
 const networkId = getConfig().networkData.networkId;
 
 function App() {
-  const [currentGameId, setCurrentGameId] = useState(-1);
+  const [currentGameId, setCurrentGameId] = useState(20);
   const [gameBoard, setGameBoard] = useState(INITIAL_GAME_BOARD);
+  const [timeSpent, setTimeSpent] = useState();
   const [moveBuffer, setMoveBuffer] = useState('');
   const [updateBoardByQuery, setUpdateBoardByQuery] = useState(true);
   const [isCheckedDoubleJump, setIsCheckedDoubleJump] = useState(false);
@@ -338,6 +339,36 @@ function App() {
     );
   }, [accountId]);
 
+  useEffect(() => {
+    const intervalRef = setInterval(() => {
+      if (gameData && gameData.winner_index === null) {
+        const player1TimeSpent = formatTimestamp(
+          getTimeSpent(
+            gameData.total_time_spent[0],
+            gameData.last_turn_timestamp,
+            gameData.current_player_index === 0
+          )
+        );
+        const player2TimeSpent = formatTimestamp(
+          getTimeSpent(
+            gameData.total_time_spent[1],
+            gameData.last_turn_timestamp,
+            gameData.current_player_index === 1
+          )
+        );
+
+        setTimeSpent({ player1: player1TimeSpent, player2: player2TimeSpent });
+      }
+    }, 500);
+
+    return () => clearInterval(intervalRef);
+  }, [
+    gameData,
+    gameData?.total_time_spent,
+    gameData?.last_turn_timestamp,
+    gameData?.current_player_index,
+  ]);
+
   return (
     <>
       <ModalContainer
@@ -604,16 +635,8 @@ function App() {
                     {yton(gameData.reward.balance)}{' '}
                     {getTokenName(gameData.reward.token_id)}
                   </div>
-                  {gameData && (
-                    <div id="near-player-1-time-spent">
-                      {formatTimestamp(
-                        getTimeSpent(
-                          gameData.total_time_spent[0],
-                          gameData.last_turn_timestamp,
-                          gameData.current_player_index === 0
-                        )
-                      )}
-                    </div>
+                  {timeSpent && (
+                    <div id="near-player-1-time-spent">{timeSpent.player1}</div>
                   )}
                   <div id="near-player-1-stop-game" className="">
                     {gameData.player_1 === accountId &&
@@ -655,16 +678,8 @@ function App() {
                     {yton(gameData.reward.balance)}{' '}
                     {getTokenName(gameData.reward.token_id)}
                   </div>
-                  {gameData && (
-                    <div id="near-player-1-time-spent">
-                      {formatTimestamp(
-                        getTimeSpent(
-                          gameData.total_time_spent[1],
-                          gameData.last_turn_timestamp,
-                          gameData.current_player_index === 1
-                        )
-                      )}
-                    </div>
+                  {timeSpent && (
+                    <div id="near-player-2-time-spent">{timeSpent.player2}</div>
                   )}
                   <div id="near-player-2-stop-game" className="">
                     {gameData.player_2 === accountId &&
