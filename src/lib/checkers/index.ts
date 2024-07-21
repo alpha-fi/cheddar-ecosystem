@@ -1,6 +1,6 @@
 import { getConfig } from '@/configs/config';
 
-export const reverseArray = (arr) => {
+export const reverseArray = (arr: any) => {
   // https://www.geeksforgeeks.org/program-to-reverse-the-rows-in-a-2d-array/
   // Traverse each row of arr
   for (var i = 0; i < 8; i++) {
@@ -26,7 +26,7 @@ export const reverseArray = (arr) => {
   return arr;
 };
 
-export const getPlayerByIndex = (game, index) => {
+export const getPlayerByIndex = (game: any, index: any) => {
   if (index === 0) {
     return game.player_1;
   } else if (index === 1) {
@@ -37,11 +37,11 @@ export const getPlayerByIndex = (game, index) => {
   }
 };
 
-export const reverseArrayPlayer1 = (arr) => {
+export const reverseArrayPlayer1 = (arr: any) => {
   return [arr[7], arr[6], arr[5], arr[4], arr[3], arr[2], arr[1], arr[0]];
 };
 
-export const getTokenName = (token_id) => {
+export const getTokenName = (token_id: any) => {
   let tokenName = '';
   const { cheddarToken, nekoToken } = getConfig().contracts;
   switch (token_id) {
@@ -58,22 +58,24 @@ export const getTokenName = (token_id) => {
   return tokenName;
 };
 
-export const c1 = (i, current_player) => {
+export const c1 = (i: any, current_player: any) => {
   if (current_player === 0)
     return ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][parseInt(i)];
   else if (current_player === 1)
     return ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][7 - parseInt(i)];
+  else return '';
 };
 
-export const c2 = (i, current_player) => {
+export const c2 = (i: any, current_player: any) => {
   if (current_player === 0) return (8 - parseInt(i)).toString();
   else if (current_player === 1) return (1 + parseInt(i)).toString();
+  else return '';
 };
 
 export const getTimeSpent = (
-  total_time_spent,
-  last_turn_timestamp,
-  is_current_player
+  total_time_spent: any,
+  last_turn_timestamp: any,
+  is_current_player: any
 ) => {
   if (is_current_player) {
     let after_last_turn =
@@ -84,33 +86,31 @@ export const getTimeSpent = (
   }
 };
 
-export const formatTimestamp = (total_seconds) => {
-  var sec_num = parseInt(total_seconds, 10);
-  var hours = Math.floor(sec_num / 3600);
-  var minutes = Math.floor((sec_num - hours * 3600) / 60);
-  var seconds = sec_num - hours * 3600 - minutes * 60;
+export const formatTimestamp = (total_seconds: any) => {
+  const sec_num = parseInt(total_seconds, 10);
+  const hours = Math.floor(sec_num / 3600);
+  const minutes = Math.floor((sec_num - hours * 3600) / 60);
+  const seconds = sec_num - hours * 3600 - minutes * 60;
 
-  if (hours < 10) {
-    hours = '0' + hours;
-  }
-  if (minutes < 10) {
-    minutes = '0' + minutes;
-  }
-  if (seconds < 10) {
-    seconds = '0' + seconds;
-  }
-  return hours + ':' + minutes + ':' + seconds;
+  const hoursLength = hours.toString().length > 1 ? hours.toString().length : 2;
+  return (
+    hours.toString().padStart(hoursLength, '0') +
+    ':' +
+    minutes.toString().padStart(2, '0') +
+    ':' +
+    seconds.toString().padStart(2, '0')
+  );
 };
 
-export const isOpponentTimeSpent = (time_spent) => {
+export const isOpponentTimeSpent = (time_spent: any) => {
   return time_spent > 3600;
 };
 
-export const dist = (x1, y1, x2, y2) => {
+export const dist = (x1: any, y1: any, x2: any, y2: any) => {
   return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 };
 
-export const inRange = (tile, piece, gameBoard) => {
+export const inRange = (tile: any, piece: any, gameBoard: any) => {
   if (!piece.row === null || !piece.col === null) {
     return;
   }
@@ -135,7 +135,7 @@ export const inRange = (tile, piece, gameBoard) => {
   }
 };
 
-export const isValidPlaceToMove = (row, col, gameBoard) => {
+export const isValidPlaceToMove = (row: any, col: any, gameBoard: any) => {
   if (row < 0 || row > 7 || col < 0 || col > 7) return false;
   if (gameBoard[row][col] == 0) {
     return true;
@@ -143,17 +143,17 @@ export const isValidPlaceToMove = (row, col, gameBoard) => {
   return false;
 };
 
-export const getReferralId = (currentUrl) => {
+export const getReferralId = (currentUrl: any) => {
   const urlObject = new URL(currentUrl);
   const params = new URLSearchParams(urlObject.search);
   const referrerId = params.get('r') || '';
   return referrerId;
 };
 
-export const checkValidBoard = (board) => {
+export const checkValidBoard = (board: any) => {
   let isValid = true;
-  board.forEach((row, rowIndex) => {
-    row.forEach((piece, colIndex) => {
+  board.forEach((row: any, rowIndex: any) => {
+    row.forEach((piece: any, colIndex: any) => {
       if ((rowIndex + colIndex) % 2 === 1 && piece !== 0) {
         isValid = false;
       }

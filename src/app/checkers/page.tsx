@@ -48,7 +48,10 @@ const networkId = getConfig().networkData.networkId;
 function App() {
   const [currentGameId, setCurrentGameId] = useState(-1);
   const [gameBoard, setGameBoard] = useState(INITIAL_GAME_BOARD);
-  const [timeSpent, setTimeSpent] = useState();
+  const [timeSpent, setTimeSpent] = useState<{
+    player1: string;
+    player2: string;
+  }>();
   const [moveBuffer, setMoveBuffer] = useState('');
   const [updateBoardByQuery, setUpdateBoardByQuery] = useState(true);
   const [isCheckedDoubleJump, setIsCheckedDoubleJump] = useState(false);
@@ -77,7 +80,7 @@ function App() {
   );
 
   const currentPlayerIsAvailable = useMemo(
-    () => availablePlayersData.find((player) => player[0] == accountId),
+    () => availablePlayersData.find((player: any) => player[0] == accountId),
     [accountId, availablePlayersData]
   );
 
@@ -85,7 +88,7 @@ function App() {
     try {
       const wallet = await selector.wallet();
       await giveUp(wallet, currentGameId);
-    } catch (error) {
+    } catch (error: any) {
       let string = JSON.stringify(error);
       let error_begins = string.indexOf('***');
       if (error_begins !== -1) {
@@ -106,7 +109,7 @@ function App() {
     try {
       const wallet = await selector.wallet();
       await stopGame(wallet, currentGameId);
-    } catch (error) {
+    } catch (error: any) {
       let string = JSON.stringify(error);
       let error_begins = string.indexOf('***');
       if (error_begins !== -1) {
@@ -123,7 +126,11 @@ function App() {
     }
   };
 
-  const handleSelectOpponent = async (opponentId, deposit, tokenId) => {
+  const handleSelectOpponent = async (
+    opponentId: any,
+    deposit: any,
+    tokenId: any
+  ) => {
     try {
       const referrerId = getReferralId(window.location.href);
       const wallet = await selector.wallet();
@@ -132,10 +139,10 @@ function App() {
         opponentId,
         deposit,
         tokenId,
-        accountId,
+        accountId!,
         referrerId
       );
-    } catch (error) {
+    } catch (error: any) {
       let string = JSON.stringify(error);
       let error_begins = string.indexOf('***');
       if (error_begins !== -1) {
@@ -152,11 +159,11 @@ function App() {
     }
   };
 
-  const handleMakeUnavailable = async (opponentId, deposit, tokenId) => {
+  const handleMakeUnavailable = async () => {
     try {
       const wallet = await selector.wallet();
       await makeUnavailable(wallet);
-    } catch (error) {
+    } catch (error: any) {
       let string = JSON.stringify(error);
       let error_begins = string.indexOf('***');
       if (error_begins !== -1) {
@@ -173,7 +180,12 @@ function App() {
     }
   };
 
-  const handleClickPiece = (piece, row, col, playerIndex) => {
+  const handleClickPiece = (
+    piece: any,
+    row: any,
+    col: any,
+    playerIndex: any
+  ) => {
     if (
       !gameData ||
       gameData.winner_index !== null ||
@@ -185,19 +197,23 @@ function App() {
     setSelectedPiece({ row, col, piece });
   };
 
-  const handleClickTile = (row, col) => {
+  const handleClickTile = (row: any, col: any) => {
     const move = inRange({ row, col }, selectedPiece, gameBoard);
     if (
       move === 'jump' ||
       move === 'regular' ||
-      (selectedPiece.piece < 0 &&
+      (selectedPiece.piece &&
+        selectedPiece.piece < 0 &&
         (move === 'jump back' || move === 'regular back'))
     ) {
       movePiece({ row, col }, selectedPiece);
     }
   };
 
-  const movePiece = async (tile, piece) => {
+  const movePiece = async (tile: any, piece: any) => {
+    if (!piece.row || !piece.col || !piece.piece) {
+      return;
+    }
     let current_move =
       c1(piece.col, gameData.current_player_index) +
       c2(piece.row, gameData.current_player_index) +
@@ -236,7 +252,7 @@ function App() {
       try {
         const wallet = await selector.wallet();
         await makeMove(wallet, currentGameId, current_move);
-      } catch (error) {
+      } catch (error: any) {
         let string = JSON.stringify(error);
         let error_begins = string.indexOf('***');
         if (error_begins !== -1) {
@@ -257,32 +273,40 @@ function App() {
   };
 
   const handleBid = async () => {
-    let bidNEAR = parseFloat(document.getElementById('near-bid-deposit').value);
-    let bidCheddar = parseFloat(
-      document.getElementById('cheddar-bid-deposit').value
-    );
+    let inputNEAR = document.getElementById(
+      'near-bid-deposit'
+    ) as HTMLInputElement;
+
+    let inputCheddar = document.getElementById(
+      'cheddar-bid-deposit'
+    ) as HTMLInputElement;
+
+    let inputNeko = document.getElementById(
+      'neko-bid-deposit'
+    ) as HTMLInputElement;
+
+    let bidNEAR = parseFloat(inputNEAR ? inputNEAR.value : '0');
+    let bidCheddar = parseFloat(inputCheddar ? inputCheddar.value : '0');
     let bidNeko = parseFloat(
-      networkId === 'mainnet'
-        ? document.getElementById('neko-bid-deposit').value
-        : '0'
+      networkId === 'mainnet' && inputNeko ? inputNeko.value : '0'
     );
     const wallet = await selector.wallet();
     if (bidNEAR >= 0.01) {
       const referrerId = getReferralId(window.location.href);
-      await makeAvailable(wallet, referrerId, ntoy(bidNEAR.toString()));
+      await makeAvailable(wallet, referrerId, ntoy(bidNEAR).toString());
     } else if (bidCheddar >= 1) {
       await makeAvailableFt(
         wallet,
-        ntoy(bidCheddar.toString()),
+        ntoy(bidCheddar).toString(),
         getConfig().contracts.cheddarToken,
-        accountId
+        accountId!
       );
     } else if (bidNeko >= 5) {
       await makeAvailableFt(
         wallet,
-        ntoy(bidNeko.toString()),
+        ntoy(bidNeko).toString(),
         getConfig().contracts.nekoToken,
-        accountId
+        accountId!
       );
     } else {
       setError('Bid should be > 0.01 NEAR or > 1 Cheddar or > 5 Neko');
@@ -305,7 +329,7 @@ function App() {
   useEffect(() => {
     if (currentGameId === -1) {
       let myGames = availableGamesData.filter(
-        (game) => game[1][0] === accountId || game[1][1] === accountId
+        (game: any) => game[1][0] === accountId || game[1][1] === accountId
       );
       setCurrentGameId(myGames.length > 0 ? myGames[0][0] : -1);
     }
@@ -372,8 +396,8 @@ function App() {
   return (
     <>
       <ModalContainer
+        title="Rules"
         onClose={onClose}
-        onOpen={onOpen}
         isOpen={isOpen}
         maxW={{ base: '385px', md: '600px' }}
       >
@@ -466,7 +490,7 @@ function App() {
                         :
                       </div>
                       <div id="near-available-players-list">
-                        {availablePlayersData.map((player) => {
+                        {availablePlayersData.map((player: any) => {
                           const token_id = player[1].token_id;
                           let displayableTokenName = getTokenName(token_id);
                           if (player[0] !== accountId) {
@@ -712,8 +736,12 @@ function App() {
             <div>
               <div id="near-account-ref">
                 <div>Invite a friend to get a 10% referral bonus:</div>
-                <div class="invitation-input-line">
-                  <input class="invitation-code" type="text" value={refValue} />
+                <div className="invitation-input-line">
+                  <input
+                    className="invitation-code"
+                    type="text"
+                    value={refValue}
+                  />
                   <svg
                     onClick={onCopyRef}
                     xmlns="http://www.w3.org/2000/svg"
@@ -725,7 +753,7 @@ function App() {
                     stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    class="feather feather-copy"
+                    className="feather feather-copy"
                   >
                     <rect
                       x="9"
@@ -751,7 +779,7 @@ function App() {
               <input
                 type="checkbox"
                 id="near-game-double-move"
-                onClick={(e) => setIsCheckedDoubleJump(e.target.checked)}
+                onClick={(e: any) => setIsCheckedDoubleJump(e.target.checked)}
                 checked={isCheckedDoubleJump}
               />
               <label htmlFor="near-game-double-move">Double jump</label>
@@ -775,7 +803,7 @@ function App() {
                   ) : (
                     <div
                       key={`tile${(indexCol - (indexCol % 2)) / 2 + indexRow * 4}`}
-                      class={`tile`}
+                      className={`tile`}
                       id={`tile${(indexCol - (indexCol % 2)) / 2 + indexRow * 4}`}
                       style={{
                         top: row,
@@ -795,7 +823,7 @@ function App() {
                     piece === 1 || piece === -1 ? (
                       <div
                         key={`piece${(indexCol - (indexCol % 2)) / 2 + indexRow * 4}`}
-                        class={`piece ${selectedPiece.row === indexRow && selectedPiece.col === indexCol ? 'selected' : ''}`}
+                        className={`piece ${selectedPiece.row === indexRow && selectedPiece.col === indexCol ? 'selected' : ''}`}
                         id={`piece${(indexCol - (indexCol % 2)) / 2 + indexRow * 4}`}
                         style={{
                           top: DICTIONARY[indexRow],
@@ -824,7 +852,7 @@ function App() {
                     piece === 2 || piece === -2 ? (
                       <div
                         key={`piece${(indexCol - (indexCol % 2)) / 2 + indexRow * 4}`}
-                        class={`piece ${selectedPiece.row === indexRow && selectedPiece.col === indexCol ? 'selected' : ''}`}
+                        className={`piece ${selectedPiece.row === indexRow && selectedPiece.col === indexCol ? 'selected' : ''}`}
                         id={`piece${(indexCol - (indexCol % 2)) / 2 + indexRow * 4}`}
                         style={{
                           top: DICTIONARY[indexRow],
