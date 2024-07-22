@@ -34,6 +34,7 @@ export default function RootLayout({
 
         {/* <!-- Twitter --> */}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:description" content="A tasty world to be in" />
         <meta name="twitter:site" content="@CheddarFi" />
         <meta name="twitter:creator" content="@CheddarFi" />
         <meta
