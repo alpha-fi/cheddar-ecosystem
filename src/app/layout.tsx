@@ -25,7 +25,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <title>Cheddar</title>
-        <meta property="og:type" content="website" />
+        <meta property="og:title" content="@CheddarFi" />
+        <meta property="og:type" content="@CheddarFi" />
         <meta property="og:url" content="https://cheddar.farm/" />
         <meta
           property="og:image"
@@ -33,6 +34,8 @@ export default function RootLayout({
         />
 
         {/* <!-- Twitter --> */}
+        <meta name="twitter:title" content="@CheddarFi" />
+        <meta name="twitter:text:title" content="@CheddarFi" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:description" content="A tasty world to be in" />
         <meta name="twitter:site" content="@CheddarFi" />
