@@ -23,6 +23,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <title>Cheddar</title>
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://cheddar.farm/" />
+        <meta
+          property="og:image"
+          content="https://github.com/user-attachments/assets/942efc37-a268-46c6-874d-bc5dc7e5b3c4"
+        />
+
+        {/* <!-- Twitter --> */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@CheddarFi" />
+        <meta name="twitter:creator" content="@CheddarFi" />
+        <meta
+          name="twitter:image"
+          content="https://github.com/user-attachments/assets/942efc37-a268-46c6-874d-bc5dc7e5b3c4"
+        />
+        <meta
+          name="twitter:image:src"
+          content="https://github.com/user-attachments/assets/942efc37-a268-46c6-874d-bc5dc7e5b3c4"
+        />
+      </head>
       <body className={inter.className + ' backgroundImg'}>
         <WalletSelectorContextProvider>
           <ChakraProvider>
