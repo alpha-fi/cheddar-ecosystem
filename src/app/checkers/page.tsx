@@ -338,6 +338,7 @@ function App() {
   useEffect(() => {
     if (
       gameData &&
+      /* sometimes after a move by player 2, react query returns within gameData, the board inverted horizontally, so the checkValidBoard function serves to not render the board if it is inverted */
       checkValidBoard(gameData.board) &&
       (getPlayerByIndex(gameData, gameData.current_player_index) !==
         accountId ||
