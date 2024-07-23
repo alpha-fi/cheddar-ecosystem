@@ -40,6 +40,8 @@ export interface MazeTileData {
   hasPlinko: boolean;
 }
 
+const maxScoreToChooseDoor = 10000;
+
 const amountOfCheddarInBag = 5;
 
 const pointsOfActions = {
@@ -178,6 +180,12 @@ interface GameContextProps {
   onOpenScoreboard: () => void;
   onCloseScoreboard: () => void;
 
+  isDoorsModalOpened: boolean;
+  onOpenDoorsModal: () => void;
+  onCloseDoorsModal: () => void;
+
+  gameOver: (message: string, won: boolean)=> Promise<void>;
+
   seedId: number;
 }
 
@@ -197,6 +205,12 @@ export const GameContextProvider = ({ children }: props) => {
     isOpen: isScoreboardOpen,
     onOpen: onOpenScoreboard,
     onClose: onCloseScoreboard,
+  } = useDisclosure();
+
+  const {
+    isOpen: isDoorsModalOpened,
+    onOpen: onOpenDoorsModal,
+    onClose: onCloseDoorsModal,
   } = useDisclosure();
 
   function openScoreboard() {
@@ -686,7 +700,11 @@ export const GameContextProvider = ({ children }: props) => {
   ) {
     clonedMazeData[y][x].hasExit = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
-    gameOver('Congrats! You found the Hidden Door.', true);
+    if (score < maxScoreToChooseDoor) {
+      onOpenDoorsModal()
+    } else {
+      gameOver('Congrats! You found the Hidden Door.', true);
+    }
   }
 
   const chancesOfFinding = {
@@ -1137,6 +1155,10 @@ export const GameContextProvider = ({ children }: props) => {
         isScoreboardOpen,
         onOpenScoreboard,
         onCloseScoreboard,
+        isDoorsModalOpened,
+        onOpenDoorsModal,
+        onCloseDoorsModal,
+        gameOver,
         seedId,
       }}
     >

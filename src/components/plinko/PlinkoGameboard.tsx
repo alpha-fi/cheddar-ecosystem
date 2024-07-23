@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import Matter, { Engine, Render, Bodies, World, Body } from 'matter-js';
 import styles from '@/styles/PlinkoGameboard.module.css';
 import { Button, useDisclosure } from '@chakra-ui/react';
@@ -34,6 +34,7 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { createLetter } from './RenderLetterInWorld';
 import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
+import { DoorsGameboard } from '../doors/DoorsGameboard';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -41,8 +42,14 @@ interface CheddarEarnedData {
 }
 
 export function PlinkoBoard() {
-  const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
-    React.useContext(GameContext);
+  const {
+    isMobile,
+    seedId,
+    closePlinkoModal,
+    pendingCheddarToMint,
+    isDoorsModalOpened,
+    onCloseDoorsModal,
+  } = useContext(GameContext);
 
   const { accountId, selector } = useWalletSelector();
 
@@ -533,6 +540,15 @@ export function PlinkoBoard() {
           />
         </ModalContainer>
       )}
+
+      <ModalContainer
+        title={'Choose your door!'}
+        isOpen={isDoorsModalOpened}
+        onClose={onCloseDoorsModal}
+        neverCloseOnOverlayClick={true}
+      >
+        <DoorsGameboard />
+      </ModalContainer>
     </div>
   );
 }
