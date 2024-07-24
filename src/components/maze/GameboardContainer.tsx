@@ -33,6 +33,7 @@ import {
   ArrowUpIcon,
 } from '@chakra-ui/icons';
 import { Scoreboard } from './Scoreboard';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 interface Props {
   remainingMinutes: number;

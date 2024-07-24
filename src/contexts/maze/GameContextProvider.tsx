@@ -179,6 +179,9 @@ interface GameContextProps {
   onCloseScoreboard: () => void;
 
   seedId: number;
+  captchaValue: string | null;
+  setCaptchaValue: React.Dispatch<React.SetStateAction<string | null>>;
+
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -258,6 +261,8 @@ export const GameContextProvider = ({ children }: props) => {
   >([]);
 
   const [hasFoundPlinko, setHasFoundPlinko] = useState(false);
+
+  const [captchaValue, setCaptchaValue] = useState<string | null>(null);
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -1138,6 +1143,8 @@ export const GameContextProvider = ({ children }: props) => {
         onOpenScoreboard,
         onCloseScoreboard,
         seedId,
+        captchaValue, 
+        setCaptchaValue
       }}
     >
       {children}
