@@ -34,7 +34,6 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { createLetter } from './RenderLetterInWorld';
 import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
-import { DoorsGameboard } from '../doors/DoorsGameboard';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -47,8 +46,6 @@ export function PlinkoBoard() {
     seedId,
     closePlinkoModal,
     pendingCheddarToMint,
-    isDoorsModalOpened,
-    onCloseDoorsModal,
   } = useContext(GameContext);
 
   const { accountId, selector } = useWalletSelector();
@@ -540,15 +537,6 @@ export function PlinkoBoard() {
           />
         </ModalContainer>
       )}
-
-      <ModalContainer
-        title={'Choose your door!'}
-        isOpen={isDoorsModalOpened}
-        onClose={onCloseDoorsModal}
-        neverCloseOnOverlayClick={true}
-      >
-        <DoorsGameboard />
-      </ModalContainer>
     </div>
   );
 }
