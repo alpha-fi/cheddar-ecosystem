@@ -28,7 +28,7 @@ import {
   PIN_DECORATIVE_2_OPTIONS,
   GOALS_OPTIONS,
   GOALS_TIPS_OPTIONS,
-} from '@/constants/plinko';
+} from '@/constants/maze/plinko';
 import { callEndGame } from '@/queries/plinko/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { createLetter } from './RenderLetterInWorld';
@@ -41,12 +41,8 @@ interface CheddarEarnedData {
 }
 
 export function PlinkoBoard() {
-  const {
-    isMobile,
-    seedId,
-    closePlinkoModal,
-    pendingCheddarToMint,
-  } = useContext(GameContext);
+  const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
+    useContext(GameContext);
 
   const { accountId, selector } = useWalletSelector();
 

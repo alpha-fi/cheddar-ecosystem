@@ -3,7 +3,8 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { RNG } from '@/entities/maze/RNG';
 import { Box, Img } from '@chakra-ui/react';
 import { ModalContainer } from '../ModalContainer';
-import { prizes } from '@/constants/doors';
+import { prizes } from '@/constants/maze/doors';
+import { EXIT_FOUND_MESSAGE } from '@/constants/maze';
 
 export function DoorsGameboard() {
   const { setCheddarFound, seedId, gameOver, onCloseDoorsModal } =
@@ -35,7 +36,7 @@ export function DoorsGameboard() {
       setCheddarFound((prevCheddar) => prevCheddar + extraCheddar);
 
       gameOver(
-        `Congrats! You found the Hidden Door. ${addDoorsFeedbackText(extraCheddar)}`,
+        `${EXIT_FOUND_MESSAGE} ${addDoorsFeedbackText(extraCheddar)}`,
         true
       );
 
