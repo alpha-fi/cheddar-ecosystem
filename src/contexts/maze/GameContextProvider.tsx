@@ -490,6 +490,28 @@ export const GameContextProvider = ({ children }: props) => {
       }
     }
 
+    // Check if any column is completely unreachable
+    let unreachableColumns: number[] = [];
+    for (let c = 0; c < cols; c++) {
+      let reachable = false;
+      for (let r = 0; r < rows; r++) {
+        if (maze[r][c].isPath) {
+          reachable = true;
+          break;
+        }
+      }
+      console.log({ reachable });
+      if (!reachable) {
+        unreachableColumns.push(c);
+      }
+    }
+
+    // Ensure at least one cell in each unreachable column isPath = true
+    unreachableColumns.forEach((col) => {
+      const row = rng.nextRange(1, rows - 2);
+      maze[row][col].isPath = true;
+    });
+
     // Randomly turn a few non-path cells into paths
     const totalCells = rows * cols;
     const nonPathCells = [];
