@@ -14,6 +14,7 @@ export interface Config {
     cheddarNft: string;
     cheddarToken: string;
     nearSocial: string;
+    nadaBot: string;
   };
   socialKeys: {
     ecosystem: string;
@@ -44,6 +45,7 @@ export const getConfig = (): Config => {
           cheddarNft: 'nft.cheddar.near',
           cheddarToken: 'token.cheddar.near',
           nearSocial: 'social.near',
+          nadaBot: 'v1.nadabot.near',
         },
         socialKeys: {
           ecosystem: 'cheddarEcosystem',
@@ -70,6 +72,7 @@ export const getConfig = (): Config => {
           cheddarNft: 'nft.cheddar.testnet',
           cheddarToken: 'token-v3.cheddar.testnet',
           nearSocial: 'v1.social08.testnet',
+          nadaBot: 'v1.nadabot.testnet',
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
@@ -96,6 +99,7 @@ export const getConfig = (): Config => {
           cheddarNft: 'nft.cheddar.testnet',
           cheddarToken: 'token-v3.cheddar.testnet',
           nearSocial: 'v1.social08.testnet',
+          nadaBot: 'v1.nadabot.testnet',
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
