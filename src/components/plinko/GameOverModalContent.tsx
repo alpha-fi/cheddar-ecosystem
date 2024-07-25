@@ -14,7 +14,8 @@ export const GameOverModalContent = ({
   cheddarFound,
   endGameResponse,
 }: Props) => {
-  const { pendingCheddarToMint } = useContext(GameContext);
+  const { pendingCheddarToMint, isUserNadabotVerfied } =
+    useContext(GameContext);
 
   const hasWon = prizeName !== 'splat';
 
@@ -30,7 +31,8 @@ export const GameOverModalContent = ({
     if (
       endGameResponse &&
       endGameResponse.ok &&
-      endGameResponse.cheddarMinted > 0
+      endGameResponse.cheddarMinted > 0 &&
+      isUserNadabotVerfied
     ) {
       toast({
         title: 'Cheddar Minted Successfully!',

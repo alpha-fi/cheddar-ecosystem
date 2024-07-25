@@ -59,6 +59,15 @@ export interface EndGameRequest {
   };
 }
 
+export interface MintCheddarRequest {
+  data: {
+    pendingCheddar: number;
+  };
+  metadata: {
+    accountId: string;
+  };
+}
+
 export async function callEndGame(endGameData: EndGameRequest) {
   const url = new URL(`api/maze/endGame`, backendBaseUrl).toString();
 
@@ -69,6 +78,20 @@ export async function callEndGame(endGameData: EndGameRequest) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(endGameData),
+  });
+  return response.json();
+}
+
+export async function callMintCheddar(mintCheddarBody: MintCheddarRequest) {
+  const url = new URL(`api/maze/mintCheddar`, backendBaseUrl).toString();
+
+  const response = await fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(mintCheddarBody),
   });
   return response.json();
 }

@@ -4,7 +4,7 @@ import { Metadata } from './CheddarToken';
 import { NFT } from './nftCheddarContract';
 import { Wallet } from '@near-wallet-selector/core';
 
-const { cheddarToken, cheddarNft } = getConfig().contracts;
+const { cheddarToken, cheddarNft, nadaBot } = getConfig().contracts;
 
 const tokenViewMethods = {
   ftBalanceOf: 'ft_balance_of',
@@ -37,6 +37,12 @@ export const getCheddarMetadata = async (): Promise<Metadata> => {
 
 export const getNFTs = async (accountId: string): Promise<NFT[]> => {
   return view(cheddarNft, nftViewMethods.nftTokensForOwner, {
+    account_id: accountId,
+  });
+};
+
+export const isNadabotVerfied = async (accountId: string): Promise<boolean> => {
+  return view(nadaBot, 'is_human', {
     account_id: accountId,
   });
 };

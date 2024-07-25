@@ -14,14 +14,15 @@ export default function ModalRules({ isOpen, onClose }: Props) {
     <ModalContainer title={'Rules'} isOpen={isOpen} onClose={onClose}>
       <OrderedList>
         <ListItem>
-          A lil NEAR and a Wallet 2 Be human via{' '}
+          Just needed a lil NEAR from your Wallet to play –{' '}
           <Link
             href={nadaBotUrl}
             style={{ textDecoration: 'underline' }}
             target="_blank"
           >
-            Nadabot
-          </Link>
+            Nadabot's
+          </Link>{' '}
+          needed to claim the cheddar.
         </ListItem>
         <ListItem>
           Hold 555 🧀 to play, get it on{' '}
