@@ -45,6 +45,7 @@ async function callRpc(
 
 export async function change(
   wallet: Wallet,
+  accountId: string,
   contractId: string,
   method: string,
   args: Record<string, any> = {},
@@ -52,6 +53,7 @@ export async function change(
   gas = '300' + '0'.repeat(12)
 ) {
   return wallet.signAndSendTransaction({
+    signerId: accountId,
     receiverId: contractId,
     actions: [
       {

@@ -62,11 +62,10 @@ function App() {
   });
   const [error, setError] = useState('');
 
-  const { accountId } = useWalletSelector();
+  const { accountId, selector } = useWalletSelector();
   const { data: availablePlayersData = [] } = useGetAvailableCheckersPlayers();
   const { data: availableGamesData = [] } = useGetAvailableCheckersGames();
   const { data: gameData } = useGetCheckersGame(currentGameId);
-  const { selector } = useWalletSelector();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const {
     onCopy: onCopyRef,
@@ -87,7 +86,10 @@ function App() {
   const handleGiveUp = async () => {
     try {
       const wallet = await selector.wallet();
-      await giveUp(wallet, currentGameId);
+      if (!accountId) {
+        throw Error('account id undefined');
+      }
+      await giveUp(wallet, accountId, currentGameId);
     } catch (error: any) {
       let string = JSON.stringify(error);
       let error_begins = string.indexOf('***');
@@ -108,7 +110,10 @@ function App() {
   const handleStopGame = async () => {
     try {
       const wallet = await selector.wallet();
-      await stopGame(wallet, currentGameId);
+      if (!accountId) {
+        throw Error('account id undefined');
+      }
+      await stopGame(wallet, accountId, currentGameId);
     } catch (error: any) {
       let string = JSON.stringify(error);
       let error_begins = string.indexOf('***');
@@ -162,7 +167,10 @@ function App() {
   const handleMakeUnavailable = async () => {
     try {
       const wallet = await selector.wallet();
-      await makeUnavailable(wallet);
+      if (!accountId) {
+        throw Error('account id undefined');
+      }
+      await makeUnavailable(wallet, accountId);
     } catch (error: any) {
       let string = JSON.stringify(error);
       let error_begins = string.indexOf('***');
@@ -251,7 +259,10 @@ function App() {
       }
       try {
         const wallet = await selector.wallet();
-        await makeMove(wallet, currentGameId, current_move);
+        if (!accountId) {
+          throw Error('account id undefined');
+        }
+        await makeMove(wallet, accountId, currentGameId, current_move);
       } catch (error: any) {
         let string = JSON.stringify(error);
         let error_begins = string.indexOf('***');
@@ -293,7 +304,15 @@ function App() {
     const wallet = await selector.wallet();
     if (bidNEAR >= 0.01) {
       const referrerId = getReferralId(window.location.href);
-      await makeAvailable(wallet, referrerId, ntoy(bidNEAR).toString());
+      if (!accountId) {
+        throw Error('account id undefined');
+      }
+      await makeAvailable(
+        wallet,
+        accountId,
+        referrerId,
+        ntoy(bidNEAR).toString()
+      );
     } else if (bidCheddar >= 1) {
       await makeAvailableFt(
         wallet,
@@ -362,6 +381,9 @@ function App() {
         '/?r=' +
         (accountId ?? '')
     );
+    if (!accountId) {
+      setGameBoard(INITIAL_GAME_BOARD);
+    }
   }, [accountId]);
 
   useEffect(() => {

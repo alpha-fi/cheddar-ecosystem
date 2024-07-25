@@ -57,5 +57,5 @@ export const setMazeData = async (
     },
   };
 
-  return setNearSocial(wallet, data);
+  return setNearSocial(wallet, accountId, data);
 };
