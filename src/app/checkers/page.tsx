@@ -211,7 +211,7 @@ function App() {
   };
 
   const movePiece = async (tile: any, piece: any) => {
-    if (!piece.row || !piece.col || !piece.piece) {
+    if (piece.row === null || piece.col === null || piece.piece === null) {
       return;
     }
     let current_move =
