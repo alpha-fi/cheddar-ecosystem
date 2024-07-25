@@ -16,10 +16,9 @@ import { useContext } from 'react';
 
 import { useGetCheddarTotalSupply } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
-import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { ModalContainer } from '@/components/ModalContainer';
-import { SocialMedia } from '@/components/SocialMediaContainer';
+import { About } from '../components/About';
 
 export default function Navbar() {
   const {
@@ -53,7 +52,7 @@ export default function Navbar() {
           height="100%"
         >
           <Flex alignContent="center">
-            <Flex flexDirection="column" mr="20px">
+            <Flex flexDirection="column">
               <HStack spacing={0} minW={'25px'}>
                 <Img
                   src={'/assets/cheddar-logo.png'}
@@ -106,7 +105,7 @@ export default function Navbar() {
                 </div>
               </Text>
             </Text>
-
+            <About />
             <ButtonConnectWallet />
             <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
               <DrawerMenu

@@ -37,6 +37,9 @@ export function ButtonConnectWallet() {
       {walletSelector.selector.isSignedIn() ? (
         <Menu>
           <MenuButton
+            px={{ base: 2, md: 3 }}
+            py={{ base: 1, md: 4 }}
+            fontSize={{ base: 14, md: 16 }}
             colorScheme="yellow"
             bgColor="yellowCheddar"
             border="1px solid #3334"
