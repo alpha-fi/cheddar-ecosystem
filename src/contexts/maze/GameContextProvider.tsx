@@ -40,8 +40,6 @@ export interface MazeTileData {
   hasPlinko: boolean;
 }
 
-const maxScoreToChooseDoor = 10000;
-
 const amountOfCheddarInBag = 5;
 
 const pointsOfActions = {
@@ -55,6 +53,7 @@ const pointsOfActions = {
 const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isDoorsMinigameTest = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 interface GameContextProps {
   isMobile: boolean;
@@ -184,7 +183,7 @@ interface GameContextProps {
   onOpenDoorsModal: () => void;
   onCloseDoorsModal: () => void;
 
-  gameOver: (message: string, won: boolean)=> Promise<void>;
+  gameOver: (message: string, won: boolean) => Promise<void>;
 
   seedId: number;
 }
@@ -606,12 +605,19 @@ export const GameContextProvider = ({ children }: props) => {
     // Code for adding enemy artifact...
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     // Add logic for the enemy defeating the player
-    if (rng.nextFloat() < 0.02) {
+    if (isDoorsMinigameTest || rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
       clonedMazeData[y][x].isActive = false;
-
-      gameOver('Enemy won! Game Over!', false);
+      if (
+        isDoorsMinigameTest ||
+        rng.nextFloat() < chancesOfFinding.doorsMinigame
+      ) {
+        setGameOverFlag(true);
+        onOpenDoorsModal();
+      } else {
+        gameOver('Enemy won! Game Over!', false);
+      }
     } else {
       clonedMazeData[y][x].hasEnemy = true;
 
@@ -690,7 +696,15 @@ export const GameContextProvider = ({ children }: props) => {
     // 0.2% chance of hitting the "cartel" event
     clonedMazeData[y][x].hasCartel = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
-    gameOver('You ran into the cartel! Game Over!', false);
+    if (
+      isDoorsMinigameTest ||
+      rng.nextFloat() < chancesOfFinding.doorsMinigame
+    ) {
+      setGameOverFlag(true);
+      onOpenDoorsModal();
+    } else {
+      gameOver('You ran into the cartel! Game Over!', false);
+    }
   }
 
   function handleExitFound(
@@ -700,11 +714,8 @@ export const GameContextProvider = ({ children }: props) => {
   ) {
     clonedMazeData[y][x].hasExit = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
-    if (score < maxScoreToChooseDoor) {
-      onOpenDoorsModal()
-    } else {
-      gameOver('Congrats! You found the Hidden Door.', true);
-    }
+
+    gameOver('Congrats! You found the Hidden Door.', true);
   }
 
   const chancesOfFinding = {
@@ -714,6 +725,7 @@ export const GameContextProvider = ({ children }: props) => {
     bag: 0.027,
     cartel: 0.0002,
     plinko: 0.01,
+    doorsMinigame: 0.01,
   };
 
   const NFTCheeseBuffMultiplier = 1.28;

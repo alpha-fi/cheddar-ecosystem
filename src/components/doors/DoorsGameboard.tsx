@@ -20,22 +20,22 @@ export function DoorsGameboard() {
     return array.filter((value) => !isNaN(value));
   }
 
-  function addDoorsFeedbackText(extraCheddar: number) {
-    if (extraCheddar > 0) {
-      return `It has ${extraCheddar} extra cheddar!`;
+  function addDoorsFeedbackText(cheddar: number) {
+    if (cheddar > 0) {
+      return `It has ${cheddar} cheddar!`;
     }
-    return '';
+    return `You found nothing in the door. At least you'r not dead!`;
   }
 
   function handleSelectDoor(
     index: number
   ): MouseEventHandler<HTMLImageElement> {
     return () => {
-      const extraCheddar = doorsOrder[index];
-      setCheddarFound((prevCheddar) => prevCheddar + extraCheddar);
+      const cheddar = doorsOrder[index];
+      setCheddarFound(cheddar);
 
       gameOver(
-        `Congrats! You found the Hidden Door. ${addDoorsFeedbackText(extraCheddar)}`,
+        `You scaped from the battle through a door. ${addDoorsFeedbackText(cheddar)}`,
         true
       );
 
