@@ -6,6 +6,9 @@ export const IS_TEST_WIN = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 export const IS_TEST_CARTEL =
   process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
+export const IS_TEST_DOORS_MINIGAME =
+  process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+
 export const TIME_LIMIT_IN_SECONDS = 120;
 
 export const MAZE_COLS = 8;
@@ -37,6 +40,7 @@ export const CHANCES_OF_FINDING = {
   bag: 0.027,
   cartel: 0.0002,
   plinko: 0.01,
+  doorsMinigame: 0.01,
 };
 
 export const NFT_CHEESE_BUFF_MULTIPLIER = 1.28;
@@ -46,6 +50,8 @@ export const NFT_EXIT_BUFF_MULTIPLIER = 10;
 export const CARTEL_FOUND_MESSAGE = 'You ran into the cartel! Game Over!';
 
 export const EXIT_FOUND_MESSAGE = 'Congrats! You found the Hidden Door.';
+
+export const DOORS_MINIGAME_MESSAGE = 'You scaped from the battle through a door.'
 
 export const TIME_END_MESSAGE = "⏰ Time's up! Game Over!";
 

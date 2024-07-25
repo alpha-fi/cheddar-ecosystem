@@ -4,7 +4,7 @@ import { RNG } from '@/entities/maze/RNG';
 import { Box, Img } from '@chakra-ui/react';
 import { ModalContainer } from '../ModalContainer';
 import { prizes } from '@/constants/maze/doors';
-import { EXIT_FOUND_MESSAGE } from '@/constants/maze';
+import { DOORS_MINIGAME_MESSAGE, EXIT_FOUND_MESSAGE } from '@/constants/maze';
 
 export function DoorsGameboard() {
   const { setCheddarFound, seedId, gameOver, onCloseDoorsModal } =
@@ -21,22 +21,22 @@ export function DoorsGameboard() {
     return array.filter((value) => !isNaN(value));
   }
 
-  function addDoorsFeedbackText(extraCheddar: number) {
-    if (extraCheddar > 0) {
-      return `It has ${extraCheddar} extra cheddar!`;
+  function addDoorsFeedbackText(cheddar: number) {
+    if (cheddar > 0) {
+      return `It has ${cheddar} cheddar!`;
     }
-    return '';
+    return `You found nothing in the door. At least you'r not dead!`;
   }
 
   function handleSelectDoor(
     index: number
   ): MouseEventHandler<HTMLImageElement> {
     return () => {
-      const extraCheddar = doorsOrder[index];
-      setCheddarFound((prevCheddar) => prevCheddar + extraCheddar);
+      const cheddar = doorsOrder[index];
+      setCheddarFound(cheddar);
 
       gameOver(
-        `${EXIT_FOUND_MESSAGE} ${addDoorsFeedbackText(extraCheddar)}`,
+        `${DOORS_MINIGAME_MESSAGE} ${addDoorsFeedbackText(cheddar)}`,
         true
       );
 

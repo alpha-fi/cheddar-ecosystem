@@ -28,6 +28,7 @@ import {
   CHANCES_OF_FINDING,
   EXIT_FOUND_MESSAGE,
   IS_TEST_CARTEL,
+  IS_TEST_DOORS_MINIGAME,
   IS_TEST_PLINKO,
   IS_TEST_WIN,
   LOST_TO_ENEMY_MESSAGE,
@@ -609,12 +610,19 @@ export const GameContextProvider = ({ children }: props) => {
     // Code for adding enemy artifact...
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     // Add logic for the enemy defeating the player
-    if (rng.nextFloat() < 0.02) {
+    if (IS_TEST_DOORS_MINIGAME || rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
       clonedMazeData[y][x].isActive = false;
-
-      gameOver(LOST_TO_ENEMY_MESSAGE, false);
+      if (
+        IS_TEST_DOORS_MINIGAME ||
+        rng.nextFloat() < CHANCES_OF_FINDING.doorsMinigame
+      ) {
+        setGameOverFlag(true);
+        onOpenDoorsModal();
+      } else {
+        gameOver(LOST_TO_ENEMY_MESSAGE, false);
+      }
     } else {
       clonedMazeData[y][x].hasEnemy = true;
 
@@ -693,7 +701,15 @@ export const GameContextProvider = ({ children }: props) => {
     // 0.2% chance of hitting the "cartel" event
     clonedMazeData[y][x].hasCartel = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
-    gameOver(CARTEL_FOUND_MESSAGE, false);
+    if (
+      IS_TEST_DOORS_MINIGAME ||
+      rng.nextFloat() < CHANCES_OF_FINDING.doorsMinigame
+    ) {
+      setGameOverFlag(true);
+      onOpenDoorsModal();
+    } else {
+      gameOver(CARTEL_FOUND_MESSAGE, false);
+    }
   }
 
   function handleExitFound(
@@ -703,11 +719,8 @@ export const GameContextProvider = ({ children }: props) => {
   ) {
     clonedMazeData[y][x].hasExit = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
-    if (score < MAX_SCORE_TO_CHOOSE_DOOR) {
-      onOpenDoorsModal();
-    } else {
-      gameOver(EXIT_FOUND_MESSAGE, true);
-    }
+
+    gameOver(EXIT_FOUND_MESSAGE, true);
   }
 
   function getChancesOfFindingCheese() {
