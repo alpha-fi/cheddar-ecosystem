@@ -26,11 +26,13 @@ const checkersChangeMethods = {
 
 export const startGame = async (
   wallet: Wallet,
+  accountId: string,
   opponentId: number,
   referrerId: string
 ): Promise<void | FinalExecutionOutcome> => {
   return change(
     wallet,
+    accountId,
     checkers,
     checkersChangeMethods.startGame,
     {
@@ -43,10 +45,12 @@ export const startGame = async (
 
 export const stopGame = async (
   wallet: Wallet,
+  accountId: string,
   gameId: number
 ): Promise<void | FinalExecutionOutcome> => {
   return change(
     wallet,
+    accountId,
     checkers,
     checkersChangeMethods.stopGame,
     {
@@ -58,11 +62,13 @@ export const stopGame = async (
 
 export const makeMove = async (
   wallet: Wallet,
+  accountId: string,
   gameId: number,
   line: string
 ): Promise<void | FinalExecutionOutcome> => {
   return change(
     wallet,
+    accountId,
     checkers,
     checkersChangeMethods.makeMove,
     {
@@ -75,10 +81,12 @@ export const makeMove = async (
 
 export const giveUp = async (
   wallet: Wallet,
+  accountId: string,
   gameId: number
 ): Promise<void | FinalExecutionOutcome> => {
   return change(
     wallet,
+    accountId,
     checkers,
     checkersChangeMethods.giveUp,
     {
@@ -90,11 +98,13 @@ export const giveUp = async (
 
 export const makeAvailable = async (
   wallet: Wallet,
+  accountId: string,
   referrerId: string,
   nearAmount: string
 ): Promise<void | FinalExecutionOutcome> => {
   return change(
     wallet,
+    accountId,
     checkers,
     checkersChangeMethods.makeAvailable,
     {
@@ -106,10 +116,12 @@ export const makeAvailable = async (
 };
 
 export const makeUnavailable = async (
-  wallet: Wallet
+  wallet: Wallet,
+  accountId: string
 ): Promise<void | FinalExecutionOutcome> => {
   return change(
     wallet,
+    accountId,
     checkers,
     checkersChangeMethods.makeUnavailable,
     {},
@@ -119,6 +131,7 @@ export const makeUnavailable = async (
 
 export const ftTransferCall = async (
   wallet: Wallet,
+  accountId: string,
   amount: string,
   tokenContractAddress: string
 ): Promise<any> => {
