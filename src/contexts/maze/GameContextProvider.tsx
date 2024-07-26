@@ -500,7 +500,6 @@ export const GameContextProvider = ({ children }: props) => {
           break;
         }
       }
-      console.log({ reachable });
       if (!reachable) {
         unreachableColumns.push(c);
       }
