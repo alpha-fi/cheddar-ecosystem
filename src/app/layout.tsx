@@ -27,11 +27,30 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script
-          src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"
-          async
+        <title>Cheddar</title>
+        <meta property="og:title" content="@CheddarFi" />
+        <meta property="og:type" content="@CheddarFi" />
+        <meta property="og:url" content="https://cheddar.farm/" />
+        <meta
+          property="og:image"
+          content="https://github.com/user-attachments/assets/942efc37-a268-46c6-874d-bc5dc7e5b3c4"
         />
-        <script src="https://nearspace.info/js/near-api-js.min.js" async />
+
+        {/* <!-- Twitter --> */}
+        <meta name="twitter:title" content="@CheddarFi" />
+        <meta name="twitter:text:title" content="@CheddarFi" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:description" content="A tasty world to be in" />
+        <meta name="twitter:site" content="@CheddarFi" />
+        <meta name="twitter:creator" content="@CheddarFi" />
+        <meta
+          name="twitter:image"
+          content="https://github.com/user-attachments/assets/942efc37-a268-46c6-874d-bc5dc7e5b3c4"
+        />
+        <meta
+          name="twitter:image:src"
+          content="https://github.com/user-attachments/assets/942efc37-a268-46c6-874d-bc5dc7e5b3c4"
+        />
       </head>
       <body className={inter.className + ' backgroundImg'}>
         <WalletSelectorContextProvider>

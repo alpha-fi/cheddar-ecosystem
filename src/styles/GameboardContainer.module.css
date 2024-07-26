@@ -284,6 +284,12 @@
   background: linear-gradient(180deg, #8542eb, transparent);
 }
 
+@media screen and (max-width: 720px) {
+  .publicityDecoration {
+    height: 20px;
+  }
+}
+
 .startGameBg {
   position: absolute;
   top: 37%;

@@ -9,7 +9,13 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { MouseEventHandler, useContext, useMemo, useState } from 'react';
+import {
+  MouseEventHandler,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { ModalBuyNFT } from '../ModalBuyNFT';
@@ -70,6 +76,7 @@ export function GameboardContainer({
     isMobile,
   } = useContext(GameContext);
 
+  const gameboardRef = useRef<HTMLDivElement>(null);
   const {
     isOpen: isOpenNotAlloWedModal,
     onOpen: onOpenNotAlloWedModal,
@@ -123,10 +130,15 @@ export function GameboardContainer({
     selector.wallet().then((wallet) => wallet.signOut());
   }
 
+  function focusMazeAndStartGame() {
+    gameboardRef.current?.focus();
+    restartGame();
+  }
+
   function getStartGameButtonHandler() {
     return accountId //If the accountId exists
       ? hasEnoughBalance //And have enough balance
-        ? getProperHandler(restartGame)
+        ? getProperHandler(focusMazeAndStartGame)
         : () => {} //If doesn't have enough balance
       : modal.show; //If accountId doesn't exist
   }
@@ -241,7 +253,7 @@ export function GameboardContainer({
           {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
         </div>
       </div>
-      <div className={styles.mazeContainer} tabIndex={0}>
+      <div className={styles.mazeContainer} ref={gameboardRef} tabIndex={0}>
         <div className={styles.toolbar}>
           <span className={styles.rulesButton}>
             <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenModalRules}>
@@ -341,7 +353,7 @@ export function GameboardContainer({
           title={'Game over'}
           isOpen={isOpen}
           onClose={closeGameOverModal}
-          closeOnOverlayClick={false}
+          neverCloseOnOverlayClick={true}
         >
           <GameOverModalContent />
         </ModalContainer>

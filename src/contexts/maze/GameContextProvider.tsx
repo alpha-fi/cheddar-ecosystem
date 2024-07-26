@@ -490,6 +490,51 @@ export const GameContextProvider = ({ children }: props) => {
       }
     }
 
+    // Check if any column is completely unreachable
+    let unreachableColumns: number[] = [];
+    for (let c = 0; c < cols; c++) {
+      let reachable = false;
+      for (let r = 0; r < rows; r++) {
+        if (maze[r][c].isPath) {
+          reachable = true;
+          break;
+        }
+      }
+      console.log({ reachable });
+      if (!reachable) {
+        unreachableColumns.push(c);
+      }
+    }
+
+    // Ensure at least one cell in each unreachable column isPath = true
+    unreachableColumns.forEach((col) => {
+      const row = rng.nextRange(1, rows - 2);
+      maze[row][col].isPath = true;
+    });
+
+    // Randomly turn a few non-path cells into paths
+    const totalCells = rows * cols;
+    const nonPathCells = [];
+
+    // Collect all non-path cells
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        if (!maze[i][j].isPath) {
+          nonPathCells.push([i, j]);
+        }
+      }
+    }
+
+    // Determine how many cells to turn into paths (adjust percentage as needed)
+    const numToTurnIntoPaths = Math.floor(totalCells * 0.05); // 5% of total cells
+
+    // Randomly select and turn cells into paths
+    for (let i = 0; i < numToTurnIntoPaths; i++) {
+      const randomIndex = rng.nextRange(0, nonPathCells.length);
+      const [r, c] = nonPathCells[randomIndex];
+      maze[r][c].isPath = true;
+      nonPathCells.splice(randomIndex, 1); // Remove selected cell from array
+    }
     return maze;
   }
 
@@ -672,7 +717,7 @@ export const GameContextProvider = ({ children }: props) => {
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
-    plinko: 0.001,
+    plinko: 0.01,
   };
 
   const NFTCheeseBuffMultiplier = 1.28;
