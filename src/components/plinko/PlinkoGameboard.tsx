@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import Matter, { Engine, Render, Bodies, World, Body } from 'matter-js';
 import styles from '@/styles/PlinkoGameboard.module.css';
 import { Button, useDisclosure } from '@chakra-ui/react';
@@ -28,7 +28,7 @@ import {
   PIN_DECORATIVE_2_OPTIONS,
   GOALS_OPTIONS,
   GOALS_TIPS_OPTIONS,
-} from '@/constants/plinko';
+} from '@/constants/maze/plinko';
 import { callEndGame } from '@/queries/plinko/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { createLetter } from './RenderLetterInWorld';
@@ -42,7 +42,7 @@ interface CheddarEarnedData {
 
 export function PlinkoBoard() {
   const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
-    React.useContext(GameContext);
+    useContext(GameContext);
 
   const { accountId, selector } = useWalletSelector();
 

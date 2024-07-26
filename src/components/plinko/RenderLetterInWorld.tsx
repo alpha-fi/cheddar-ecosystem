@@ -1,4 +1,4 @@
-import { COLLISION_FILTER_1 } from '@/constants/plinko';
+import { COLLISION_FILTER_1 } from '@/constants/maze/plinko';
 import Matter from 'matter-js';
 
 export const createLetter = (

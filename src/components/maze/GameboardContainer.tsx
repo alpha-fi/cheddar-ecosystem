@@ -33,6 +33,7 @@ import {
   ArrowUpIcon,
 } from '@chakra-ui/icons';
 import { Scoreboard } from './Scoreboard';
+import { DoorsGameboard } from '../doors/DoorsGameboard';
 
 interface Props {
   remainingMinutes: number;
@@ -74,6 +75,8 @@ export function GameboardContainer({
     isScoreboardOpen,
     onCloseScoreboard,
     isMobile,
+    isDoorsModalOpened,
+    onCloseDoorsModal,
   } = useContext(GameContext);
 
   const gameboardRef = useRef<HTMLDivElement>(null);
@@ -387,6 +390,16 @@ export function GameboardContainer({
         neverCloseOnOverlayClick={true}
       >
         <Scoreboard />
+      </ModalContainer>
+
+      <ModalContainer
+        title={'Choose your door!'}
+        isOpen={isDoorsModalOpened}
+        onClose={() => {}}
+        hideButtons={true}
+        neverCloseOnOverlayClick={true}
+      >
+        <DoorsGameboard />
       </ModalContainer>
     </div>
   );
