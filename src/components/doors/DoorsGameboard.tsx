@@ -22,7 +22,8 @@ export function DoorsGameboard() {
   const [selectedDoor, setSelectedDoor] = useState<{
     index: number | null;
     priceImagePath: string;
-  }>({ index: null, priceImagePath: '' });
+    prizeValue: number;
+  }>({ index: null, priceImagePath: '', prizeValue: 0 });
   const doorsOrder = useMemo(() => shuffleArray(prizes), [prizes]);
 
   function shuffleArray(array: number[]): number[] {
@@ -35,7 +36,7 @@ export function DoorsGameboard() {
 
   function handleSelectDoor(index: number) {
     if (selectedDoor.index === null) {
-      setSelectedDoor({ index, priceImagePath: 'assets/cheddar-mouse.png' });
+      setSelectedDoor({ index, priceImagePath: 'assets/cheddar-mouse.png', prizeValue: doorsOrder[index]});
     }
   }
 

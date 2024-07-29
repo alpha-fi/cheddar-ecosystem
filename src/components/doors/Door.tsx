@@ -1,6 +1,8 @@
 import { Box, Img, VStack } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import React, { useMemo } from 'react';
+import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';
+import styles from '@/styles/Door.module.css';
 
 const animationKeyframesTop = (
   skewYDeg: number,
@@ -18,10 +20,14 @@ const animationTop = `${animationKeyframesTop(10, '#bfa380', '#8f7350')} ${'3s l
 const animationBottom = `${animationKeyframesTop(-10, '#bfa380', '#8f7350')} ${'3s linear'}`;
 
 interface Props {
-  index: number,
+  index: number;
   handleSelectDoor: any;
   actionAfterAnimation: any;
-  selectedDoor: {index:number|null, priceImagePath: string };
+  selectedDoor: {
+    index: number | null;
+    priceImagePath: string;
+    prizeValue: number;
+  };
 }
 
 export const Door = ({
@@ -30,7 +36,17 @@ export const Door = ({
   actionAfterAnimation,
   selectedDoor,
 }: Props) => {
-  const showAnimation = useMemo(() => selectedDoor.index === index && selectedDoor.priceImagePath , [selectedDoor.index,selectedDoor.priceImagePath])
+  const showAnimation = useMemo(
+    () => selectedDoor.index === index && selectedDoor.priceImagePath,
+    [selectedDoor.index, selectedDoor.priceImagePath]
+  );
+
+  function getPropperStyles() {
+    if (selectedDoor.prizeValue > 0) {
+      return styles.win;
+    }
+    return styles.lost;
+  }
 
   return (
     <VStack
@@ -41,7 +57,7 @@ export const Door = ({
       borderBottom={0}
       w="100%"
       h="100%"
-      cursor={selectedDoor.index===null?"pointer":undefined}
+      cursor={selectedDoor.index === null ? 'pointer' : undefined}
       onClick={handleSelectDoor}
     >
       <Box
@@ -75,7 +91,13 @@ export const Door = ({
         alignItems="center"
         zIndex={-1}
       >
-        <Img w={`80%`} src={selectedDoor.priceImagePath} />
+        {selectedDoor.prizeValue > 0 ? (
+          <span className={getPropperStyles()}>
+            {selectedDoor.prizeValue} 🧀
+          </span>
+        ) : (
+          <Img w={`80%`} src={selectedDoor.priceImagePath} />
+        )}
       </VStack>
     </VStack>
   );
