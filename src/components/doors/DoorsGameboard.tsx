@@ -7,10 +7,18 @@ import { DOORS_MINIGAME_MESSAGE, EXIT_FOUND_MESSAGE } from '@/constants/maze';
 import { Door } from './Door';
 
 export function DoorsGameboard() {
-  const { setCheddarFound, seedId, gameOver, onCloseDoorsModal } =
-    useContext(GameContext);
+  const {
+    setCheddarFound,
+    seedId,
+    setGameOverMessage,
+    setHasPlayedDoorsMinigame,
+    doorsMinigameReason,
+  } = useContext(GameContext);
 
   const [rng, setRng] = useState(new RNG(seedId));
+  const [cheddarFoundInDoor, setCheddarFoundInDoor] = useState<
+    undefined | number
+  >();
   const [selectedDoor, setSelectedDoor] = useState<{
     index: number | null;
     priceImagePath: string;
@@ -25,6 +33,12 @@ export function DoorsGameboard() {
     return array.filter((value) => !isNaN(value));
   }
 
+  function handleSelectDoor(index: number) {
+    if (selectedDoor.index === null) {
+      setSelectedDoor({ index, priceImagePath: 'assets/cheddar-mouse.png' });
+    }
+  }
+
   function addDoorsFeedbackText(cheddar: number) {
     if (cheddar > 0) {
       return `It has ${cheddar} cheddar!`;
@@ -32,38 +46,33 @@ export function DoorsGameboard() {
     return `You found nothing in the door. At least you'r not dead!`;
   }
 
-  function handleSelectDoor(index: number) {
-    if (selectedDoor.index === null) {
-      const cheddar = doorsOrder[index];
-      setSelectedDoor({ index, priceImagePath: 'assets/cheddar-mouse.png' });
-      setCheddarFound(cheddar);
-    }
-  }
-
   function actionAfterAnimation(index: number) {
     const cheddar = doorsOrder[index];
 
-    gameOver(
-      `${DOORS_MINIGAME_MESSAGE} ${addDoorsFeedbackText(cheddar)}`,
-      true
-    );
-
-    onCloseDoorsModal();
+    setCheddarFoundInDoor(cheddar);
+    setCheddarFound(cheddar);
+    setHasPlayedDoorsMinigame(true);
+    if (doorsMinigameReason) setGameOverMessage(doorsMinigameReason);
   }
 
   return (
-    <HStack display={'flex'} spacing="32px">
-      {doorsOrder.map((element, index) => {
-        return (
-          <Door
-            key={index}
-            index={index}
-            selectedDoor={selectedDoor}
-            handleSelectDoor={() => handleSelectDoor(index)}
-            actionAfterAnimation={actionAfterAnimation}
-          />
-        );
-      })}
-    </HStack>
+    <>
+      <HStack display={'flex'} spacing="32px" minW={'100%'}>
+        {doorsOrder.map((element, index) => {
+          return (
+            <Door
+              key={index}
+              index={index}
+              selectedDoor={selectedDoor}
+              handleSelectDoor={() => handleSelectDoor(index)}
+              actionAfterAnimation={() => actionAfterAnimation(index)}
+            />
+          );
+        })}
+      </HStack>
+      {cheddarFoundInDoor !== undefined && (
+        <span>{`${addDoorsFeedbackText(cheddarFoundInDoor)}`}</span>
+      )}
+    </>
   );
 }

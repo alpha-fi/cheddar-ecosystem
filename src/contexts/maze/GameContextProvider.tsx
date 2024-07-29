@@ -26,6 +26,7 @@ import {
   AMOUNT_OF_CHEDDAR_IN_BAG,
   CARTEL_FOUND_MESSAGE,
   CHANCES_OF_FINDING,
+  CHOOSE_DOORS_MESSAGE,
   EXIT_FOUND_MESSAGE,
   IS_TEST_CARTEL,
   IS_TEST_DOORS_MINIGAME,
@@ -188,11 +189,23 @@ interface GameContextProps {
   onOpenScoreboard: () => void;
   onCloseScoreboard: () => void;
 
-  isDoorsModalOpened: boolean;
-  onOpenDoorsModal: () => void;
-  onCloseDoorsModal: () => void;
-
   gameOver: (message: string, won: boolean) => Promise<void>;
+
+  isDoorsGameOpened: boolean;
+  setIsDoorsGameOpened: React.Dispatch<React.SetStateAction<boolean>>;
+
+  hasPlayedDoorsMinigame: boolean;
+  setHasPlayedDoorsMinigame: React.Dispatch<React.SetStateAction<boolean>>;
+
+  cheddarFoundInDoorsMinigame: undefined | number;
+  setCheddarFoundInDoorsMinigame: React.Dispatch<
+    React.SetStateAction<undefined | number>
+  >;
+
+  doorsMinigameReason: undefined | string;
+  setDoorsMinigameReason: React.Dispatch<
+    React.SetStateAction<undefined | string>
+  >;
 
   seedId: number;
 }
@@ -221,13 +234,22 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseDoorsModal,
   } = useDisclosure();
 
+  const {
+    isOpen: isModalGameOverOpen,
+    onOpen: onOpenModalGameOver,
+    onClose: onCloseModalGameOver,
+  } = useDisclosure();
+
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
-  const [hasWon, setHasWon] = useState<undefined | boolean>(undefined);
+  const [doorsMinigameReason, setDoorsMinigameReason] = useState<
+    undefined | string
+  >();
+  const [hasWon, setHasWon] = useState<undefined | boolean>();
   const [timerStarted, setTimerStarted] = useState(false);
   const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
   const [direction, setDirection] = useState(
@@ -290,6 +312,12 @@ export const GameContextProvider = ({ children }: props) => {
   const [mazeCols, setMazeCols] = useState(MAZE_COLS);
   const [mazeRows, setMazeRows] = useState(MAZE_ROWS);
   const [totalCells, setTotalCells] = useState(0);
+
+  const [isDoorsGameOpened, setIsDoorsGameOpened] = useState(false);
+  const [hasPlayedDoorsMinigame, setHasPlayedDoorsMinigame] = useState(false);
+
+  const [cheddarFoundInDoorsMinigame, setCheddarFoundInDoorsMinigame] =
+    useState<undefined | number>();
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
@@ -413,6 +441,10 @@ export const GameContextProvider = ({ children }: props) => {
     setEndGameResponse(undefined);
     setCellsWithItemAmount(0);
     setRenderBoard(!renderBoard);
+    setHasPlayedDoorsMinigame(false)
+    setIsDoorsGameOpened(false)
+    setCheddarFoundInDoorsMinigame(undefined)
+    setDoorsMinigameReason(undefined)
 
     gameOverRefSent.current = false;
 
@@ -601,6 +633,22 @@ export const GameContextProvider = ({ children }: props) => {
     );
   }
 
+  function getShouldOpenDoorsMinigame(reason: string) {
+    setDoorsMinigameReason(reason);
+    return (
+      IS_TEST_DOORS_MINIGAME ||
+      rng.nextFloat() < CHANCES_OF_FINDING.doorsMinigame
+    );
+  }
+
+  function getCorrectMessageForFindingEnemy() {
+    if (getShouldOpenDoorsMinigame(LOST_TO_ENEMY_MESSAGE)) {
+      return CHOOSE_DOORS_MESSAGE;
+    } else {
+      return LOST_TO_ENEMY_MESSAGE;
+    }
+  }
+
   function handleEnemyFound(
     clonedMazeData: MazeTileData[][],
     x: number,
@@ -614,15 +662,12 @@ export const GameContextProvider = ({ children }: props) => {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
       clonedMazeData[y][x].isActive = false;
-      if (
-        IS_TEST_DOORS_MINIGAME ||
-        rng.nextFloat() < CHANCES_OF_FINDING.doorsMinigame
-      ) {
-        setGameOverFlag(true);
-        onOpenDoorsModal();
-      } else {
-        gameOver(LOST_TO_ENEMY_MESSAGE, false);
-      }
+
+      endGame(
+        getCorrectMessageForFindingEnemy(),
+        false,
+        getShouldOpenDoorsMinigame(LOST_TO_ENEMY_MESSAGE)
+      );
     } else {
       clonedMazeData[y][x].hasEnemy = true;
 
@@ -693,6 +738,14 @@ export const GameContextProvider = ({ children }: props) => {
     );
   }
 
+  function getCorrectMessageForFindingCartel() {
+    if (getShouldOpenDoorsMinigame(CARTEL_FOUND_MESSAGE)) {
+      return CHOOSE_DOORS_MESSAGE;
+    } else {
+      return CARTEL_FOUND_MESSAGE;
+    }
+  }
+
   function handleCartelFound(
     clonedMazeData: MazeTileData[][],
     x: number,
@@ -701,15 +754,7 @@ export const GameContextProvider = ({ children }: props) => {
     // 0.2% chance of hitting the "cartel" event
     clonedMazeData[y][x].hasCartel = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
-    if (
-      IS_TEST_DOORS_MINIGAME ||
-      rng.nextFloat() < CHANCES_OF_FINDING.doorsMinigame
-    ) {
-      setGameOverFlag(true);
-      onOpenDoorsModal();
-    } else {
-      gameOver(CARTEL_FOUND_MESSAGE, false);
-    }
+    endGame(getCorrectMessageForFindingCartel(), false);
   }
 
   function handleExitFound(
@@ -720,7 +765,7 @@ export const GameContextProvider = ({ children }: props) => {
     clonedMazeData[y][x].hasExit = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
 
-    gameOver(EXIT_FOUND_MESSAGE, true);
+    endGame(EXIT_FOUND_MESSAGE, true);
   }
 
   function getChancesOfFindingCheese() {
@@ -786,8 +831,21 @@ export const GameContextProvider = ({ children }: props) => {
     setTimerStarted(false);
   }
 
+  function endGame(message: string, won: boolean, openDoorsMinigame = false) {
+    setHasWon(won);
+    setCoveredCells([]);
+    setGameOverFlag(true);
+    setGameOverMessage(message);
+    stopTimer();
+    setHasFoundPlinko(false);
+
+    setIsDoorsGameOpened(openDoorsMinigame);
+
+    onOpenModalGameOver();
+  }
+
   // Function to handle game over
-  async function gameOver(message: string, won: boolean) {
+  async function gameOver() {
     if (gameOverRefSent.current) {
       return;
     }
@@ -811,13 +869,6 @@ export const GameContextProvider = ({ children }: props) => {
       },
     };
 
-    setHasWon(won);
-    setCoveredCells([]);
-    setGameOverFlag(true);
-    setGameOverMessage(message);
-    stopTimer();
-    setHasFoundPlinko(false);
-
     const endGameResponse = await callEndGame(endGameRequestData);
     setEndGameResponse(endGameResponse);
     if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
@@ -839,7 +890,7 @@ export const GameContextProvider = ({ children }: props) => {
               setStartTimestamp(null);
               setTimestampStartStopTimerArray([]);
               setTimestampEndStopTimerArray([]);
-              gameOver(TIME_END_MESSAGE, false);
+              endGame(TIME_END_MESSAGE, false);
               return prevTime;
             }
 
@@ -1159,11 +1210,16 @@ export const GameContextProvider = ({ children }: props) => {
         isScoreboardOpen,
         onOpenScoreboard,
         onCloseScoreboard,
-        isDoorsModalOpened,
-        onOpenDoorsModal,
-        onCloseDoorsModal,
         gameOver,
         seedId,
+        isDoorsGameOpened,
+        setIsDoorsGameOpened,
+        hasPlayedDoorsMinigame,
+        setHasPlayedDoorsMinigame,
+        cheddarFoundInDoorsMinigame,
+        setCheddarFoundInDoorsMinigame,
+        doorsMinigameReason,
+        setDoorsMinigameReason,
       }}
     >
       {children}

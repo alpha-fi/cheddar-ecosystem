@@ -3,8 +3,13 @@ import styles from '@/styles/GameOverModalContent.module.css';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useToast } from '@chakra-ui/react';
 import { Facebook, Telegram, Twitter } from '../icons';
+import { DoorsGameboard } from '../doors/DoorsGameboard';
 
-export const GameOverModalContent = () => {
+interface Props {
+  showDoorsGameboard: boolean;
+}
+
+export const GameOverModalContent = ({ showDoorsGameboard}: Props) => {
   const {
     remainingMinutes,
     remainingSeconds,
@@ -14,6 +19,7 @@ export const GameOverModalContent = () => {
     hasWon,
     pendingCheddarToMint,
     endGameResponse,
+    hasPlayedDoorsMinigame,
   } = useContext(GameContext);
 
   const toast = useToast();
@@ -69,6 +75,7 @@ export const GameOverModalContent = () => {
 
   return (
     <div className={styles.gameOverModal}>
+      {showDoorsGameboard && <DoorsGameboard />}
       <p className={getMessageStyles()}>{gameOverMessage}</p>
       {hasWon && (
         <p className={styles.earnings}>
@@ -79,7 +86,7 @@ export const GameOverModalContent = () => {
           🧀
         </p>
       )}
-      {cheddarFound > 0 && !hasWon && (
+      {!hasPlayedDoorsMinigame && cheddarFound > 0 && !hasWon && (
         <p className={styles.loseEarnings}>
           Your {cheddarFound} 🧀 was swallowed by the enemy.
         </p>

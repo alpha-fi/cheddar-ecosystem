@@ -34,6 +34,7 @@ import {
 } from '@chakra-ui/icons';
 import { Scoreboard } from './Scoreboard';
 import { DoorsGameboard } from '../doors/DoorsGameboard';
+import { ModalGameOver } from './ModalGameOver';
 
 interface Props {
   remainingMinutes: number;
@@ -75,8 +76,7 @@ export function GameboardContainer({
     isScoreboardOpen,
     onCloseScoreboard,
     isMobile,
-    isDoorsModalOpened,
-    onCloseDoorsModal,
+    // onCloseModalGameOver,
   } = useContext(GameContext);
 
   const gameboardRef = useRef<HTMLDivElement>(null);
@@ -85,13 +85,11 @@ export function GameboardContainer({
     onOpen: onOpenNotAlloWedModal,
     onClose: onCloseNotAlloWedModal,
   } = useDisclosure();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
 
-  if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
-    onOpen();
-    setAllowOpenGameOverModal(true);
-  }
+  // function closeGameOverModal() {
+  //   setGameOverMessage('');
+  //   onCloseModalGameOver();
+  // }
 
   const {
     isOpen: isOpenModalRules,
@@ -152,12 +150,6 @@ export function GameboardContainer({
 
   function getStartButtonStyles() {
     return `${styles.rulesButton} ${timerStarted ? styles.hideButton : ''}`;
-  }
-
-  function closeGameOverModal() {
-    setGameOverMessage('');
-    onClose();
-    setAllowOpenGameOverModal(false);
   }
 
   function handleToggleShowMovementButtons() {
@@ -351,7 +343,8 @@ export function GameboardContainer({
         />
       )}
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
-      {gameOverFlag && gameOverMessage.length > 0 && (
+      <ModalGameOver />
+      {/* {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer
           title={'Game over'}
           isOpen={isOpen}
@@ -361,6 +354,16 @@ export function GameboardContainer({
           <GameOverModalContent />
         </ModalContainer>
       )}
+      <ModalContainer
+        title={'Choose your door!'}
+        isOpen={isDoorsModalOpened}
+        onClose={() => {}}
+        neverCloseOnOverlayClick={true}
+        hideActionButtons={true}
+        hideCloseButton={true}
+      >
+        <DoorsGameboard />
+      </ModalContainer>
       {saveResponse && (
         <ModalContainer
           title={'Error saving game'}
@@ -373,7 +376,7 @@ export function GameboardContainer({
             })}
           </div>
         </ModalContainer>
-      )}
+      )} */}
       <ModalContainer
         title={'Plinko game!'}
         isOpen={plinkoModalOpened}
@@ -390,16 +393,6 @@ export function GameboardContainer({
         neverCloseOnOverlayClick={true}
       >
         <Scoreboard />
-      </ModalContainer>
-
-      <ModalContainer
-        title={'Choose your door!'}
-        isOpen={isDoorsModalOpened}
-        onClose={() => {}}
-        hideButtons={true}
-        neverCloseOnOverlayClick={true}
-      >
-        <DoorsGameboard />
       </ModalContainer>
     </div>
   );

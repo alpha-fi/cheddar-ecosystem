@@ -36,7 +36,8 @@ interface ModContainerProps extends ModalContentProps {
   footerText?: string;
   actionButtonProps?: ModalActionButtonProps | undefined;
   hasCancelButton?: boolean;
-  hideButtons?: boolean;
+  hideActionButtons?: boolean;
+  hideCloseButton?: boolean;
   closeOnOverlayClick?: boolean;
   neverCloseOnOverlayClick?: boolean;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -50,9 +51,10 @@ export const ModalContainer = ({
   children,
   actionButtonProps,
   hasCancelButton,
-  hideButtons = false,
+  hideActionButtons = false,
   closeOnOverlayClick: closeOnOverlayClickProp = true,
   neverCloseOnOverlayClick = false,
+  hideCloseButton = false,
 
   size,
   ...props
@@ -88,11 +90,11 @@ export const ModalContainer = ({
         fontWeight="600"
       >
         <ModalHeader fontSize={'28px'}>{title}</ModalHeader>
-        <ModalCloseButton />
+        {!hideCloseButton && <ModalCloseButton />}
         <ModalBody>
           {children}
           <Spacer h="32px" />
-          <HStack hidden={hideButtons} justifyContent="center">
+          <HStack hidden={hideActionButtons} justifyContent="center">
             {actionButtonProps ? (
               <>
                 <Button

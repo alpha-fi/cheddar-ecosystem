@@ -19,7 +19,7 @@ export default function ModalWelcome() {
       onClose={() => setShowWelcomeModal(false)}
       neverCloseOnOverlayClick={true}
       title=""
-      hideButtons
+      hideActionButtons
       bgColor="#8542eb"
       border="10px solid white"
       color={'white'}
