@@ -280,6 +280,8 @@ export const GameContextProvider = ({ children }: props) => {
       } else {
         setMazeCols(8); // Smaller devices
         setMazeRows(10);
+        // On mobile make swipe the default
+        setShowMovementButtons(false);
       }
     };
 
