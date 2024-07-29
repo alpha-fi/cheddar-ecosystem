@@ -7,14 +7,14 @@ interface Props {
 
 export default function MissionModalContent({ isOpen, onClose }: Props) {
   return (
-    <ModalContainer title={'Our Mission'} isOpen={isOpen} onClose={onClose}>
+    <ModalContainer title={'Our Vision'} isOpen={isOpen} onClose={onClose}>
       <UnorderedList fontSize="14px">
         <ListItem>
           <Text as="b" fontSize="md">
             Creativity Flourishes:
           </Text>{' '}
-          Individuals and communities are empowered unleash their creativity and
-          build unique experiences.
+          Individuals and communities are empowered to unleash their creativity
+          and build unique experiences.
         </ListItem>
         <ListItem>
           <Text as="b" fontSize="md">

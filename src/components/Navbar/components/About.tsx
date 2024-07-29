@@ -30,7 +30,7 @@ export function About() {
           About
         </MenuButton>
         <MenuList minWidth="auto" p="0" borderRadius="full" bg="yellowCheddar">
-          <MenuItem onClick={() => setMissionModal(true)}>Mission</MenuItem>
+          <MenuItem onClick={() => setMissionModal(true)}>Vision</MenuItem>
           <MenuItem onClick={() => setValuesModal(true)}>Values</MenuItem>
         </MenuList>
       </Menu>
