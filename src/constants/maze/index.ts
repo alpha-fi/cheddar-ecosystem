@@ -7,7 +7,7 @@ export const IS_TEST_CARTEL =
   process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 export const IS_TEST_DOORS_MINIGAME =
-  process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+  process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
 
 export const TIME_LIMIT_IN_SECONDS = 120;
 

@@ -11,7 +11,10 @@ export function DoorsGameboard() {
     useContext(GameContext);
 
   const [rng, setRng] = useState(new RNG(seedId));
-  const [selectedDoor, setSelectedDoor] = useState<{index:number|null,priceImagePath:string}>({index:null, priceImagePath:""});
+  const [selectedDoor, setSelectedDoor] = useState<{
+    index: number | null;
+    priceImagePath: string;
+  }>({ index: null, priceImagePath: '' });
   const doorsOrder = useMemo(() => shuffleArray(prizes), [prizes]);
 
   function shuffleArray(array: number[]): number[] {
@@ -30,9 +33,11 @@ export function DoorsGameboard() {
   }
 
   function handleSelectDoor(index: number) {
-    const cheddar = doorsOrder[index];
-    setSelectedDoor({index,priceImagePath:'assets/cheddar-mouse.png'});
-    setCheddarFound(cheddar);
+    if (selectedDoor.index === null) {
+      const cheddar = doorsOrder[index];
+      setSelectedDoor({ index, priceImagePath: 'assets/cheddar-mouse.png' });
+      setCheddarFound(cheddar);
+    }
   }
 
   function actionAfterAnimation(index: number) {
