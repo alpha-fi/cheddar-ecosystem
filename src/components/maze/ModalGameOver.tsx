@@ -77,7 +77,7 @@ export const ModalGameOver = () => {
   return (
     <>
       <ModalContainer
-        title={gameOverMessage}
+        title={isDoorsGameOpened && !hasPlayedDoorsMinigame ? "Choose a door" : "Game Over"}
         isOpen={isGameOverOpened}
         onClose={options[caseName].onCloseFunction}
         neverCloseOnOverlayClick={options[caseName].neverCloseOnOverlayClick}

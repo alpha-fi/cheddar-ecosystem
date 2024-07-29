@@ -1,7 +1,7 @@
 export const IS_TEST_PLINKO =
   process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
-export const IS_TEST_WIN = process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
+export const IS_TEST_WIN = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 export const IS_TEST_CARTEL =
   process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
