@@ -8,10 +8,12 @@ import {
   Show,
   Tooltip,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import {
   MouseEventHandler,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -23,7 +25,7 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ModalContainer } from '../ModalContainer';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { IsAllowedResponse } from '@/hooks/maze';
-import ModalNotAllowedToPlay from './ModalNotAllowedToPlay';
+import ModalNotAllowedToMint from './ModalNotAllowedToMint';
 import ModalRules from './ModalRules';
 import { GameOverModalContent } from './GameOverModalContent';
 import {
@@ -33,6 +35,7 @@ import {
   ArrowUpIcon,
 } from '@chakra-ui/icons';
 import { Scoreboard } from './Scoreboard';
+import { callMintCheddar } from '@/queries/maze/api';
 
 interface Props {
   remainingMinutes: number;
@@ -74,6 +77,8 @@ export function GameboardContainer({
     isScoreboardOpen,
     onCloseScoreboard,
     isMobile,
+    pendingCheddarToMint,
+    isUserNadabotVerfied,
   } = useContext(GameContext);
 
   const gameboardRef = useRef<HTMLDivElement>(null);
@@ -105,8 +110,39 @@ export function GameboardContainer({
   const { modal, selector, accountId } = useWalletSelector();
 
   const userIsNotAllowedToPlay = useMemo(() => {
-    return accountId && !isAllowedResponse?.ok;
+    return !accountId || !isAllowedResponse?.ok;
   }, [accountId, isAllowedResponse?.ok]);
+
+  const [showMintErrorModal, setMintErrorModal] = useState(false);
+  const [cheddarMintResponse, setCheddarMintResponse] = useState(null);
+  const [isClaiming, setIsClaiming] = useState(false);
+  const toast = useToast();
+
+  useEffect(() => {
+    if (
+      cheddarMintResponse &&
+      cheddarMintResponse?.ok &&
+      cheddarMintResponse?.cheddarMinted > 0
+    ) {
+      toast({
+        title: 'Cheddar Minted Successfully!',
+        status: 'success',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+    }
+
+    if (cheddarMintResponse && !cheddarMintResponse?.ok) {
+      toast({
+        title: 'Error Minting Cheddar',
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+    }
+  }, [cheddarMintResponse, toast]);
 
   function getProperHandler(handler: any) {
     //Uncomment the next line to ignore the isAllowedResponse.ok returning false
@@ -233,14 +269,6 @@ export function GameboardContainer({
             {minCheddarRequired}
             {RenderCheddarIcon({ width: '2rem' })}
           </Link>
-          and
-          <Link
-            target="_blank"
-            className={styles.notEnoughBalanceMsg}
-            href="https://app.nada.bot/"
-          >
-            Verified Human
-          </Link>
           to play.
         </div>
       )}
@@ -255,6 +283,39 @@ export function GameboardContainer({
       </div>
       <div className={styles.mazeContainer} ref={gameboardRef} tabIndex={0}>
         <div className={styles.toolbar}>
+          {pendingCheddarToMint > 0 && (
+            <Button
+              _hover={{ bg: 'yellowgreen' }}
+              isLoading={isClaiming}
+              onClick={async () => {
+                if (!isUserNadabotVerfied) {
+                  setMintErrorModal(true);
+                  return;
+                } else {
+                  setIsClaiming(true);
+                  const response = await callMintCheddar({
+                    data: {
+                      pendingCheddar: pendingCheddarToMint,
+                    },
+                    metadata: {
+                      accountId: accountId as string,
+                    },
+                  });
+                  setIsClaiming(false);
+                  setCheddarMintResponse(response);
+                }
+              }}
+            >
+              Claim 🧀
+            </Button>
+          )}
+          {showMintErrorModal && (
+            <ModalNotAllowedToMint
+              isOpen={showMintErrorModal}
+              onClose={() => setMintErrorModal(!showMintErrorModal)}
+              pendingCheddarToMint={pendingCheddarToMint}
+            />
+          )}
           <span className={styles.rulesButton}>
             <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenModalRules}>
               Rules
@@ -340,13 +401,6 @@ export function GameboardContainer({
         )}
       </div>
       <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
-      {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
-        <ModalNotAllowedToPlay
-          isOpen={isOpenNotAlloWedModal}
-          onClose={onCloseNotAlloWedModal}
-          errors={isAllowedResponse.errors}
-        />
-      )}
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer

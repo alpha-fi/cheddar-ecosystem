@@ -3,6 +3,8 @@ import styles from '@/styles/GameOverModalContent.module.css';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useToast } from '@chakra-ui/react';
 import { Facebook, Telegram, Twitter } from '../icons';
+import Link from 'next/link';
+import { getConfig } from '@/configs/config';
 
 export const GameOverModalContent = () => {
   const {
@@ -14,6 +16,7 @@ export const GameOverModalContent = () => {
     hasWon,
     pendingCheddarToMint,
     endGameResponse,
+    isUserNadabotVerfied,
   } = useContext(GameContext);
 
   const toast = useToast();
@@ -29,7 +32,8 @@ export const GameOverModalContent = () => {
     if (
       endGameResponse &&
       endGameResponse.ok &&
-      endGameResponse.cheddarMinted > 0
+      endGameResponse.cheddarMinted > 0 &&
+      isUserNadabotVerfied
     ) {
       toast({
         title: 'Cheddar Minted Successfully!',
@@ -67,16 +71,37 @@ export const GameOverModalContent = () => {
     return `https://telegram.me/share/url?url=${encodedLink}&text=${encodedText}`;
   }
 
+  const { networkData } = getConfig();
   return (
     <div className={styles.gameOverModal}>
       <p className={getMessageStyles()}>{gameOverMessage}</p>
       {hasWon && (
         <p className={styles.earnings}>
-          You have farmed{' '}
-          {cheddarFound <= pendingCheddarToMint
-            ? cheddarFound
-            : pendingCheddarToMint}{' '}
-          🧀
+          {isUserNadabotVerfied ? (
+            <span>
+              You have farmed{' '}
+              {cheddarFound <= pendingCheddarToMint
+                ? cheddarFound
+                : pendingCheddarToMint}{' '}
+              🧀
+            </span>
+          ) : (
+            <span>
+              You have won{' '}
+              {cheddarFound <= pendingCheddarToMint
+                ? cheddarFound
+                : pendingCheddarToMint}{' '}
+              🧀, please verify using{' '}
+              <Link
+                className={styles.link}
+                href={networkData.nadaBotUrl}
+                target="_blank"
+              >
+                nada.bot
+              </Link>{' '}
+              to claim your cheddar.
+            </span>
+          )}
         </p>
       )}
       {cheddarFound > 0 && !hasWon && (

@@ -19,7 +19,7 @@ import {
 } from '@/hooks/maze';
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
-import { useGetCheddarNFTs } from '@/hooks/cheddar';
+import { useGetCheddarNFTs, useIsNadabotVerfified } from '@/hooks/cheddar';
 import { useDisclosure } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
 
@@ -179,6 +179,8 @@ interface GameContextProps {
   onCloseScoreboard: () => void;
 
   seedId: number;
+
+  isUserNadabotVerfied: boolean | undefined;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -329,6 +331,8 @@ export const GameContextProvider = ({ children }: props) => {
   const [nfts, setNFTs] = useState<NFT[]>([]);
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
     useGetCheddarNFTs();
+
+  const { data: isUserNadabotVerfied } = useIsNadabotVerfified(accountId);
 
   useEffect(() => {
     if (accountId) {
@@ -1161,6 +1165,7 @@ export const GameContextProvider = ({ children }: props) => {
         onOpenScoreboard,
         onCloseScoreboard,
         seedId,
+        isUserNadabotVerfied,
       }}
     >
       {children}

@@ -5,6 +5,7 @@ import {
   getCheddarNFTBuyPrice,
   getNFTs,
   getTotalSupply,
+  isNadabotVerfied,
 } from '@/contracts/cheddarCalls';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
@@ -52,8 +53,19 @@ export const useGetCheddarNFTPrice = (
   withCheddar: boolean
 ): UseQueryResult<string | null> => {
   return useQuery<string | null>({
-    queryKey: ['useGetCheddarNFTs', withCheddar],
+    queryKey: ['useGetCheddarNFTPrice', withCheddar],
     queryFn: () => getCheddarNFTBuyPrice(withCheddar),
+    refetchInterval: 10000,
+    staleTime: 10000,
+  });
+};
+
+export const useIsNadabotVerfified = (
+  accountId: string | null
+): UseQueryResult<boolean> => {
+  return useQuery<boolean>({
+    queryKey: ['useIsNadabotVerfified', accountId],
+    queryFn: () => (accountId ? isNadabotVerfied(accountId) : false),
     refetchInterval: 10000,
     staleTime: 10000,
   });
