@@ -441,10 +441,10 @@ export const GameContextProvider = ({ children }: props) => {
     setEndGameResponse(undefined);
     setCellsWithItemAmount(0);
     setRenderBoard(!renderBoard);
-    setHasPlayedDoorsMinigame(false)
-    setIsDoorsGameOpened(false)
-    setCheddarFoundInDoorsMinigame(undefined)
-    setDoorsMinigameReason(undefined)
+    setHasPlayedDoorsMinigame(false);
+    setIsDoorsGameOpened(false);
+    setCheddarFoundInDoorsMinigame(undefined);
+    setDoorsMinigameReason(undefined);
 
     gameOverRefSent.current = false;
 

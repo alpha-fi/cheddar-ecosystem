@@ -9,7 +9,7 @@ interface Props {
   showDoorsGameboard: boolean;
 }
 
-export const GameOverModalContent = ({ showDoorsGameboard}: Props) => {
+export const GameOverModalContent = ({ showDoorsGameboard }: Props) => {
   const {
     remainingMinutes,
     remainingSeconds,

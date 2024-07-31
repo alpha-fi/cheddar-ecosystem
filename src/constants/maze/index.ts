@@ -1,13 +1,11 @@
-export const IS_TEST_PLINKO =
-  process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+export const IS_TEST_PLINKO = process.env.NEXT_PUBLIC_IS_TEST_PLINKO === 'true';
 
-export const IS_TEST_WIN = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+export const IS_TEST_WIN = process.env.NEXT_PUBLIC_IS_TEST_WIN === 'true';
 
-export const IS_TEST_CARTEL =
-  process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+export const IS_TEST_CARTEL = process.env.NEXT_PUBLIC_IS_TEST_CARTEL === 'true';
 
 export const IS_TEST_DOORS_MINIGAME =
-  process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+  process.env.NEXT_PUBLIC_IS_TEST_DOORS_MINIGAME === 'true';
 
 export const TIME_LIMIT_IN_SECONDS = 120;
 
@@ -51,10 +49,10 @@ export const CARTEL_FOUND_MESSAGE = 'You ran into the cartel! Game Over!';
 
 export const EXIT_FOUND_MESSAGE = 'Congrats! You found the Hidden Door.';
 
-export const DOORS_MINIGAME_MESSAGE = 'You scaped from the battle through a door.'
+export const DOORS_MINIGAME_MESSAGE =
+  'You scaped from the battle through a door.';
 export const CHOOSE_DOORS_MESSAGE = 'Choose a door';
 
 export const TIME_END_MESSAGE = "⏰ Time's up! Game Over!";
 
 export const LOST_TO_ENEMY_MESSAGE = 'Enemy won! Game Over!';
-

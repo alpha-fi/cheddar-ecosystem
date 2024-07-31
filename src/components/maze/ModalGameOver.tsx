@@ -60,7 +60,7 @@ export const ModalGameOver = () => {
   useEffect(() => {
     if (gameOverMessage !== '') {
       if (caseName === 'gameOver') {
-        onOpenGameOver()
+        onOpenGameOver();
         gameOver();
       } else {
         onOpenGameOver();
@@ -77,7 +77,11 @@ export const ModalGameOver = () => {
   return (
     <>
       <ModalContainer
-        title={isDoorsGameOpened && !hasPlayedDoorsMinigame ? "Choose a door" : "Game Over"}
+        title={
+          isDoorsGameOpened && !hasPlayedDoorsMinigame
+            ? 'Choose a door'
+            : 'Game Over'
+        }
         isOpen={isGameOverOpened}
         onClose={options[caseName].onCloseFunction}
         neverCloseOnOverlayClick={options[caseName].neverCloseOnOverlayClick}

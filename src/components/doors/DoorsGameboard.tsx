@@ -36,7 +36,11 @@ export function DoorsGameboard() {
 
   function handleSelectDoor(index: number) {
     if (selectedDoor.index === null) {
-      setSelectedDoor({ index, priceImagePath: 'assets/cheddar-mouse.png', prizeValue: doorsOrder[index]});
+      setSelectedDoor({
+        index,
+        priceImagePath: 'assets/cheddar-mouse.png',
+        prizeValue: doorsOrder[index],
+      });
     }
   }
 
