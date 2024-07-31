@@ -5,3 +5,7 @@
 .lost {
   color: #f1506b;
 }
+
+.doorOpened {
+  transform: rotateY(-90deg);
+}

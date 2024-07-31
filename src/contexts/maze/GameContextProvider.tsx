@@ -80,8 +80,8 @@ interface GameContextProps {
   gameOverFlag: boolean;
   setGameOverFlag: React.Dispatch<React.SetStateAction<boolean>>;
 
-  gameOverMessage: string;
-  setGameOverMessage: React.Dispatch<React.SetStateAction<string>>;
+  gameOverMessage: Record<string, string>;
+  setGameOverMessage: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 
   timerStarted: boolean;
   setTimerStarted: React.Dispatch<React.SetStateAction<boolean>>;
@@ -202,9 +202,9 @@ interface GameContextProps {
     React.SetStateAction<undefined | number>
   >;
 
-  doorsMinigameReason: undefined | string;
+  doorsMinigameReason: undefined | Record<string, string>;
   setDoorsMinigameReason: React.Dispatch<
-    React.SetStateAction<undefined | string>
+    React.SetStateAction<undefined | Record<string, string>>
   >;
 
   seedId: number;
@@ -245,9 +245,11 @@ export const GameContextProvider = ({ children }: props) => {
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
-  const [gameOverMessage, setGameOverMessage] = useState('');
+  const [gameOverMessage, setGameOverMessage] = useState<
+    Record<string, string>
+  >({ text: '', color: '' });
   const [doorsMinigameReason, setDoorsMinigameReason] = useState<
-    undefined | string
+    undefined | Record<string, string>
   >();
   const [hasWon, setHasWon] = useState<undefined | boolean>();
   const [timerStarted, setTimerStarted] = useState(false);
@@ -434,7 +436,7 @@ export const GameContextProvider = ({ children }: props) => {
     setMoves(0);
     setGameOverFlag(false);
     setWon(false);
-    setGameOverMessage('');
+    setGameOverMessage({ text: '', color: '' });
     setDirection('right');
     setCoveredCells([]);
     setSaveResponse(undefined);
@@ -633,7 +635,7 @@ export const GameContextProvider = ({ children }: props) => {
     );
   }
 
-  function getShouldOpenDoorsMinigame(reason: string) {
+  function getShouldOpenDoorsMinigame(reason: Record<string, string>) {
     setDoorsMinigameReason(reason);
     return (
       IS_TEST_DOORS_MINIGAME ||
@@ -831,7 +833,11 @@ export const GameContextProvider = ({ children }: props) => {
     setTimerStarted(false);
   }
 
-  function endGame(message: string, won: boolean, openDoorsMinigame = false) {
+  function endGame(
+    message: Record<string, string>,
+    won: boolean,
+    openDoorsMinigame = false
+  ) {
     setHasWon(won);
     setCoveredCells([]);
     setGameOverFlag(true);

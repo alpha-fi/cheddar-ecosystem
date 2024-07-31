@@ -28,7 +28,7 @@ export const GameOverModalContent = ({ showDoorsGameboard }: Props) => {
     remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
 
   function getMessageStyles() {
-    return `${styles.gameOver} ${hasWon ? styles.win : styles.lost}`;
+    return `${styles.gameOver}`;
   }
 
   useEffect(() => {
@@ -76,7 +76,12 @@ export const GameOverModalContent = ({ showDoorsGameboard }: Props) => {
   return (
     <div className={styles.gameOverModal}>
       {showDoorsGameboard && <DoorsGameboard />}
-      <p className={getMessageStyles()}>{gameOverMessage}</p>
+      <p
+        className={getMessageStyles()}
+        style={{ color: gameOverMessage.color }}
+      >
+        {gameOverMessage.text}
+      </p>
       {hasWon && (
         <p className={styles.earnings}>
           You have farmed{' '}

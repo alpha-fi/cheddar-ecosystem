@@ -59,13 +59,9 @@ export function GameboardContainer({
     mazeData,
     score,
     gameOverFlag,
-    gameOverMessage,
-    hasPowerUp,
     handleKeyPress,
     restartGame,
     timerStarted,
-    setGameOverMessage,
-    saveResponse,
     plinkoModalOpened,
     closePlinkoModal,
     nfts,
@@ -85,11 +81,6 @@ export function GameboardContainer({
     onOpen: onOpenNotAlloWedModal,
     onClose: onCloseNotAlloWedModal,
   } = useDisclosure();
-
-  // function closeGameOverModal() {
-  //   setGameOverMessage('');
-  //   onCloseModalGameOver();
-  // }
 
   const {
     isOpen: isOpenModalRules,
@@ -344,39 +335,7 @@ export function GameboardContainer({
       )}
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       <ModalGameOver />
-      {/* {gameOverFlag && gameOverMessage.length > 0 && (
-        <ModalContainer
-          title={'Game over'}
-          isOpen={isOpen}
-          onClose={closeGameOverModal}
-          neverCloseOnOverlayClick={true}
-        >
-          <GameOverModalContent />
-        </ModalContainer>
-      )}
-      <ModalContainer
-        title={'Choose your door!'}
-        isOpen={isDoorsModalOpened}
-        onClose={() => {}}
-        neverCloseOnOverlayClick={true}
-        hideActionButtons={true}
-        hideCloseButton={true}
-      >
-        <DoorsGameboard />
-      </ModalContainer>
-      {saveResponse && (
-        <ModalContainer
-          title={'Error saving game'}
-          isOpen={isOpen}
-          onClose={onClose}
-        >
-          <div>
-            {saveResponse.map((error, index) => {
-              return <div key={index}>{error}</div>;
-            })}
-          </div>
-        </ModalContainer>
-      )} */}
+      
       <ModalContainer
         title={'Plinko game!'}
         isOpen={plinkoModalOpened}

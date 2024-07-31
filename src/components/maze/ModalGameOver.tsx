@@ -30,7 +30,7 @@ export const ModalGameOver = () => {
   } = useDisclosure();
 
   function closeGameOverModal() {
-    setGameOverMessage('');
+    setGameOverMessage({text: "", color: ""});
     onCloseGameOver();
   }
 
@@ -58,7 +58,7 @@ export const ModalGameOver = () => {
   }, [isDoorsGameOpened, gameOverMessage]);
 
   useEffect(() => {
-    if (gameOverMessage !== '') {
+    if (gameOverMessage.text !== '') {
       if (caseName === 'gameOver') {
         onOpenGameOver();
         gameOver();
@@ -79,7 +79,7 @@ export const ModalGameOver = () => {
       <ModalContainer
         title={
           isDoorsGameOpened && !hasPlayedDoorsMinigame
-            ? 'Choose a door'
+            ? 'Door game'
             : 'Game Over'
         }
         isOpen={isGameOverOpened}

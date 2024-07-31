@@ -14,14 +14,6 @@
   font-weight: bold;
 }
 
-.win {
-  color: #7ED957;
-}
-
-.lost {
-  color: #F1506B;
-}
-
 .score {
   font-size: 1.5rem;
   font-weight: bolder;

@@ -1,3 +1,5 @@
+import { COLORS } from '..';
+
 export const IS_TEST_PLINKO = process.env.NEXT_PUBLIC_IS_TEST_PLINKO === 'true';
 
 export const IS_TEST_WIN = process.env.NEXT_PUBLIC_IS_TEST_WIN === 'true';
@@ -45,14 +47,31 @@ export const NFT_CHEESE_BUFF_MULTIPLIER = 1.28;
 
 export const NFT_EXIT_BUFF_MULTIPLIER = 10;
 
-export const CARTEL_FOUND_MESSAGE = 'You ran into the cartel! Game Over!';
+export const CARTEL_FOUND_MESSAGE = {
+  text: 'You ran into the cartel! Game Over!',
+  color: COLORS.danger,
+};
 
-export const EXIT_FOUND_MESSAGE = 'Congrats! You found the Hidden Door.';
+export const EXIT_FOUND_MESSAGE = {
+  text: 'Congrats! You found the Hidden Door.',
+  color: COLORS.success,
+};
 
-export const DOORS_MINIGAME_MESSAGE =
-  'You scaped from the battle through a door.';
-export const CHOOSE_DOORS_MESSAGE = 'Choose a door';
+export const DOORS_MINIGAME_MESSAGE = {
+  text: 'You scaped from the battle through a door.',
+  color: COLORS.danger,
+};
+export const CHOOSE_DOORS_MESSAGE = {
+  text: 'Enemy won but you get a bonus game. Choose a door.',
+  color: COLORS.warning,
+};
 
-export const TIME_END_MESSAGE = "⏰ Time's up! Game Over!";
+export const TIME_END_MESSAGE = {
+  text: "⏰ Time's up! Game Over!",
+  color: COLORS.danger,
+};
 
-export const LOST_TO_ENEMY_MESSAGE = 'Enemy won! Game Over!';
+export const LOST_TO_ENEMY_MESSAGE = {
+  text: 'Enemy won! Game Over!',
+  color: COLORS.danger,
+};
