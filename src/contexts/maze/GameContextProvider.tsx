@@ -189,7 +189,7 @@ interface GameContextProps {
   onOpenScoreboard: () => void;
   onCloseScoreboard: () => void;
 
-  gameOver: (message: string, won: boolean) => Promise<void>;
+  gameOver: () => Promise<void>;
 
   isDoorsGameOpened: boolean;
   setIsDoorsGameOpened: React.Dispatch<React.SetStateAction<boolean>>;
