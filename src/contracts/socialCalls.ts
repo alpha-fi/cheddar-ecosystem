@@ -29,11 +29,13 @@ export const getNearSocial = async (
 
 export const setNearSocial = async (
   wallet: Wallet,
+  accountId: string,
   data: Record<string, any>
 ): Promise<void | FinalExecutionOutcome> => {
   const bytes = new TextEncoder().encode(JSON.stringify(data)).length;
   return change(
     wallet,
+    accountId,
     nearSocial,
     socialChangeMethods.set,
     {
