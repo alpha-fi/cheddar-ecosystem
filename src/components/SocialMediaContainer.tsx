@@ -2,7 +2,7 @@ import { Box, Link } from '@chakra-ui/react';
 import styles from '../styles/SocialMedia.module.css';
 import { Chatter, Discord, GitBook, Telegram, Twitter } from './icons';
 
-export const SocialMedia = () => {
+export const SocialMedia = ({ size = 'md' }) => {
   return (
     <Box className={styles.container} display={{ base: 'none', lg: 'flex' }}>
       <Box className={styles.secondContainer}>
@@ -14,7 +14,7 @@ export const SocialMedia = () => {
           _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
           _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
         >
-          <Telegram boxSize={6} color={'#8542eb'} />
+          <Telegram boxSize={size === 'md' ? 6 : 5} color={'#8542eb'} />
         </Link>
 
         <Link
@@ -25,7 +25,7 @@ export const SocialMedia = () => {
           _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
           _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
         >
-          <Discord boxSize={6} color={'#8542eb'} />
+          <Discord boxSize={size === 'md' ? 6 : 5} color={'#8542eb'} />
         </Link>
 
         <Link
@@ -36,7 +36,7 @@ export const SocialMedia = () => {
           _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
           _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
         >
-          <Twitter boxSize={5} color={'#8542eb'} />
+          <Twitter boxSize={size === 'md' ? 5 : 4} color={'#8542eb'} />
         </Link>
 
         <Link
@@ -47,7 +47,7 @@ export const SocialMedia = () => {
           _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
           _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
         >
-          <GitBook boxSize={7} color={'#8542eb'} />
+          <GitBook boxSize={size === 'md' ? 7 : 5} color={'#8542eb'} />
         </Link>
 
         <Link
@@ -58,7 +58,7 @@ export const SocialMedia = () => {
           _active={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
           _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
         >
-          <Chatter boxSize={6} color={'#8542eb'} />
+          <Chatter boxSize={size === 'md' ? 6 : 5} color={'#8542eb'} />
         </Link>
       </Box>
     </Box>

@@ -280,6 +280,8 @@ export const GameContextProvider = ({ children }: props) => {
       } else {
         setMazeCols(8); // Smaller devices
         setMazeRows(10);
+        // On mobile make swipe the default
+        setShowMovementButtons(false);
       }
     };
 
@@ -500,7 +502,6 @@ export const GameContextProvider = ({ children }: props) => {
           break;
         }
       }
-      console.log({ reachable });
       if (!reachable) {
         unreachableColumns.push(c);
       }

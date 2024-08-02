@@ -13,15 +13,13 @@ import {
 import { ButtonConnectWallet } from '../components/ButtonConnectWallet';
 import { DrawerMenu } from '../components/DrawerMenu';
 import styles from '@/styles/NavBar.module.css';
-import { useContext } from 'react';
 
 import { useGetCheddarTotalSupply } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
-import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { ModalContainer } from '@/components/ModalContainer';
-import { SocialMedia } from '@/components/SocialMediaContainer';
 import Link from 'next/link';
+import { About } from '../components/About';
 
 export default function Navbar() {
   const {
@@ -133,7 +131,7 @@ export default function Navbar() {
                 </div>
               </Text>
             </Text>
-
+            <About />
             <ButtonConnectWallet />
             <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
               <DrawerMenu

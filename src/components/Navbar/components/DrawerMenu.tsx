@@ -52,7 +52,7 @@ export function DrawerMenu({
           <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
 
           <DrawerBody display="flex" flexDirection="column" gap="0.5rem" px="0">
-            <Button colorScheme="blue" onClick={onOpenVideoModal}>
+            <Button mx={3} colorScheme="blue" onClick={onOpenVideoModal}>
               🎶
             </Button>
             <VStack spacing={'16px'} minW={'25px'}>
@@ -77,7 +77,7 @@ export function DrawerMenu({
             borderTopWidth="1px"
             justifyContent="space-around"
           >
-            <SocialMedia />
+            <SocialMedia size="sm" />
             <Text display="flex" justifyContent="space-between" w="100%">
               <Text as="i" pb="2.5rem">
                 Total supply:{' '}
