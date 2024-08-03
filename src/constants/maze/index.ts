@@ -6,6 +6,9 @@ export const IS_TEST_WIN = process.env.NEXT_PUBLIC_IS_TEST_WIN === 'true';
 
 export const IS_TEST_CARTEL = process.env.NEXT_PUBLIC_IS_TEST_CARTEL === 'true';
 
+export const IS_TEST_PORTAL_TO_SECOND_MAZE =
+  process.env.NEXT_PUBLIC_IS_TEST_PORTAL_TO_SECOND_MAZE === 'true';
+
 export const IS_TEST_DOORS_MINIGAME =
   process.env.NEXT_PUBLIC_IS_TEST_DOORS_MINIGAME === 'true';
 
@@ -41,6 +44,8 @@ export const CHANCES_OF_FINDING = {
   cartel: 0.0002,
   plinko: 0.01,
   doorsMinigame: 0.01,
+
+  portalToSecondMaze: 0.025,
 };
 
 export const NFT_CHEESE_BUFF_MULTIPLIER = 1.28;

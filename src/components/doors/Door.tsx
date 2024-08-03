@@ -64,7 +64,7 @@ export const Door = ({
         animation={showAnimation ? animationTop : undefined}
         // className={keepDoorOpen ? styles.doorOpened : ""}
         backgroundColor="#bfa380"
-        style={{animationFillMode: "forwards"}}
+        style={{ animationFillMode: 'forwards' }}
         h="10px"
         w={'100%'}
         id="top"
@@ -76,15 +76,15 @@ export const Door = ({
         backgroundColor="#bfa380"
         w="100%"
         h="100%"
-        style={{animationFillMode: "forwards"}}
-        >
+        style={{ animationFillMode: 'forwards' }}
+      >
         <Img w="100}%" src={'assets/transparent-door.svg'} />
       </Box>
       <Box
         animation={showAnimation ? animationBottom : undefined}
         // className={keepDoorOpen ? styles.doorOpened : ""}
         backgroundColor="#bfa380"
-        style={{animationFillMode: "forwards"}}
+        style={{ animationFillMode: 'forwards' }}
         h="10px"
         w={'100%'}
         id="bottom"

@@ -335,7 +335,7 @@ export function GameboardContainer({
       )}
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       <ModalGameOver />
-      
+
       <ModalContainer
         title={'Plinko game!'}
         isOpen={plinkoModalOpened}

@@ -31,6 +31,7 @@ import {
   IS_TEST_CARTEL,
   IS_TEST_DOORS_MINIGAME,
   IS_TEST_PLINKO,
+  IS_TEST_PORTAL_TO_SECOND_MAZE,
   IS_TEST_WIN,
   LOST_TO_ENEMY_MESSAGE,
   MAX_SCORE_TO_CHOOSE_DOOR,
@@ -63,6 +64,7 @@ export interface MazeTileData {
   hasExit: boolean;
   hasCartel: boolean;
   hasPlinko: boolean;
+  hasPortalToSecondMaze: boolean;
 }
 
 interface GameContextProps {
@@ -70,6 +72,11 @@ interface GameContextProps {
 
   mazeData: MazeTileData[][];
   setMazeData: React.Dispatch<React.SetStateAction<MazeTileData[][]>>;
+
+  secondMazeData: MazeTileData[][];
+  setSecondMazeData: React.Dispatch<React.SetStateAction<MazeTileData[][]>>;
+
+  showFirstMaze: boolean;
 
   playerPosition: Coordinates;
   setPlayerPosition: React.Dispatch<React.SetStateAction<Coordinates>>;
@@ -81,7 +88,9 @@ interface GameContextProps {
   setGameOverFlag: React.Dispatch<React.SetStateAction<boolean>>;
 
   gameOverMessage: Record<string, string>;
-  setGameOverMessage: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setGameOverMessage: React.Dispatch<
+    React.SetStateAction<Record<string, string>>
+  >;
 
   timerStarted: boolean;
   setTimerStarted: React.Dispatch<React.SetStateAction<boolean>>;
@@ -241,6 +250,9 @@ export const GameContextProvider = ({ children }: props) => {
   } = useDisclosure();
 
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
+  const [secondMazeData, setSecondMazeData] = useState([
+    [],
+  ] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);
@@ -258,6 +270,7 @@ export const GameContextProvider = ({ children }: props) => {
     'right' as 'right' | 'left' | 'down' | 'up'
   );
   const [selectedColorSet, setSelectedColorSet] = useState(0);
+  const [secondSelectedColorSet, setSecondSelectedColorSet] = useState(0);
   const [lastCellX, setLastCellX] = useState(-1);
   const [lastCellY, setLastCellY] = useState(-1);
   const [hasPowerUp, setHasPowerUp] = useState(false);
@@ -279,6 +292,9 @@ export const GameContextProvider = ({ children }: props) => {
   const [touchStart, setTouchStart] = useState({ x: -1, y: -1 });
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
   const [coveredCells, setCoveredCells] = useState<string[]>([]);
+  const [secondMazeCoveredCells, setSecondMazeCoveredCells] = useState<
+    string[]
+  >([]);
   const [cellsWithItemAmount, setCellsWithItemAmount] = useState(0);
 
   const [cheddarFound, setCheddarFound] = useState(0);
@@ -292,6 +308,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [showMovementButtons, setShowMovementButtons] = useState(true);
   const [renderBoard, setRenderBoard] = useState(false); // to update board color on restart
+  const [renderSecondBoard, setRenderSecondBoard] = useState(false);
 
   const [timestampStartStopTimerArray, setTimestampStartStopTimerArray] =
     useState<number[]>([]);
@@ -301,6 +318,8 @@ export const GameContextProvider = ({ children }: props) => {
   >([]);
 
   const [hasFoundPlinko, setHasFoundPlinko] = useState(false);
+  const [hasFoundPortalToSecondMaze, setHasFoundPortalToSecondMaze] =
+    useState(false);
 
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
@@ -320,6 +339,8 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [cheddarFoundInDoorsMinigame, setCheddarFoundInDoorsMinigame] =
     useState<undefined | number>();
+
+  const [showFirstMaze, setShowFirstMaze] = useState(true);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
@@ -388,26 +409,46 @@ export const GameContextProvider = ({ children }: props) => {
   }, [accountId]);
 
   // Function to select a random color set, background image, and rarity
-  const selectRandomColorSet = () => {
-    //Check the global.css file.
-    const colorSetsQuantity = 3;
+  const selectRandomColorSet = (isSecondColor?: boolean) => {
+    let randomizeColor;
+    do {
+      //Check the global.css file.
+      const colorSetsQuantity = 3;
 
-    const randomizeColor = Math.floor(
-      Math.floor(Math.random() * colorSetsQuantity) + 1
-    );
+      randomizeColor = Math.floor(
+        Math.floor(Math.random() * colorSetsQuantity) + 1
+      );
+    } while (isSecondColor && selectedColorSet !== randomizeColor);
 
     return randomizeColor;
   };
 
-  function getRandomPathCell(mazeData: MazeTileData[][]) {
-    const pathCells: Coordinates[] = [];
-    mazeData.map((row: MazeTileData[], rowIndex: number) => {
-      row.map((cell: MazeTileData, colIndex: number) => {
-        if (cell.isPath) {
-          pathCells.push({ x: colIndex, y: rowIndex });
-        }
-      });
+  function isUbicationPath(pathCalls: Coordinates[], ubication: Coordinates) {
+    return !pathCalls.find((pathCell) => {
+      return pathCell.x === ubication.x && pathCell.y === ubication.y;
     });
+  }
+
+  function getRandomPathCell(
+    mazeData: MazeTileData[][],
+    forcedStartingUbication?: Coordinates
+  ) {
+    const pathCells: Coordinates[] = [];
+    do {
+      while (pathCells.length > 0) {
+        pathCells.pop();
+      }
+      mazeData.map((row: MazeTileData[], rowIndex: number) => {
+        row.map((cell: MazeTileData, colIndex: number) => {
+          if (cell.isPath) {
+            pathCells.push({ x: colIndex, y: rowIndex });
+          }
+        });
+      });
+    } while (
+      forcedStartingUbication &&
+      !isUbicationPath(pathCells, forcedStartingUbication)
+    );
 
     return pathCells[rng.nextRange(0, pathCells.length)];
   }
@@ -466,7 +507,12 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   // Function to generate maze data
-  function generateMazeData(rows: number, cols: number, rng: RNG) {
+  function generateMazeData(
+    rows: number,
+    cols: number,
+    rng: RNG,
+    isSecondMaze = false
+  ) {
     const maze = Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => ({
         isPath: false,
@@ -478,6 +524,7 @@ export const GameContextProvider = ({ children }: props) => {
         enemyWon: false,
         hasCartel: false,
         hasPlinko: false,
+        hasPortalToSecondMaze: false,
       }))
     );
 
@@ -565,6 +612,10 @@ export const GameContextProvider = ({ children }: props) => {
       maze[r][c].isPath = true;
       nonPathCells.splice(randomIndex, 1); // Remove selected cell from array
     }
+
+    if (isSecondMaze) {
+      maze[playerPosition.x][playerPosition.y].hasPortalToSecondMaze = true;
+    }
     return maze;
   }
 
@@ -583,21 +634,100 @@ export const GameContextProvider = ({ children }: props) => {
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
   }, [totalCells, renderBoard]); // Empty dependency array to run this effect only once on component mount
 
-  function movePlayer(newX: number, newY: number) {
-    if (
-      !mazeData[newY] ||
-      !mazeData[newY][newX] ||
-      !mazeData[newY][newX].isPath
-    ) {
-      return; // Player cannot move to non-path cells
+  useEffect(() => {
+    if (hasFoundPortalToSecondMaze) {
+      const newMazeData = generateMazeData(
+        mazeRows,
+        mazeCols,
+        new RNG(rng.nextFloat()),
+        true //isSecondMaze
+      );
+      setSecondMazeData(newMazeData);
+
+      const randomColorSet = selectRandomColorSet(true);
+
+      setSecondSelectedColorSet(randomColorSet);
+    }
+  }, [mazeData, renderSecondBoard]);
+
+  function toggleRenderingMaze() {
+    setShowFirstMaze(!showFirstMaze);
+  }
+
+  function checkIfIsPath(newX: number, newY: number, isSecondMaze: boolean) {
+    if (!isSecondMaze) {
+      return (
+        !mazeData[newY] || !mazeData[newY][newX] || !mazeData[newY][newX].isPath
+      );
     }
 
-    const newMazeData = mazeData.map((row: MazeTileData[], rowIndex: number) =>
+    return (
+      !secondMazeData[newY] ||
+      !secondMazeData[newY][newX] ||
+      !secondMazeData[newY][newX].isPath
+    );
+  }
+
+  function getNewMazeData(newX: number, newY: number, isSecondMaze = false) {
+    const currentMaze = isSecondMaze ? secondMazeData : mazeData;
+
+    return currentMaze.map((row: MazeTileData[], rowIndex: number) =>
       row.map((cell: MazeTileData, colIndex: number) => ({
         ...cell,
         isActive: rowIndex === newY && colIndex === newX,
       }))
     );
+  }
+
+  function updateMazeData(
+    newMazeData: {
+      isActive: boolean;
+      isPath: boolean;
+      enemyWon: boolean;
+      hasCheese: boolean;
+      hasBag: boolean;
+      hasEnemy: boolean;
+      hasExit: boolean;
+      hasCartel: boolean;
+      hasPlinko: boolean;
+      hasPortalToSecondMaze: boolean;
+    }[][],
+    isSecondMaze: boolean
+  ) {
+    if (isSecondMaze) {
+      setSecondMazeData(newMazeData);
+    } else {
+      setMazeData(newMazeData);
+    }
+  }
+
+  function handleCoveredCells(
+    newX: number,
+    newY: number,
+    isSecondMaze: boolean
+  ) {
+    const currentMazeCoveredCells = isSecondMaze
+      ? secondMazeCoveredCells
+      : coveredCells;
+
+    const currentMazeCoveredCellsSetter = isSecondMaze
+      ? setSecondMazeCoveredCells
+      : setCoveredCells;
+
+    if (!currentMazeCoveredCells.includes(`${newX}${newY}`)) {
+      let newCoveredCells = currentMazeCoveredCells;
+      newCoveredCells.push(`${newX}${newY}`);
+      currentMazeCoveredCellsSetter(newCoveredCells);
+    }
+  }
+
+  function movePlayer(newX: number, newY: number, isSecondMaze = false) {
+    if (checkIfIsPath(newX, newY, isSecondMaze)) {
+      return; // Player cannot move to non-path cells
+    }
+
+    const newMazeData = getNewMazeData(newX, newY);
+    console.log('newMazeData: ', newMazeData);
 
     // Reset isActive for the previous player position
     newMazeData[playerPosition.y][playerPosition.x].isActive = false;
@@ -606,18 +736,19 @@ export const GameContextProvider = ({ children }: props) => {
     setPlayerPosition({ x: newX, y: newY });
 
     // Update mazeData state
-    setMazeData(newMazeData);
+    updateMazeData(newMazeData, isSecondMaze);
 
     // Increment moves count
     setMoves(moves + 1);
-    if (!coveredCells.includes(`${newX}${newY}`)) {
-      let newCoveredCells = coveredCells;
-      newCoveredCells.push(`${newX}${newY}`);
-      setCoveredCells(newCoveredCells);
-    }
+    handleCoveredCells(newX, newY, isSecondMaze);
 
-    // Periodically add artifacts to the board based on cooldowns and randomness
-    addArtifacts(newX, newY, newMazeData, moves);
+    if (newMazeData[newX][newY].hasPortalToSecondMaze) {
+      //If it has portal tp to other maze
+      toggleRenderingMaze();
+    } else {
+      // Periodically add artifacts to the board based on cooldowns and randomness
+      addArtifacts(newX, newY, newMazeData, moves, isSecondMaze);
+    }
 
     // Set lastCellX and lastCellY to the new player position
     // Update last cell coordinates
@@ -625,7 +756,16 @@ export const GameContextProvider = ({ children }: props) => {
     setLastCellY(playerPosition.y);
   }
 
-  function doesCellHasArtifact(x: number, y: number) {
+  function doesCellHasArtifact(x: number, y: number, isSecondMaze: boolean) {
+    if (isSecondMaze) {
+      return (
+        secondMazeData[y][x].hasCheese ||
+        secondMazeData[y][x].hasBag ||
+        secondMazeData[y][x].hasEnemy ||
+        secondMazeData[y][x].hasCartel ||
+        secondMazeData[y][x].hasExit
+      );
+    }
     return (
       mazeData[y][x].hasCheese ||
       mazeData[y][x].hasBag ||
@@ -753,7 +893,6 @@ export const GameContextProvider = ({ children }: props) => {
     x: number,
     y: number
   ) {
-    // 0.2% chance of hitting the "cartel" event
     clonedMazeData[y][x].hasCartel = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     endGame(getCorrectMessageForFindingCartel(), false);
@@ -768,6 +907,18 @@ export const GameContextProvider = ({ children }: props) => {
     setCellsWithItemAmount(cellsWithItemAmount + 1);
 
     endGame(EXIT_FOUND_MESSAGE, true);
+  }
+
+  function handlePortalToSecondMazeFound(
+    clonedMazeData: MazeTileData[][],
+    x: number,
+    y: number
+  ) {
+    clonedMazeData[y][x].hasPortalToSecondMaze = true;
+    setCellsWithItemAmount(cellsWithItemAmount + 1);
+    setHasFoundPortalToSecondMaze(true);
+
+    toggleRenderingMaze();
   }
 
   function getChancesOfFindingCheese() {
@@ -788,27 +939,30 @@ export const GameContextProvider = ({ children }: props) => {
     newX: number,
     newY: number,
     newMazeData: MazeTileData[][],
-    moves: number
+    moves: number,
+    isSecondMaze: boolean
   ) {
     if (gameOverFlag /* && moves >= 10*/) {
       return;
     }
-    if (doesCellHasArtifact(newX, newY)) {
+    if (doesCellHasArtifact(newX, newY, isSecondMaze)) {
       return;
     }
     let clonedMazeData = [...newMazeData];
     if (
-      IS_TEST_WIN ||
-      (rng.nextFloat() < getChancesOfFindingExit() &&
-        coveredCells.length >= MIN_COVERED_CELLS_TO_FIND_EXIT * pathLength) ||
-      pathLength - cellsWithItemAmount === 1
+      !isSecondMaze &&
+      (IS_TEST_WIN ||
+        (rng.nextFloat() < getChancesOfFindingExit() &&
+          coveredCells.length >= MIN_COVERED_CELLS_TO_FIND_EXIT * pathLength) ||
+        pathLength - cellsWithItemAmount === 1)
     ) {
       handleExitFound(clonedMazeData, newX, newY);
     } else if (
-      IS_TEST_PLINKO ||
-      (rng.nextFloat() < CHANCES_OF_FINDING.plinko &&
-        !hasFoundPlinko &&
-        remainingTime < MIN_TIME_LEFT_TO_FIND_PLINKO)
+      !isSecondMaze &&
+      (IS_TEST_PLINKO ||
+        (rng.nextFloat() < CHANCES_OF_FINDING.plinko &&
+          !hasFoundPlinko &&
+          remainingTime < MIN_TIME_LEFT_TO_FIND_PLINKO))
     ) {
       handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < CHANCES_OF_FINDING.enemy) {
@@ -820,8 +974,18 @@ export const GameContextProvider = ({ children }: props) => {
       handleCheeseFound(clonedMazeData, newX, newY);
     } else if (!bagCooldown && rng.nextFloat() < CHANCES_OF_FINDING.bag) {
       handleBagFound(clonedMazeData, newX, newY);
-    } else if (IS_TEST_CARTEL || rng.nextFloat() < CHANCES_OF_FINDING.cartel) {
+    } else if (
+      !isSecondMaze &&
+      (IS_TEST_CARTEL || rng.nextFloat() < CHANCES_OF_FINDING.cartel)
+    ) {
       handleCartelFound(clonedMazeData, newX, newY);
+    } else if (
+      !isSecondMaze &&
+      !hasFoundPortalToSecondMaze &&
+      (IS_TEST_PORTAL_TO_SECOND_MAZE ||
+        rng.nextFloat() < CHANCES_OF_FINDING.portalToSecondMaze)
+    ) {
+      handlePortalToSecondMazeFound(clonedMazeData, newX, newY);
     } else {
       setScore(score + POINTS_OF_ACTIONS.moveWithoutDying);
     }
@@ -844,6 +1008,7 @@ export const GameContextProvider = ({ children }: props) => {
     setGameOverMessage(message);
     stopTimer();
     setHasFoundPlinko(false);
+    setHasFoundPortalToSecondMaze(false);
 
     setIsDoorsGameOpened(openDoorsMinigame);
 
@@ -1137,6 +1302,9 @@ export const GameContextProvider = ({ children }: props) => {
         isMobile: isMobile.current,
         mazeData,
         setMazeData,
+        secondMazeData,
+        setSecondMazeData,
+        showFirstMaze,
         playerPosition,
         setPlayerPosition,
         score,

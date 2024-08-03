@@ -19,6 +19,8 @@ export function Gameboard({
 }: Props) {
   const {
     mazeData,
+    secondMazeData,
+    showFirstMaze,
     playerPosition,
     direction,
     selectedColorSet,
@@ -82,9 +84,11 @@ export function Gameboard({
     return `${styles.mazeCell} ${styles.playerCell} ${getPlayerImgDirection()} ${backgroundImage}`;
   }
 
+  const currentMazeData = showFirstMaze ? mazeData : secondMazeData;
+
   return (
     <div ref={touchContainerRef}>
-      {mazeData.map((row: MazeTileData[], rowIndex: number) => (
+      {currentMazeData.map((row: MazeTileData[], rowIndex: number) => (
         <div key={rowIndex} className={styles.mazeRow}>
           {row.map((cell: MazeTileData, colIndex: number) => {
             const blurRadius = playerMoved
@@ -150,6 +154,17 @@ export function Gameboard({
             // else if(cell.hasPlinko) cellContent = '🕹️'
             else if (cell.hasPlinko) cellContent = '🎰';
             //====================================================== End plinko logo options ======================================================
+            //====================================================== Start portal to second maze logo options ======================================================
+            // else if(cell.hasPortalToSecondMaze) cellContent = '🌠'
+            // else if(cell.hasPortalToSecondMaze) cellContent = '🌎'
+            // else if(cell.hasPortalToSecondMaze) cellContent = '🗺️'
+            // else if(cell.hasPortalToSecondMaze) cellContent = '🌐'
+            // else if(cell.hasPortalToSecondMaze) cellContent = '🛣️'
+            // else if(cell.hasPortalToSecondMaze) cellContent = '🛤️'
+            // else if(cell.hasPortalToSecondMaze) cellContent = '🪄'
+            // else if(cell.hasPortalToSecondMaze) cellContent = '🔮'
+            else if (cell.hasPortalToSecondMaze) cellContent = '🌌';
+            //====================================================== End portal to second maze logo options ======================================================
 
             return (
               <div

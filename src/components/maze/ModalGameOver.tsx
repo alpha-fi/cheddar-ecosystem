@@ -30,7 +30,7 @@ export const ModalGameOver = () => {
   } = useDisclosure();
 
   function closeGameOverModal() {
-    setGameOverMessage({text: "", color: ""});
+    setGameOverMessage({ text: '', color: '' });
     onCloseGameOver();
   }
 

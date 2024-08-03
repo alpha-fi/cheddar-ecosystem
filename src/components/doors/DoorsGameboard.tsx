@@ -69,7 +69,9 @@ export function DoorsGameboard() {
             <Door
               key={index}
               index={index}
-              keepDoorOpen={hasPlayedDoorsMinigame && index === selectedDoor.index}
+              keepDoorOpen={
+                hasPlayedDoorsMinigame && index === selectedDoor.index
+              }
               selectedDoor={selectedDoor}
               handleSelectDoor={() => handleSelectDoor(index)}
               actionAfterAnimation={() => actionAfterAnimation(index)}
