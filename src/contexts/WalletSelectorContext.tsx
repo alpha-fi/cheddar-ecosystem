@@ -59,10 +59,10 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
           modules.push(setupMeteorWallet());
           break;
         }
-        case Wallets.MyNearWallet: {
-          modules.push(setupMyNearWallet());
-          break;
-        }
+        // case Wallets.MyNearWallet: {
+        //   modules.push(setupMyNearWallet());
+        //   break;
+        // }
         case Wallets.Here: {
           modules.push(setupHereWallet());
           break;

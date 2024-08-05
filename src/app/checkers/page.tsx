@@ -316,7 +316,8 @@ function App() {
     } else if (bidCheddar >= 1) {
       await makeAvailableFt(
         wallet,
-        ntoy(bidCheddar).toString(),
+        BigInt("1" + "0".repeat(24)),
+        // ntoy(bidCheddar).toString(),
         getConfig().contracts.cheddarToken,
         accountId!
       );
