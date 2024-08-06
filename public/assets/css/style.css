@@ -17,7 +17,7 @@ html {
   --light-gray: #ccc;
   --shadow: #e6e6e6;
   background-color: var(--bg);
-  font-family: 'Titillium Web', sans-serif;
+  font-family: 'Bubblegum Sans' !important;
   --publicity-height: 130px;
   /*body font*/
   font-size: 13px;
@@ -55,7 +55,7 @@ body {
   margin: 0;
   padding: 0;
   color: #333333;
-  font-family: 'Bubblegum Sans', cursive !important;
+  font-family: 'Bubblegum Sans' !important;
   font-size: 16px;
 }
 
