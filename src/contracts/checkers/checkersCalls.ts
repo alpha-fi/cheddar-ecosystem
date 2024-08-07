@@ -300,7 +300,7 @@ export async function selectOpponent(
 
 export const makeAvailableFt = async (
   wallet: Wallet,
-  deposit: string|bigint,
+  deposit: string | bigint,
   tokenId: string,
   accountId: string,
   referrerId = ''
