@@ -15,11 +15,11 @@
 }
 
 .win {
-  color: #7ED957;
+  color: #7ed957;
 }
 
 .lost {
-  color: #F1506B;
+  color: #f1506b;
 }
 
 .score {
@@ -28,13 +28,13 @@
 }
 
 .timeRemaining {
-    font-size: 1rem;
+  font-size: 1rem;
   font-weight: bold;
 }
 
 .earnings {
-    font-size: 1.5rem;
-    font-weight: bolder;
+  font-size: 1.5rem;
+  font-weight: bolder;
 }
 
 .loseEarnings {

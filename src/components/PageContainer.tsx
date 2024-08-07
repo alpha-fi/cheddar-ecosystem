@@ -14,7 +14,9 @@ export const PageContainer = ({
         <Navbar />
         <Container maxW="1280px">{children}</Container>
       </Box>
-      <SocialMedia />
+      <Box display={{ base: 'none', lg: 'contents' }}>
+        <SocialMedia />
+      </Box>
     </VStack>
   );
 };

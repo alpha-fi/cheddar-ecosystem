@@ -4,7 +4,7 @@ import { Chatter, Discord, GitBook, Telegram, Twitter } from './icons';
 
 export const SocialMedia = ({ size = 'md' }) => {
   return (
-    <Box className={styles.container} display={{lg: 'flex' }}>
+    <Box className={styles.container} display={{ lg: 'flex' }}>
       <Box className={styles.secondContainer}>
         <Link
           display="flex"
