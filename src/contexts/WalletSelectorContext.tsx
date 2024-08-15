@@ -12,6 +12,7 @@ import { setupHereWallet } from '@near-wallet-selector/here-wallet';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
+import { setupBitteWallet } from '@near-wallet-selector/bitte-wallet';
 import { store } from '@/stores/walletSelector.store';
 import { getConfig } from '@/configs/config';
 
@@ -36,6 +37,7 @@ enum Wallets {
   Meteor = 'meteor',
   MyNearWallet = 'mynearwallet',
   MintBase = 'mintbase',
+  BITTE = 'bitte',
 }
 
 const WalletSelectorContext =
@@ -48,7 +50,13 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
   const [selector, setSelector] = useState<WalletSelector | null>(null);
   const [modal, setModal] = useState<WalletSelectorModal | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
-  const DEFAULT_ENABLE_WALLETS = ['mynearwallet', 'meteor', 'here', 'mintbase'];
+  const DEFAULT_ENABLE_WALLETS = [
+    'mynearwallet',
+    'meteor',
+    'here',
+    'mintbase',
+    'bitte',
+  ];
 
   const setupWallets = useCallback(() => {
     let modules: any[] = [];
@@ -69,6 +77,10 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
         }
         case Wallets.MintBase: {
           modules.push(setupMintbaseWallet());
+          break;
+        }
+        case Wallets.BITTE: {
+          modules.push(setupBitteWallet());
           break;
         }
       }
