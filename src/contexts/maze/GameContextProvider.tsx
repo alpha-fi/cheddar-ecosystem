@@ -14,6 +14,7 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
   ScoreboardResponse,
+  useGetEarnedButNotMintedCheddar,
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
@@ -151,6 +152,7 @@ interface GameContextProps {
   saveResponse: string[] | undefined;
   hasWon: undefined | boolean;
   pendingCheddarToMint: number;
+  earnedButNotMintedCheddar: number;
   endGameResponse: any;
 
   nfts: NFT[];
@@ -304,6 +306,11 @@ export const GameContextProvider = ({ children }: props) => {
     refetch: refetchPendingCheddarToMint,
   } = useGetPendingCheddarToMint();
 
+  const {
+    data: earnedButNotMintedCheddar = 0,
+    refetch: refetchEarnedButNotMintedCheddar,
+  } = useGetEarnedButNotMintedCheddar();
+
   useEffect(() => {
     function getPathLength() {
       let countPath = 0;
@@ -377,6 +384,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     const newSeedIdResponse = await getSeedId(accountId);
     await refetchPendingCheddarToMint();
+    await refetchEarnedButNotMintedCheddar();
     setSeedId(newSeedIdResponse.seedId);
 
     setHasWon(undefined);
@@ -793,6 +801,9 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralAccount = urlParams.get('referralId') ?? undefined;
+
     if (gameOverRefSent.current) {
       return;
     }
@@ -813,6 +824,7 @@ export const GameContextProvider = ({ children }: props) => {
       metadata: {
         accountId: accountId!,
         seedId,
+        referralAccount: referralAccount,
       },
     };
 
@@ -1166,6 +1178,7 @@ export const GameContextProvider = ({ children }: props) => {
         onCloseScoreboard,
         seedId,
         isUserNadabotVerfied,
+        earnedButNotMintedCheddar,
       }}
     >
       {children}

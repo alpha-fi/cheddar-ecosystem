@@ -5,6 +5,10 @@ import {
   Button,
   Heading,
   Link,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Show,
   Tooltip,
   useDisclosure,
@@ -33,9 +37,11 @@ import {
   ArrowDownIcon,
   ArrowForwardIcon,
   ArrowUpIcon,
+  CopyIcon,
 } from '@chakra-ui/icons';
 import { Scoreboard } from './Scoreboard';
 import { callMintCheddar } from '@/queries/maze/api';
+import { getConfig } from '@/configs/config';
 
 interface Props {
   remainingMinutes: number;
@@ -77,7 +83,7 @@ export function GameboardContainer({
     isScoreboardOpen,
     onCloseScoreboard,
     isMobile,
-    pendingCheddarToMint,
+    earnedButNotMintedCheddar,
     isUserNadabotVerfied,
   } = useContext(GameContext);
 
@@ -249,6 +255,22 @@ export function GameboardContainer({
     }
   }
 
+  const shareReferralLink = window.location.href + `referralId=${accountId}`;
+  const notAllowedToPlay =
+    !isUserNadabotVerfied && earnedButNotMintedCheddar >= 100;
+
+  function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: 'Link copied successfully!',
+      status: 'success',
+      duration: 9000,
+      position: 'bottom-right',
+      isClosable: true,
+    });
+  }
+
+  const { nadaBotUrl } = getConfig().networkData;
   return (
     <div
       className={getGameContainerClasses()}
@@ -272,6 +294,20 @@ export function GameboardContainer({
           to play.
         </div>
       )}
+      {notAllowedToPlay && (
+        <div className={styles.notAllowedToPlayText}>
+          You already have played for {earnedButNotMintedCheddar}{' '}
+          {RenderCheddarIcon({ width: '1rem' })}. Please verify on{' '}
+          <Link
+            href={nadaBotUrl}
+            style={{ textDecoration: 'underline' }}
+            target="_blank"
+          >
+            Nadabot
+          </Link>{' '}
+          to mint your rewards and continue playing.
+        </div>
+      )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
       <div className={styles.gameInfo}>
         <div className={styles.score}>Score: {score}</div>
@@ -283,7 +319,7 @@ export function GameboardContainer({
       </div>
       <div className={styles.mazeContainer} ref={gameboardRef} tabIndex={0}>
         <div className={styles.toolbar}>
-          {pendingCheddarToMint > 0 && (
+          {earnedButNotMintedCheddar > 0 && (
             <Button
               _hover={{ bg: 'yellowgreen' }}
               isLoading={isClaiming}
@@ -294,12 +330,7 @@ export function GameboardContainer({
                 } else {
                   setIsClaiming(true);
                   const response = await callMintCheddar({
-                    data: {
-                      pendingCheddar: pendingCheddarToMint,
-                    },
-                    metadata: {
-                      accountId: accountId as string,
-                    },
+                    accountId: accountId as string,
                   });
                   setIsClaiming(false);
                   setCheddarMintResponse(response);
@@ -313,7 +344,7 @@ export function GameboardContainer({
             <ModalNotAllowedToMint
               isOpen={showMintErrorModal}
               onClose={() => setMintErrorModal(!showMintErrorModal)}
-              pendingCheddarToMint={pendingCheddarToMint}
+              earnedButNotMintedCheddar={earnedButNotMintedCheddar}
             />
           )}
           <span className={styles.rulesButton}>
@@ -325,6 +356,27 @@ export function GameboardContainer({
             <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenScoreboard}>
               🏆
             </Button>
+            {isUserNadabotVerfied && (
+              <Menu>
+                <MenuButton _hover={{ bg: 'yellowgreen' }} as={Button}>
+                  🔗
+                </MenuButton>
+                <MenuList
+                  minWidth="auto"
+                  p="0"
+                  borderRadius="full"
+                  bg="yellowCheddar"
+                >
+                  <MenuItem
+                    onClick={() => copyToClipboard(shareReferralLink)}
+                    className={styles.referralLink}
+                  >
+                    {shareReferralLink}
+                    <CopyIcon />
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            )}
             <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
               <Button
                 colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
@@ -352,7 +404,7 @@ export function GameboardContainer({
             isAllowedResponse={isAllowedResponse!}
           />
         </div>
-        {hasEnoughBalance && !timerStarted && (
+        {!notAllowedToPlay && hasEnoughBalance && !timerStarted && (
           <div className={styles.startGameBg}>
             <Heading as="h6" size="md">
               Play Cheddar Maze

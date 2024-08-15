@@ -23,6 +23,16 @@ export async function getPendingCheddarToMint(accountId: string) {
   return jsonResponse.ok ? jsonResponse.pendingCheddarToMint : 0;
 }
 
+export async function getEarnedButNotMinted(accountId: string) {
+  const url = new URL(
+    `api/maze/getNonMintedCheddar?accountId=${accountId}`,
+    backendBaseUrl
+  ).toString();
+  const response = await fetch(url);
+  const jsonResponse = await response.json();
+  return jsonResponse.ok ? jsonResponse.pendingCheddarToMint : 0;
+}
+
 export async function getSeedId(accountId: string) {
   const data = {
     accountId,
@@ -56,6 +66,7 @@ export interface EndGameRequest {
   metadata: {
     accountId: string;
     seedId: number;
+    referralAccount?: string;
   };
 }
 
@@ -82,8 +93,11 @@ export async function callEndGame(endGameData: EndGameRequest) {
   return response.json();
 }
 
-export async function callMintCheddar(mintCheddarBody: MintCheddarRequest) {
-  const url = new URL(`api/maze/mintCheddar`, backendBaseUrl).toString();
+export async function callMintCheddar(mintCheddarBody: { accountId: string }) {
+  const url = new URL(
+    `api/maze/mintNonMintedCheddar`,
+    backendBaseUrl
+  ).toString();
 
   const response = await fetch(url, {
     method: 'POST',

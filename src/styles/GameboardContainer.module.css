@@ -305,3 +305,20 @@
   justify-content: center;
   gap: 15px;
 }
+
+.referralLink {
+    background-color: #ECC94B;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+}
+
+.notAllowedToPlayText {
+  font-size: 16px;
+  font-weight: 500;
+  padding-inline: 10px;
+}

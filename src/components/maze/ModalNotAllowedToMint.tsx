@@ -6,13 +6,13 @@ import { getConfig } from '@/configs/config';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  pendingCheddarToMint: number;
+  earnedButNotMintedCheddar: number;
 }
 
 export default function ModalNotAllowedToMint({
   isOpen,
   onClose,
-  pendingCheddarToMint,
+  earnedButNotMintedCheddar,
 }: Props) {
   const { networkData } = getConfig();
 
@@ -30,7 +30,7 @@ export default function ModalNotAllowedToMint({
       >
         nada.bot
       </Link>
-      <span> to claim your pending {pendingCheddarToMint} 🧀</span>
+      <span> to claim your pending {earnedButNotMintedCheddar} 🧀</span>
     </ModalContainer>
   );
 }
