@@ -254,8 +254,10 @@ export function GameboardContainer({
       return 'Buy ⚡';
     }
   }
-
-  const shareReferralLink = window.location.href + `referralId=${accountId}`;
+  const shareReferralLink =
+    'https://' +
+    new URL(window.location.href).host +
+    `/referralId=${accountId}`;
   const notAllowedToPlay =
     !isUserNadabotVerfied && earnedButNotMintedCheddar >= 100;
 
