@@ -70,15 +70,6 @@ export interface EndGameRequest {
   };
 }
 
-export interface MintCheddarRequest {
-  data: {
-    pendingCheddar: number;
-  };
-  metadata: {
-    accountId: string;
-  };
-}
-
 export async function callEndGame(endGameData: EndGameRequest) {
   const url = new URL(`api/maze/endGame`, backendBaseUrl).toString();
 
