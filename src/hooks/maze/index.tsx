@@ -58,7 +58,7 @@ export const useGetEarnedButNotMintedCheddar = (): UseQueryResult<number> => {
   return useQuery({
     queryKey: ['useGetEarnedButNotMintedCheddar', accountId],
     queryFn: () => (accountId ? getEarnedButNotMinted(accountId) : null),
-    refetchInterval: 10000,
-    staleTime: 10000,
+    refetchInterval: false,
+    staleTime: Infinity
   });
 };
