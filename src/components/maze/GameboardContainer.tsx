@@ -53,6 +53,10 @@ interface Props {
   isAllowedResponse: IsAllowedResponse | null | undefined;
 }
 
+interface CheddarMintResponse {
+  ok?: boolean;
+  cheddarMinted?: number;
+}
 export function GameboardContainer({
   remainingMinutes,
   remainingSeconds,
@@ -120,7 +124,8 @@ export function GameboardContainer({
   }, [accountId, isAllowedResponse?.ok]);
 
   const [showMintErrorModal, setMintErrorModal] = useState(false);
-  const [cheddarMintResponse, setCheddarMintResponse] = useState(null);
+  const [cheddarMintResponse, setCheddarMintResponse] =
+    useState<CheddarMintResponse | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
   const toast = useToast();
 
@@ -128,7 +133,8 @@ export function GameboardContainer({
     if (
       cheddarMintResponse &&
       cheddarMintResponse?.ok &&
-      cheddarMintResponse?.cheddarMinted > 0
+      cheddarMintResponse.cheddarMinted &&
+      cheddarMintResponse.cheddarMinted > 0
     ) {
       toast({
         title: 'Cheddar Minted Successfully!',
