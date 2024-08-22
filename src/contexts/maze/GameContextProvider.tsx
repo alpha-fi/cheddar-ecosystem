@@ -272,17 +272,14 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseVideoModal,
   } = useDisclosure();
 
-  const [mazeCols, setMazeCols] = useState(8);
+  const [mazeCols, setMazeCols] = useState(9);
   const [mazeRows, setMazeRows] = useState(11);
   const [totalCells, setTotalCells] = useState(0);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
     const handleMediaChange = (e: any) => {
-      if (e.matches) {
-        setMazeCols(9); // Larger devices
-      } else {
-        setMazeCols(8); // Smaller devices
+      if (!e.matches) {
         setMazeRows(10);
         // On mobile make swipe the default
         setShowMovementButtons(false);
@@ -836,6 +833,7 @@ export const GameContextProvider = ({ children }: props) => {
     setHasFoundPlinko(false);
 
     const endGameResponse = await callEndGame(endGameRequestData);
+    await refetchEarnedButNotMintedCheddar();
     setEndGameResponse(endGameResponse);
     if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
   }
