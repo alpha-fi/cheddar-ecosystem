@@ -21,7 +21,7 @@ import {
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs, useIsNadabotVerfified } from '@/hooks/cheddar';
-import { useDisclosure } from '@chakra-ui/react';
+import { useDisclosure, useToast } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
 
 interface props {
@@ -359,6 +359,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     return randomizeColor;
   };
+  const toast = useToast();
 
   function getRandomPathCell(mazeData: MazeTileData[][]) {
     const pathCells: Coordinates[] = [];
@@ -380,6 +381,17 @@ export const GameContextProvider = ({ children }: props) => {
     }
 
     const newSeedIdResponse = await getSeedId(accountId);
+    if (!newSeedIdResponse.ok) {
+      toast({
+        title: newSeedIdResponse.message,
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+      return;
+    }
+
     await refetchPendingCheddarToMint();
     await refetchEarnedButNotMintedCheddar();
     setSeedId(newSeedIdResponse.seedId);
