@@ -316,7 +316,7 @@ export const makeAvailableFt = async (
           methodName: 'ft_transfer_call',
           args: {
             receiver_id: checkers,
-            amount: Number(deposit),
+            amount: deposit,
             msg: '',
           },
           deposit: '1',
