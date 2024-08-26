@@ -23,6 +23,26 @@ export async function getPendingCheddarToMint(accountId: string) {
   return jsonResponse.ok ? jsonResponse.pendingCheddarToMint : 0;
 }
 
+export async function getEarnedButNotMinted(accountId: string) {
+  const url = new URL(
+    `api/maze/getNonMintedCheddar?accountId=${accountId}`,
+    backendBaseUrl
+  ).toString();
+  const response = await fetch(url);
+  const jsonResponse = await response.json();
+  return jsonResponse.ok ? jsonResponse.pendingCheddarToMint : 0;
+}
+
+export async function getEarnedAndMinted(accountId: string) {
+  const url = new URL(
+    `api/maze/mintedCheddar?accountId=${accountId}`,
+    backendBaseUrl
+  ).toString();
+  const response = await fetch(url);
+  const jsonResponse = await response.json();
+  return jsonResponse.ok ? jsonResponse.totalMinted : 0;
+}
+
 export async function getSeedId(accountId: string) {
   const data = {
     accountId,
@@ -56,6 +76,7 @@ export interface EndGameRequest {
   metadata: {
     accountId: string;
     seedId: number;
+    referralAccount?: string;
   };
 }
 
@@ -69,6 +90,23 @@ export async function callEndGame(endGameData: EndGameRequest) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(endGameData),
+  });
+  return response.json();
+}
+
+export async function callMintCheddar(mintCheddarBody: { accountId: string }) {
+  const url = new URL(
+    `api/maze/mintNonMintedCheddar`,
+    backendBaseUrl
+  ).toString();
+
+  const response = await fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(mintCheddarBody),
   });
   return response.json();
 }

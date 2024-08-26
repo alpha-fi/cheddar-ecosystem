@@ -14,13 +14,15 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
   ScoreboardResponse,
+  useGetEarnedAndMintedCheddar,
+  useGetEarnedButNotMintedCheddar,
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
-import { useGetCheddarNFTs } from '@/hooks/cheddar';
-import { useDisclosure } from '@chakra-ui/react';
+import { useGetCheddarNFTs, useIsNadabotVerfified } from '@/hooks/cheddar';
+import { useDisclosure, useToast } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
 
 interface props {
@@ -151,7 +153,9 @@ interface GameContextProps {
   saveResponse: string[] | undefined;
   hasWon: undefined | boolean;
   pendingCheddarToMint: number;
+  earnedButNotMintedCheddar: number;
   endGameResponse: any;
+  totalMintedCheddarToDate: number;
 
   nfts: NFT[];
 
@@ -179,6 +183,8 @@ interface GameContextProps {
   onCloseScoreboard: () => void;
 
   seedId: number;
+
+  isUserNadabotVerfied: boolean | undefined;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -268,17 +274,14 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseVideoModal,
   } = useDisclosure();
 
-  const [mazeCols, setMazeCols] = useState(8);
+  const [mazeCols, setMazeCols] = useState(9);
   const [mazeRows, setMazeRows] = useState(11);
   const [totalCells, setTotalCells] = useState(0);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
     const handleMediaChange = (e: any) => {
-      if (e.matches) {
-        setMazeCols(9); // Larger devices
-      } else {
-        setMazeCols(8); // Smaller devices
+      if (!e.matches) {
         setMazeRows(10);
         // On mobile make swipe the default
         setShowMovementButtons(false);
@@ -301,6 +304,16 @@ export const GameContextProvider = ({ children }: props) => {
     isLoading: isLoadingPendingCheddarToMint,
     refetch: refetchPendingCheddarToMint,
   } = useGetPendingCheddarToMint();
+
+  const {
+    data: earnedButNotMintedCheddar = 0,
+    refetch: refetchEarnedButNotMintedCheddar,
+  } = useGetEarnedButNotMintedCheddar();
+
+  const {
+    data: totalMintedCheddarToDate = 0,
+    refetch: refetchEarnedAndMintedCheddar,
+  } = useGetEarnedAndMintedCheddar();
 
   useEffect(() => {
     function getPathLength() {
@@ -330,6 +343,8 @@ export const GameContextProvider = ({ children }: props) => {
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
     useGetCheddarNFTs();
 
+  const { data: isUserNadabotVerfied } = useIsNadabotVerfified(accountId);
+
   useEffect(() => {
     if (accountId) {
       getNFTs(accountId).then((nfts) => {
@@ -351,6 +366,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     return randomizeColor;
   };
+  const toast = useToast();
 
   function getRandomPathCell(mazeData: MazeTileData[][]) {
     const pathCells: Coordinates[] = [];
@@ -372,7 +388,19 @@ export const GameContextProvider = ({ children }: props) => {
     }
 
     const newSeedIdResponse = await getSeedId(accountId);
+    if (!newSeedIdResponse.ok) {
+      toast({
+        title: newSeedIdResponse.message,
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+      return;
+    }
+
     await refetchPendingCheddarToMint();
+    await refetchEarnedButNotMintedCheddar();
     setSeedId(newSeedIdResponse.seedId);
 
     setHasWon(undefined);
@@ -789,6 +817,9 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralAccount = urlParams.get('referralId') ?? undefined;
+
     if (gameOverRefSent.current) {
       return;
     }
@@ -809,6 +840,7 @@ export const GameContextProvider = ({ children }: props) => {
       metadata: {
         accountId: accountId!,
         seedId,
+        referralAccount: referralAccount,
       },
     };
 
@@ -820,6 +852,8 @@ export const GameContextProvider = ({ children }: props) => {
     setHasFoundPlinko(false);
 
     const endGameResponse = await callEndGame(endGameRequestData);
+    await refetchEarnedButNotMintedCheddar();
+    await refetchEarnedAndMintedCheddar();
     setEndGameResponse(endGameResponse);
     if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
   }
@@ -1161,6 +1195,9 @@ export const GameContextProvider = ({ children }: props) => {
         onOpenScoreboard,
         onCloseScoreboard,
         seedId,
+        isUserNadabotVerfied,
+        earnedButNotMintedCheddar,
+        totalMintedCheddarToDate,
       }}
     >
       {children}

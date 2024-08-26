@@ -16,6 +16,7 @@ export interface Config {
     nearSocial: string;
     checkers: string;
     nekoToken: string;
+    nadaBot: string;
   };
   socialKeys: {
     ecosystem: string;
@@ -48,6 +49,7 @@ export const getConfig = (): Config => {
           nearSocial: 'social.near',
           checkers: 'checkers.cheddar.near',
           nekoToken: 'ftv2.nekotoken.near',
+          nadaBot: 'v1.nadabot.near',
         },
         socialKeys: {
           ecosystem: 'cheddarEcosystem',
@@ -76,6 +78,7 @@ export const getConfig = (): Config => {
           nearSocial: 'v1.social08.testnet',
           checkers: 'checkers.cheddar.testnet',
           nekoToken: '',
+          nadaBot: 'v1.nadabot.testnet',
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
@@ -104,6 +107,7 @@ export const getConfig = (): Config => {
           nearSocial: 'v1.social08.testnet',
           checkers: 'checkers.cheddar.testnet',
           nekoToken: '',
+          nadaBot: 'v1.nadabot.testnet',
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
