@@ -287,14 +287,10 @@ export function GameboardContainer({
       <div className={styles.publicityDecoration}></div>
       {notAllowedToPlay && (
         <div className={styles.notAllowedToPlayText}>
-          You already have played for{' '}
-          {isUserNadabotVerfied
-            ? totalMintedCheddarToDate
-            : earnedButNotMintedCheddar}{' '}
-          {RenderCheddarIcon({ width: '1rem' })}.{' '}
+          To keep playing and claim rewards:{' '}
           {!isUserNadabotVerfied && !hasEnoughBalance ? (
             <span>
-              Please verify on{' '}
+              Verify on{' '}
               <Link
                 href={nadaBotUrl}
                 style={{ textDecoration: 'underline' }}
@@ -302,31 +298,7 @@ export function GameboardContainer({
               >
                 Nadabot
               </Link>{' '}
-              and buy 555 {RenderCheddarIcon({ width: '1rem' })} on{' '}
-              <Link
-                href={buyCheddarInRefUrl}
-                style={{ textDecoration: 'underline' }}
-                target="_blank"
-              >
-                Ref
-              </Link>{' '}
-              to mint your rewards and continue playing.
-            </span>
-          ) : !isUserNadabotVerfied ? (
-            <span>
-              Please verify on{' '}
-              <Link
-                href={nadaBotUrl}
-                style={{ textDecoration: 'underline' }}
-                target="_blank"
-              >
-                Nadabot
-              </Link>{' '}
-              to mint your rewards and continue playing.
-            </span>
-          ) : (
-            <span>
-              Please buy 555 {RenderCheddarIcon({ width: '1rem' })} on{' '}
+              and Buy/Hold 555 {RenderCheddarIcon({ width: '1rem' })} from{' '}
               <Link
                 href={buyCheddarInRefUrl}
                 style={{ textDecoration: 'underline' }}
@@ -334,7 +306,31 @@ export function GameboardContainer({
               >
                 Ref
               </Link>
-              to mint your rewards and continue playing.
+              .
+            </span>
+          ) : !isUserNadabotVerfied ? (
+            <span>
+              Verify on{' '}
+              <Link
+                href={nadaBotUrl}
+                style={{ textDecoration: 'underline' }}
+                target="_blank"
+              >
+                Nadabot
+              </Link>
+              .
+            </span>
+          ) : (
+            <span>
+              Buy/Hold 555 {RenderCheddarIcon({ width: '1rem' })} from{' '}
+              <Link
+                href={buyCheddarInRefUrl}
+                style={{ textDecoration: 'underline' }}
+                target="_blank"
+              >
+                Ref
+              </Link>
+              .
             </span>
           )}
         </div>
@@ -369,7 +365,7 @@ export function GameboardContainer({
                 }
               }}
             >
-              Claim 🧀
+              {earnedButNotMintedCheddar} 🧀
             </Button>
           )}
           {showMintErrorModal && (
