@@ -106,7 +106,13 @@ export const GameOverModalContent = () => {
       )}
       {cheddarFound > 0 && !hasWon && (
         <p className={styles.loseEarnings}>
-          Your {cheddarFound} 🧀 was swallowed by the enemy.
+          {remainingMinutes === 0 ? (
+            <span>
+              Oops you ran out of time and lost your {cheddarFound} 🧀.{' '}
+            </span>
+          ) : (
+            <span> Your {cheddarFound} 🧀 was swallowed by the enemy.</span>
+          )}
         </p>
       )}
       <p className={styles.timeRemaining}>
