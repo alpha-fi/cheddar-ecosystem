@@ -14,6 +14,7 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
   ScoreboardResponse,
+  useGetEarnedAndMintedCheddar,
   useGetEarnedButNotMintedCheddar,
   useGetPendingCheddarToMint,
   useGetScoreboard,
@@ -154,6 +155,7 @@ interface GameContextProps {
   pendingCheddarToMint: number;
   earnedButNotMintedCheddar: number;
   endGameResponse: any;
+  totalMintedCheddarToDate: number;
 
   nfts: NFT[];
 
@@ -307,6 +309,11 @@ export const GameContextProvider = ({ children }: props) => {
     data: earnedButNotMintedCheddar = 0,
     refetch: refetchEarnedButNotMintedCheddar,
   } = useGetEarnedButNotMintedCheddar();
+
+  const {
+    data: totalMintedCheddarToDate = 0,
+    refetch: refetchEarnedAndMintedCheddar,
+  } = useGetEarnedAndMintedCheddar();
 
   useEffect(() => {
     function getPathLength() {
@@ -846,6 +853,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     const endGameResponse = await callEndGame(endGameRequestData);
     await refetchEarnedButNotMintedCheddar();
+    await refetchEarnedAndMintedCheddar();
     setEndGameResponse(endGameResponse);
     if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
   }
@@ -1189,6 +1197,7 @@ export const GameContextProvider = ({ children }: props) => {
         seedId,
         isUserNadabotVerfied,
         earnedButNotMintedCheddar,
+        totalMintedCheddarToDate,
       }}
     >
       {children}

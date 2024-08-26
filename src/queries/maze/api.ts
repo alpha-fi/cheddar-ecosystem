@@ -33,6 +33,16 @@ export async function getEarnedButNotMinted(accountId: string) {
   return jsonResponse.ok ? jsonResponse.pendingCheddarToMint : 0;
 }
 
+export async function getEarnedAndMinted(accountId: string) {
+  const url = new URL(
+    `api/maze/mintedCheddar?accountId=${accountId}`,
+    backendBaseUrl
+  ).toString();
+  const response = await fetch(url);
+  const jsonResponse = await response.json();
+  return jsonResponse.ok ? jsonResponse.totalMinted : 0;
+}
+
 export async function getSeedId(accountId: string) {
   const data = {
     accountId,

@@ -89,6 +89,7 @@ export function GameboardContainer({
     isMobile,
     earnedButNotMintedCheddar,
     isUserNadabotVerfied,
+    totalMintedCheddarToDate,
   } = useContext(GameContext);
 
   const gameboardRef = useRef<HTMLDivElement>(null);
@@ -118,10 +119,6 @@ export function GameboardContainer({
   } = useDisclosure();
 
   const { modal, selector, accountId } = useWalletSelector();
-
-  const userIsNotAllowedToPlay = useMemo(() => {
-    return !accountId || !isAllowedResponse?.ok;
-  }, [accountId, isAllowedResponse?.ok]);
 
   const [showMintErrorModal, setMintErrorModal] = useState(false);
   const [cheddarMintResponse, setCheddarMintResponse] =
@@ -185,9 +182,7 @@ export function GameboardContainer({
 
   function getStartGameButtonHandler() {
     return accountId //If the accountId exists
-      ? hasEnoughBalance //And have enough balance
-        ? getProperHandler(focusMazeAndStartGame)
-        : () => {} //If doesn't have enough balance
+      ? getProperHandler(focusMazeAndStartGame)
       : modal.show; //If accountId doesn't exist
   }
 
@@ -265,7 +260,9 @@ export function GameboardContainer({
     new URL(window.location.href).host +
     `/referralId=${accountId}`;
   const notAllowedToPlay =
-    !isUserNadabotVerfied && earnedButNotMintedCheddar >= 100;
+    (!isUserNadabotVerfied && earnedButNotMintedCheddar >= 100) ||
+    (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
+    (!hasEnoughBalance && totalMintedCheddarToDate >= 100);
 
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
@@ -278,7 +275,7 @@ export function GameboardContainer({
     });
   }
 
-  const { nadaBotUrl } = getConfig().networkData;
+  const { nadaBotUrl, buyCheddarInRefUrl } = getConfig().networkData;
   return (
     <div
       className={getGameContainerClasses()}
@@ -288,32 +285,58 @@ export function GameboardContainer({
       }}
     >
       <div className={styles.publicityDecoration}></div>
-      {accountId && (!hasEnoughBalance || userIsNotAllowedToPlay) && (
-        <div className={styles.warningText}>
-          Must have
-          <Link
-            target="_blank"
-            className={styles.notEnoughBalanceMsg}
-            href="https://app.ref.finance/#a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near%7Ctoken.cheddar.near"
-          >
-            {minCheddarRequired}
-            {RenderCheddarIcon({ width: '2rem' })}
-          </Link>
-          to play.
-        </div>
-      )}
       {notAllowedToPlay && (
         <div className={styles.notAllowedToPlayText}>
-          You already have played for {earnedButNotMintedCheddar}{' '}
-          {RenderCheddarIcon({ width: '1rem' })}. Please verify on{' '}
-          <Link
-            href={nadaBotUrl}
-            style={{ textDecoration: 'underline' }}
-            target="_blank"
-          >
-            Nadabot
-          </Link>{' '}
-          to mint your rewards and continue playing.
+          You already have played for{' '}
+          {isUserNadabotVerfied
+            ? totalMintedCheddarToDate
+            : earnedButNotMintedCheddar}{' '}
+          {RenderCheddarIcon({ width: '1rem' })}.{' '}
+          {!isUserNadabotVerfied && !hasEnoughBalance ? (
+            <span>
+              Please verify on{' '}
+              <Link
+                href={nadaBotUrl}
+                style={{ textDecoration: 'underline' }}
+                target="_blank"
+              >
+                Nadabot
+              </Link>{' '}
+              and buy 555 {RenderCheddarIcon({ width: '1rem' })} on{' '}
+              <Link
+                href={buyCheddarInRefUrl}
+                style={{ textDecoration: 'underline' }}
+                target="_blank"
+              >
+                Ref
+              </Link>{' '}
+              to mint your rewards and continue playing.
+            </span>
+          ) : !isUserNadabotVerfied ? (
+            <span>
+              Please verify on{' '}
+              <Link
+                href={nadaBotUrl}
+                style={{ textDecoration: 'underline' }}
+                target="_blank"
+              >
+                Nadabot
+              </Link>{' '}
+              to mint your rewards and continue playing.
+            </span>
+          ) : (
+            <span>
+              Please buy 555 {RenderCheddarIcon({ width: '1rem' })} on{' '}
+              <Link
+                href={buyCheddarInRefUrl}
+                style={{ textDecoration: 'underline' }}
+                target="_blank"
+              >
+                Ref
+              </Link>
+              to mint your rewards and continue playing.
+            </span>
+          )}
         </div>
       )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
@@ -412,7 +435,7 @@ export function GameboardContainer({
             isAllowedResponse={isAllowedResponse!}
           />
         </div>
-        {!notAllowedToPlay && hasEnoughBalance && !timerStarted && (
+        {!notAllowedToPlay && !timerStarted && (
           <div className={styles.startGameBg}>
             <Heading as="h6" size="md">
               Play Cheddar Maze

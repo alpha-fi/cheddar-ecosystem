@@ -12,34 +12,33 @@ export default function ModalRules({ isOpen, onClose }: Props) {
   const { buyCheddarInRefUrl, nadaBotUrl } = getConfig().networkData;
   return (
     <ModalContainer title={'Rules'} isOpen={isOpen} onClose={onClose}>
+      Play before verifying up to 100 Cheddar🧀
       <OrderedList>
-        <ListItem>
-          Just needed a lil NEAR from your Wallet to play –{' '}
-          <Link
-            href={nadaBotUrl}
-            style={{ textDecoration: 'underline' }}
-            target="_blank"
-          >
-            Nadabot's
-          </Link>{' '}
-          needed to claim the cheddar.
-        </ListItem>
-        <ListItem>
-          Hold 555 🧀 to play, get it on{' '}
-          <Link
-            href={buyCheddarInRefUrl}
-            style={{ textDecoration: 'underline' }}
-            target="_blank"
-          >
-            Ref
-          </Link>
-        </ListItem>
         <ListItem>Click or Tap to Start</ListItem>
         <ListItem>Navigate with Arrows or Tap</ListItem>
         <ListItem>Collect Cheddar🧀</ListItem>
         <ListItem>Battle Cartel to protect your Bag</ListItem>
         <ListItem>Find the Hidden Door🚪 to Win!</ListItem>
       </OrderedList>
+      <br />
+      Next you'll need NEAR, 555 🧀 get it on{' '}
+      <Link
+        href={buyCheddarInRefUrl}
+        style={{ textDecoration: 'underline' }}
+        target="_blank"
+      >
+        {' '}
+        Ref
+      </Link>{' '}
+      and be{' '}
+      <Link
+        href={nadaBotUrl}
+        style={{ textDecoration: 'underline' }}
+        target="_blank"
+      >
+        Human Verified
+      </Link>{' '}
+      to Claim.
     </ModalContainer>
   );
 }

@@ -6,6 +6,7 @@ import {
   getPendingCheddarToMint,
   getScoreBoard,
   getEarnedButNotMinted,
+  getEarnedAndMinted,
 } from '@/queries/maze/api';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
@@ -59,6 +60,17 @@ export const useGetEarnedButNotMintedCheddar = (): UseQueryResult<number> => {
     queryKey: ['useGetEarnedButNotMintedCheddar', accountId],
     queryFn: () => (accountId ? getEarnedButNotMinted(accountId) : null),
     refetchInterval: false,
-    staleTime: Infinity
+    staleTime: Infinity,
+  });
+};
+
+export const useGetEarnedAndMintedCheddar = (): UseQueryResult<number> => {
+  const { accountId } = useWalletSelector();
+
+  return useQuery({
+    queryKey: ['useGetEarnedAndMintedCheddar', accountId],
+    queryFn: () => (accountId ? getEarnedAndMinted(accountId) : null),
+    refetchInterval: false,
+    staleTime: Infinity,
   });
 };
