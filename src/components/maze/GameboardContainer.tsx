@@ -352,6 +352,7 @@ export function GameboardContainer({
         <div className={styles.toolbar}>
           {earnedButNotMintedCheddar > 0 && (
             <Button
+              px={{ base: 2, md: 3 }}
               _hover={{ bg: 'yellowgreen' }}
               isLoading={isClaiming}
               onClick={async () => {
@@ -379,12 +380,20 @@ export function GameboardContainer({
             />
           )}
           <span className={styles.rulesButton}>
-            <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenModalRules}>
+            <Button
+              px={{ base: 2, md: 3 }}
+              _hover={{ bg: 'yellowgreen' }}
+              onClick={onOpenModalRules}
+            >
               Rules
             </Button>
           </span>
           <div className={styles.toolbar}>
-            <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenScoreboard}>
+            <Button
+              px={{ base: 2, md: 3 }}
+              _hover={{ bg: 'yellowgreen' }}
+              onClick={onOpenScoreboard}
+            >
               🏆
             </Button>
             {isUserNadabotVerfied && (
@@ -410,6 +419,7 @@ export function GameboardContainer({
             )}
             <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
               <Button
+                px={{ base: 2, md: 3 }}
                 colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
                 onClick={handleBuyClick}
               >
@@ -419,6 +429,7 @@ export function GameboardContainer({
           </div>
           <Show below="lg">
             <Button
+              px={{ base: 2, md: 3 }}
               onClick={() => handleToggleShowMovementButtons()}
               colorScheme="gray"
             >
@@ -454,7 +465,7 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsFirstLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowUp')}
-                  isDisabled={!accountId || !timerStarted}
+                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
                 >
                   <ArrowUpIcon />
                 </Button>
@@ -462,19 +473,19 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsSecondLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowLeft')}
-                  isDisabled={!accountId || !timerStarted}
+                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
                 >
                   <ArrowBackIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowDown')}
-                  isDisabled={!accountId || !timerStarted}
+                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
                 >
                   <ArrowDownIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowRight')}
-                  isDisabled={!accountId || !timerStarted}
+                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
                 >
                   <ArrowForwardIcon />
                 </Button>

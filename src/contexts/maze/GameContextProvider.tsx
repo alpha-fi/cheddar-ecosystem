@@ -282,6 +282,7 @@ export const GameContextProvider = ({ children }: props) => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
     const handleMediaChange = (e: any) => {
       if (!e.matches) {
+        setMazeCols(8);
         setMazeRows(10);
         // On mobile make swipe the default
         setShowMovementButtons(false);
