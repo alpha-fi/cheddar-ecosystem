@@ -53,7 +53,6 @@ export default function MazeContainer() {
 
       return minCheddarRequired <= cheddarBalanceData!;
     }
-
     setHasEnoughBalance(doesUserHaveEnoughBalance());
   }, [cheddarBalanceData, accountId, selector, isAllowedResponse]);
 

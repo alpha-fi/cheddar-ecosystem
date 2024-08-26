@@ -5,13 +5,19 @@ import {
   Button,
   Heading,
   Link,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Show,
   Tooltip,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import {
   MouseEventHandler,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -23,7 +29,7 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ModalContainer } from '../ModalContainer';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { IsAllowedResponse } from '@/hooks/maze';
-import ModalNotAllowedToPlay from './ModalNotAllowedToPlay';
+import ModalNotAllowedToMint from './ModalNotAllowedToMint';
 import ModalRules from './ModalRules';
 import { GameOverModalContent } from './GameOverModalContent';
 import {
@@ -31,8 +37,11 @@ import {
   ArrowDownIcon,
   ArrowForwardIcon,
   ArrowUpIcon,
+  CopyIcon,
 } from '@chakra-ui/icons';
 import { Scoreboard } from './Scoreboard';
+import { callMintCheddar } from '@/queries/maze/api';
+import { getConfig } from '@/configs/config';
 
 interface Props {
   remainingMinutes: number;
@@ -44,6 +53,10 @@ interface Props {
   isAllowedResponse: IsAllowedResponse | null | undefined;
 }
 
+interface CheddarMintResponse {
+  ok?: boolean;
+  cheddarMinted?: number;
+}
 export function GameboardContainer({
   remainingMinutes,
   remainingSeconds,
@@ -74,6 +87,9 @@ export function GameboardContainer({
     isScoreboardOpen,
     onCloseScoreboard,
     isMobile,
+    earnedButNotMintedCheddar,
+    isUserNadabotVerfied,
+    totalMintedCheddarToDate,
   } = useContext(GameContext);
 
   const gameboardRef = useRef<HTMLDivElement>(null);
@@ -104,9 +120,38 @@ export function GameboardContainer({
 
   const { modal, selector, accountId } = useWalletSelector();
 
-  const userIsNotAllowedToPlay = useMemo(() => {
-    return accountId && !isAllowedResponse?.ok;
-  }, [accountId, isAllowedResponse?.ok]);
+  const [showMintErrorModal, setMintErrorModal] = useState(false);
+  const [cheddarMintResponse, setCheddarMintResponse] =
+    useState<CheddarMintResponse | null>(null);
+  const [isClaiming, setIsClaiming] = useState(false);
+  const toast = useToast();
+
+  useEffect(() => {
+    if (
+      cheddarMintResponse &&
+      cheddarMintResponse?.ok &&
+      cheddarMintResponse.cheddarMinted &&
+      cheddarMintResponse.cheddarMinted > 0
+    ) {
+      toast({
+        title: 'Cheddar Minted Successfully!',
+        status: 'success',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+    }
+
+    if (cheddarMintResponse && !cheddarMintResponse?.ok) {
+      toast({
+        title: 'Error Minting Cheddar',
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+    }
+  }, [cheddarMintResponse, toast]);
 
   function getProperHandler(handler: any) {
     //Uncomment the next line to ignore the isAllowedResponse.ok returning false
@@ -137,9 +182,7 @@ export function GameboardContainer({
 
   function getStartGameButtonHandler() {
     return accountId //If the accountId exists
-      ? hasEnoughBalance //And have enough balance
-        ? getProperHandler(focusMazeAndStartGame)
-        : () => {} //If doesn't have enough balance
+      ? getProperHandler(focusMazeAndStartGame)
       : modal.show; //If accountId doesn't exist
   }
 
@@ -212,7 +255,27 @@ export function GameboardContainer({
       return 'Buy ⚡';
     }
   }
+  const shareReferralLink =
+    'https://' +
+    new URL(window.location.href).host +
+    `/referralId=${accountId}`;
+  const notAllowedToPlay =
+    (!isUserNadabotVerfied && earnedButNotMintedCheddar >= 100) ||
+    (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
+    (!hasEnoughBalance && totalMintedCheddarToDate >= 100);
 
+  function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: 'Link copied successfully!',
+      status: 'success',
+      duration: 9000,
+      position: 'bottom-right',
+      isClosable: true,
+    });
+  }
+
+  const { nadaBotUrl, buyCheddarInRefUrl } = getConfig().networkData;
   return (
     <div
       className={getGameContainerClasses()}
@@ -222,26 +285,58 @@ export function GameboardContainer({
       }}
     >
       <div className={styles.publicityDecoration}></div>
-      {accountId && (!hasEnoughBalance || userIsNotAllowedToPlay) && (
-        <div className={styles.warningText}>
-          Must have
-          <Link
-            target="_blank"
-            className={styles.notEnoughBalanceMsg}
-            href="https://app.ref.finance/#a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near%7Ctoken.cheddar.near"
-          >
-            {minCheddarRequired}
-            {RenderCheddarIcon({ width: '2rem' })}
-          </Link>
-          and
-          <Link
-            target="_blank"
-            className={styles.notEnoughBalanceMsg}
-            href="https://app.nada.bot/"
-          >
-            Verified Human
-          </Link>
-          to play.
+      {notAllowedToPlay && (
+        <div className={styles.notAllowedToPlayText}>
+          You already have played for{' '}
+          {isUserNadabotVerfied
+            ? totalMintedCheddarToDate
+            : earnedButNotMintedCheddar}{' '}
+          {RenderCheddarIcon({ width: '1rem' })}.{' '}
+          {!isUserNadabotVerfied && !hasEnoughBalance ? (
+            <span>
+              Please verify on{' '}
+              <Link
+                href={nadaBotUrl}
+                style={{ textDecoration: 'underline' }}
+                target="_blank"
+              >
+                Nadabot
+              </Link>{' '}
+              and buy 555 {RenderCheddarIcon({ width: '1rem' })} on{' '}
+              <Link
+                href={buyCheddarInRefUrl}
+                style={{ textDecoration: 'underline' }}
+                target="_blank"
+              >
+                Ref
+              </Link>{' '}
+              to mint your rewards and continue playing.
+            </span>
+          ) : !isUserNadabotVerfied ? (
+            <span>
+              Please verify on{' '}
+              <Link
+                href={nadaBotUrl}
+                style={{ textDecoration: 'underline' }}
+                target="_blank"
+              >
+                Nadabot
+              </Link>{' '}
+              to mint your rewards and continue playing.
+            </span>
+          ) : (
+            <span>
+              Please buy 555 {RenderCheddarIcon({ width: '1rem' })} on{' '}
+              <Link
+                href={buyCheddarInRefUrl}
+                style={{ textDecoration: 'underline' }}
+                target="_blank"
+              >
+                Ref
+              </Link>
+              to mint your rewards and continue playing.
+            </span>
+          )}
         </div>
       )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
@@ -255,6 +350,34 @@ export function GameboardContainer({
       </div>
       <div className={styles.mazeContainer} ref={gameboardRef} tabIndex={0}>
         <div className={styles.toolbar}>
+          {earnedButNotMintedCheddar > 0 && (
+            <Button
+              _hover={{ bg: 'yellowgreen' }}
+              isLoading={isClaiming}
+              onClick={async () => {
+                if (!isUserNadabotVerfied) {
+                  setMintErrorModal(true);
+                  return;
+                } else {
+                  setIsClaiming(true);
+                  const response = await callMintCheddar({
+                    accountId: accountId as string,
+                  });
+                  setIsClaiming(false);
+                  setCheddarMintResponse(response);
+                }
+              }}
+            >
+              Claim 🧀
+            </Button>
+          )}
+          {showMintErrorModal && (
+            <ModalNotAllowedToMint
+              isOpen={showMintErrorModal}
+              onClose={() => setMintErrorModal(!showMintErrorModal)}
+              earnedButNotMintedCheddar={earnedButNotMintedCheddar}
+            />
+          )}
           <span className={styles.rulesButton}>
             <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenModalRules}>
               Rules
@@ -264,6 +387,27 @@ export function GameboardContainer({
             <Button _hover={{ bg: 'yellowgreen' }} onClick={onOpenScoreboard}>
               🏆
             </Button>
+            {isUserNadabotVerfied && (
+              <Menu>
+                <MenuButton _hover={{ bg: 'yellowgreen' }} as={Button}>
+                  🔗
+                </MenuButton>
+                <MenuList
+                  minWidth="auto"
+                  p="0"
+                  borderRadius="full"
+                  bg="yellowCheddar"
+                >
+                  <MenuItem
+                    onClick={() => copyToClipboard(shareReferralLink)}
+                    className={styles.referralLink}
+                  >
+                    {shareReferralLink}
+                    <CopyIcon />
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            )}
             <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
               <Button
                 colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
@@ -291,7 +435,7 @@ export function GameboardContainer({
             isAllowedResponse={isAllowedResponse!}
           />
         </div>
-        {hasEnoughBalance && !timerStarted && (
+        {!notAllowedToPlay && !timerStarted && (
           <div className={styles.startGameBg}>
             <Heading as="h6" size="md">
               Play Cheddar Maze
@@ -340,13 +484,6 @@ export function GameboardContainer({
         )}
       </div>
       <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
-      {userIsNotAllowedToPlay && isAllowedResponse?.errors && (
-        <ModalNotAllowedToPlay
-          isOpen={isOpenNotAlloWedModal}
-          onClose={onCloseNotAlloWedModal}
-          errors={isAllowedResponse.errors}
-        />
-      )}
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer
