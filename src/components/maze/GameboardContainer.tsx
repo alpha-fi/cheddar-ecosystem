@@ -258,7 +258,7 @@ export function GameboardContainer({
   const shareReferralLink =
     'https://' +
     new URL(window.location.href).host +
-    `/referralId=${accountId}`;
+    `?referralId=${accountId}`;
   const notAllowedToPlay =
     (!isUserNadabotVerfied && earnedButNotMintedCheddar >= 100) ||
     (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
