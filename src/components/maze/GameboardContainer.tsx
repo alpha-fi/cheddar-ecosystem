@@ -122,7 +122,7 @@ export function GameboardContainer({
 
   const { modal, selector, accountId } = useWalletSelector();
 
-  const [showMintErrorModal, setMintErrorModal] = useState(true);
+  const [showMintErrorModal, setMintErrorModal] = useState(false);
   const [cheddarMintResponse, setCheddarMintResponse] =
     useState<CheddarMintResponse | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
