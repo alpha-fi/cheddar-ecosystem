@@ -317,7 +317,6 @@ export function GameboardContainer({
 
     const cheddarIcon = RenderCheddarIcon({ width: '1rem' });
 
-    // Determine the message based on the status
     let message;
 
     if (!isUserNadabotVerfied && !isUserHolonymVerified && !hasEnoughBalance) {
