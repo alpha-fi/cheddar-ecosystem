@@ -1,7 +1,7 @@
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { getConfig } from '@/configs/config';
 
-const { backendBaseUrl } = getConfig();
+const { backendBaseUrl, holonym } = getConfig();
 
 export async function isAllowed(accountId: string) {
   const url = new URL(
@@ -109,4 +109,13 @@ export async function callMintCheddar(mintCheddarBody: { accountId: string }) {
     body: JSON.stringify(mintCheddarBody),
   });
   return response.json();
+}
+
+export async function isHolonymVerified(accountId: string): Promise<boolean> {
+  const govResp = await fetch(holonym.govIdSBT + `&user=${accountId}`);
+  // const phoneResp = await fetch(holonym.phoneIssuance + `&user=${accountId}`);
+
+  const { result: isUniqueId } = await govResp.json();
+  // const { result: isUniquePhone } = await phoneResp.json();
+  return isUniqueId;
 }

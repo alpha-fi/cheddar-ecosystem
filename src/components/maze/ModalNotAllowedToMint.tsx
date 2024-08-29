@@ -1,7 +1,9 @@
 import { ModalContainer } from '../ModalContainer';
-import Link from 'next/link';
 import styles from '@/styles/ModalNotAllowedToPlay.module.css';
 import { getConfig } from '@/configs/config';
+import { useState } from 'react';
+import { Link } from '@chakra-ui/react';
+import ModalHolonym from '../ModalHolonymSBT';
 
 interface Props {
   isOpen: boolean;
@@ -15,6 +17,7 @@ export default function ModalNotAllowedToMint({
   earnedButNotMintedCheddar,
 }: Props) {
   const { networkData } = getConfig();
+  const [showHolonymModal, setHolonymModal] = useState(false);
 
   return (
     <ModalContainer
@@ -22,13 +25,26 @@ export default function ModalNotAllowedToMint({
       isOpen={isOpen}
       onClose={onClose}
     >
+      <ModalHolonym
+        isOpen={showHolonymModal}
+        onClose={() => setHolonymModal(false)}
+      />
       Please verify on{' '}
       <Link
         className={styles.link}
         href={networkData.nadaBotUrl}
         target="_blank"
+        style={{ textDecoration: 'underline' }}
       >
-        nada.bot
+        Nadabot
+      </Link>{' '}
+      or{' '}
+      <Link
+        onClick={() => setHolonymModal(true)}
+        style={{ textDecoration: 'underline' }}
+        target="_blank"
+      >
+        Holonym
       </Link>
       <span> to claim your pending {earnedButNotMintedCheddar} 🧀</span>
     </ModalContainer>
