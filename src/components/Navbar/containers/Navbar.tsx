@@ -138,6 +138,7 @@ export default function Navbar() {
             <About />
             {!isUserHolonymVerified && (
               <Button
+                display={{ base: 'none', lg: 'flex' }}
                 px={{ base: 2, md: 3 }}
                 onClick={() => setHolonymModal(true)}
               >
@@ -154,6 +155,7 @@ export default function Navbar() {
                 onOpenVideoModal={onOpenVideoModal}
                 cheddarTotalSupply={cheddarTotalSupply}
                 isLoadingCheddarTotalSupply={isLoadingCheddarTotalSupply}
+                setHolonymModal={setHolonymModal}
               />
             </Box>
           </Flex>
