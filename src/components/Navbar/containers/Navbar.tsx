@@ -20,6 +20,7 @@ import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { ModalContainer } from '@/components/ModalContainer';
 import Link from 'next/link';
 import { About } from '../components/About';
+import { DynamicWidget } from '@dynamic-labs/sdk-react-core';
 
 export default function Navbar() {
   const {
@@ -133,6 +134,7 @@ export default function Navbar() {
             </Text>
             <About />
             <ButtonConnectWallet />
+            <DynamicWidget />
             <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
               <DrawerMenu
                 onOpenVideoModal={onOpenVideoModal}
