@@ -71,7 +71,7 @@ export const getConfig = (): Config => {
           ecosystem: 'cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
         },
-        backendBaseUrl: 'http://localhost:3001/',
+        backendBaseUrl: 'https://api.cheddar.farm:3002/',
         holonym: holonym,
       };
     case 'testnet':
@@ -101,7 +101,7 @@ export const getConfig = (): Config => {
           ecosystem: 'test_cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
         },
-        backendBaseUrl: 'https://api.cheddar.farm:3001/',
+        backendBaseUrl: 'https://api.cheddar.farm:3002/',
         holonym: holonym,
       };
     case 'local':
