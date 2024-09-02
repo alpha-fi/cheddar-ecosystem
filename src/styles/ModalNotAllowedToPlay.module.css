@@ -1,3 +1,4 @@
 .link {
-  color: blue;
+  color: white;
+  text-decoration: underline !important;
 }

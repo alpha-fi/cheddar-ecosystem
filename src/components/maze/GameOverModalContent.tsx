@@ -1,12 +1,15 @@
 import { useContext, useEffect } from 'react';
 import styles from '@/styles/GameOverModalContent.module.css';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { useToast } from '@chakra-ui/react';
+import { useToast, Link } from '@chakra-ui/react';
 import { Facebook, Telegram, Twitter } from '../icons';
-import Link from 'next/link';
 import { getConfig } from '@/configs/config';
 
-export const GameOverModalContent = () => {
+interface Props {
+  setHolonymModal: (v: boolean) => void;
+  onClose: () => void;
+}
+export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
   const {
     remainingMinutes,
     remainingSeconds,
@@ -19,7 +22,6 @@ export const GameOverModalContent = () => {
     isUserNadabotVerfied,
     isUserHolonymVerified,
   } = useContext(GameContext);
-
   const toast = useToast();
 
   const properSecondsFormat =
@@ -97,8 +99,21 @@ export const GameOverModalContent = () => {
                 className={styles.link}
                 href={networkData.nadaBotUrl}
                 target="_blank"
+                style={{ textDecoration: 'underline' }}
               >
                 nada.bot
+              </Link>{' '}
+              or{' '}
+              <Link
+                className={styles.link}
+                onClick={() => {
+                  setHolonymModal(true);
+                  onClose();
+                }}
+                target="_blank"
+                style={{ textDecoration: 'underline' }}
+              >
+                Holonym
               </Link>{' '}
               to claim your cheddar.
             </span>
