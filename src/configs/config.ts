@@ -23,10 +23,26 @@ export interface Config {
     mazeVersion: string;
   };
   backendBaseUrl: string;
+  holonym: {
+    phoneIssuance: string;
+    phoneSBT: string;
+    govIdIssuance: string;
+    govIdSBT: string;
+  };
 }
 
 export const getConfig = (): Config => {
   const network = process.env.NEXT_PUBLIC_NETWORK;
+  const holonym = {
+    phoneIssuance:
+      'https://silksecure.net/holonym/diff-wallet/phone/issuance/prereqs',
+    phoneSBT:
+      'https://api.holonym.io/sybil-resistance/phone/near?action-id=123456789',
+    govIdIssuance:
+      'https://silksecure.net/holonym/diff-wallet/gov-id/issuance/prereqs',
+    govIdSBT:
+      'https://api.holonym.io/sybil-resistance/gov-id/near?action-id=123456789',
+  };
   switch (network) {
     case 'mainnet':
       return {
@@ -55,7 +71,8 @@ export const getConfig = (): Config => {
           ecosystem: 'cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
         },
-        backendBaseUrl: 'https://api.cheddar.farm:3002/',
+        backendBaseUrl: 'http://localhost:3001/',
+        holonym: holonym,
       };
     case 'testnet':
       return {
@@ -85,6 +102,7 @@ export const getConfig = (): Config => {
           mazeVersion: 'maze_v0.0.1',
         },
         backendBaseUrl: 'https://api.cheddar.farm:3001/',
+        holonym: holonym,
       };
     case 'local':
       return {
@@ -114,6 +132,7 @@ export const getConfig = (): Config => {
           mazeVersion: 'maze_v0.0.1',
         },
         backendBaseUrl: 'http://localhost:3001/',
+        holonym: holonym,
       };
     default:
       throw Error(

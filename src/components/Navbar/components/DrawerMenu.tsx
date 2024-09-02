@@ -24,14 +24,18 @@ interface Props {
   onOpenVideoModal: () => void;
   cheddarTotalSupply: bigint | undefined;
   isLoadingCheddarTotalSupply: boolean;
+  setHolonymModal: (v: boolean) => void;
 }
 
 export function DrawerMenu({
   onOpenVideoModal,
   cheddarTotalSupply,
   isLoadingCheddarTotalSupply,
+  setHolonymModal,
 }: Props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isUserHolonymVerified } = useContext(GameContext);
+
   return (
     <>
       <IconButton
@@ -52,6 +56,21 @@ export function DrawerMenu({
           <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
 
           <DrawerBody display="flex" flexDirection="column" gap="0.5rem" px="0">
+            {!isUserHolonymVerified && (
+              <Button
+                colorScheme="yellow"
+                _hover={{ bg: 'yellowgreen' }}
+                mx={3}
+                px={{ base: 2, md: 3 }}
+                onClick={() => {
+                  setHolonymModal(true);
+                  onClose();
+                }}
+              >
+                Get Holonym SBT
+              </Button>
+            )}
+
             <Button mx={3} colorScheme="blue" onClick={onOpenVideoModal}>
               🎶
             </Button>
