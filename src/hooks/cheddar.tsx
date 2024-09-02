@@ -7,6 +7,7 @@ import {
   getTotalSupply,
   isNadabotVerfied,
 } from '@/contracts/cheddarCalls';
+import { isHolonymVerified } from '@/queries/maze/api';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
 export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
@@ -68,5 +69,16 @@ export const useIsNadabotVerfified = (
     queryFn: () => (accountId ? isNadabotVerfied(accountId) : false),
     refetchInterval: 10000,
     staleTime: 10000,
+  });
+};
+
+export const useIsHolonymVerfified = (
+  accountId: string | null
+): UseQueryResult<boolean> => {
+  return useQuery<boolean>({
+    queryKey: ['useIsHolonymVerfified', accountId],
+    queryFn: () => (accountId ? isHolonymVerified(accountId) : false),
+    refetchInterval: Infinity,
+    staleTime: Infinity,
   });
 };

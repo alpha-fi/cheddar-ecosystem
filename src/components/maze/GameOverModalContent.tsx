@@ -17,6 +17,7 @@ export const GameOverModalContent = () => {
     pendingCheddarToMint,
     endGameResponse,
     isUserNadabotVerfied,
+    isUserHolonymVerified,
   } = useContext(GameContext);
 
   const toast = useToast();
@@ -33,7 +34,7 @@ export const GameOverModalContent = () => {
       endGameResponse &&
       endGameResponse.ok &&
       endGameResponse.cheddarMinted > 0 &&
-      isUserNadabotVerfied
+      (isUserNadabotVerfied || isUserHolonymVerified)
     ) {
       toast({
         title: 'Cheddar Minted Successfully!',
@@ -77,7 +78,7 @@ export const GameOverModalContent = () => {
       <p className={getMessageStyles()}>{gameOverMessage}</p>
       {hasWon && (
         <p className={styles.earnings}>
-          {isUserNadabotVerfied ? (
+          {isUserNadabotVerfied || isUserHolonymVerified ? (
             <span>
               You have farmed{' '}
               {cheddarFound <= pendingCheddarToMint

@@ -42,6 +42,7 @@ import {
 import { Scoreboard } from './Scoreboard';
 import { callMintCheddar } from '@/queries/maze/api';
 import { getConfig } from '@/configs/config';
+import ModalHolonym from '../ModalHolonymSBT';
 
 interface Props {
   remainingMinutes: number;
@@ -89,6 +90,7 @@ export function GameboardContainer({
     isMobile,
     earnedButNotMintedCheddar,
     isUserNadabotVerfied,
+    isUserHolonymVerified,
     totalMintedCheddarToDate,
   } = useContext(GameContext);
 
@@ -259,10 +261,15 @@ export function GameboardContainer({
     'https://' +
     new URL(window.location.href).host +
     `?referralId=${accountId}`;
+
   const notAllowedToPlay =
-    (!isUserNadabotVerfied && earnedButNotMintedCheddar >= 100) ||
+    (!isUserNadabotVerfied &&
+      !isUserHolonymVerified &&
+      earnedButNotMintedCheddar >= 100) ||
     (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
     (!hasEnoughBalance && totalMintedCheddarToDate >= 100);
+
+  const [showHolonymModal, setHolonymModal] = useState(false);
 
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
@@ -276,6 +283,73 @@ export function GameboardContainer({
   }
 
   const { nadaBotUrl, buyCheddarInRefUrl } = getConfig().networkData;
+
+  function getErrorText() {
+    const nadabotLink = (
+      <Link
+        href={nadaBotUrl}
+        style={{ textDecoration: 'underline' }}
+        target="_blank"
+      >
+        Nadabot
+      </Link>
+    );
+
+    const holonymLink = (
+      <Link
+        onClick={() => setHolonymModal(true)}
+        style={{ textDecoration: 'underline' }}
+        target="_blank"
+      >
+        Holonym
+      </Link>
+    );
+
+    const refLink = (
+      <Link
+        href={buyCheddarInRefUrl}
+        style={{ textDecoration: 'underline' }}
+        target="_blank"
+      >
+        Ref
+      </Link>
+    );
+
+    const cheddarIcon = RenderCheddarIcon({ width: '1rem' });
+
+    let message;
+
+    if (!isUserNadabotVerfied && !isUserHolonymVerified && !hasEnoughBalance) {
+      message = (
+        <>
+          Verify on {nadabotLink} or {holonymLink} and buy/hold 555{' '}
+          {cheddarIcon} from {refLink}.
+        </>
+      );
+    } else if (
+      (isUserNadabotVerfied || isUserHolonymVerified) &&
+      !hasEnoughBalance
+    ) {
+      message = (
+        <>
+          Buy/hold 555 {cheddarIcon} from {refLink}.
+        </>
+      );
+    } else if (
+      !isUserNadabotVerfied &&
+      !isUserHolonymVerified &&
+      hasEnoughBalance
+    ) {
+      message = (
+        <>
+          Verify on {nadabotLink} or {holonymLink}.
+        </>
+      );
+    }
+
+    return <span>{message}</span>;
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -285,54 +359,13 @@ export function GameboardContainer({
       }}
     >
       <div className={styles.publicityDecoration}></div>
+      <ModalHolonym
+        isOpen={showHolonymModal}
+        onClose={() => setHolonymModal(false)}
+      />
       {notAllowedToPlay && (
         <div className={styles.notAllowedToPlayText}>
-          To keep playing and claim rewards:{' '}
-          {!isUserNadabotVerfied && !hasEnoughBalance ? (
-            <span>
-              Verify on{' '}
-              <Link
-                href={nadaBotUrl}
-                style={{ textDecoration: 'underline' }}
-                target="_blank"
-              >
-                Nadabot
-              </Link>{' '}
-              and Buy/Hold 555 {RenderCheddarIcon({ width: '1rem' })} from{' '}
-              <Link
-                href={buyCheddarInRefUrl}
-                style={{ textDecoration: 'underline' }}
-                target="_blank"
-              >
-                Ref
-              </Link>
-              .
-            </span>
-          ) : !isUserNadabotVerfied ? (
-            <span>
-              Verify on{' '}
-              <Link
-                href={nadaBotUrl}
-                style={{ textDecoration: 'underline' }}
-                target="_blank"
-              >
-                Nadabot
-              </Link>
-              .
-            </span>
-          ) : (
-            <span>
-              Buy/Hold 555 {RenderCheddarIcon({ width: '1rem' })} from{' '}
-              <Link
-                href={buyCheddarInRefUrl}
-                style={{ textDecoration: 'underline' }}
-                target="_blank"
-              >
-                Ref
-              </Link>
-              .
-            </span>
-          )}
+          To keep playing and claim rewards: {getErrorText()}
         </div>
       )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
@@ -352,7 +385,7 @@ export function GameboardContainer({
               _hover={{ bg: 'yellowgreen' }}
               isLoading={isClaiming}
               onClick={async () => {
-                if (!isUserNadabotVerfied) {
+                if (!isUserNadabotVerfied && !isUserHolonymVerified) {
                   setMintErrorModal(true);
                   return;
                 } else {
@@ -392,7 +425,7 @@ export function GameboardContainer({
             >
               🏆
             </Button>
-            {isUserNadabotVerfied && (
+            {(isUserNadabotVerfied || isUserHolonymVerified) && (
               <Menu>
                 <MenuButton _hover={{ bg: 'yellowgreen' }} as={Button}>
                   🔗
@@ -442,7 +475,7 @@ export function GameboardContainer({
             isAllowedResponse={isAllowedResponse!}
           />
         </div>
-        {!notAllowedToPlay && !timerStarted && (
+        {!notAllowedToPlay && !timerStarted && accountId && (
           <div className={styles.startGameBg}>
             <Heading as="h6" size="md">
               Play Cheddar Maze
