@@ -23,22 +23,21 @@ export default function ModalHolonym({ isOpen, onClose }: Props) {
       fontWeight="600"
     >
       <Text>
-        Verify your identity with Holonym by submitting identity documents and
+        Verify your identity with Holonym by submitting identity documents or by
         confirming your phone number. This will allow you to receive your
         credentials.
       </Text>
       <br />
       <UnorderedList>
-        {/* Phone is not yet supported for near accounts */}
-        {/* <ListItem>
+        <ListItem>
           <Link
             target="_blank"
             href={phoneIssuance}
-            style={{ textDecoration: 'none' }}
+            style={{ textDecoration: 'underline', color: 'white' }}
           >
             Phone Number
           </Link>
-        </ListItem> */}
+        </ListItem>
         <ListItem>
           <Link
             target="_blank"
