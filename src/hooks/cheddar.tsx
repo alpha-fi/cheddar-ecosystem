@@ -67,8 +67,8 @@ export const useIsNadabotVerfified = (
   return useQuery<boolean>({
     queryKey: ['useIsNadabotVerfified', accountId],
     queryFn: () => (accountId ? isNadabotVerfied(accountId) : false),
-    refetchInterval: 10000,
-    staleTime: 10000,
+    refetchInterval: false,
+    staleTime: Infinity,
   });
 };
 
@@ -78,7 +78,7 @@ export const useIsHolonymVerfified = (
   return useQuery<boolean>({
     queryKey: ['useIsHolonymVerfified', accountId],
     queryFn: () => (accountId ? isHolonymVerified(accountId) : false),
-    refetchInterval: Infinity,
+    refetchInterval: false,
     staleTime: Infinity,
   });
 };
