@@ -532,7 +532,10 @@ export function GameboardContainer({
           onClose={closeGameOverModal}
           neverCloseOnOverlayClick={true}
         >
-          <GameOverModalContent />
+          <GameOverModalContent
+            setHolonymModal={setHolonymModal}
+            onClose={closeGameOverModal}
+          />
         </ModalContainer>
       )}
       {saveResponse && (
