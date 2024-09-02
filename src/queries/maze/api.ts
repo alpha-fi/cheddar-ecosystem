@@ -113,7 +113,7 @@ export async function callMintCheddar(mintCheddarBody: { accountId: string }) {
 
 export async function isHolonymVerified(accountId: string): Promise<boolean> {
   const govResp = await fetch(holonym.govIdSBT + `&user=${accountId}`);
-  const phoneResp = await fetch(holonym.phoneIssuance + `&user=${accountId}`);
+  const phoneResp = await fetch(holonym.phoneSBT + `&user=${accountId}`);
 
   const { result: isUniqueId } = await govResp.json();
   const { result: isUniquePhone } = await phoneResp.json();
