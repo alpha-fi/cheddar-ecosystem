@@ -300,7 +300,7 @@ export async function selectOpponent(
 
 export const makeAvailableFt = async (
   wallet: Wallet,
-  deposit: string | bigint,
+  deposit: string,
   tokenId: string,
   accountId: string,
   referrerId = ''
@@ -316,7 +316,7 @@ export const makeAvailableFt = async (
           methodName: 'ft_transfer_call',
           args: {
             receiver_id: checkers,
-            amount: Number(deposit),
+            amount: deposit,
             msg: '',
           },
           deposit: '1',
