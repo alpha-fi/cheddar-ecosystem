@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import Matter, { Engine, Render, Bodies, World, Body } from 'matter-js';
 import styles from '@/styles/PlinkoGameboard.module.css';
-import { Button, useDisclosure } from '@chakra-ui/react';
+import { Button, Tooltip, useDisclosure } from '@chakra-ui/react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
 import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';
@@ -15,7 +15,6 @@ import {
   GRAVITY,
   HIT_MACHINE_FORCE_MAGNITUDE,
   INITIAL_CLIENT_HEIGHT,
-  MAX_BALLS_AMOUNT,
   PIN_RADIUS,
   PIN_SPACING,
   PRIZES_DATA,
@@ -34,15 +33,22 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { createLetter } from './RenderLetterInWorld';
 import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
+import { ModalBuyChips } from './ModalBuyChips';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
   cheddar: number;
 }
 
-export function PlinkoBoard() {
+interface Props {
+  isMinigame?: boolean;
+}
+
+export function PlinkoBoard({ isMinigame = true }: Props) {
   const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
     React.useContext(GameContext);
+
+  const MAX_BALLS_AMOUNT = 0; //TODO use function calling back end to get this info.
 
   const { accountId, selector } = useWalletSelector();
 
@@ -74,6 +80,12 @@ export function PlinkoBoard() {
     isOpen: isOpenModalRules,
     onOpen: onOpenModalRules,
     onClose: onCloseModalRules,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenModalBuyChips,
+    onOpen: onOpenModalBuyChips,
+    onClose: onCloseModalBuyChips,
   } = useDisclosure();
 
   function closeGameOverModal() {
@@ -331,6 +343,8 @@ export function PlinkoBoard() {
     });
   };
 
+  function buyMoreChips() {}
+
   useEffect(() => {
     if (clientHeight === 0) {
       const currentCh = document.body.clientHeight;
@@ -479,13 +493,28 @@ export function PlinkoBoard() {
   return (
     <div className={styles.plinkoBoardContainer}>
       <div className={styles.headerContainer}>
-        <Button onClick={pushBall} mr={'1rem'}>
-          Shake
-        </Button>
-        <Button onClick={onOpenModalRules} mr={'1rem'}>
-          Rules
-        </Button>
-        <span>Chips left: {MAX_BALLS_AMOUNT - thrownBallsQuantity}</span>
+        <div>
+          <Button onClick={pushBall} mr={'1rem'}>
+            Shake
+          </Button>
+          <Button onClick={onOpenModalRules} mr={'1rem'}>
+            Rules
+          </Button>
+        </div>
+
+        <div className={styles.chipsSection}>
+          {!isMinigame &&
+            (accountId ? (
+              <Button colorScheme="yellow" onClick={onOpenModalBuyChips}>
+                Buy Chips
+              </Button>
+            ) : (
+              <Tooltip hasArrow label="Login to buy" bg="#ECC94B">
+                <Button>Buy Chips</Button>
+              </Tooltip>
+            ))}
+          <span>Chips left: {MAX_BALLS_AMOUNT - thrownBallsQuantity}</span>
+        </div>
       </div>
       <div
         className={styles.plinkoGame}
@@ -496,7 +525,10 @@ export function PlinkoBoard() {
         onTouchEnd={handleTouchEnd}
         onMouseUp={isMobile ? () => {} : handleMouseDropNewBall}
       />
-
+      <ModalBuyChips
+        isOpen={isOpenModalBuyChips}
+        onClose={onCloseModalBuyChips}
+      />
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
 
       <div className={styles.displayablePrizeContainer}>
