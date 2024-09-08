@@ -11,11 +11,12 @@ type Props = { children: ReactNode };
 const queryClient = new QueryClient();
 
 function OnchainProviders({ children }: Props) {
+  console.log(process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY);
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <OnchainKitProvider
-          apiKey={process.env.PUBLIC_ONCHAINKIT_API_KEY}
+          apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
           chain={base}
         >
           {children}
