@@ -2,23 +2,19 @@
 
 import { Inter } from 'next/font/google';
 import './globals.css';
+
+import '@coinbase/onchainkit/styles.css';
 import '../../public/assets/css/style.css';
 import '../../public/assets/css/near.css';
 import '@near-wallet-selector/modal-ui/styles.css';
-import { Box, ChakraProvider, Container, VStack } from '@chakra-ui/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ChakraProvider } from '@chakra-ui/react';
 import { WalletSelectorContextProvider } from '@/contexts/WalletSelectorContext';
-import { GameContextProvider } from '@/contexts/maze/GameContextProvider';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import Navbar from '@/components/Navbar/containers/Navbar';
-import { getCheddarBalance } from '@/contracts/cheddarCalls';
-import { SocialMedia } from '@/components/SocialMediaContainer';
 import { PageContainer } from '@/components/PageContainer';
 import DynamicWalletAdapterContext from '@/contexts/DynamicWalletAdapterContext';
+import OnchainProviders from '@/contexts/OnchainProviders';
 
 const inter = Inter({ subsets: ['latin'] });
-
-const queryClient = new QueryClient();
 
 export default function RootLayout({
   children,
@@ -57,10 +53,10 @@ export default function RootLayout({
         <WalletSelectorContextProvider>
           <DynamicWalletAdapterContext>
             <ChakraProvider>
-              <QueryClientProvider client={queryClient}>
+              <OnchainProviders>
                 <PageContainer>{children}</PageContainer>
                 <ReactQueryDevtools initialIsOpen={false} />
-              </QueryClientProvider>
+              </OnchainProviders>
             </ChakraProvider>
           </DynamicWalletAdapterContext>
         </WalletSelectorContextProvider>

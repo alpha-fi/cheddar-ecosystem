@@ -21,6 +21,7 @@ import { ModalContainer } from '@/components/ModalContainer';
 import Link from 'next/link';
 import { About } from '../components/About';
 import { DynamicWidget } from '@dynamic-labs/sdk-react-core';
+import { OnchainKitWallet } from '../components/OnchainKitWallet';
 
 export default function Navbar() {
   const {
@@ -135,6 +136,7 @@ export default function Navbar() {
             <About />
             <ButtonConnectWallet />
             <DynamicWidget />
+            <OnchainKitWallet />
             <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
               <DrawerMenu
                 onOpenVideoModal={onOpenVideoModal}

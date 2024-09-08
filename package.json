@@ -17,8 +17,10 @@
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
+    "@coinbase/onchainkit": "^0.31.4",
     "@dynamic-labs/bitcoin": "^2.5.0",
     "@dynamic-labs/ethereum": "^2.5.0",
+    "@dynamic-labs/ethereum-aa": "^2.6.0",
     "@dynamic-labs/sdk-react-core": "^2.5.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -38,7 +40,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-matter-js": "^1.0.5",
-    "viem": "^2.20.0",
+    "viem": "2.x",
+    "wagmi": "^2.12.8",
     "zustand": "^4.5.4"
   },
   "devDependencies": {

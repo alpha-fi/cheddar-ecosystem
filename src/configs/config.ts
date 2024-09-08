@@ -25,7 +25,7 @@ export interface Config {
 }
 
 export const getConfig = (): Config => {
-  const network = process.env.NEXT_PUBLIC_NETWORK;
+  const network = process.env.NEXT_PUBLIC_NETWORK || 'testnet';
   switch (network) {
     case 'mainnet':
       return {
