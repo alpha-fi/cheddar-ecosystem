@@ -67,7 +67,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   >([]);
   const [showPrize, setShowPrize] = useState(false);
   const [ballsYPosition, setBallsYPosition] = useState<number[]>(
-    Array.from(Array(MAX_BALLS_AMOUNT).keys()).fill(0)
+    Array.from(Array(MAX_BALLS_AMOUNT_IN_GAME).keys()).fill(0)
   );
 
   const [gameOverFlag, setGameOverFlag] = useState(false);
@@ -189,7 +189,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   }, [ballFinishLines]);
 
   useEffect(() => {
-    if (ballFinishLines && ballFinishLines.length === MAX_BALLS_AMOUNT) {
+    if (ballFinishLines && ballFinishLines.length === MAX_BALLS_AMOUNT_IN_GAME) {
       finishGame();
     }
   }, [prizeNames, prize]);
@@ -256,7 +256,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   }
 
   function handleShowNewBallPreviewMouse(e: React.MouseEvent<HTMLDivElement>) {
-    if (thrownBallsQuantity >= MAX_BALLS_AMOUNT) return;
+    if (thrownBallsQuantity >= MAX_BALLS_AMOUNT_IN_GAME) return;
     const mouseXPosition = getCurrentXPosition(e.clientX);
     setCurrentXPreview(mouseXPosition);
 
@@ -293,7 +293,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
     const currentXPosition = x;
 
-    if (allBalls.length < MAX_BALLS_AMOUNT) {
+    if (allBalls.length < MAX_BALLS_AMOUNT_IN_GAME) {
       if (preview) {
         //Move preview ball
         Matter.Body.setPosition(preview, {
@@ -321,7 +321,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     if (preview) {
       removeBody(preview);
     }
-    if (allBalls.length + ballFinishLines.length < MAX_BALLS_AMOUNT) {
+    if (allBalls.length + ballFinishLines.length < MAX_BALLS_AMOUNT_IN_GAME) {
       const currentXPosition = currentXPreview!;
 
       drawNewBall(currentXPosition);
@@ -514,7 +514,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
                 <Button>Buy Chips</Button>
               </Tooltip>
             ))}
-          <span>Chips left: {MAX_BALLS_AMOUNT - thrownBallsQuantity}</span>
+          <span>Chips left: {MAX_BALLS_AMOUNT_IN_GAME - thrownBallsQuantity}</span>
         </div>
       </div>
       <div
