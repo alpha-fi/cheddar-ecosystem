@@ -27,6 +27,7 @@ import {
   PIN_DECORATIVE_2_OPTIONS,
   GOALS_OPTIONS,
   GOALS_TIPS_OPTIONS,
+  MAX_BALLS_AMOUNT,
 } from '@/constants/plinko';
 import { callEndGame } from '@/queries/plinko/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
@@ -48,7 +49,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
     React.useContext(GameContext);
 
-  const MAX_BALLS_AMOUNT = 0; //TODO use function calling back end to get this info.
+  const MAX_BALLS_AMOUNT_IN_GAME = isMinigame ? MAX_BALLS_AMOUNT : 0; //TODO use function calling back end to get this info.
 
   const { accountId, selector } = useWalletSelector();
 
