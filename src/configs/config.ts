@@ -17,6 +17,7 @@ export interface Config {
     checkers: string;
     nekoToken: string;
     nadaBot: string;
+    plinkoMinter: string;
   };
   socialKeys: {
     ecosystem: string;
@@ -66,6 +67,7 @@ export const getConfig = (): Config => {
           checkers: 'checkers.cheddar.near',
           nekoToken: 'ftv2.nekotoken.near',
           nadaBot: 'v1.nadabot.near',
+          plinkoMinter: '',
         },
         socialKeys: {
           ecosystem: 'cheddarEcosystem',
@@ -96,6 +98,7 @@ export const getConfig = (): Config => {
           checkers: 'checkers.cheddar.testnet',
           nekoToken: '',
           nadaBot: 'v1.nadabot.testnet',
+          plinkoMinter: 'cheddar-plinko-minter.testnet',
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
@@ -126,6 +129,7 @@ export const getConfig = (): Config => {
           checkers: 'checkers.cheddar.testnet',
           nekoToken: '',
           nadaBot: 'v1.nadabot.testnet',
+          plinkoMinter: '',
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',

@@ -3,30 +3,22 @@ import {
   FormLabel,
   Button,
   useToast,
-  Image,
-  VStack,
-  Text,
-  Stack,
-  Switch,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
+  Flex,
 } from '@chakra-ui/react';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { useEffect, useState } from 'react';
-import { buyNFT } from '@/contracts/cheddarCalls';
+import { useState } from 'react';
 
 import styles from '@/styles/BuyNFTSection.module.css';
-import { useGetCheddarNFTPrice } from '@/hooks/cheddar';
-import { yton } from '@/contracts/contractUtils';
-import { getTransactionLastResult } from 'near-api-js/lib/providers';
-import { MintNFTLastResult } from '@/entities/interfaces';
-import { getConfig } from '@/configs/config';
 import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';
-import { RenderNearIcon } from '../maze/RenderNearIcon';
 import { ModalContainer } from '../ModalContainer';
+import { buyBalls } from '@/contracts/plinko/plinkoCalls';
+import { useGetBallCost } from '@/hooks/plinko';
+import { yton } from '@/contracts/contractUtils';
 
 interface Props {
   onClose: () => void;
@@ -35,79 +27,78 @@ interface Props {
 
 export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [selectAmountOfChips, setSelectAmountOfChips] = useState(3);
   const { selector } = useWalletSelector();
   const { data: chipPriceInCheddar, isLoading: isChipPriceInCheddarLoading } =
-    useGetCheddarNFTPrice(true); //TODO call correct function
-  const { data: cheddarChipPriceInNear, isLoading: isChipPriceInNearLoading } =
-    useGetCheddarNFTPrice(false); //TODO call correct function
+    useGetBallCost();
   const toast = useToast();
 
-  //The first option is the default one
-  const payingOptions = [
-    {
-      name: 'Cheddar',
-      price: isChipPriceInCheddarLoading
-        ? 'Loading'
-        : yton(chipPriceInCheddar!),
-      icon: <RenderCheddarIcon className={styles.tokenIcon} />,
-      color: 'yellow',
-    },
-    {
-      name: 'Near',
-      price: isChipPriceInNearLoading
-        ? 'Loading'
-        : yton(cheddarChipPriceInNear!),
-      icon: <RenderNearIcon className={styles.tokenIcon} />,
-      color: 'grey',
-    },
-  ];
+  const cheddarInfo = {
+    name: 'Cheddar',
+    price: isChipPriceInCheddarLoading ? 'Loading' : yton(chipPriceInCheddar!),
+    icon: <RenderCheddarIcon className={styles.tokenIcon} />,
+    color: 'yellow',
+  };
 
-  const [tokenToPayWith, setTokenToPayWith] = useState(payingOptions[0].name);
-  const [errorMsg, setErrorMsg] = useState(undefined as undefined | string);
-
-  const modalTitle = errorMsg ? 'Something went wrong' : 'Success';
-
-  function handleTogglePayOption() {
-    if (tokenToPayWith === payingOptions[0].name) {
-      setTokenToPayWith(payingOptions[1].name);
-    } else {
-      setTokenToPayWith(payingOptions[0].name);
-    }
+  function getAmountOfChipsToBuy() {
+    return (
+      BigInt(selectAmountOfChips) * BigInt(chipPriceInCheddar!)
+    ).toString();
   }
 
   async function handleBuy() {
-    //   try {
-    //     setIsLoading(true);
-    //     const wallet = await selector.wallet();
-    //     const withCheddar = tokenToPayWith === 'Cheddar';
-    //     const amount = withCheddar
-    //       ? chipPriceInCheddar
-    //       : cheddarChipPriceInNear;
-    //     const resp = await buyNFT(wallet, withCheddar, amount!);
-    //     const genericLastResult = await getTransactionLastResult(resp);
-    //     const lastResult: MintNFTLastResult = withCheddar
-    //       ? genericLastResult[1]
-    //       : genericLastResult;
-    //     if (lastResult.token_id) {
-    //       setNftId(lastResult.token_id);
-    //     }
-    //     toast({
-    //       title: 'Enjoy your purchase!',
-    //       status: 'success',
-    //       duration: 9000,
-    //       position: 'bottom-right',
-    //       isClosable: true,
-    //     });
-    //   } catch (err: any) {
-    //     toast({
-    //       title: err.message,
-    //       status: 'error',
-    //       duration: 9000,
-    //       position: 'bottom-right',
-    //       isClosable: true,
-    //     });
-    //   }
-    //   setIsLoading(false);
+    try {
+      setIsLoading(true);
+      const wallet = await selector.wallet();
+      const amount = getAmountOfChipsToBuy();
+
+      if (amount) {
+        // const resp =
+        await buyBalls(wallet, amount.toString()!);
+        // const genericLastResult = await getTransactionLastResult(resp);
+        // const lastResult: MintNFTLastResult = genericLastResult[1];
+
+        toast({
+          title: "Let's play!",
+          status: 'success',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title:
+            'There was an error getting the chips price. Please, try again',
+          status: 'error',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: err.message,
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+    }
+    setIsLoading(false);
+  }
+
+  function changeSelectedAmountOfChips(e: string) {
+    setSelectAmountOfChips(Number(e));
+  }
+
+  function openToast() {
+    toast({
+      title: 'You have to buy at least 1 chip',
+      status: 'error',
+      duration: 9000,
+      position: 'bottom-right',
+      isClosable: true,
+    });
   }
 
   return (
@@ -115,43 +106,49 @@ export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
       <form className={styles.form}>
         <FormControl isRequired>
           <FormLabel>Amount of chips</FormLabel>
-          <NumberInput size="md" maxW={24} defaultValue={3} min={1}>
+          <NumberInput
+            onChange={changeSelectedAmountOfChips}
+            size="md"
+            maxW={24}
+            defaultValue={3}
+            min={1}
+          >
             <NumberInputField />
             <NumberInputStepper>
               <NumberIncrementStepper />
               <NumberDecrementStepper />
             </NumberInputStepper>
           </NumberInput>
-
-          <FormLabel>Choose token to pay with:</FormLabel>
-          <div className={styles.chooseTokenToPayWithContainer}>
-            <span>{payingOptions[0].name}</span>
-            <Switch
-              colorScheme={payingOptions[0].color}
-              className={styles.flip}
-              size="lg"
-              onChange={() => handleTogglePayOption()}
-              isChecked={tokenToPayWith === payingOptions[0].name}
-            />
-            <span>{payingOptions[1].name}</span>
-          </div>
         </FormControl>
 
         <FormLabel>
-          {payingOptions.map((option, index) => {
-            if (option.name === tokenToPayWith) {
-              return (
-                <div key={index}>
-                  {`Cost: ${option.price}`} {option.icon}
-                </div>
-              );
-            }
-            return <></>;
-          })}
+          <Flex>
+            <p>
+              {`Chip cost: ${cheddarInfo.price}`} {cheddarInfo.icon}
+            </p>
+            <p>
+              {`Total cost: ${Number(cheddarInfo.price) * selectAmountOfChips}`}{' '}
+              {cheddarInfo.icon}
+            </p>
+          </Flex>
         </FormLabel>
-        <Button colorScheme="yellow" onClick={handleBuy} isLoading={isLoading}>
-          Purchase
-        </Button>
+        {selectAmountOfChips === 0 ? (
+          <Button
+            colorScheme="yellow"
+            onClick={openToast}
+            isLoading={isLoading}
+          >
+            Purchase
+          </Button>
+        ) : (
+          <Button
+            colorScheme="yellow"
+            onClick={handleBuy}
+            isLoading={isLoading}
+          >
+            Purchase
+          </Button>
+        )}
       </form>
     </ModalContainer>
   );

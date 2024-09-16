@@ -35,6 +35,7 @@ import { createLetter } from './RenderLetterInWorld';
 import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
 import { ModalBuyChips } from './ModalBuyChips';
+import { useGetUserBalls } from '@/hooks/plinko';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -49,7 +50,10 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
     React.useContext(GameContext);
 
-  const MAX_BALLS_AMOUNT_IN_GAME = isMinigame ? MAX_BALLS_AMOUNT : 0; //TODO use function calling back end to get this info.
+  const { data: userBalls, isLoading: isLoadingCheddarBalance } =
+    useGetUserBalls();
+
+  const MAX_BALLS_AMOUNT_IN_GAME = isMinigame ? MAX_BALLS_AMOUNT : userBalls;
 
   const { accountId, selector } = useWalletSelector();
 
@@ -189,7 +193,10 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   }, [ballFinishLines]);
 
   useEffect(() => {
-    if (ballFinishLines && ballFinishLines.length === MAX_BALLS_AMOUNT_IN_GAME) {
+    if (
+      ballFinishLines &&
+      ballFinishLines.length === MAX_BALLS_AMOUNT_IN_GAME
+    ) {
       finishGame();
     }
   }, [prizeNames, prize]);
@@ -256,7 +263,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   }
 
   function handleShowNewBallPreviewMouse(e: React.MouseEvent<HTMLDivElement>) {
-    if (thrownBallsQuantity >= MAX_BALLS_AMOUNT_IN_GAME) return;
+    if (thrownBallsQuantity >= MAX_BALLS_AMOUNT_IN_GAME!) return;
     const mouseXPosition = getCurrentXPosition(e.clientX);
     setCurrentXPreview(mouseXPosition);
 
@@ -293,7 +300,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
     const currentXPosition = x;
 
-    if (allBalls.length < MAX_BALLS_AMOUNT_IN_GAME) {
+    if (allBalls.length < MAX_BALLS_AMOUNT_IN_GAME!) {
       if (preview) {
         //Move preview ball
         Matter.Body.setPosition(preview, {
@@ -321,7 +328,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     if (preview) {
       removeBody(preview);
     }
-    if (allBalls.length + ballFinishLines.length < MAX_BALLS_AMOUNT_IN_GAME) {
+    if (allBalls.length + ballFinishLines.length < MAX_BALLS_AMOUNT_IN_GAME!) {
       const currentXPosition = currentXPreview!;
 
       drawNewBall(currentXPosition);
@@ -514,7 +521,9 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
                 <Button>Buy Chips</Button>
               </Tooltip>
             ))}
-          <span>Chips left: {MAX_BALLS_AMOUNT_IN_GAME - thrownBallsQuantity}</span>
+          <span>
+            Chips left: {MAX_BALLS_AMOUNT_IN_GAME! - thrownBallsQuantity}
+          </span>
         </div>
       </div>
       <div
