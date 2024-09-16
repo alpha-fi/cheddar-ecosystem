@@ -1,3 +1,4 @@
+import { getConfig } from '@/configs/config';
 import { http, createConfig } from 'wagmi';
 import { base, baseSepolia } from 'wagmi/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
@@ -14,6 +15,6 @@ export const wagmiConfig = createConfig({
   ssr: true,
   transports: {
     [base.id]: http(),
-    [baseSepolia.id]: http(process.env.NEXT_PUBLIC_ONCHAINKIT_RPC),
+    [baseSepolia.id]: http(getConfig().onchainkit?.rpc),
   },
 });

@@ -12,7 +12,8 @@ import { WalletSelectorContextProvider } from '@/contexts/WalletSelectorContext'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PageContainer } from '@/components/PageContainer';
 import DynamicWalletAdapterContext from '@/contexts/DynamicWalletAdapterContext';
-import OnchainProviders from '@/contexts/OnchainProviders';
+import OnchainContextProvider from '@/contexts/OnchainContextProvider';
+import WagmiContextProvider from '@/contexts/WagmiContextProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -53,10 +54,12 @@ export default function RootLayout({
         <WalletSelectorContextProvider>
           <DynamicWalletAdapterContext>
             <ChakraProvider>
-              <OnchainProviders>
-                <PageContainer>{children}</PageContainer>
-                <ReactQueryDevtools initialIsOpen={false} />
-              </OnchainProviders>
+              <WagmiContextProvider>
+              <OnchainContextProvider>
+                    <PageContainer>{children}</PageContainer>
+                    <ReactQueryDevtools initialIsOpen={false} />
+                  </OnchainContextProvider>
+              </WagmiContextProvider>
             </ChakraProvider>
           </DynamicWalletAdapterContext>
         </WalletSelectorContextProvider>

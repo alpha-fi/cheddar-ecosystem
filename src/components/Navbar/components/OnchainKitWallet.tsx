@@ -18,7 +18,7 @@ export function OnchainKitWallet() {
   return (
     <div className="flex justify-end">
       <Wallet>
-        <ConnectWallet text="Login In"></ConnectWallet>
+        <ConnectWallet text="Login Base"></ConnectWallet>
         <WalletDropdown>
           <Identity hasCopyAddressOnClick>
             <Address className={color.foregroundMuted} />

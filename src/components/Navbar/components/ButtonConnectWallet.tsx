@@ -15,8 +15,11 @@ import Link from 'next/link';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { smartTrim } from '@/utilities/exportableFunctions';
 import { useGetCheddarBalance } from '@/hooks/cheddar';
+type Props = {
+  handleOnCLick: () => void;
+};
 
-export function ButtonConnectWallet() {
+export function ButtonConnectWallet({ handleOnCLick }: Props) {
   const walletSelector = useWalletSelector();
   const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
     useGetCheddarBalance();
@@ -74,7 +77,18 @@ export function ButtonConnectWallet() {
           </MenuList>
         </Menu>
       ) : (
-        <YellowButton onClick={handleOnClick}>Login</YellowButton>
+<Button 
+  onClick={() => {
+    handleOnClick()
+    handleOnCLick()
+  }
+  } 
+  bg="white" 
+  color="black" 
+  _hover={{ bg: "gray.100" }}
+>
+  Login NEAR
+</Button>
       )}
     </>
   );

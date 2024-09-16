@@ -10,7 +10,6 @@ import {
   useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react';
-import { ButtonConnectWallet } from '../components/ButtonConnectWallet';
 import { DrawerMenu } from '../components/DrawerMenu';
 import styles from '@/styles/NavBar.module.css';
 
@@ -20,8 +19,7 @@ import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { ModalContainer } from '@/components/ModalContainer';
 import Link from 'next/link';
 import { About } from '../components/About';
-import { DynamicWidget } from '@dynamic-labs/sdk-react-core';
-import { OnchainKitWallet } from '../components/OnchainKitWallet';
+import { SelectWalletModal } from '../components/SelectWalletModal';
 
 export default function Navbar() {
   const {
@@ -134,9 +132,7 @@ export default function Navbar() {
               </Text>
             </Text>
             <About />
-            <ButtonConnectWallet />
-            <DynamicWidget />
-            <OnchainKitWallet />
+            <SelectWalletModal />
             <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
               <DrawerMenu
                 onOpenVideoModal={onOpenVideoModal}
