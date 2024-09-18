@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import Matter, { Engine, Render, Bodies, World, Body } from 'matter-js';
 import styles from '@/styles/PlinkoGameboard.module.css';
-import { Button, Tooltip, useDisclosure } from '@chakra-ui/react';
+import { Button, Tooltip, useDisclosure, useToast } from '@chakra-ui/react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
 import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';
@@ -53,8 +53,6 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   const { data: userBalls, isLoading: isLoadingCheddarBalance } =
     useGetUserBalls();
 
-  const MAX_BALLS_AMOUNT_IN_GAME = isMinigame ? MAX_BALLS_AMOUNT : userBalls;
-
   const { accountId, selector } = useWalletSelector();
 
   const [clientHeight, setClientHeight] = useState<number>(
@@ -70,6 +68,9 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     ('giga' | 'mega' | 'micro' | 'nano' | 'splat')[]
   >([]);
   const [showPrize, setShowPrize] = useState(false);
+
+  const MAX_BALLS_AMOUNT_IN_GAME = isMinigame ? MAX_BALLS_AMOUNT : userBalls;
+
   const [ballsYPosition, setBallsYPosition] = useState<number[]>(
     Array.from(Array(MAX_BALLS_AMOUNT_IN_GAME).keys()).fill(0)
   );
@@ -93,11 +94,33 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     onClose: onCloseModalBuyChips,
   } = useDisclosure();
 
+  const toast = useToast();
+
+  function openWarningToast() {
+    toast({
+      title: 'End game before buying more chips',
+      status: 'error',
+      duration: 9000,
+      position: 'bottom-right',
+      isClosable: true,
+    });
+  }
+
   function closeGameOverModal() {
     closePlinkoModal();
     setGameOverMessage('');
     onClose();
     setAllowOpenGameOverModal(false);
+  }
+
+  function getUserBallsLeft() {
+    if (isMinigame) {
+      MAX_BALLS_AMOUNT_IN_GAME! - thrownBallsQuantity;
+    } else if (userBalls && ballFinishLines.length !== userBalls) {
+      return userBalls - thrownBallsQuantity;
+    }
+
+    return 0;
   }
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -224,10 +247,12 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
       };
 
       setGameOverFlag(true);
+      setThrownBallsQuantity(0);
       setGameOverMessage(`Your ball fell in ${prizeNames[0]} goal`);
       const endGameResponse = await callEndGame(endGameRequestData);
       setEndGameResponse(endGameResponse);
       if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+      setBallFinishLines([]);
     }
   }
 
@@ -350,8 +375,6 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
       });
     });
   };
-
-  function buyMoreChips() {}
 
   useEffect(() => {
     if (clientHeight === 0) {
@@ -498,6 +521,34 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     }
   }, []);
 
+  const RenderPropperButton = () => {
+    if (accountId) {
+      if (
+        thrownBallsQuantity === 0 &&
+        ballFinishLines.length === 0 &&
+        userBalls === 0
+      ) {
+        return (
+          <Button colorScheme="yellow" onClick={onOpenModalBuyChips}>
+            Buy Chips
+          </Button>
+        );
+      }
+
+      return (
+        <Button colorScheme="yellow" onClick={openWarningToast}>
+          Buy Chips
+        </Button>
+      );
+    } else {
+      return (
+        <Tooltip hasArrow label="Login to buy" bg="#ECC94B">
+          <Button>Buy Chips</Button>
+        </Tooltip>
+      );
+    }
+  };
+
   return (
     <div className={styles.plinkoBoardContainer}>
       <div className={styles.headerContainer}>
@@ -511,19 +562,8 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
         </div>
 
         <div className={styles.chipsSection}>
-          {!isMinigame &&
-            (accountId ? (
-              <Button colorScheme="yellow" onClick={onOpenModalBuyChips}>
-                Buy Chips
-              </Button>
-            ) : (
-              <Tooltip hasArrow label="Login to buy" bg="#ECC94B">
-                <Button>Buy Chips</Button>
-              </Tooltip>
-            ))}
-          <span>
-            Chips left: {MAX_BALLS_AMOUNT_IN_GAME! - thrownBallsQuantity}
-          </span>
+          {!isMinigame && <RenderPropperButton />}
+          <span>Chips left: {getUserBallsLeft()}</span>
         </div>
       </div>
       <div
