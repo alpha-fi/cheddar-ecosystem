@@ -14,6 +14,7 @@ import Navbar from '@/components/Navbar/containers/Navbar';
 import { getCheddarBalance } from '@/contracts/cheddarCalls';
 import { SocialMedia } from '@/components/SocialMediaContainer';
 import { PageContainer } from '@/components/PageContainer';
+import DynamicWalletProvider from '@/contexts/DynamicWalletProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -56,8 +57,10 @@ export default function RootLayout({
         <WalletSelectorContextProvider>
           <ChakraProvider>
             <QueryClientProvider client={queryClient}>
-              <PageContainer>{children}</PageContainer>
-              <ReactQueryDevtools initialIsOpen={false} />
+              <DynamicWalletProvider>
+                <PageContainer>{children}</PageContainer>
+                <ReactQueryDevtools initialIsOpen={false} />
+              </DynamicWalletProvider>
             </QueryClientProvider>
           </ChakraProvider>
         </WalletSelectorContextProvider>
