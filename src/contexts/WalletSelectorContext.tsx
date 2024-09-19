@@ -50,6 +50,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
   const [selector, setSelector] = useState<WalletSelector | null>(null);
   const [modal, setModal] = useState<WalletSelectorModal | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
+
   const DEFAULT_ENABLE_WALLETS = [
     'mynearwallet',
     'meteor',

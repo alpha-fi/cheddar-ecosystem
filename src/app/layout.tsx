@@ -1,9 +1,10 @@
 'use client';
 
 import { Inter } from 'next/font/google';
+import '@coinbase/onchainkit/styles.css';
+
 import './globals.css';
 
-import '@coinbase/onchainkit/styles.css';
 import '../../public/assets/css/style.css';
 import '../../public/assets/css/near.css';
 import '@near-wallet-selector/modal-ui/styles.css';
@@ -55,10 +56,10 @@ export default function RootLayout({
           <DynamicWalletAdapterContext>
             <ChakraProvider>
               <WagmiContextProvider>
-              <OnchainContextProvider>
-                    <PageContainer>{children}</PageContainer>
-                    <ReactQueryDevtools initialIsOpen={false} />
-                  </OnchainContextProvider>
+                <OnchainContextProvider>
+                  <PageContainer>{children}</PageContainer>
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </OnchainContextProvider>
               </WagmiContextProvider>
             </ChakraProvider>
           </DynamicWalletAdapterContext>
