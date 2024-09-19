@@ -12,8 +12,7 @@ export default function DynamicWalletProvider({
   return (
     <DynamicContextProvider
       settings={{
-        // Find your environment id at https://app.dynamic.xyz/dashboard/developer
-        environmentId: "91ac8500-7175-4b1a-a2d4-9fec89a202e0",
+        environmentId: "913a2ea1-5fe0-47b9-8188-7359de82db46",
         walletConnectors: [EthereumWalletConnectors],
       }}
     >
