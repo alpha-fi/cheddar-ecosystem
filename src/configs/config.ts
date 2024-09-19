@@ -22,16 +22,10 @@ export interface Config {
     mazeVersion: string;
   };
   backendBaseUrl: string;
-  onchainkit?: {
-    api: string;
-    rpc: string;
-  };
 }
 
 export const getConfig = (): Config => {
   const network = process.env.NEXT_PUBLIC_NETWORK;
-  const onchainApi = process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY;
-  const onchainRpc = process.env.NEXT_PUBLIC_ONCHAINKIT_RPC;
   switch (network) {
     case 'mainnet':
       return {
@@ -60,10 +54,6 @@ export const getConfig = (): Config => {
           mazeVersion: 'maze_v0.0.1',
         },
         backendBaseUrl: 'https://api.cheddar.farm:3002/',
-        onchainkit: {
-          api: onchainApi as string,
-          rpc: onchainRpc as string,
-        },
       };
     case 'testnet':
       return {
@@ -92,10 +82,6 @@ export const getConfig = (): Config => {
           mazeVersion: 'maze_v0.0.1',
         },
         backendBaseUrl: 'https://api.cheddar.farm:3001/',
-        onchainkit: {
-          api: onchainApi as string,
-          rpc: onchainRpc as string,
-        },
       };
     case 'local':
       return {
