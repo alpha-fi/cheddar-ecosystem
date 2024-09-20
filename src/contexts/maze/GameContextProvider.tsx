@@ -283,6 +283,8 @@ export const GameContextProvider = ({ children }: props) => {
   const [mazeRows, setMazeRows] = useState(11);
   const [totalCells, setTotalCells] = useState(0);
 
+  const [resetQuery, setResetQuery] = useState(false);
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
     const handleMediaChange = (e: any) => {

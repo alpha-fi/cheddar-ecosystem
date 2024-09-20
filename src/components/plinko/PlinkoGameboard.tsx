@@ -27,15 +27,15 @@ import {
   PIN_DECORATIVE_2_OPTIONS,
   GOALS_OPTIONS,
   GOALS_TIPS_OPTIONS,
-  MAX_BALLS_AMOUNT,
 } from '@/constants/plinko';
-import { callEndGame } from '@/queries/plinko/api';
+import { callBallPlayed, callEndGame } from '@/queries/plinko/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { createLetter } from './RenderLetterInWorld';
 import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
 import { ModalBuyChips } from './ModalBuyChips';
 import { useGetUserBalls } from '@/hooks/plinko';
+import { PlinkoContext } from '@/contexts/plinko/PlinkoContextProvider';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -50,8 +50,21 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
     React.useContext(GameContext);
 
+  const {
+    resetQuery,
+    setResetQuery,
+    thrownBallsQuantity,
+    setThrownBallsQuantity,
+    setIsMinigame,
+    ballsYPosition,
+    setBallsYPosition,
+    MAX_BALLS_AMOUNT_IN_GAME,
+  } = React.useContext(PlinkoContext);
+
+  setIsMinigame(isMinigame);
+
   const { data: userBalls, isLoading: isLoadingCheddarBalance } =
-    useGetUserBalls();
+    useGetUserBalls(resetQuery);
 
   const { accountId, selector } = useWalletSelector();
 
@@ -60,7 +73,6 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   );
   const [saveResponse, setSaveResponse] = useState<string[] | undefined>();
   const [endGameResponse, setEndGameResponse] = useState<undefined | any>();
-  const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
   const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
   const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
   const [prize, setPrize] = useState<number>();
@@ -69,11 +81,10 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   >([]);
   const [showPrize, setShowPrize] = useState(false);
 
-  const MAX_BALLS_AMOUNT_IN_GAME = isMinigame ? MAX_BALLS_AMOUNT : userBalls;
-
-  const [ballsYPosition, setBallsYPosition] = useState<number[]>(
-    Array.from(Array(MAX_BALLS_AMOUNT_IN_GAME).keys()).fill(0)
-  );
+  useEffect(() => {
+    setBallsYPosition(Array.from(Array(userBalls).keys()).fill(0));
+    setThrownBallsQuantity(0);
+  }, [userBalls]);
 
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
@@ -96,16 +107,6 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
   const toast = useToast();
 
-  function openWarningToast() {
-    toast({
-      title: 'End game before buying more chips',
-      status: 'error',
-      duration: 9000,
-      position: 'bottom-right',
-      isClosable: true,
-    });
-  }
-
   function closeGameOverModal() {
     closePlinkoModal();
     setGameOverMessage('');
@@ -115,7 +116,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
   function getUserBallsLeft() {
     if (isMinigame) {
-      MAX_BALLS_AMOUNT_IN_GAME! - thrownBallsQuantity;
+      return MAX_BALLS_AMOUNT_IN_GAME! - thrownBallsQuantity;
     } else if (userBalls && ballFinishLines.length !== userBalls) {
       return userBalls - thrownBallsQuantity;
     }
@@ -129,6 +130,15 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     onOpen();
     setAllowOpenGameOverModal(true);
   }
+
+  useEffect(() => {
+    // This useEffect is used because we have 2 states, one in the front and one in the contract. If user make an action such as buying a ball or playing it, then contract state
+    // is less accurate than the front state. For this reason we are reseting the timer of the query by setting resetQuery to true when doing one of this actions and changing
+    // it back to false as soon state is changed.
+    if (resetQuery) {
+      setResetQuery(false);
+    }
+  }, [resetQuery]);
 
   useEffect(() => {
     engine.current.world.gravity.y = GRAVITY;
@@ -178,13 +188,13 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
           return ball?.position.x < separator.position.x;
         });
 
-        ballSeparatorIndexArray.push(index);
-
         if (ball.position.y > clientHeight) {
           setBallFinishLines((prevState) => [
             ...prevState,
             ...ballSeparatorIndexArray,
           ]);
+
+          if (!isMinigame) callBallPlayed(accountId!, GOALS[index - 1]);
 
           removeBody(ball);
         }
@@ -202,7 +212,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
       if (cheddarEarnedData) {
         const cheddarEarned = cheddarEarnedData?.cheddar;
         const cheddarPrizeName = cheddarEarnedData?.name;
-        console.log(1, cheddarPrizeName);
+
         setPrizeNames((prevState) => [...prevState, cheddarPrizeName]);
 
         finalPrize += cheddarEarned!;
@@ -217,6 +227,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
   useEffect(() => {
     if (
+      isMinigame &&
       ballFinishLines &&
       ballFinishLines.length === MAX_BALLS_AMOUNT_IN_GAME
     ) {
@@ -246,10 +257,11 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
         },
       };
 
-      setGameOverFlag(true);
       setThrownBallsQuantity(0);
+      let endGameResponse;
+      setGameOverFlag(true);
+      endGameResponse = await callEndGame(endGameRequestData);
       setGameOverMessage(`Your ball fell in ${prizeNames[0]} goal`);
-      const endGameResponse = await callEndGame(endGameRequestData);
       setEndGameResponse(endGameResponse);
       if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
       setBallFinishLines([]);
@@ -288,7 +300,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   }
 
   function handleShowNewBallPreviewMouse(e: React.MouseEvent<HTMLDivElement>) {
-    if (thrownBallsQuantity >= MAX_BALLS_AMOUNT_IN_GAME!) return;
+    if (getUserBallsLeft() <= 0) return;
     const mouseXPosition = getCurrentXPosition(e.clientX);
     setCurrentXPreview(mouseXPosition);
 
@@ -325,7 +337,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
     const currentXPosition = x;
 
-    if (allBalls.length < MAX_BALLS_AMOUNT_IN_GAME!) {
+    if (allBalls.length < getUserBallsLeft()) {
       if (preview) {
         //Move preview ball
         Matter.Body.setPosition(preview, {
@@ -353,11 +365,12 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     if (preview) {
       removeBody(preview);
     }
-    if (allBalls.length + ballFinishLines.length < MAX_BALLS_AMOUNT_IN_GAME!) {
+    if (allBalls.length + ballFinishLines.length < getUserBallsLeft()) {
       const currentXPosition = currentXPreview!;
 
       drawNewBall(currentXPosition);
       setThrownBallsQuantity(thrownBallsQuantity + 1);
+      setResetQuery(true);
     }
   }
 
@@ -523,20 +536,8 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
   const RenderPropperButton = () => {
     if (accountId) {
-      if (
-        thrownBallsQuantity === 0 &&
-        ballFinishLines.length === 0 &&
-        userBalls === 0
-      ) {
-        return (
-          <Button colorScheme="yellow" onClick={onOpenModalBuyChips}>
-            Buy Chips
-          </Button>
-        );
-      }
-
       return (
-        <Button colorScheme="yellow" onClick={openWarningToast}>
+        <Button colorScheme="yellow" onClick={onOpenModalBuyChips}>
           Buy Chips
         </Button>
       );

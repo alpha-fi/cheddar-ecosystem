@@ -25,3 +25,21 @@ export async function callEndGame(endGameData: EndGameRequest) {
   });
   return response.json();
 }
+
+export async function callBallPlayed(accountId: string, prizeName: string) {
+  const data = {
+    accountId,
+    prizeName,
+  };
+  const url = new URL(`/api/plinko/ballPlayed`, backendBaseUrl).toString();
+
+  const response = await fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}

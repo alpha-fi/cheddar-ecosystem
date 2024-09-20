@@ -11,7 +11,7 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 import styles from '@/styles/BuyNFTSection.module.css';
 import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';
@@ -19,6 +19,8 @@ import { ModalContainer } from '../ModalContainer';
 import { buyBalls } from '@/contracts/plinko/plinkoCalls';
 import { useGetBallCost } from '@/hooks/plinko';
 import { yton } from '@/contracts/contractUtils';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
+import { PlinkoContext } from '@/contexts/plinko/PlinkoContextProvider';
 
 interface Props {
   onClose: () => void;
@@ -26,6 +28,8 @@ interface Props {
 }
 
 export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
+  const { setResetQuery, setThrownBallsQuantity } = useContext(PlinkoContext);
+
   const [isLoading, setIsLoading] = useState(false);
   const [selectAmountOfChips, setSelectAmountOfChips] = useState(3);
   const { selector } = useWalletSelector();
@@ -57,6 +61,9 @@ export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
         await buyBalls(wallet, amount.toString()!);
         // const genericLastResult = await getTransactionLastResult(resp);
         // const lastResult: MintNFTLastResult = genericLastResult[1];
+
+        setResetQuery(true);
+        setThrownBallsQuantity(0);
 
         toast({
           title: "Let's play!",
