@@ -191,6 +191,15 @@ export function PlinkoBoard() {
     }
   }, [prize]);
 
+  const event = ({ action, category, userId, value, label }: any) => {
+    (window as any).gtag('event', action, {
+      event_category: category,
+      event_label: label,
+      value: value,
+      user_id: userId,
+    });
+  };
+
   async function finishGame() {
     if (prizeNames[0]) {
       const endGameRequestData = {
@@ -207,6 +216,13 @@ export function PlinkoBoard() {
       setGameOverMessage(`Your ball fell in ${prizeNames[0]} goal`);
       const endGameResponse = await callEndGame(endGameRequestData);
       setEndGameResponse(endGameResponse);
+      event({
+        action: 'end_game',
+        category: 'plinko',
+        label: 'won',
+        value: prizeNames[0],
+        userId: accountId,
+      });
       if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
     }
   }

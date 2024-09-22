@@ -422,6 +422,15 @@ export const GameContextProvider = ({ children }: props) => {
     return pathCells[rng.nextRange(0, pathCells.length)];
   }
 
+  const event = ({ action, category, userId, value, label }: any) => {
+    (window as any).gtag('event', action, {
+      event_category: category,
+      event_label: label,
+      value: value,
+      user_id: userId,
+    });
+  };
+
   // Function to restart the game
   async function restartGame() {
     if (!accountId) {
@@ -431,10 +440,19 @@ export const GameContextProvider = ({ children }: props) => {
     const newSeedIdResponse = await getSeedId(accountId);
     if (!newSeedIdResponse.ok) {
       handleErrorToast(newSeedIdResponse.message);
-
       return;
     }
 
+    event({
+      action: 'play_game',
+      label:
+        isUserHolonymVerified || isUserNadabotVerfied
+          ? 'Verified User'
+          : 'Unverified User',
+      category: 'maze',
+      value: newSeedIdResponse.seedId,
+      userId: accountId,
+    });
     await refetchPendingCheddarToMint();
     await refetchEarnedButNotMintedCheddar();
     setSeedId(newSeedIdResponse.seedId);
@@ -672,8 +690,16 @@ export const GameContextProvider = ({ children }: props) => {
   ) {
     // 30% chance of encountering an enemy
     // Code for adding enemy artifact...
-    setCellsWithItemAmount(cellsWithItemAmount + 1);
+    const artifactsCount = cellsWithItemAmount + 1;
+    setCellsWithItemAmount(artifactsCount);
     // Add logic for the enemy defeating the player
+    event({
+      action: 'find_enemy',
+      category: 'maze',
+      label: 'Game No: ' + seedId,
+      value: artifactsCount,
+      userId: accountId,
+    });
     if (rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
@@ -703,7 +729,15 @@ export const GameContextProvider = ({ children }: props) => {
     clonedMazeData[y][x].hasCheese = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     setScore(score + pointsOfActions.cheddarFound);
-    setCheddarFound(cheddarFound + 1);
+    const cheddar = cheddarFound + 1;
+    setCheddarFound(cheddar);
+    event({
+      action: 'find_cheese',
+      category: 'maze',
+      label: 'Game No: ' + seedId,
+      value: cheddar,
+      userId: accountId,
+    });
     setCheeseCooldown(true);
     setTimeout(
       () => {
@@ -718,6 +752,16 @@ export const GameContextProvider = ({ children }: props) => {
     x: number,
     y: number
   ) {
+    event({
+      action: 'play_game',
+      label:
+        isUserHolonymVerified || isUserNadabotVerfied
+          ? 'Verified User'
+          : 'Unverified User',
+      category: 'plinko',
+      value: seedId,
+      userId: accountId,
+    });
     setTimestampStartStopTimerArray([
       ...timestampStartStopTimerArray,
       Date.now(),
@@ -740,7 +784,15 @@ export const GameContextProvider = ({ children }: props) => {
     clonedMazeData[y][x].hasBag = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     setScore(score + pointsOfActions.bagFound);
-    setCheddarFound(cheddarFound + 1 * amountOfCheddarInBag);
+    const cheddar = cheddarFound + 1 * amountOfCheddarInBag;
+    setCheddarFound(cheddar);
+    event({
+      action: 'find_cheese',
+      category: 'maze',
+      label: 'Game No: ' + seedId,
+      value: cheddar,
+      userId: accountId,
+    });
     setBagCooldown(true);
     setTimeout(
       () => {
@@ -756,6 +808,12 @@ export const GameContextProvider = ({ children }: props) => {
     y: number
   ) {
     // 0.2% chance of hitting the "cartel" event
+    event({
+      action: 'find_cartel',
+      category: 'maze',
+      label: 'Game No: ' + seedId,
+      userId: accountId,
+    });
     clonedMazeData[y][x].hasCartel = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     gameOver('You ran into the cartel! Game Over!', false);
@@ -885,9 +943,17 @@ export const GameContextProvider = ({ children }: props) => {
     const endGameResponse = await callEndGame(endGameRequestData).catch(
       (error) => setSaveResponse(error)
     );
+
     await refetchEarnedButNotMintedCheddar();
     await refetchEarnedAndMintedCheddar();
     setEndGameResponse(endGameResponse);
+    event({
+      action: 'end_game',
+      category: 'maze',
+      label: won ? 'won' : 'loss',
+      value: cheddarToEarn,
+      userId: accountId,
+    });
     if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
   }
 
