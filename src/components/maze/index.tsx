@@ -7,6 +7,7 @@ import { ntoy, yton } from '@/contracts/contractUtils';
 import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse } from '@/hooks/maze';
 import ModalWelcome from '../ModalWelcome';
+import { useToast } from '@chakra-ui/react';
 
 export default function MazeContainer() {
   const {
@@ -29,8 +30,11 @@ export default function MazeContainer() {
     useGetCheddarMetadata();
   const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
     useGetCheddarBalance();
-  const { data: isAllowedResponse, isLoading: isLoadingIsAllowed } =
-    useGetIsAllowedResponse();
+  const {
+    data: isAllowedResponse,
+    isLoading: isLoadingIsAllowed,
+    error: userAllowedError,
+  } = useGetIsAllowedResponse();
 
   const [queriesLoaded, setQueriesLoaded] = useState(false);
   const [hasEnoughBalance, setHasEnoughBalance] = useState(false);
@@ -44,6 +48,19 @@ export default function MazeContainer() {
       setQueriesLoaded(true);
     }
   }
+
+  const toast = useToast();
+  useEffect(() => {
+    if (userAllowedError) {
+      toast({
+        title: 'Error occured while verifying current user!',
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+    }
+  }, [userAllowedError]);
 
   const minCheddarRequired = ntoy(555);
 
