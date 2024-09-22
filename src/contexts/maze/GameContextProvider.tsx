@@ -283,6 +283,16 @@ export const GameContextProvider = ({ children }: props) => {
   const [mazeRows, setMazeRows] = useState(11);
   const [totalCells, setTotalCells] = useState(0);
 
+  function handleErrorToast(title: string) {
+    toast({
+      title,
+      status: 'error',
+      duration: 9000,
+      position: 'bottom-right',
+      isClosable: true,
+    });
+  }
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
     const handleMediaChange = (e: any) => {
@@ -309,17 +319,40 @@ export const GameContextProvider = ({ children }: props) => {
     data: pendingCheddarToMint = 0,
     isLoading: isLoadingPendingCheddarToMint,
     refetch: refetchPendingCheddarToMint,
+    error: pendingCheddarError,
   } = useGetPendingCheddarToMint();
+
+  useEffect(() => {
+    if (pendingCheddarError) {
+      handleErrorToast(
+        "Error occured while retrieving user's pending cheddar!"
+      );
+    }
+  }, [pendingCheddarError]);
 
   const {
     data: earnedButNotMintedCheddar = 0,
     refetch: refetchEarnedButNotMintedCheddar,
+    error: earnedButNotMintedError,
   } = useGetEarnedButNotMintedCheddar();
+
+  useEffect(() => {
+    if (earnedButNotMintedError) {
+      handleErrorToast("Error occured while retrieving user's earned cheddar!");
+    }
+  }, [earnedButNotMintedError]);
 
   const {
     data: totalMintedCheddarToDate = 0,
     refetch: refetchEarnedAndMintedCheddar,
+    error: mintedCheddarError,
   } = useGetEarnedAndMintedCheddar();
+
+  useEffect(() => {
+    if (mintedCheddarError) {
+      handleErrorToast("Error occured while retrieving user's minted cheddar!");
+    }
+  }, [mintedCheddarError]);
 
   useEffect(() => {
     function getPathLength() {
@@ -397,13 +430,8 @@ export const GameContextProvider = ({ children }: props) => {
 
     const newSeedIdResponse = await getSeedId(accountId);
     if (!newSeedIdResponse.ok) {
-      toast({
-        title: newSeedIdResponse.message,
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      handleErrorToast(newSeedIdResponse.message);
+
       return;
     }
 
@@ -854,7 +882,9 @@ export const GameContextProvider = ({ children }: props) => {
     stopTimer();
     setHasFoundPlinko(false);
 
-    const endGameResponse = await callEndGame(endGameRequestData);
+    const endGameResponse = await callEndGame(endGameRequestData).catch(
+      (error) => setSaveResponse(error)
+    );
     await refetchEarnedButNotMintedCheddar();
     await refetchEarnedAndMintedCheddar();
     setEndGameResponse(endGameResponse);
@@ -1093,8 +1123,11 @@ export const GameContextProvider = ({ children }: props) => {
     return square?.id || '';
   };
 
-  const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
-    useGetScoreboard();
+  const {
+    data: scoreboardResponse,
+    isLoading: isLoadingScoreboard,
+    error: scoreboardError,
+  } = useGetScoreboard();
 
   const {
     isOpen: plinkoModalOpened,
@@ -1116,6 +1149,11 @@ export const GameContextProvider = ({ children }: props) => {
     setTimestampEndStopTimerArray(newTimestampEndStopTimer);
     onClosePlinkoModal();
   }
+  useEffect(() => {
+    if (scoreboardError) {
+      handleErrorToast('Error occured while fetching scoreboard!');
+    }
+  }, [scoreboardError, scoreboardResponse]);
 
   return (
     <GameContext.Provider

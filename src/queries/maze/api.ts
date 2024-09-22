@@ -4,67 +4,130 @@ import { getConfig } from '@/configs/config';
 const { backendBaseUrl, holonym } = getConfig();
 
 export async function isAllowed(accountId: string) {
-  const url = new URL(
-    `api/maze/isAllowed?accountId=${accountId}`,
-    backendBaseUrl
-  ).toString();
-  const response = await fetch(url);
-  const jsonResponse = await response.json();
-  return jsonResponse;
+  try {
+    const url = new URL(
+      `api/maze/isAllowed?accountId=${accountId}`,
+      backendBaseUrl
+    ).toString();
+    const response = await fetch(url);
+    if (!response.ok) {
+      const jsonResponse = await response.json();
+      throw new Error(
+        jsonResponse.errors ||
+          `Failed to fetch isAllowed for account: ${accountId}`
+      );
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error in isAllowed:', error);
+    throw error; // Ensure the error is propagated
+  }
 }
 
 export async function getPendingCheddarToMint(accountId: string) {
-  const url = new URL(
-    `api/maze/pendingCheddar?accountId=${accountId}`,
-    backendBaseUrl
-  ).toString();
-  const response = await fetch(url);
-  const jsonResponse = await response.json();
-  return jsonResponse.ok ? jsonResponse.pendingCheddarToMint : 0;
+  try {
+    const url = new URL(
+      `api/maze/pendingCheddar?accountId=${accountId}`,
+      backendBaseUrl
+    ).toString();
+    const response = await fetch(url);
+    if (!response.ok) {
+      const jsonResponse = await response.json();
+      throw new Error(
+        jsonResponse.errors ||
+          `Failed to fetch pending cheddar for account: ${accountId}`
+      );
+    }
+    const jsonResponse = await response.json();
+    return jsonResponse.ok ? jsonResponse.pendingCheddarToMint : 0;
+  } catch (error) {
+    console.error('Error in getPendingCheddarToMint:', error);
+    throw error;
+  }
 }
 
 export async function getEarnedButNotMinted(accountId: string) {
-  const url = new URL(
-    `api/maze/getNonMintedCheddar?accountId=${accountId}`,
-    backendBaseUrl
-  ).toString();
-  const response = await fetch(url);
-  const jsonResponse = await response.json();
-  return jsonResponse.ok ? jsonResponse.pendingCheddarToMint : 0;
+  try {
+    const url = new URL(
+      `api/maze/getNonMintedCheddar?accountId=${accountId}`,
+      backendBaseUrl
+    ).toString();
+    const response = await fetch(url);
+    if (!response.ok) {
+      const jsonResponse = await response.json();
+      throw new Error(
+        jsonResponse.errors ||
+          `Failed to fetch non-minted cheddar for account: ${accountId}`
+      );
+    }
+    const jsonResponse = await response.json();
+    return jsonResponse.ok ? jsonResponse.pendingCheddarToMint : 0;
+  } catch (error) {
+    console.error('Error in getEarnedButNotMinted:', error);
+    throw error;
+  }
 }
 
 export async function getEarnedAndMinted(accountId: string) {
-  const url = new URL(
-    `api/maze/mintedCheddar?accountId=${accountId}`,
-    backendBaseUrl
-  ).toString();
-  const response = await fetch(url);
-  const jsonResponse = await response.json();
-  return jsonResponse.ok ? jsonResponse.totalMinted : 0;
+  try {
+    const url = new URL(
+      `api/maze/mintedCheddar?accountId=${accountId}`,
+      backendBaseUrl
+    ).toString();
+    const response = await fetch(url);
+    if (!response.ok) {
+      const jsonResponse = await response.json();
+      throw new Error(
+        jsonResponse.errors ||
+          `Failed to fetch minted cheddar for account: ${accountId}`
+      );
+    }
+    const jsonResponse = await response.json();
+    return jsonResponse.ok ? jsonResponse.totalMinted : 0;
+  } catch (error) {
+    console.error('Error in getEarnedAndMinted:', error);
+    throw error;
+  }
 }
 
 export async function getSeedId(accountId: string) {
-  const data = {
-    accountId,
-  };
-  const url = new URL(`api/maze/getSeedId`, backendBaseUrl).toString();
-
-  const response = await fetch(url, {
-    method: 'POST',
-    mode: 'cors',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  return response.json();
+  try {
+    const data = { accountId };
+    const url = new URL(`api/maze/getSeedId`, backendBaseUrl).toString();
+    const response = await fetch(url, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const jsonResponse = await response.json();
+      throw new Error(
+        jsonResponse.errors || `Failed to get seed ID for account: ${accountId}`
+      );
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error in getSeedId:', error);
+    throw error;
+  }
 }
 
 export async function getScoreBoard() {
-  const url = new URL(`/api/maze/scoreboard`, backendBaseUrl).toString();
-  const response = await fetch(url);
-  const jsonResponse = await response.json();
-  return jsonResponse as PlayerScoreData | Promise<any> | undefined;
+  try {
+    const url = new URL(`/api/maze/scoreboard`, backendBaseUrl).toString();
+    const response = await fetch(url);
+    if (!response.ok) {
+      const jsonResponse = await response.json();
+      throw new Error(jsonResponse.errors || `Failed to fetch the scoreboard`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error in getScoreBoard:', error);
+    throw error;
+  }
 }
 
 export interface EndGameRequest {
@@ -81,41 +144,69 @@ export interface EndGameRequest {
 }
 
 export async function callEndGame(endGameData: EndGameRequest) {
-  const url = new URL(`api/maze/endGame`, backendBaseUrl).toString();
-
-  const response = await fetch(url, {
-    method: 'POST',
-    mode: 'cors',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(endGameData),
-  });
-  return response.json();
+  try {
+    const url = new URL(`api/maze/endGame`, backendBaseUrl).toString();
+    const response = await fetch(url, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(endGameData),
+    });
+    const jsonResponse = await response.json();
+    if (!response.ok) {
+      throw new Error(jsonResponse.errors || 'Failed to end game');
+    }
+    return jsonResponse;
+  } catch (error) {
+    console.error('Error in callEndGame:', error);
+    throw error;
+  }
 }
 
 export async function callMintCheddar(mintCheddarBody: { accountId: string }) {
-  const url = new URL(
-    `api/maze/mintNonMintedCheddar`,
-    backendBaseUrl
-  ).toString();
-
-  const response = await fetch(url, {
-    method: 'POST',
-    mode: 'cors',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(mintCheddarBody),
-  });
-  return response.json();
+  try {
+    const url = new URL(
+      `api/maze/mintNonMintedCheddar`,
+      backendBaseUrl
+    ).toString();
+    const response = await fetch(url, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(mintCheddarBody),
+    });
+    if (!response.ok) {
+      const jsonResponse = await response.json();
+      throw new Error(
+        jsonResponse.errors ||
+          `Failed to mint cheddar for account: ${mintCheddarBody.accountId}`
+      );
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error in callMintCheddar:', error);
+    throw error;
+  }
 }
 
 export async function isHolonymVerified(accountId: string): Promise<boolean> {
-  const govResp = await fetch(holonym.govIdSBT + `&user=${accountId}`);
-  const phoneResp = await fetch(holonym.phoneSBT + `&user=${accountId}`);
+  try {
+    const govResp = await fetch(holonym.govIdSBT + `&user=${accountId}`);
+    const phoneResp = await fetch(holonym.phoneSBT + `&user=${accountId}`);
 
-  const { result: isUniqueId } = await govResp.json();
-  const { result: isUniquePhone } = await phoneResp.json();
-  return isUniqueId || isUniquePhone;
+    if (!govResp.ok || !phoneResp.ok) {
+      throw new Error(`Failed to verify Holonym for account: ${accountId}`);
+    }
+
+    const { result: isUniqueId } = await govResp.json();
+    const { result: isUniquePhone } = await phoneResp.json();
+    return isUniqueId || isUniquePhone;
+  } catch (error) {
+    console.error('Error in isHolonymVerified:', error);
+    throw error;
+  }
 }
