@@ -749,7 +749,7 @@ export const GameContextProvider = ({ children }: props) => {
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
-    plinko: 0.99,
+    plinko: 0.01,
   };
 
   const NFTCheeseBuffMultiplier = 1.28;
