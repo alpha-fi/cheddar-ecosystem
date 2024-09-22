@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletSelectorContextProvider } from '@/contexts/WalletSelectorContext';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PageContainer } from '@/components/PageContainer';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -48,6 +49,7 @@ export default function RootLayout({
           content="https://github.com/user-attachments/assets/942efc37-a268-46c6-874d-bc5dc7e5b3c4"
         />
       </head>
+      <GoogleAnalytics />
       <body className={inter.className + ' backgroundImg'}>
         <WalletSelectorContextProvider>
           <ChakraProvider>
