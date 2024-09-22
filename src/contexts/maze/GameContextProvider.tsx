@@ -528,50 +528,45 @@ export const GameContextProvider = ({ children }: props) => {
       }
     }
 
-    // Check if any column is completely unreachable
-    let unreachableColumns: number[] = [];
-    for (let c = 0; c < cols; c++) {
-      let reachable = false;
-      for (let r = 0; r < rows; r++) {
-        if (maze[r][c].isPath) {
-          reachable = true;
-          break;
+    // Ensure all unreachable columns are connected
+    function connectUnreachableColumns() {
+      let unreachableColumns: number[] = [];
+      for (let c = 0; c < cols; c++) {
+        let reachable = false;
+        for (let r = 0; r < rows; r++) {
+          if (maze[r][c].isPath) {
+            reachable = true;
+            break;
+          }
+        }
+        if (!reachable) {
+          unreachableColumns.push(c);
         }
       }
-      if (!reachable) {
-        unreachableColumns.push(c);
-      }
-    }
 
-    // Ensure at least one cell in each unreachable column isPath = true
-    unreachableColumns.forEach((col) => {
-      const row = rng.nextRange(1, rows - 2);
-      maze[row][col].isPath = true;
-    });
+      // Actively connect unreachable columns
+      unreachableColumns.forEach((col) => {
+        const row = rng.nextRange(1, rows - 2);
+        maze[row][col].isPath = true;
 
-    // Randomly turn a few non-path cells into paths
-    const totalCells = rows * cols;
-    const nonPathCells = [];
-
-    // Collect all non-path cells
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        if (!maze[i][j].isPath) {
-          nonPathCells.push([i, j]);
+        // Now connect it to the nearest path
+        let connected = false;
+        for (let r = 0; r < rows; r++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const nx = col + dx;
+            if (nx >= 0 && nx < cols && maze[r][nx].isPath) {
+              maze[r][col].isPath = true;
+              connected = true;
+              break;
+            }
+          }
+          if (connected) break;
         }
-      }
+      });
     }
 
-    // Determine how many cells to turn into paths (adjust percentage as needed)
-    const numToTurnIntoPaths = Math.floor(totalCells * 0.05); // 5% of total cells
+    connectUnreachableColumns();
 
-    // Randomly select and turn cells into paths
-    for (let i = 0; i < numToTurnIntoPaths; i++) {
-      const randomIndex = rng.nextRange(0, nonPathCells.length);
-      const [r, c] = nonPathCells[randomIndex];
-      maze[r][c].isPath = true;
-      nonPathCells.splice(randomIndex, 1); // Remove selected cell from array
-    }
     return maze;
   }
 
@@ -872,7 +867,7 @@ export const GameContextProvider = ({ children }: props) => {
     if (timerStarted && !gameOverFlag && startTimestamp) {
       intervalId = setInterval(() => {
         if (
-          //The game is not stopped (Prevent entering this flow when minigame is open)
+          // The game is not stopped (Prevent entering this flow when minigame is open)
           timestampStartStopTimerArray.length ===
           timestampEndStopTimerArray.length
         ) {
@@ -883,28 +878,31 @@ export const GameContextProvider = ({ children }: props) => {
               setTimestampStartStopTimerArray([]);
               setTimestampEndStopTimerArray([]);
               gameOver("⏰ Time's up! Game Over!", false);
-              return prevTime;
+              return 0; // Time's up, return 0
             }
 
-            let secondsWithTimerStoped = 0;
+            let secondsWithTimerStopped = 0;
 
             if (
               timestampStartStopTimerArray.length > 0 &&
               timestampEndStopTimerArray.length > 0
             ) {
               timestampStartStopTimerArray.forEach((startTimestamp, index) => {
-                secondsWithTimerStoped +=
-                  timestampEndStopTimerArray[index] / 1000 -
-                  startTimestamp / 1000;
+                secondsWithTimerStopped +=
+                  (timestampEndStopTimerArray[index] - startTimestamp) / 1000;
               });
             }
 
-            return Math.floor(
+            // Calculate the remaining time
+            const calculatedRemainingTime = Math.floor(
               startTimestamp / 1000 +
                 timeLimitInSeconds +
-                secondsWithTimerStoped -
+                secondsWithTimerStopped -
                 Date.now() / 1000
             );
+
+            // Ensure that remainingTime doesn't exceed the timeLimitInSeconds
+            return Math.min(calculatedRemainingTime, timeLimitInSeconds);
           });
         }
       }, 500);
@@ -920,6 +918,8 @@ export const GameContextProvider = ({ children }: props) => {
     gameOverFlag,
     timestampStartStopTimerArray,
     timestampEndStopTimerArray,
+    startTimestamp,
+    timeLimitInSeconds,
   ]);
 
   function handleMoveByArrow(direction: string) {
