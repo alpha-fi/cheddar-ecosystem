@@ -129,7 +129,7 @@ export const getConfig = (): Config => {
           checkers: 'checkers.cheddar.testnet',
           nekoToken: '',
           nadaBot: 'v1.nadabot.testnet',
-          plinkoMinter: '',
+          plinkoMinter: 'cheddar-plinko-minter.testnet',
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
