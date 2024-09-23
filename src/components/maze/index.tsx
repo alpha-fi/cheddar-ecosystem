@@ -7,6 +7,8 @@ import { ntoy, yton } from '@/contracts/contractUtils';
 import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse } from '@/hooks/maze';
 import ModalWelcome from '../ModalWelcome';
+import { useGetCheddarBaseBalance } from '@/hooks/cheddarBase';
+import { useAccount } from 'wagmi';
 
 export default function MazeContainer() {
   const {
@@ -24,6 +26,7 @@ export default function MazeContainer() {
   } = useContext(GameContext);
 
   const { selector, accountId } = useWalletSelector();
+  const {address } = useAccount()
 
   const { data: cheddarMetadata, isLoading: isLoadingCheddarMetadata } =
     useGetCheddarMetadata();
@@ -49,13 +52,16 @@ export default function MazeContainer() {
 
   useEffect(() => {
     function doesUserHaveEnoughBalance() {
-      if (!cheddarBalanceData) return false;
+      if(address) {
+        return true
+      }
+      else if (!cheddarBalanceData) return false;
 
       return minCheddarRequired <= cheddarBalanceData!;
     }
 
     setHasEnoughBalance(doesUserHaveEnoughBalance());
-  }, [cheddarBalanceData, accountId, selector, isAllowedResponse]);
+  }, [cheddarBalanceData, accountId, selector, isAllowedResponse, address]);
 
   function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);

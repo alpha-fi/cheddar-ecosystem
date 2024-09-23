@@ -9,7 +9,6 @@ import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
 import { setupModal } from '@near-wallet-selector/modal-ui';
 import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
 import { setupHereWallet } from '@near-wallet-selector/here-wallet';
-import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
 import { setupBitteWallet } from '@near-wallet-selector/bitte-wallet';
@@ -30,6 +29,8 @@ interface WalletSelectorContextValue {
   modal: WalletSelectorModal;
   accounts: Array<AccountState>;
   accountId: string | null;
+  isSelectWalletModal: boolean;
+  showSelectWalletModal: (modalState: boolean) => void;
 }
 
 enum Wallets {
@@ -48,6 +49,7 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
 
   const NETWORK_ID = networkData.networkId;
   const [selector, setSelector] = useState<WalletSelector | null>(null);
+  const [isSelectWalletModal, setIsSelectWalletModal] = useState(false);
   const [modal, setModal] = useState<WalletSelectorModal | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
 
@@ -172,6 +174,9 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
     return null;
   }
 
+  const showSelectWalletModal = (modalState: boolean) => {
+    setIsSelectWalletModal(modalState);
+  };
   const accountId =
     accounts.find((account) => account.active)?.accountId || null;
 
@@ -182,6 +187,8 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
         modal,
         accounts,
         accountId,
+        isSelectWalletModal,
+        showSelectWalletModal,
       }}
     >
       {children}

@@ -7,8 +7,6 @@ import { useAccount } from 'wagmi';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 
 export const SelectWalletModal = () => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const closeModal = () => setIsOpen(false);
   const { address } = useAccount();
   const walletSelector = useWalletSelector();
 
@@ -21,7 +19,11 @@ export const SelectWalletModal = () => {
           {address ? (
             <OnchainKitWallet />
           ) : (
-            <Button bg="white" color="black" onClick={() => setIsOpen(true)}>
+            <Button
+              bg="white"
+              color="black"
+              onClick={() => walletSelector.showSelectWalletModal(true)}
+            >
               Login
             </Button>
           )}
@@ -30,13 +32,19 @@ export const SelectWalletModal = () => {
 
       <ModalContainer
         title={'Select a wallet'}
-        isOpen={isOpen}
-        onClose={closeModal}
+        isOpen={walletSelector.isSelectWalletModal}
+        onClose={() => walletSelector.showSelectWalletModal(false)}
       >
         <VStack spacing={4} align="center">
           {/* <DynamicWidget /> */}
-          <ButtonConnectWallet handleButtonCLick={closeModal} />
-          <OnchainKitWallet handleCloseModal={closeModal} />
+          <ButtonConnectWallet
+            handleButtonCLick={() =>
+              walletSelector.showSelectWalletModal(false)
+            }
+          />
+          <OnchainKitWallet
+            handleCloseModal={() => walletSelector.showSelectWalletModal(false)}
+          />
         </VStack>
       </ModalContainer>
     </div>

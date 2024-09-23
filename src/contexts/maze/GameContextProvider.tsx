@@ -9,7 +9,12 @@ import React, {
   useRef,
 } from 'react';
 
-import { callEndGame, getScoreBoard, getSeedId } from '@/queries/maze/api';
+import {
+  callEndGame,
+  EndGameRequest,
+  getScoreBoard,
+  getSeedId,
+} from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
@@ -22,6 +27,7 @@ import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
 import { useGetCheddarNFTs } from '@/hooks/cheddar';
 import { useDisclosure } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
+import { useAccount } from 'wagmi';
 
 interface props {
   children: ReactNode;
@@ -186,6 +192,8 @@ export const GameContext = createContext<GameContextProps>(
 );
 
 export const GameContextProvider = ({ children }: props) => {
+  //base config
+  const { address } = useAccount();
   const gameOverRefSent = useRef(false);
   const isMobile = useRef(
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -800,17 +808,30 @@ export const GameContextProvider = ({ children }: props) => {
         ? cheddarFound
         : pendingCheddarToMint;
 
-    const endGameRequestData = {
-      data: {
-        cheddarEarned: won ? cheddarToEarn : 0,
-        score,
-        path: [],
-      },
-      metadata: {
-        accountId: accountId!,
-        seedId,
-      },
-    };
+    const endGameRequestData: EndGameRequest = address
+      ? {
+          type: 'base',
+          data: {
+            cheddarEarned: won ? cheddarToEarn : 0,
+            score,
+            path: [],
+          },
+          metadata: {
+            address: address as `0x${string}`,
+          },
+        }
+      : {
+          type: 'near',
+          data: {
+            cheddarEarned: won ? cheddarToEarn : 0,
+            score,
+            path: [],
+          },
+          metadata: {
+            accountId: accountId,
+            seedId: seedId,
+          },
+        };
 
     setHasWon(won);
     setCoveredCells([]);

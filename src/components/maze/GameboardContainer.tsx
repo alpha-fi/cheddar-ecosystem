@@ -33,6 +33,7 @@ import {
   ArrowUpIcon,
 } from '@chakra-ui/icons';
 import { Scoreboard } from './Scoreboard';
+import { useAccount } from 'wagmi';
 
 interface Props {
   remainingMinutes: number;
@@ -101,12 +102,17 @@ export function GameboardContainer({
     onOpen: onOpenBuyNFTPanel,
     onClose: onCloseBuyNFTPanel,
   } = useDisclosure();
+  const { address } = useAccount();
+  const { modal, selector, accountId, showSelectWalletModal } =
+    useWalletSelector();
 
-  const { modal, selector, accountId } = useWalletSelector();
+  const isUserLoggedIn: boolean = useMemo(() => {
+    return !!(address || accountId);
+  }, [address, accountId]);
 
   const userIsNotAllowedToPlay = useMemo(() => {
-    return accountId && !isAllowedResponse?.ok;
-  }, [accountId, isAllowedResponse?.ok]);
+    return isUserLoggedIn && !isAllowedResponse?.ok;
+  }, [isUserLoggedIn, isAllowedResponse?.ok]);
 
   function getProperHandler(handler: any) {
     //Uncomment the next line to ignore the isAllowedResponse.ok returning false
@@ -123,7 +129,9 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return selector.isSignedIn() ? onOpenBuyNFTPanel() : modal.show();
+    return isUserLoggedIn
+      ? onOpenBuyNFTPanel()
+      : showSelectWalletModal(true);
   }
 
   function logOut() {
@@ -136,11 +144,13 @@ export function GameboardContainer({
   }
 
   function getStartGameButtonHandler() {
-    return accountId //If the accountId exists
-      ? hasEnoughBalance //And have enough balance
-        ? getProperHandler(focusMazeAndStartGame)
-        : () => {} //If doesn't have enough balance
-      : modal.show; //If accountId doesn't exist
+    if (!isUserLoggedIn) {
+      return showSelectWalletModal(true); // If no account, show wallet modal
+    }
+    
+    return hasEnoughBalance
+      ? getProperHandler(focusMazeAndStartGame)
+      : () => {}; // If not enough balance, do nothing
   }
 
   function getKeyDownMoveHandler() {
@@ -198,13 +208,13 @@ export function GameboardContainer({
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>arrows</title>
-        <path d="M19.72 15.4l-2.24-2.2c-0.32-0.32-0.84-0.32-1.2 0-0.32 0.32-0.32 0.84 0 1.2l0.8 0.8h-6.28v-6.24l0.8 0.8c0.16 0.16 0.36 0.24 0.6 0.24 0.2 0 0.44-0.080 0.6-0.24 0.32-0.32 0.32-0.84 0-1.2l-2.24-2.24c-0.6-0.72-1.2-0.040-1.2-0.040l-2.24 2.24c-0.32 0.32-0.32 0.84 0 1.2 0.32 0.32 0.84 0.32 1.2 0l0.8-0.8v6.28h-6.2l0.8-0.8c0.32-0.32 0.32-0.84 0-1.2-0.32-0.32-0.84-0.32-1.2 0l-2.24 2.24c-0.32 0.32-0.32 0.84 0 1.16l2.24 2.2c0.16 0.16 0.36 0.24 0.6 0.24 0.2 0 0.44-0.080 0.6-0.24 0.32-0.32 0.32-0.84 0-1.2l-0.8-0.8h6.24v6.24l-0.8-0.8c-0.32-0.32-0.84-0.32-1.2 0-0.32 0.32-0.32 0.84 0 1.2l2.24 2.24c0.4 0.4 0.68 0.4 1.12-0.040l2.24-2.24c0.44-0.28 0.44-0.8 0.080-1.12-0.32-0.32-0.84-0.32-1.2 0l-0.8 0.8v-6.28h6.24l-0.8 0.8c-0.32 0.32-0.32 0.84 0 1.2 0.16 0.16 0.36 0.24 0.6 0.24s0.44-0.080 0.6-0.24l2.24-2.24c0.32-0.28 0.32-0.88 0-1.16z"></path>
+        <path d="M19.72 15.4l-2.24-2.2c-0.32-0.32-0.84-0.32-1.2 0-0.32 0.32-0.32 0.84 0 1.2l0.8 0.8h-6.28v-6.24l0.8 0.8c0.16 0.16 0.36 0.24 0.6 0.24 0.2 0 0.44-0.080 0.6-0.24 0.32-0.32 0.32-0.84 0-1.2l-2.24-2.24c-0.6-0.72-1.2-0.040-1.2-0.040l-2.24 2.24c-0.32 0.32-0.32 0.84 0 1.2 0.32 0.32 0.84 0.32 1.2 0l0.8-0.8v6.28h-6.2l0.8-0.8c0.32-0.32 0.32-0.84 0-1.2-0.32-0.32-0.84-0.32-1.2 0l-0.8 0.8v-6.28h6.24l-0.8 0.8c-0.32 0.32-0.32 0.84 0 1.2 0.16 0.16 0.36 0.24 0.6 0.24s0.44-0.080 0.6-0.24l2.24-2.24c0.32-0.28 0.32-0.88 0-1.16z"></path>
       </svg>
     );
   };
 
   function getPowerUpBtnText() {
-    if (accountId) {
+    if (isUserLoggedIn) {
       if (nfts?.length) {
         return '⚡';
       } else return 'Buy ⚡';
@@ -222,7 +232,7 @@ export function GameboardContainer({
       }}
     >
       <div className={styles.publicityDecoration}></div>
-      {accountId && (!hasEnoughBalance || userIsNotAllowedToPlay) && (
+      {(accountId || address) && (!hasEnoughBalance || userIsNotAllowedToPlay) && (
         <div className={styles.warningText}>
           Must have
           <Link
@@ -286,8 +296,8 @@ export function GameboardContainer({
         </div>
         <div style={{ position: 'relative' }}>
           <Gameboard
-            openLogIn={modal.show}
-            isUserLoggedIn={selector.isSignedIn()}
+            openLogIn={() => showSelectWalletModal(true)}
+            isUserLoggedIn={isUserLoggedIn}
             isAllowedResponse={isAllowedResponse!}
           />
         </div>
@@ -310,7 +320,7 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsFirstLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowUp')}
-                  isDisabled={!accountId || !timerStarted}
+                  isDisabled={!isUserLoggedIn || !timerStarted}
                 >
                   <ArrowUpIcon />
                 </Button>
@@ -318,19 +328,19 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsSecondLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowLeft')}
-                  isDisabled={!accountId || !timerStarted}
+                  isDisabled={!isUserLoggedIn || !timerStarted}
                 >
                   <ArrowBackIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowDown')}
-                  isDisabled={!accountId || !timerStarted}
+                  isDisabled={!isUserLoggedIn || !timerStarted}
                 >
                   <ArrowDownIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowRight')}
-                  isDisabled={!accountId || !timerStarted}
+                  isDisabled={!isUserLoggedIn || !timerStarted}
                 >
                   <ArrowForwardIcon />
                 </Button>
