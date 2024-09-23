@@ -34,12 +34,10 @@ export interface Config {
 export const getConfig = (): Config => {
   const network = process.env.NEXT_PUBLIC_NETWORK;
   const holonym = {
-    phoneIssuance:
-      'https://silksecure.net/holonym/diff-wallet/phone/issuance/prereqs',
+    phoneIssuance: 'https://silksecure.net/holonym/diff-wallet/phone',
     phoneSBT:
       'https://api.holonym.io/sybil-resistance/phone/near?action-id=123456789',
-    govIdIssuance:
-      'https://silksecure.net/holonym/diff-wallet/gov-id/issuance/prereqs',
+    govIdIssuance: 'https://silksecure.net/holonym/diff-wallet/gov-id',
     govIdSBT:
       'https://api.holonym.io/sybil-resistance/gov-id/near?action-id=123456789',
   };

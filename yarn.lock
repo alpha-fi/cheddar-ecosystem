@@ -1768,7 +1768,7 @@
     react "18.2.0"
     react-dom "18.2.0"
 
-"@near-wallet-selector/my-near-wallet@^8.9.12":
+"@near-wallet-selector/my-near-wallet@^8.9.3":
   version "8.9.12"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/my-near-wallet/-/my-near-wallet-8.9.12.tgz#c0d3394031f64649d176ab6bbc77631c49f71ada"
   integrity sha512-fBhKz+dHJ7KDnIGlRjwoGEViZBaYxmi8eIyfaWaZF/03FKRRldf60VHHNZyPaPMm5oLZW2xeC666XLtsIR7zBA==

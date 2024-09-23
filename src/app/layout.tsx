@@ -5,14 +5,10 @@ import './globals.css';
 import '../../public/assets/css/style.css';
 import '../../public/assets/css/near.css';
 import '@near-wallet-selector/modal-ui/styles.css';
-import { Box, ChakraProvider, Container, VStack } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletSelectorContextProvider } from '@/contexts/WalletSelectorContext';
-import { GameContextProvider } from '@/contexts/maze/GameContextProvider';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import Navbar from '@/components/Navbar/containers/Navbar';
-import { getCheddarBalance } from '@/contracts/cheddarCalls';
-import { SocialMedia } from '@/components/SocialMediaContainer';
 import { PageContainer } from '@/components/PageContainer';
 
 const inter = Inter({ subsets: ['latin'] });
