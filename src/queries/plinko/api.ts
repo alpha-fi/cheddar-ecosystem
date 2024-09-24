@@ -8,7 +8,7 @@ export interface EndGameRequest {
   };
   metadata: {
     blockchain: 'near' | 'base';
-    accountId: string;
+    accountId: string | `0x${string}`;
     seedId: number;
   };
 }

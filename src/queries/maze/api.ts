@@ -47,16 +47,15 @@ export async function getScoreBoard() {
   return jsonResponse as PlayerScoreData | Promise<any> | undefined;
 }
 
-
-export interface EndGameRequest   {
-    data: {
+export interface EndGameRequest {
+  data: {
     cheddarEarned: number;
     score: number;
     path: number[];
   };
   metadata: {
     blockchain: 'near' | 'base';
-    accountId: string | null;
+    accountId: string | `0x${string}` | null;
     seedId: number;
     referralAccount?: string;
   };
