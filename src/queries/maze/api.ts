@@ -47,32 +47,20 @@ export async function getScoreBoard() {
   return jsonResponse as PlayerScoreData | Promise<any> | undefined;
 }
 
-type BaseEndGameRequest = {
-  type: 'base'; // Discriminant property
-  data: {
-    cheddarEarned: number;
-    score: number;
-    path: number[];
-  };
-  metadata: {
-    address: `0x${string}`;
-  };
-};
 
-type NearEndGameRequest = {
-  type: 'near'; // Discriminant property
-  data: {
+export interface EndGameRequest   {
+    data: {
     cheddarEarned: number;
     score: number;
     path: number[];
   };
   metadata: {
+    blockchain: 'near' | 'base';
     accountId: string | null;
     seedId: number;
+    referralAccount?: string;
   };
-};
-
-export type EndGameRequest = BaseEndGameRequest | NearEndGameRequest;
+}
 
 export async function callEndGame(endGameData: EndGameRequest) {
   const url = new URL(`api/maze/endGame`, backendBaseUrl).toString();

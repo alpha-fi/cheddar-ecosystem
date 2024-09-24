@@ -807,31 +807,18 @@ export const GameContextProvider = ({ children }: props) => {
       cheddarFound <= pendingCheddarToMint
         ? cheddarFound
         : pendingCheddarToMint;
-
-    const endGameRequestData: EndGameRequest = address
-      ? {
-          type: 'base',
-          data: {
-            cheddarEarned: won ? cheddarToEarn : 0,
-            score,
-            path: [],
-          },
-          metadata: {
-            address: address as `0x${string}`,
-          },
-        }
-      : {
-          type: 'near',
-          data: {
-            cheddarEarned: won ? cheddarToEarn : 0,
-            score,
-            path: [],
-          },
-          metadata: {
-            accountId: accountId,
-            seedId: seedId,
-          },
-        };
+    const endGameRequestData: EndGameRequest = {
+      data: {
+        cheddarEarned: won ? cheddarToEarn : 0,
+        score,
+        path: [],
+      },
+      metadata: {
+        blockchain: address ? 'base' : 'near',
+        accountId: address || accountId,
+        seedId,
+      },
+    };
 
     setHasWon(won);
     setCoveredCells([]);
