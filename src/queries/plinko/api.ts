@@ -7,6 +7,7 @@ export interface EndGameRequest {
     prizeEarned: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
   };
   metadata: {
+    blockchain: 'near' | 'base';
     accountId: string;
     seedId: number;
   };
