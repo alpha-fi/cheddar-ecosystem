@@ -76,6 +76,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
   const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
   const [prize, setPrize] = useState<number>();
+  const [lastPizeWon, setLastPrizeWon] = useState(0);
   const [prizeNames, setPrizeNames] = useState<
     ('giga' | 'mega' | 'micro' | 'nano' | 'splat')[]
   >([]);
@@ -188,6 +189,8 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
           return ball?.position.x < separator.position.x;
         });
 
+        ballSeparatorIndexArray.push(index);
+
         if (ball.position.y > clientHeight) {
           setBallFinishLines((prevState) => [
             ...prevState,
@@ -204,13 +207,18 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
   useEffect(() => {
     let finalPrize = 0;
-    ballFinishLines.forEach((finishGoal) => {
+    ballFinishLines.forEach((finishGoal, index) => {
       const cheddarEarnedData = PRIZES_DATA.find((prizeData) => {
         return prizeData.name === GOALS[finishGoal - 1];
       }) as CheddarEarnedData;
 
       if (cheddarEarnedData) {
         const cheddarEarned = cheddarEarnedData?.cheddar;
+
+        if (ballFinishLines.length === index + 1) {
+          setLastPrizeWon(cheddarEarned);
+        }
+
         const cheddarPrizeName = cheddarEarnedData?.name;
 
         setPrizeNames((prevState) => [...prevState, cheddarPrizeName]);
@@ -220,7 +228,9 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     });
 
     if (ballFinishLines.length > 0) {
-      finalPrize = Math.min(pendingCheddarToMint, finalPrize);
+      finalPrize = pendingCheddarToMint
+        ? Math.min(pendingCheddarToMint, finalPrize)
+        : finalPrize;
       setPrize(finalPrize);
     }
   }, [ballFinishLines]);
@@ -365,7 +375,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     if (preview) {
       removeBody(preview);
     }
-    if (allBalls.length + ballFinishLines.length < getUserBallsLeft()) {
+    if (0 < getUserBallsLeft()) {
       const currentXPosition = currentXPreview!;
 
       drawNewBall(currentXPosition);
@@ -583,11 +593,22 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
 
       <div className={styles.displayablePrizeContainer}>
-        <span
+        <div
           className={`${styles.displayablePrize} ${showPrize ? styles.show : styles.hide}`}
         >
-          +{prize} {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
-        </span>
+          {!isMinigame && (
+            <>
+              <p>
+                +{lastPizeWon}{' '}
+                {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
+              </p>
+            </>
+          )}
+          <span>
+            {!isMinigame && 'Total '}
+            {prize} {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
+          </span>
+        </div>
       </div>
       {saveResponse && (
         <ModalContainer

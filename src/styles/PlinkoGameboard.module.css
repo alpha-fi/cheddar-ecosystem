@@ -36,6 +36,11 @@
 }
 
 .displayablePrize {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
   color: #ecc94b;
   font-size: 2rem;
   font-weight: bold;
