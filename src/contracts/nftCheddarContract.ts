@@ -28,7 +28,7 @@ export class NFTCheddarContract {
 
   constructor(wallet: Wallet) {
     this.wallet = wallet;
-    const { cheddarNft } = getConfig().contracts;
+    const { cheddarNft } = getConfig().contracts.near;
     this.contractId = cheddarNft;
   }
 
@@ -39,7 +39,7 @@ export class NFTCheddarContract {
   }
 
   async buyNFT(withCheddar: boolean): Promise<any> {
-    const tokenCheddarContractId = getConfig().contracts.cheddarToken;
+    const tokenCheddarContractId = getConfig().contracts.near.cheddarToken;
     if (withCheddar) {
       return this.wallet.signAndSendTransactions({
         transactions: [

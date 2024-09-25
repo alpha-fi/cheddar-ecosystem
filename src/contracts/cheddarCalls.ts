@@ -4,7 +4,7 @@ import { Metadata } from './CheddarToken';
 import { NFT } from './nftCheddarContract';
 import { Wallet } from '@near-wallet-selector/core';
 
-const { cheddarToken, cheddarNft } = getConfig().contracts;
+const { cheddarToken, cheddarNft } = getConfig().contracts.near;
 
 const tokenViewMethods = {
   ftBalanceOf: 'ft_balance_of',
@@ -46,7 +46,7 @@ export const buyNFT = async (
   withCheddar: boolean,
   amount: string
 ): Promise<any> => {
-  const tokenCheddarContractId = getConfig().contracts.cheddarToken;
+  const tokenCheddarContractId = getConfig().contracts.near.cheddarToken;
   if (withCheddar) {
     return wallet.signAndSendTransactions({
       transactions: [

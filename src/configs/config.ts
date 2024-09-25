@@ -11,11 +11,16 @@ export interface Config {
     indexerUrl: string;
   };
   contracts: {
-    cheddarNft: string;
-    cheddarToken: string;
-    nearSocial: string;
-    checkers: string;
-    nekoToken: string;
+    near: {
+      cheddarNft: string;
+      cheddarToken: string;
+      nearSocial: string;
+      checkers: string;
+      nekoToken: string;
+    };
+    base: {
+      cheddarToken: string;
+    };
   };
   socialKeys: {
     ecosystem: string;
@@ -43,11 +48,16 @@ export const getConfig = (): Config => {
             'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
         },
         contracts: {
-          cheddarNft: 'nft.cheddar.near',
-          cheddarToken: 'token.cheddar.near',
-          nearSocial: 'social.near',
-          checkers: 'checkers.cheddar.near',
-          nekoToken: 'ftv2.nekotoken.near',
+          near: {
+            cheddarNft: 'nft.cheddar.near',
+            cheddarToken: 'token.cheddar.near',
+            nearSocial: 'social.near',
+            checkers: 'checkers.cheddar.near',
+            nekoToken: 'ftv2.nekotoken.near',
+          },
+          base: {
+            cheddarToken: '0x0000000000000000000000000000000000000000',
+          },
         },
         socialKeys: {
           ecosystem: 'cheddarEcosystem',
@@ -71,11 +81,16 @@ export const getConfig = (): Config => {
             'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
         },
         contracts: {
-          cheddarNft: 'nft.cheddar.testnet',
-          cheddarToken: 'token-v3.cheddar.testnet',
-          nearSocial: 'v1.social08.testnet',
-          checkers: 'checkers.cheddar.testnet',
-          nekoToken: '',
+          near: {
+            cheddarNft: 'nft.cheddar.testnet',
+            cheddarToken: 'token-v3.cheddar.testnet',
+            nearSocial: 'v1.social08.testnet',
+            checkers: 'checkers.cheddar.testnet',
+            nekoToken: '',
+          },
+          base: {
+            cheddarToken: '0x221659fcCb17E731b79e0fAb7b3128453360E6E4',
+          },
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
@@ -99,11 +114,16 @@ export const getConfig = (): Config => {
             'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
         },
         contracts: {
-          cheddarNft: 'nft.cheddar.testnet',
-          cheddarToken: 'token-v3.cheddar.testnet',
-          nearSocial: 'v1.social08.testnet',
-          checkers: 'checkers.cheddar.testnet',
-          nekoToken: '',
+          near: {
+            cheddarNft: 'nft.cheddar.testnet',
+            cheddarToken: 'token-v3.cheddar.testnet',
+            nearSocial: 'v1.social08.testnet',
+            checkers: 'checkers.cheddar.testnet',
+            nekoToken: '',
+          },
+          base: {
+            cheddarToken: '0x221659fcCb17E731b79e0fAb7b3128453360E6E4',
+          },
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',

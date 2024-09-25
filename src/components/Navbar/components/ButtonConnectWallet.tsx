@@ -47,6 +47,7 @@ export function ButtonConnectWallet({ handleButtonCLick, text }: Props) {
       handleOnClick();
     }
     if (address && walletSelector.accountId) {
+      console.log('disconnect base');
       disconnectBase();
     }
   }, [isSuccess, walletSelector]);

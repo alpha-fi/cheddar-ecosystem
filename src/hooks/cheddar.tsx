@@ -7,6 +7,10 @@ import {
   getTotalSupply,
 } from '@/contracts/cheddarCalls';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
+import { getConfig } from '@/configs/config';
+import { wagmiConfig } from '@/configs/wagmi';
+import { useAccount, useReadContract } from 'wagmi';
+import contractAbi from '@/constants/contract/abi.json';
 
 export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
   const { accountId } = useWalletSelector();
@@ -56,5 +60,18 @@ export const useGetCheddarNFTPrice = (
     queryFn: () => getCheddarNFTBuyPrice(withCheddar),
     refetchInterval: 10000,
     staleTime: 10000,
+  });
+};
+
+export const useGetCheddarBaseBalance = () => {
+  const { address } = useAccount();
+  return useReadContract({
+    address: getConfig().contracts.base.cheddarToken as `0x${string}`,
+    abi: contractAbi,
+    functionName: 'balanceOf',
+    args: [address],
+    config: wagmiConfig,
+    blockTag: 'latest',
+    scopeKey: 'baseBalance',
   });
 };

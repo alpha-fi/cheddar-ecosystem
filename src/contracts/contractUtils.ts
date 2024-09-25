@@ -80,8 +80,8 @@ export function yton(
   token_decimals: number = 24,
   decimals: number = 5
 ) {
-  yoctos = yoctos.toString();
   if (!yoctos) return 0;
+  yoctos = yoctos.toString();
   if (yoctos.indexOf('.') !== -1)
     throw new Error("a yocto string can't have a decimal point: " + yoctos);
   let negative = false;

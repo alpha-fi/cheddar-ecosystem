@@ -4,10 +4,13 @@ import { GameboardContainer } from './GameboardContainer';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ntoy, yton } from '@/contracts/contractUtils';
-import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
+import {
+  useGetCheddarBalance,
+  useGetCheddarMetadata,
+  useGetCheddarBaseBalance,
+} from '@/hooks/cheddar';
 import { useGetIsAllowedResponse } from '@/hooks/maze';
 import ModalWelcome from '../ModalWelcome';
-import { useGetCheddarBaseBalance } from '@/hooks/cheddarBase';
 import { useAccount } from 'wagmi';
 
 export default function MazeContainer() {
@@ -57,8 +60,9 @@ export default function MazeContainer() {
   useEffect(() => {
     function doesUserHaveEnoughBalance() {
       if (address) {
-        if (!cheddarBaseBalanceData) return false;
-        return minCheddarRequired <= (cheddarBaseBalanceData as bigint);
+        // if (!cheddarBaseBalanceData) return false;
+        // return minCheddarRequired <= (cheddarBaseBalanceData as bigint);
+        return true;
       } else if (!cheddarBalanceData) return false;
 
       return minCheddarRequired <= cheddarBalanceData!;

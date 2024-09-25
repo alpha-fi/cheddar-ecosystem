@@ -18,16 +18,19 @@ import {
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useAccount, useConnect } from 'wagmi';
 import { coinbaseWallet } from 'wagmi/connectors';
-import { useGetCheddarBaseBalance } from '@/hooks/cheddarBase';
 import { yton } from '@/contracts/contractUtils';
+import { useGetCheddarBaseBalance } from '@/hooks/cheddar';
 type Props = {
   handleCloseModal?: () => void;
 };
 export function OnchainKitWallet({ handleCloseModal }: Props) {
   const { address } = useAccount();
   const { connect } = useConnect();
-  const { data: cheddarBaseBalance, isLoading } = useGetCheddarBaseBalance();
-
+  const {
+    data: cheddarBaseBalance,
+    isLoading,
+    error,
+  } = useGetCheddarBaseBalance();
   return (
     <div className="flex justify-end">
       {address ? (
@@ -47,7 +50,7 @@ export function OnchainKitWallet({ handleCloseModal }: Props) {
               {isLoading ? (
                 <Spinner size="sm" />
               ) : (
-                yton(`${cheddarBaseBalance}`)
+                yton(`${cheddarBaseBalance}`, 18)
               )}
             </Text>
             <RenderCheddarIcon />
