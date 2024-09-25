@@ -23,6 +23,7 @@ import { yton } from '@/contracts/contractUtils';
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
 import { MintNFTLastResult } from '@/entities/interfaces';
 import { getConfig } from '@/configs/config';
+import { useAccount } from 'wagmi';
 
 interface Props {
   onClose: () => void;
@@ -31,6 +32,7 @@ interface Props {
 
 export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
   const { nftImageBaseUrl } = getConfig().networkData;
+  const { address } = useAccount();
   const [nftId, setNftId] = useState('');
   const [showNftImage, setShowNftImage] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +56,7 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
       color: 'yellow',
     },
     {
-      name: 'Near',
+      name: address ? 'Base' : 'Near',
       price: isNftPriceInNearLoading ? 'Loading' : yton(cheddarNftPriceInNear!),
       icon: <RenderNearIcon className={styles.tokenIcon} />,
       color: 'grey',
@@ -77,18 +79,22 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
   async function handleBuy() {
     try {
       setIsLoading(true);
-      const wallet = await selector.wallet();
-      const withCheddar = tokenToPayWith === 'Cheddar';
-      const amount = withCheddar
-        ? cheddarNftPriceInCheddar
-        : cheddarNftPriceInNear;
-      const resp = await buyNFT(wallet, withCheddar, amount!);
-      const genericLastResult = await getTransactionLastResult(resp);
-      const lastResult: MintNFTLastResult = withCheddar
-        ? genericLastResult[1]
-        : genericLastResult;
-      if (lastResult.token_id) {
-        setNftId(lastResult.token_id);
+      if (address) {
+        // for now if it is base it will mint with base
+      } else {
+        const wallet = await selector.wallet();
+        const withCheddar = tokenToPayWith === 'Cheddar';
+        const amount = withCheddar
+          ? cheddarNftPriceInCheddar
+          : cheddarNftPriceInNear;
+        const resp = await buyNFT(wallet, withCheddar, amount!);
+        const genericLastResult = await getTransactionLastResult(resp);
+        const lastResult: MintNFTLastResult = withCheddar
+          ? genericLastResult[1]
+          : genericLastResult;
+        if (lastResult.token_id) {
+          setNftId(lastResult.token_id);
+        }
       }
       toast({
         title: 'Enjoy your purchase!',

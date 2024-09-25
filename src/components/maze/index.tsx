@@ -26,12 +26,16 @@ export default function MazeContainer() {
   } = useContext(GameContext);
 
   const { selector, accountId } = useWalletSelector();
-  const {address } = useAccount()
+  const { address } = useAccount();
 
   const { data: cheddarMetadata, isLoading: isLoadingCheddarMetadata } =
     useGetCheddarMetadata();
   const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
     useGetCheddarBalance();
+  const {
+    data: cheddarBaseBalanceData,
+    isLoading: isLoadingCheddarBaseBalance,
+  } = useGetCheddarBaseBalance();
   const { data: isAllowedResponse, isLoading: isLoadingIsAllowed } =
     useGetIsAllowedResponse();
 
@@ -52,16 +56,23 @@ export default function MazeContainer() {
 
   useEffect(() => {
     function doesUserHaveEnoughBalance() {
-      if(address) {
-        return true
-      }
-      else if (!cheddarBalanceData) return false;
+      if (address) {
+        if (!cheddarBaseBalanceData) return false;
+        return minCheddarRequired <= (cheddarBaseBalanceData as bigint);
+      } else if (!cheddarBalanceData) return false;
 
       return minCheddarRequired <= cheddarBalanceData!;
     }
 
     setHasEnoughBalance(doesUserHaveEnoughBalance());
-  }, [cheddarBalanceData, accountId, selector, isAllowedResponse, address]);
+  }, [
+    cheddarBalanceData,
+    cheddarBaseBalanceData,
+    accountId,
+    selector,
+    isAllowedResponse,
+    address,
+  ]);
 
   function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);
