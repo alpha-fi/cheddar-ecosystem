@@ -47,6 +47,7 @@ export async function getScoreBoard() {
   return jsonResponse as PlayerScoreData | Promise<any> | undefined;
 }
 
+export type BlockchainType = 'base' | 'near';
 export interface EndGameRequest {
   data: {
     cheddarEarned: number;
@@ -54,7 +55,7 @@ export interface EndGameRequest {
     path: number[];
   };
   metadata: {
-    blockchain: 'near' | 'base';
+    blockchain: BlockchainType;
     accountId: string | `0x${string}` | null;
     seedId: number;
     referralAccount?: string;
