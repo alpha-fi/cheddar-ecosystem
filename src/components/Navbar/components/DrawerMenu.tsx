@@ -88,6 +88,11 @@ export function DrawerMenu({
                   Checkers
                 </Text>
               </Link>
+              <Link href={'/plinko'} style={{ textDecorationColor: 'purple' }}>
+                <Text fontSize={'16px'} fontWeight="600" color="purple">
+                  Plinko
+                </Text>
+              </Link>
             </VStack>
           </DrawerBody>
 
