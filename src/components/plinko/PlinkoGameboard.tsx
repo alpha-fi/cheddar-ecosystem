@@ -192,12 +192,35 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
         ballSeparatorIndexArray.push(index);
 
         if (ball.position.y > clientHeight) {
-          setBallFinishLines((prevState) => [
-            ...prevState,
-            ...ballSeparatorIndexArray,
-          ]);
+          if (isMinigame) {
+            setBallFinishLines((prevState) => [
+              ...prevState,
+              ...ballSeparatorIndexArray,
+            ]);
+          }
 
-          if (!isMinigame) callBallPlayed(accountId!, GOALS[index - 1]);
+          if (!isMinigame) {
+            callBallPlayed(accountId!, GOALS[index - 1]).then((res) => {
+              if (res.ok) {
+                setBallFinishLines((prevState) => [
+                  ...prevState,
+                  ...ballSeparatorIndexArray,
+                ]);
+              } else {
+                setThrownBallsQuantity((prevState) => prevState - 1);
+
+                res.errors.forEach((err: string) => {
+                  toast({
+                    title: err,
+                    status: 'error',
+                    duration: 9000,
+                    position: 'bottom-right',
+                    isClosable: true,
+                  });
+                });
+              }
+            });
+          }
 
           removeBody(ball);
         }
@@ -379,7 +402,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
       const currentXPosition = currentXPreview!;
 
       drawNewBall(currentXPosition);
-      setThrownBallsQuantity(thrownBallsQuantity + 1);
+      setThrownBallsQuantity((prevState) => prevState + 1);
       setResetQuery(true);
     }
   }
@@ -598,7 +621,6 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
         >
           {!isMinigame && (
             <>
-              {/*  */}
               <p>
                 +{lastPizeWon}{' '}
                 {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
