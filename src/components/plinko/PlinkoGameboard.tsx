@@ -598,6 +598,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
         >
           {!isMinigame && (
             <>
+              {/*  */}
               <p>
                 +{lastPizeWon}{' '}
                 {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
