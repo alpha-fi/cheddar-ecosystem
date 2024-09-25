@@ -29,11 +29,12 @@ import {
   GOALS_OPTIONS,
   GOALS_TIPS_OPTIONS,
 } from '@/constants/plinko';
-import { callEndGame } from '@/queries/plinko/api';
+import { callEndGame, EndGameRequest } from '@/queries/plinko/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { createLetter } from './RenderLetterInWorld';
 import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
+import { useAccount } from 'wagmi';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -43,6 +44,7 @@ interface CheddarEarnedData {
 export function PlinkoBoard() {
   const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
     React.useContext(GameContext);
+  const { address } = useAccount();
 
   const { accountId, selector } = useWalletSelector();
 
@@ -193,12 +195,13 @@ export function PlinkoBoard() {
 
   async function finishGame() {
     if (prizeNames[0]) {
-      const endGameRequestData = {
+      const endGameRequestData: EndGameRequest = {
         data: {
           prizeEarned: prizeNames[0],
         },
         metadata: {
-          accountId: accountId!,
+          blockchain: address ? 'base' : 'near',
+          accountId: address || accountId!,
           seedId,
         },
       };
