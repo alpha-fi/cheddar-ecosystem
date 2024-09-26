@@ -1,6 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Button,
+  Img,
   Menu,
   MenuButton,
   MenuItem,
@@ -15,12 +16,16 @@ import Link from 'next/link';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { smartTrim } from '@/utilities/exportableFunctions';
 import { useGetCheddarBalance } from '@/hooks/cheddar';
+import { useContext } from 'react';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
 
 export function ButtonConnectWallet() {
   const walletSelector = useWalletSelector();
   const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
     useGetCheddarBalance();
 
+  const { isUserNadabotVerfied, isUserHolonymVerified } =
+    useContext(GameContext);
   const handleOnClick = async () => {
     if (
       walletSelector.selector.isSignedIn() &&
@@ -62,7 +67,15 @@ export function ButtonConnectWallet() {
             borderRadius="full"
             bg="yellowCheddar"
           >
-            <MenuItem>
+            <MenuItem display="flex" gap={1}>
+              <Img
+                style={{ height: 20 }}
+                src={
+                  isUserNadabotVerfied || isUserHolonymVerified
+                    ? 'https://ipfs.near.social/ipfs/bafkreigxe4ludhipu2j46jt57iuyufkbnwkuhjixocguwjdcktfsxekghu'
+                    : 'https://ipfs.near.social/ipfs/bafkreieq4222tf3hkbccfnbw5kpgedm3bf2zcfgzbnmismxav2phqdwd7q'
+                }
+              />
               <Link
                 href={`https://nearblocks.io/address/${walletSelector.accountId}`}
                 target="_blank"

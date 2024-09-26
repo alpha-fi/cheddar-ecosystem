@@ -17,7 +17,11 @@ export interface IsAllowedResponse {
 
 export interface ScoreboardResponse {
   ok: boolean;
-  scoreboard: PlayerScoreData[];
+  scoreboard: {
+    daily: PlayerScoreData[];
+    weekly: PlayerScoreData[];
+    allTime: PlayerScoreData[];
+  };
 }
 
 export const useGetIsAllowedResponse =

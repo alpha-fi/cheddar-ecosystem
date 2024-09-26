@@ -122,7 +122,7 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
       )}
       {cheddarFound > 0 && !hasWon && (
         <p className={styles.loseEarnings}>
-          {remainingMinutes === 0 ? (
+          {remainingMinutes === 0 && remainingSeconds === 0 ? (
             <span>
               Oops you ran out of time and lost your {cheddarFound} 🧀.{' '}
             </span>
