@@ -117,7 +117,7 @@ export function GameboardContainer({
   function getProperHandler(handler: any) {
     //Uncomment the next line to ignore the isAllowedResponse.ok returning false
     // return handler;
-    if (isAllowedResponse?.ok) {
+    if (address || isAllowedResponse?.ok) {
       return handler;
     }
     return onOpenNotAlloWedModal;
@@ -129,9 +129,7 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return isUserLoggedIn
-      ? onOpenBuyNFTPanel()
-      : showSelectWalletModal(true);
+    return isUserLoggedIn ? onOpenBuyNFTPanel() : showSelectWalletModal(true);
   }
 
   function logOut() {
@@ -147,7 +145,6 @@ export function GameboardContainer({
     if (!isUserLoggedIn) {
       return showSelectWalletModal(true); // If no account, show wallet modal
     }
-    
     return hasEnoughBalance
       ? getProperHandler(focusMazeAndStartGame)
       : () => {}; // If not enough balance, do nothing
@@ -232,28 +229,29 @@ export function GameboardContainer({
       }}
     >
       <div className={styles.publicityDecoration}></div>
-      {(accountId || address) && (!hasEnoughBalance || userIsNotAllowedToPlay) && (
-        <div className={styles.warningText}>
-          Must have
-          <Link
-            target="_blank"
-            className={styles.notEnoughBalanceMsg}
-            href="https://app.ref.finance/#a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near%7Ctoken.cheddar.near"
-          >
-            {minCheddarRequired}
-            {RenderCheddarIcon({ width: '2rem' })}
-          </Link>
-          and
-          <Link
-            target="_blank"
-            className={styles.notEnoughBalanceMsg}
-            href="https://app.nada.bot/"
-          >
-            Verified Human
-          </Link>
-          to play.
-        </div>
-      )}
+      {(accountId || address) &&
+        (!hasEnoughBalance || userIsNotAllowedToPlay) && (
+          <div className={styles.warningText}>
+            Must have
+            <Link
+              target="_blank"
+              className={styles.notEnoughBalanceMsg}
+              href="https://app.ref.finance/#a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near%7Ctoken.cheddar.near"
+            >
+              {minCheddarRequired}
+              {RenderCheddarIcon({ width: '2rem' })}
+            </Link>
+            and
+            <Link
+              target="_blank"
+              className={styles.notEnoughBalanceMsg}
+              href="https://app.nada.bot/"
+            >
+              Verified Human
+            </Link>
+            to play.
+          </div>
+        )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
       <div className={styles.gameInfo}>
         <div className={styles.score}>Score: {score}</div>

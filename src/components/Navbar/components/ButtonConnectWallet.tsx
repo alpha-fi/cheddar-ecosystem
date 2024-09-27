@@ -16,7 +16,7 @@ import { smartTrim } from '@/utilities/exportableFunctions';
 import { useGetCheddarBalance } from '@/hooks/cheddar';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { coinbaseWallet } from 'wagmi/connectors';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 type Props = {
   handleButtonCLick?: () => void;
@@ -25,8 +25,9 @@ type Props = {
 
 export function ButtonConnectWallet({ handleButtonCLick, text }: Props) {
   const walletSelector = useWalletSelector();
-  const { connect, isSuccess } = useConnect();
+  const { connect } = useConnect();
   const { address } = useAccount();
+  const [baseConnect, setBaseConnect] = useState(false);
   const { disconnect: disconnectBase } = useDisconnect();
 
   const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
@@ -40,29 +41,26 @@ export function ButtonConnectWallet({ handleButtonCLick, text }: Props) {
       const wallet = await walletSelector.selector.wallet();
       wallet.signOut();
     } else {
+      setBaseConnect(true);
       walletSelector.modal.show();
     }
   };
 
   useEffect(() => {
     const handleLogin = async () => {
-      if (address) {
-        console.log('Base Wallet Connected:', isSuccess);
-        await handleOnClick(); // Attempt to log in to NEAR
-      } else {
-        console.log('NEAR Wallet Connected, Disconnecting Base');
+      if (!address) {
         disconnectBase(); // Disconnect from Base only if NEAR is logged in
       }
     };
 
     handleLogin();
-  }, [isSuccess, walletSelector, address, disconnectBase]);
+  }, [address, disconnectBase]);
 
-  const handleSwitchToBase = () => {
-    // Ensure this is triggered directly by user interaction
-    connect({ connector: coinbaseWallet() });
-  };
-
+  useEffect(() => {
+    if (baseConnect && !walletSelector.selector.isSignedIn()) {
+      console.log('calling base');
+    }
+  }, [walletSelector, baseConnect]);
   return (
     <>
       {walletSelector.selector.isSignedIn() ? (
@@ -102,7 +100,7 @@ export function ButtonConnectWallet({ handleButtonCLick, text }: Props) {
               </Link>
             </MenuItem>
             {/* Trigger switch to Base with user interaction */}
-            <MenuItem onClick={handleSwitchToBase}>Switch to Base</MenuItem>
+            <MenuItem onClick={handleOnClick}>Switch to Base</MenuItem>
             <MenuItem onClick={handleOnClick}>Log out</MenuItem>
           </MenuList>
         </Menu>

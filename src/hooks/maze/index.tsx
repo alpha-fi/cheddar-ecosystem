@@ -1,4 +1,6 @@
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
+import { getConfig } from '@/configs/config';
+import { wagmiConfig } from '@/configs/wagmi';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import {
   isAllowed as isAllowedResponse,
@@ -6,7 +8,9 @@ import {
   getPendingCheddarToMint,
   getScoreBoard,
 } from '@/queries/maze/api';
+import contractAbi from '@/constants/contract/abi.json';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
+import { useAccount, useReadContract } from 'wagmi';
 
 export interface IsAllowedResponse {
   ok: boolean;
@@ -21,10 +25,17 @@ export interface ScoreboardResponse {
 export const useGetIsAllowedResponse =
   (): UseQueryResult<null | IsAllowedResponse> => {
     const { accountId } = useWalletSelector();
+    const { address } = useAccount();
 
     return useQuery({
-      queryKey: ['useGetIsAllowed', accountId],
-      queryFn: () => (accountId ? isAllowedResponse(accountId) : null),
+      queryKey: ['useGetIsAllowed', accountId || address],
+      queryFn: () =>
+        accountId
+          ? isAllowedResponse(
+              accountId || (address as string),
+              address ? 'base' : 'near'
+            )
+          : null,
       refetchInterval: 10000,
       staleTime: 10000,
     });
@@ -42,11 +53,29 @@ export const useGetScoreboard =
 
 export const useGetPendingCheddarToMint = (): UseQueryResult<number> => {
   const { accountId } = useWalletSelector();
-
+  const { address } = useAccount();
+  const account = accountId || (address as string);
   return useQuery({
-    queryKey: ['useGetPendingCheddarToMint', accountId],
-    queryFn: () => (accountId ? getPendingCheddarToMint(accountId) : null),
+    queryKey: ['useGetPendingCheddarToMint', account],
+    queryFn: () =>
+      account
+        ? getPendingCheddarToMint(account, address ? 'base' : 'near')
+        : null,
     refetchInterval: 10000,
     staleTime: 10000,
+  });
+};
+
+export const useGetPendingBaseCheddarToMint = () => {
+  const { address } = useAccount();
+
+  return useReadContract({
+    address: getConfig().contracts.base.cheddarToken as `0x${string}`,
+    abi: contractAbi,
+    functionName: 'dailyQuota',
+    args: [address],
+    config: wagmiConfig,
+    blockTag: 'latest',
+    scopeKey: 'useGetPendingBaseCheddarToMint',
   });
 };

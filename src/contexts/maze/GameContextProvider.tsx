@@ -19,6 +19,7 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
   ScoreboardResponse,
+  useGetPendingBaseCheddarToMint,
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
@@ -309,7 +310,7 @@ export const GameContextProvider = ({ children }: props) => {
     isLoading: isLoadingPendingCheddarToMint,
     refetch: refetchPendingCheddarToMint,
   } = useGetPendingCheddarToMint();
-
+  const { data: pendingBaseCheddarToMint } = useGetPendingBaseCheddarToMint();
   useEffect(() => {
     function getPathLength() {
       let countPath = 0;
@@ -375,11 +376,15 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to restart the game
   async function restartGame() {
-    if (!accountId) {
+    if (!accountId && !address) {
       return;
     }
 
-    const newSeedIdResponse = await getSeedId(accountId);
+    const newSeedIdResponse = await getSeedId(
+      accountId || (address as string),
+      address ? 'base' : 'near'
+    );
+    console.log(address);
     await refetchPendingCheddarToMint();
     setSeedId(newSeedIdResponse.seedId);
 
@@ -807,6 +812,7 @@ export const GameContextProvider = ({ children }: props) => {
       cheddarFound <= pendingCheddarToMint
         ? cheddarFound
         : pendingCheddarToMint;
+    console.log(cheddarToEarn);
     const endGameRequestData: EndGameRequest = {
       data: {
         cheddarEarned: won ? cheddarToEarn : 0,
@@ -827,6 +833,7 @@ export const GameContextProvider = ({ children }: props) => {
     stopTimer();
     setHasFoundPlinko(false);
 
+    console.log(endGameRequestData);
     const endGameResponse = await callEndGame(endGameRequestData);
     setEndGameResponse(endGameResponse);
     if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);

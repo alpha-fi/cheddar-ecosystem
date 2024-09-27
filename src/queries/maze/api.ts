@@ -3,19 +3,23 @@ import { getConfig } from '@/configs/config';
 
 const { backendBaseUrl } = getConfig();
 
-export async function isAllowed(accountId: string) {
+export async function isAllowed(accountId: string, blockchain: BlockchainType) {
   const url = new URL(
-    `api/maze/isAllowed?accountId=${accountId}`,
+    `api/maze/isAllowed?accountId=${accountId}&blockchain=${blockchain}`,
     backendBaseUrl
   ).toString();
+  console.log(url);
   const response = await fetch(url);
   const jsonResponse = await response.json();
   return jsonResponse;
 }
 
-export async function getPendingCheddarToMint(accountId: string) {
+export async function getPendingCheddarToMint(
+  accountId: string,
+  blockchain: BlockchainType
+) {
   const url = new URL(
-    `api/maze/pendingCheddar?accountId=${accountId}`,
+    `api/maze/pendingCheddar?accountId=${accountId}&blockchain=${blockchain}`,
     backendBaseUrl
   ).toString();
   const response = await fetch(url);
@@ -23,9 +27,10 @@ export async function getPendingCheddarToMint(accountId: string) {
   return jsonResponse.ok ? jsonResponse.pendingCheddarToMint : 0;
 }
 
-export async function getSeedId(accountId: string) {
+export async function getSeedId(accountId: string, blockchain: BlockchainType) {
   const data = {
     accountId,
+    blockchain,
   };
   const url = new URL(`api/maze/getSeedId`, backendBaseUrl).toString();
 
