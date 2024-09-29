@@ -65,17 +65,3 @@ export const useGetPendingCheddarToMint = (): UseQueryResult<number> => {
     staleTime: 10000,
   });
 };
-
-export const useGetPendingBaseCheddarToMint = () => {
-  const { address } = useAccount();
-
-  return useReadContract({
-    address: getConfig().contracts.base.cheddarToken as `0x${string}`,
-    abi: contractAbi,
-    functionName: 'dailyQuota',
-    args: [address],
-    config: wagmiConfig,
-    blockTag: 'latest',
-    scopeKey: 'useGetPendingBaseCheddarToMint',
-  });
-};

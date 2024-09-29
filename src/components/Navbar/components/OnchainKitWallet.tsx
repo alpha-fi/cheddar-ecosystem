@@ -50,7 +50,7 @@ export function OnchainKitWallet({ handleCloseModal }: Props) {
               {isLoading ? (
                 <Spinner size="sm" />
               ) : (
-                yton(`${cheddarBaseBalance}`, 18)
+                yton(`${cheddarBaseBalance}`)
               )}
             </Text>
             <RenderCheddarIcon />

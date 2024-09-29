@@ -8,7 +8,6 @@ export async function isAllowed(accountId: string, blockchain: BlockchainType) {
     `api/maze/isAllowed?accountId=${accountId}&blockchain=${blockchain}`,
     backendBaseUrl
   ).toString();
-  console.log(url);
   const response = await fetch(url);
   const jsonResponse = await response.json();
   return jsonResponse;
