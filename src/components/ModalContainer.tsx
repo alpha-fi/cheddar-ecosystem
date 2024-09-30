@@ -36,6 +36,7 @@ interface ModContainerProps extends ModalContentProps {
   footerText?: string;
   actionButtonProps?: ModalActionButtonProps | undefined;
   hasCancelButton?: boolean;
+  showCloseBtn?: boolean;
   hideButtons?: boolean;
   closeOnOverlayClick?: boolean;
   neverCloseOnOverlayClick?: boolean;
@@ -50,6 +51,7 @@ export const ModalContainer = ({
   children,
   actionButtonProps,
   hasCancelButton,
+  showCloseBtn = true,
   hideButtons = false,
   closeOnOverlayClick: closeOnOverlayClickProp = true,
   neverCloseOnOverlayClick = false,
@@ -88,7 +90,7 @@ export const ModalContainer = ({
         {...props}
       >
         <ModalHeader fontSize={'28px'}>{title}</ModalHeader>
-        <ModalCloseButton />
+        {showCloseBtn && <ModalCloseButton />}
         <ModalBody>
           {children}
           <Spacer h="32px" />

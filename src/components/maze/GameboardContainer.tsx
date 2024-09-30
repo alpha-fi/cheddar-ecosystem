@@ -557,6 +557,8 @@ export function GameboardContainer({
         onClose={closePlinkoModal}
         size={isMobile ? 'full' : 'xl'}
         neverCloseOnOverlayClick={true}
+        hideButtons={true}
+        showCloseBtn={false}
       >
         <PlinkoBoard />
       </ModalContainer>
