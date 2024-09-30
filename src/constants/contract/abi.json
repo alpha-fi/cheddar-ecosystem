@@ -1,129 +1,69 @@
 [
   {
     "inputs": [
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "_minter",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_userQuota",
-        "type": "uint256"
-      }
+      { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "address", "name": "_minter", "type": "address" },
+      { "internalType": "uint256", "name": "_userQuota", "type": "uint256" }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "allowance",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "needed",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "spender", "type": "address" },
+      { "internalType": "uint256", "name": "allowance", "type": "uint256" },
+      { "internalType": "uint256", "name": "needed", "type": "uint256" }
     ],
     "name": "ERC20InsufficientAllowance",
     "type": "error"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "balance",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "needed",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "sender", "type": "address" },
+      { "internalType": "uint256", "name": "balance", "type": "uint256" },
+      { "internalType": "uint256", "name": "needed", "type": "uint256" }
     ],
     "name": "ERC20InsufficientBalance",
     "type": "error"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "approver",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "approver", "type": "address" }
     ],
     "name": "ERC20InvalidApprover",
     "type": "error"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "receiver",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "receiver", "type": "address" }
     ],
     "name": "ERC20InvalidReceiver",
     "type": "error"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "sender", "type": "address" }
     ],
     "name": "ERC20InvalidSender",
     "type": "error"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "spender", "type": "address" }
     ],
     "name": "ERC20InvalidSpender",
     "type": "error"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "owner", "type": "address" }
     ],
     "name": "OwnableInvalidOwner",
     "type": "error"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "account", "type": "address" }
     ],
     "name": "OwnableUnauthorizedAccount",
     "type": "error"
@@ -200,90 +140,42 @@
   {
     "inputs": [],
     "name": "active",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "address", "name": "spender", "type": "address" }
     ],
     "name": "allowance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "spender", "type": "address" },
+      { "internalType": "uint256", "name": "value", "type": "uint256" }
     ],
     "name": "approve",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "account", "type": "address" }
     ],
     "name": "balanceOf",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "value", "type": "uint256" }
     ],
     "name": "burn",
     "outputs": [],
@@ -292,16 +184,8 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "account", "type": "address" },
+      { "internalType": "uint256", "name": "value", "type": "uint256" }
     ],
     "name": "burnFrom",
     "outputs": [],
@@ -310,11 +194,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "newMinter",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "newMinter", "type": "address" }
     ],
     "name": "changeMinter",
     "outputs": [],
@@ -324,72 +204,34 @@
   {
     "inputs": [],
     "name": "currentDay",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "dailyQuota",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "decimals",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
+    "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
     "stateMutability": "pure",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "referral",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "recipient", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" },
+      { "internalType": "address", "name": "referral", "type": "address" }
     ],
     "name": "mint",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
     ],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -397,39 +239,21 @@
   {
     "inputs": [],
     "name": "minter",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "name",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -442,11 +266,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "newDailyQuota",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "newDailyQuota", "type": "uint256" }
     ],
     "name": "setDailyQuota",
     "outputs": [],
@@ -455,11 +275,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "newUserQuota",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "newUserQuota", "type": "uint256" }
     ],
     "name": "setUserQuota",
     "outputs": [],
@@ -469,26 +285,14 @@
   {
     "inputs": [],
     "name": "symbol",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "todayMinted",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -502,76 +306,34 @@
   {
     "inputs": [],
     "name": "totalSupply",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint256", "name": "value", "type": "uint256" }
     ],
     "name": "transfer",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "from", "type": "address" },
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint256", "name": "value", "type": "uint256" }
     ],
     "name": "transferFrom",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "newOwner", "type": "address" }
     ],
     "name": "transferOwnership",
     "outputs": [],
@@ -579,53 +341,23 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "userDailyMinted",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "userLastMintDay",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "userQuota",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   }

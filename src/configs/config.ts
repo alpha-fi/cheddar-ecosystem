@@ -89,7 +89,7 @@ export const getConfig = (): Config => {
             nekoToken: '',
           },
           base: {
-            cheddarToken: '0x221659fcCb17E731b79e0fAb7b3128453360E6E4',
+            cheddarToken: '0x36fCd2184dAC09E2EC5EEdF2E46C015a1De27B13',
           },
         },
         socialKeys: {
@@ -122,7 +122,7 @@ export const getConfig = (): Config => {
             nekoToken: '',
           },
           base: {
-            cheddarToken: '0x221659fcCb17E731b79e0fAb7b3128453360E6E4',
+            cheddarToken: '0x36fCd2184dAC09E2EC5EEdF2E46C015a1De27B13',
           },
         },
         socialKeys: {
