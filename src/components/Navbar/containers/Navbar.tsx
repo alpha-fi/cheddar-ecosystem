@@ -13,13 +13,17 @@ import {
 import { DrawerMenu } from '../components/DrawerMenu';
 import styles from '@/styles/NavBar.module.css';
 
-import { useGetCheddarTotalSupply } from '@/hooks/cheddar';
+import {
+  useGetCheddarBaseTotalSupply,
+  useGetCheddarTotalSupply,
+} from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { ModalContainer } from '@/components/ModalContainer';
 import Link from 'next/link';
 import { About } from '../components/About';
 import { SelectWalletModal } from '../components/SelectWalletModal';
+import { useAccount } from 'wagmi';
 
 export default function Navbar() {
   const {
@@ -30,9 +34,14 @@ export default function Navbar() {
 
   const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
     useGetCheddarTotalSupply();
-
+  const {
+    data: baseCheddarTotalSupply,
+    isLoading: isLoadingBaseCheddarTotalSupply,
+    error,
+  } = useGetCheddarBaseTotalSupply();
+  const { address } = useAccount();
   const isDesktop = useBreakpointValue({ base: false, lg: true });
-
+  console.log(baseCheddarTotalSupply, error);
   return (
     <>
       <Box
@@ -122,11 +131,19 @@ export default function Navbar() {
               <Text as="i">
                 Total supply:{' '}
                 <div style={{ width: 'max-content' }}>
-                  {isLoadingCheddarTotalSupply
-                    ? 'Loading'
-                    : new Intl.NumberFormat('de-DE', {
-                        maximumFractionDigits: 0,
-                      }).format(yton(cheddarTotalSupply!))}{' '}
+                  {address
+                    ? isLoadingBaseCheddarTotalSupply
+                    : isLoadingCheddarTotalSupply
+                      ? 'Loading'
+                      : new Intl.NumberFormat('de-DE', {
+                          maximumFractionDigits: 0,
+                        }).format(
+                          yton(
+                            address
+                              ? (baseCheddarTotalSupply as bigint)
+                              : cheddarTotalSupply!
+                          )
+                        )}{' '}
                   {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
                 </div>
               </Text>

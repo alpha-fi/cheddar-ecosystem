@@ -20,17 +20,15 @@ import { useAccount, useConnect } from 'wagmi';
 import { coinbaseWallet } from 'wagmi/connectors';
 import { yton } from '@/contracts/contractUtils';
 import { useGetCheddarBaseBalance } from '@/hooks/cheddar';
+import { formatUnits } from 'viem';
 type Props = {
   handleCloseModal?: () => void;
 };
 export function OnchainKitWallet({ handleCloseModal }: Props) {
   const { address } = useAccount();
   const { connect } = useConnect();
-  const {
-    data: cheddarBaseBalance,
-    isLoading,
-    error,
-  } = useGetCheddarBaseBalance();
+  const { data: cheddarBaseBalance, isLoading } = useGetCheddarBaseBalance();
+  console.log(cheddarBaseBalance);
   return (
     <div className="flex justify-end">
       {address ? (
@@ -50,7 +48,7 @@ export function OnchainKitWallet({ handleCloseModal }: Props) {
               {isLoading ? (
                 <Spinner size="sm" />
               ) : (
-                yton(`${cheddarBaseBalance}`)
+                Number(cheddarBaseBalance as bigint)
               )}
             </Text>
             <RenderCheddarIcon />

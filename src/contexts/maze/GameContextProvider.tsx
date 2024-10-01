@@ -809,6 +809,7 @@ export const GameContextProvider = ({ children }: props) => {
       cheddarFound <= pendingCheddarToMint
         ? cheddarFound
         : pendingCheddarToMint;
+    console.log(cheddarToEarn);
     const endGameRequestData: EndGameRequest = {
       data: {
         cheddarEarned: won ? cheddarToEarn : 0,

@@ -11,6 +11,7 @@ import { getConfig } from '@/configs/config';
 import { wagmiConfig } from '@/configs/wagmi';
 import { useAccount, useReadContract } from 'wagmi';
 import contractAbi from '@/constants/contract/abi.json';
+import { parseAbi } from 'viem';
 
 export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
   const { accountId } = useWalletSelector();
@@ -73,5 +74,12 @@ export const useGetCheddarBaseBalance = () => {
     config: wagmiConfig,
     blockTag: 'latest',
     scopeKey: 'baseBalance',
+  });
+};
+export const useGetCheddarBaseTotalSupply = () => {
+  return useReadContract({
+    address: getConfig().contracts.base.cheddarToken as `0x${string}`,
+    abi: contractAbi,
+    functionName: 'totalSupply',
   });
 };
