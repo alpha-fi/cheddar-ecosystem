@@ -33,6 +33,7 @@ import {
   PIN_DECORATIVE_2_OPTIONS,
   GOALS_OPTIONS,
   GOALS_TIPS_OPTIONS,
+  MINIGAME_MAX_BALLS_AMOUNT,
 } from '@/constants/plinko';
 import { callBallPlayed, callEndGame } from '@/queries/plinko/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
@@ -65,7 +66,6 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     setIsMinigame,
     ballsYPosition,
     setBallsYPosition,
-    MAX_BALLS_AMOUNT_IN_GAME,
   } = React.useContext(PlinkoContext);
 
   const queryClient = useQueryClient();
@@ -80,7 +80,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   // } = useGetUserBalls(resetQuery);
 
   const [internalUserBalls, setInternalUserBalls] = useState(
-    isMinigame ? MAX_BALLS_AMOUNT_IN_GAME : 0
+    isMinigame ? MINIGAME_MAX_BALLS_AMOUNT : 0
   );
 
   const { accountId, selector } = useWalletSelector();
@@ -305,7 +305,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     if (
       isMinigame &&
       ballFinishLines &&
-      ballFinishLines.length === MAX_BALLS_AMOUNT_IN_GAME
+      ballFinishLines.length === MINIGAME_MAX_BALLS_AMOUNT
     ) {
       finishGame();
     }
