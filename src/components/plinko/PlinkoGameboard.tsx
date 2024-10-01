@@ -58,15 +58,8 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
     React.useContext(GameContext);
 
-  const {
-    // resetQuery,
-    // setResetQuery,
-    // thrownBallsQuantity,
-    // setThrownBallsQuantity,
-    setIsMinigame,
-    ballsYPosition,
-    setBallsYPosition,
-  } = React.useContext(PlinkoContext);
+  const { setIsMinigame, ballsYPosition, setBallsYPosition } =
+    React.useContext(PlinkoContext);
 
   const queryClient = useQueryClient();
 

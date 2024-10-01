@@ -43,6 +43,7 @@ import { Scoreboard } from './Scoreboard';
 import { callMintCheddar } from '@/queries/maze/api';
 import { getConfig } from '@/configs/config';
 import ModalHolonym from '../ModalHolonymSBT';
+import { PlinkoContextProvider } from '@/contexts/plinko/PlinkoContextProvider';
 
 interface Props {
   remainingMinutes: number;
@@ -560,7 +561,9 @@ export function GameboardContainer({
         hideButtons={true}
         showCloseBtn={false}
       >
-        <PlinkoBoard />
+        <PlinkoContextProvider>
+          <PlinkoBoard />
+        </PlinkoContextProvider>
       </ModalContainer>
       <ModalContainer
         title={'Maze scoreboard'}
