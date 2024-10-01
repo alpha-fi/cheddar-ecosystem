@@ -28,6 +28,7 @@ import { useGetCheddarNFTs } from '@/hooks/cheddar';
 import { useDisclosure } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
 import { useAccount } from 'wagmi';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface props {
   children: ReactNode;
@@ -200,6 +201,7 @@ export const GameContextProvider = ({ children }: props) => {
       navigator.userAgent
     )
   );
+  const queryClient = useQueryClient();
 
   const {
     isOpen: isScoreboardOpen,
@@ -423,6 +425,9 @@ export const GameContextProvider = ({ children }: props) => {
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
     setLastCellX(-1);
     setLastCellY(-1);
+    queryClient.invalidateQueries({
+      queryKey: ['baseBalance', address],
+    }); // Pass your scopeKey or any custom query key here
   }
 
   // Function to generate maze data
@@ -809,7 +814,6 @@ export const GameContextProvider = ({ children }: props) => {
       cheddarFound <= pendingCheddarToMint
         ? cheddarFound
         : pendingCheddarToMint;
-    console.log(cheddarToEarn);
     const endGameRequestData: EndGameRequest = {
       data: {
         cheddarEarned: won ? cheddarToEarn : 0,
@@ -834,6 +838,10 @@ export const GameContextProvider = ({ children }: props) => {
     console.log(endGameResponse);
     setEndGameResponse(endGameResponse);
     if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+    await queryClient.refetchQueries();
+    queryClient.invalidateQueries({
+      queryKey: ['baseBalance'],
+    });
   }
 
   // Define a new useEffect hook to manage the timer

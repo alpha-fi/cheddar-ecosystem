@@ -28,7 +28,6 @@ export function OnchainKitWallet({ handleCloseModal }: Props) {
   const { address } = useAccount();
   const { connect } = useConnect();
   const { data: cheddarBaseBalance, isLoading } = useGetCheddarBaseBalance();
-  console.log(cheddarBaseBalance);
   return (
     <div className="flex justify-end">
       {address ? (

@@ -81,5 +81,6 @@ export const useGetCheddarBaseTotalSupply = () => {
     address: getConfig().contracts.base.cheddarToken as `0x${string}`,
     abi: contractAbi,
     functionName: 'totalSupply',
+    scopeKey: 'baseTotalSupply',
   });
 };
