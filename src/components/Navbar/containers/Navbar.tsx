@@ -133,17 +133,13 @@ export default function Navbar() {
                 <div style={{ width: 'max-content' }}>
                   {address
                     ? isLoadingBaseCheddarTotalSupply
+                      ? 'Loading'
+                      : Number(baseCheddarTotalSupply as bigint)
                     : isLoadingCheddarTotalSupply
                       ? 'Loading'
                       : new Intl.NumberFormat('de-DE', {
                           maximumFractionDigits: 0,
-                        }).format(
-                          yton(
-                            address
-                              ? (baseCheddarTotalSupply as bigint)
-                              : cheddarTotalSupply!
-                          )
-                        )}{' '}
+                        }).format(yton(cheddarTotalSupply!))}{' '}
                   {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
                 </div>
               </Text>
