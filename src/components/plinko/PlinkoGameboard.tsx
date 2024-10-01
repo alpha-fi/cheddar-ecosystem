@@ -206,6 +206,8 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
         ballSeparatorIndexArray.push(index);
 
+        console.log('ball: ', ball);
+        console.log('clientHeight: ', clientHeight);
         if (ball.position.y > clientHeight) {
           // if (isMinigame) {
           setBallFinishLines((prevState) => [
@@ -372,14 +374,19 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
   const drawNewBall = (xPosition: number) => {
     const ballXPosDeviation = Math.floor(Math.random() * 17) - 5;
+    const ballXInitialVelocityRandomness = Math.random() * 4 - 2;
     const yPosition = PIN_SPACING;
+
     const ball = Bodies.circle(
       xPosition + ballXPosDeviation,
       yPosition,
       BALL_RADIUS,
       BALL_OPTIONS
     );
+
     World.add(engine.current.world, [ball]);
+
+    Body.setVelocity(ball, { x: ballXInitialVelocityRandomness, y: 0 });
   };
 
   function getCurrentXPosition(x: number) {
