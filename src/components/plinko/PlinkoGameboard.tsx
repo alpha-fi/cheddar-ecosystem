@@ -206,8 +206,6 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
         ballSeparatorIndexArray.push(index);
 
-        console.log('ball: ', ball);
-        console.log('clientHeight: ', clientHeight);
         if (ball.position.y > clientHeight) {
           // if (isMinigame) {
           setBallFinishLines((prevState) => [
