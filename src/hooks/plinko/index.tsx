@@ -11,16 +11,16 @@ export const useGetBallCost = (): UseQueryResult<null | bigint> => {
   });
 };
 
-export const useGetUserBalls = (
-  resetInterval: boolean
-): UseQueryResult<null | number> => {
+export const useGetUserBalls = () // resetInterval: boolean
+: UseQueryResult<null | number> => {
   const { accountId } = useWalletSelector();
 
   return useQuery({
     queryKey: ['useGetUserBalls', accountId],
     queryFn: () => (accountId ? getUserBalls(accountId) : null),
 
-    refetchInterval: !resetInterval ? 10000 : false,
+    // refetchInterval: !resetInterval ? 10000 : false,
+    refetchInterval: 10000,
 
     staleTime: 10000,
   });

@@ -6,8 +6,8 @@ interface props {
 }
 
 interface PlinkoContextProps {
-  resetQuery: boolean;
-  setResetQuery: React.Dispatch<React.SetStateAction<boolean>>;
+  // resetQuery: boolean;
+  // setResetQuery: React.Dispatch<React.SetStateAction<boolean>>;
   thrownBallsQuantity: number;
   setThrownBallsQuantity: React.Dispatch<React.SetStateAction<number>>;
 
@@ -25,7 +25,7 @@ export const PlinkoContext = createContext<PlinkoContextProps>(
 );
 
 export const PlinkoContextProvider = ({ children }: props) => {
-  const [resetQuery, setResetQuery] = useState(false);
+  // const [resetQuery, setResetQuery] = useState(false);
   const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
   const [isMinigame, setIsMinigame] = useState(false);
   const MAX_BALLS_AMOUNT_IN_GAME = isMinigame ? MAX_BALLS_AMOUNT : undefined;
@@ -37,8 +37,8 @@ export const PlinkoContextProvider = ({ children }: props) => {
   return (
     <PlinkoContext.Provider
       value={{
-        resetQuery,
-        setResetQuery,
+        // resetQuery,
+        // setResetQuery,
         thrownBallsQuantity,
         setThrownBallsQuantity,
         isMinigame,

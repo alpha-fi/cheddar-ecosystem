@@ -2,7 +2,13 @@ import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import Matter, { Engine, Render, Bodies, World, Body } from 'matter-js';
 import styles from '@/styles/PlinkoGameboard.module.css';
-import { Button, Tooltip, useDisclosure, useToast } from '@chakra-ui/react';
+import {
+  Button,
+  Spinner,
+  Tooltip,
+  useDisclosure,
+  useToast,
+} from '@chakra-ui/react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
 import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';
@@ -36,6 +42,7 @@ import { GameOverModalContent } from './GameOverModalContent';
 import { ModalBuyChips } from './ModalBuyChips';
 import { useGetUserBalls } from '@/hooks/plinko';
 import { PlinkoContext } from '@/contexts/plinko/PlinkoContextProvider';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -51,20 +58,30 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     React.useContext(GameContext);
 
   const {
-    resetQuery,
-    setResetQuery,
-    thrownBallsQuantity,
-    setThrownBallsQuantity,
+    // resetQuery,
+    // setResetQuery,
+    // thrownBallsQuantity,
+    // setThrownBallsQuantity,
     setIsMinigame,
     ballsYPosition,
     setBallsYPosition,
     MAX_BALLS_AMOUNT_IN_GAME,
   } = React.useContext(PlinkoContext);
 
+  const queryClient = useQueryClient();
+
   setIsMinigame(isMinigame);
 
-  const { data: userBalls, isLoading: isLoadingCheddarBalance } =
-    useGetUserBalls(resetQuery);
+  const {
+    data: externalUserBalls,
+    isLoading: isLoadingUserBalls,
+    isPending: isPendingUserBalls,
+  } = useGetUserBalls();
+  // } = useGetUserBalls(resetQuery);
+
+  const [internalUserBalls, setInternalUserBalls] = useState(
+    isMinigame ? MAX_BALLS_AMOUNT_IN_GAME : 0
+  );
 
   const { accountId, selector } = useWalletSelector();
 
@@ -75,21 +92,19 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   const [endGameResponse, setEndGameResponse] = useState<undefined | any>();
   const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
   const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
-  const [prize, setPrize] = useState<number>();
+  const [totalPrize, setTotalPrize] = useState<number>();
   const [lastPizeWon, setLastPrizeWon] = useState(0);
   const [prizeNames, setPrizeNames] = useState<
     ('giga' | 'mega' | 'micro' | 'nano' | 'splat')[]
   >([]);
   const [showPrize, setShowPrize] = useState(false);
 
-  useEffect(() => {
-    setBallsYPosition(Array.from(Array(userBalls).keys()).fill(0));
-    setThrownBallsQuantity(0);
-  }, [userBalls]);
-
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
+
+  const [pendingBallResponses, setPendingBallResponses] = useState(0);
+  const [onlyInternalState, setOnlyInternalState] = useState(isMinigame);
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
@@ -106,6 +121,16 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     onClose: onCloseModalBuyChips,
   } = useDisclosure();
 
+  useEffect(() => {
+    setBallsYPosition(Array.from(Array(externalUserBalls).keys()).fill(0));
+
+    if (!onlyInternalState && externalUserBalls && pendingBallResponses === 0) {
+      setInternalUserBalls(externalUserBalls);
+    }
+
+    // setThrownBallsQuantity(0);
+  }, [externalUserBalls]);
+
   const toast = useToast();
 
   function closeGameOverModal() {
@@ -115,16 +140,6 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     setAllowOpenGameOverModal(false);
   }
 
-  function getUserBallsLeft() {
-    if (isMinigame) {
-      return MAX_BALLS_AMOUNT_IN_GAME! - thrownBallsQuantity;
-    } else if (userBalls && ballFinishLines.length !== userBalls) {
-      return userBalls - thrownBallsQuantity;
-    }
-
-    return 0;
-  }
-
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
@@ -132,14 +147,14 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     setAllowOpenGameOverModal(true);
   }
 
-  useEffect(() => {
-    // This useEffect is used because we have 2 states, one in the front and one in the contract. If user make an action such as buying a ball or playing it, then contract state
-    // is less accurate than the front state. For this reason we are reseting the timer of the query by setting resetQuery to true when doing one of this actions and changing
-    // it back to false as soon state is changed.
-    if (resetQuery) {
-      setResetQuery(false);
-    }
-  }, [resetQuery]);
+  // useEffect(() => {
+  //   // This useEffect is used because we have 2 states, one in the front and one in the contract. If user make an action such as buying a ball or playing it, then contract state
+  //   // is less accurate than the front state. For this reason we are reseting the timer of the query by setting resetQuery to true when doing one of this actions and changing
+  //   // it back to false as soon state is changed.
+  //   if (resetQuery) {
+  //     setResetQuery(false);
+  //   }
+  // }, [resetQuery]);
 
   useEffect(() => {
     engine.current.world.gravity.y = GRAVITY;
@@ -192,22 +207,50 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
         ballSeparatorIndexArray.push(index);
 
         if (ball.position.y > clientHeight) {
-          if (isMinigame) {
-            setBallFinishLines((prevState) => [
-              ...prevState,
-              ...ballSeparatorIndexArray,
-            ]);
-          }
+          // if (isMinigame) {
+          setBallFinishLines((prevState) => [
+            ...prevState,
+            ...ballSeparatorIndexArray,
+          ]);
+          // }
 
           if (!isMinigame) {
+            //When the back call is made we have a pending response
+            setPendingBallResponses((prevState) => prevState + 1);
+
             callBallPlayed(accountId!, GOALS[index - 1]).then((res) => {
+              //When the back call get's the respose we discount a pending response
+              setPendingBallResponses((prevState) => {
+                const currentValue = prevState - 1;
+
+                //And if it's 0 we get the back response
+                if (currentValue === 0) {
+                  setOnlyInternalState(false);
+                }
+
+                return currentValue;
+              });
+
               if (res.ok) {
-                setBallFinishLines((prevState) => [
-                  ...prevState,
-                  ...ballSeparatorIndexArray,
-                ]);
+                toast({
+                  title: 'Transaction succesfull',
+                  status: 'success',
+                  duration: 9000,
+                  position: 'bottom-right',
+                  isClosable: true,
+                });
+                //   setBallFinishLines((prevState) => [
+                //     ...prevState,
+                //     ...ballSeparatorIndexArray,
+                //   ]);
               } else {
-                setThrownBallsQuantity((prevState) => prevState - 1);
+                setInternalUserBalls((prevState) => {
+                  if (prevState) return prevState + 1;
+                  return 0;
+                });
+
+                // TODO uncoment when back returns the value of the failing transaction
+                // setTotalPrize(res.)
 
                 res.errors.forEach((err: string) => {
                   toast({
@@ -226,7 +269,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
         }
       }
     }
-  }, [ballsYPosition, thrownBallsQuantity]);
+  }, [ballsYPosition, internalUserBalls]);
 
   useEffect(() => {
     let finalPrize = 0;
@@ -251,10 +294,10 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     });
 
     if (ballFinishLines.length > 0) {
-      finalPrize = pendingCheddarToMint
-        ? Math.min(pendingCheddarToMint, finalPrize)
-        : finalPrize;
-      setPrize(finalPrize);
+      // finalPrize = pendingCheddarToMint
+      //   ? Math.min(pendingCheddarToMint, finalPrize)
+      //   : finalPrize;
+      setTotalPrize(finalPrize);
     }
   }, [ballFinishLines]);
 
@@ -266,17 +309,28 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     ) {
       finishGame();
     }
-  }, [prizeNames, prize]);
+  }, [prizeNames, totalPrize]);
 
   useEffect(() => {
-    if (prize !== undefined) {
+    if (totalPrize !== undefined) {
       setShowPrize(true);
 
       setTimeout(() => {
         setShowPrize(false);
       }, 2000);
     }
-  }, [prize]);
+  }, [totalPrize, lastPizeWon]);
+
+  useEffect(() => {
+    // If we have pending responses we can't trust the external state se we only use the internal state
+    if (pendingBallResponses === 0) {
+      queryClient.resetQueries({ queryKey: ['useGetUserBalls'] });
+
+      setOnlyInternalState(false);
+    } else {
+      setOnlyInternalState(true);
+    }
+  }, [pendingBallResponses]);
 
   async function finishGame() {
     if (prizeNames[0]) {
@@ -290,7 +344,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
         },
       };
 
-      setThrownBallsQuantity(0);
+      // setThrownBallsQuantity(0);
       let endGameResponse;
       setGameOverFlag(true);
       endGameResponse = await callEndGame(endGameRequestData);
@@ -333,7 +387,8 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   }
 
   function handleShowNewBallPreviewMouse(e: React.MouseEvent<HTMLDivElement>) {
-    if (getUserBallsLeft() <= 0) return;
+    if ((internalUserBalls && internalUserBalls <= 0) || !internalUserBalls)
+      return;
     const mouseXPosition = getCurrentXPosition(e.clientX);
     setCurrentXPreview(mouseXPosition);
 
@@ -370,7 +425,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
     const currentXPosition = x;
 
-    if (allBalls.length < getUserBallsLeft()) {
+    if (internalUserBalls && allBalls.length < internalUserBalls) {
       if (preview) {
         //Move preview ball
         Matter.Body.setPosition(preview, {
@@ -398,12 +453,14 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     if (preview) {
       removeBody(preview);
     }
-    if (0 < getUserBallsLeft()) {
+    if (internalUserBalls && 0 < internalUserBalls) {
       const currentXPosition = currentXPreview!;
 
       drawNewBall(currentXPosition);
-      setThrownBallsQuantity((prevState) => prevState + 1);
-      setResetQuery(true);
+
+      setInternalUserBalls((prevState) => prevState! - 1);
+      setOnlyInternalState(true);
+      // setResetQuery(true);
     }
   }
 
@@ -597,7 +654,11 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
         <div className={styles.chipsSection}>
           {!isMinigame && <RenderPropperButton />}
-          <span>Chips left: {getUserBallsLeft()}</span>
+          {internalUserBalls === undefined ? (
+            <Spinner />
+          ) : (
+            <span>Chips left: {internalUserBalls ?? 0}</span>
+          )}
         </div>
       </div>
       <div
@@ -629,7 +690,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
           )}
           <span>
             {!isMinigame && 'Total '}
-            {prize} {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
+            {totalPrize} {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
           </span>
         </div>
       </div>
@@ -655,7 +716,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
         >
           <GameOverModalContent
             prizeName={prizeNames[0]}
-            cheddarFound={prize!}
+            cheddarFound={totalPrize!}
             endGameResponse={endGameResponse}
           />
         </ModalContainer>
