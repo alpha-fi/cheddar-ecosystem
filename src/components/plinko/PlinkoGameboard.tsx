@@ -215,6 +215,10 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
             setPendingBallResponses((prevState) => prevState + 1);
 
             callBallPlayed(accountId!, GOALS[index - 1]).then((res) => {
+              const cheddarAmmount = PRIZES_DATA.find(
+                (prize) => prize.name === GOALS[index - 1]
+              )?.cheddar;
+
               //When the back call get's the respose we discount a pending response
               setPendingBallResponses((prevState) => {
                 const currentValue = prevState - 1;
@@ -229,7 +233,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
               if (res.ok) {
                 toast({
-                  title: 'Transaction succesfull',
+                  title: `${cheddarAmmount} ${(<RenderCheddarIcon />)} minted succesfully`,
                   status: 'success',
                   duration: 9000,
                   position: 'bottom-right',
@@ -245,12 +249,15 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
                   return 0;
                 });
 
-                // TODO uncoment when back returns the value of the failing transaction
-                // setTotalPrize(res.)
+                setTotalPrize((prevState) => {
+                  if (prevState) return prevState - cheddarAmmount!;
+                  return 0
+                });
 
                 res.errors.forEach((err: string) => {
                   toast({
                     title: err,
+                    description: `Error minting ${cheddarAmmount} ${(<RenderCheddarIcon />)}`,
                     status: 'error',
                     duration: 9000,
                     position: 'bottom-right',
