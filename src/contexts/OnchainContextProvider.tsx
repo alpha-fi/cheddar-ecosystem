@@ -1,7 +1,7 @@
 'use client';
 import { ReactNode } from 'react';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
-import { base, baseSepolia } from 'viem/chains';
+import { baseSepolia } from 'viem/chains';
 
 type Props = { children: ReactNode };
 
