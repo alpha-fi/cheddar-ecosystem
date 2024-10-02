@@ -70,6 +70,7 @@ export const useGetCheddarBaseBalance = () => {
     functionName: 'balanceOf',
     args: [address],
     scopeKey: 'baseBalance',
+    blockTag: 'latest',
     query: {
       refetchInterval: 10000,
       staleTime: 10000,

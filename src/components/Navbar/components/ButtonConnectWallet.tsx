@@ -1,3 +1,4 @@
+import React from 'react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -25,42 +26,44 @@ type Props = {
 
 export function ButtonConnectWallet({ handleButtonCLick, text }: Props) {
   const walletSelector = useWalletSelector();
-  const { connect } = useConnect();
+  const { connect: connectBase } = useConnect();
   const { address } = useAccount();
-  const [baseConnect, setBaseConnect] = useState(false);
+  const [isBaseConnect, setIsBaseConnect] = useState(false); // Track if user is connected to Base
   const { disconnect: disconnectBase } = useDisconnect();
 
   const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
     useGetCheddarBalance();
 
+  // Switch between NEAR and Base network
   const handleOnClick = async () => {
-    if (
-      walletSelector.selector.isSignedIn() &&
-      walletSelector.selector.wallet
-    ) {
+    if (walletSelector.selector.isSignedIn()) {
+      // If connected to NEAR, sign out of NEAR
       const wallet = await walletSelector.selector.wallet();
       wallet.signOut();
+      setIsBaseConnect(true); // Trigger Base connection
     } else {
-      setBaseConnect(true);
-      walletSelector.modal.show();
+      // If connected to Base, disconnect from Base
+      setIsBaseConnect(false);
+      walletSelector.modal.show(); // Trigger NEAR wallet modal
     }
   };
 
+  // Detect when user logs in or out from Base
   useEffect(() => {
-    const handleLogin = async () => {
-      if (!address) {
-        disconnectBase(); // Disconnect from Base only if NEAR is logged in
-      }
-    };
-
-    handleLogin();
-  }, [address, disconnectBase]);
-
-  useEffect(() => {
-    if (baseConnect && !walletSelector.selector.isSignedIn()) {
-      console.log('calling base');
+    if (address && walletSelector.selector.isSignedIn() && !isBaseConnect) {
+      // User is logged into NEAR, disconnect from Base
+      disconnectBase();
+      console.log('disconnecting base');
+    } else if (
+      !walletSelector.selector.isSignedIn() &&
+      isBaseConnect &&
+      !address
+    ) {
+      connectBase({
+        connector: coinbaseWallet(),
+      });
     }
-  }, [walletSelector, baseConnect]);
+  }, [address, walletSelector, isBaseConnect, walletSelector.accounts]);
   return (
     <>
       {walletSelector.selector.isSignedIn() ? (

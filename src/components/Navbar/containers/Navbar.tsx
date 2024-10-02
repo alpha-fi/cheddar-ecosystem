@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Box,
   Button,
@@ -41,7 +42,7 @@ export default function Navbar() {
   } = useGetCheddarBaseTotalSupply();
   const { address } = useAccount();
   const isDesktop = useBreakpointValue({ base: false, lg: true });
-  console.log(baseCheddarTotalSupply, error);
+  console.log(baseCheddarTotalSupply, address);
   return (
     <>
       <Box
