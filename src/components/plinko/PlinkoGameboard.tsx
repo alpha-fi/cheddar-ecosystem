@@ -42,7 +42,10 @@ import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
 import { ModalBuyChips } from './ModalBuyChips';
 import { useGetUserBalls } from '@/hooks/plinko';
-import { PlinkoContext } from '@/contexts/plinko/PlinkoContextProvider';
+import {
+  PlinkoContext,
+  PlinkoContextProvider,
+} from '@/contexts/plinko/PlinkoContextProvider';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 
 interface CheddarEarnedData {
@@ -639,86 +642,89 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   };
 
   return (
-    <div className={styles.plinkoBoardContainer}>
-      <div className={styles.headerContainer}>
-        <div>
-          <Button onClick={pushBall} mr={'1rem'}>
-            Shake
-          </Button>
-          <Button onClick={onOpenModalRules} mr={'1rem'}>
-            Rules
-          </Button>
-        </div>
-
-        <div className={styles.chipsSection}>
-          {!isMinigame && <RenderPropperButton />}
-          {internalUserBalls === undefined ? (
-            <Spinner />
-          ) : (
-            <span>Chips left: {internalUserBalls ?? 0}</span>
-          )}
-        </div>
-      </div>
-      <div
-        className={styles.plinkoGame}
-        ref={scene}
-        onMouseMove={isMobile ? () => {} : handleShowNewBallPreviewMouse}
-        onTouchMove={handleShowNewBallPreviewTouch}
-        onTouchStart={handleShowNewBallPreviewTouch}
-        onTouchEnd={handleTouchEnd}
-        onMouseUp={isMobile ? () => {} : handleMouseDropNewBall}
-      />
-      <ModalBuyChips
-        isOpen={isOpenModalBuyChips}
-        onClose={onCloseModalBuyChips}
-      />
-      <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
-
-      <div className={styles.displayablePrizeContainer}>
-        <div
-          className={`${styles.displayablePrize} ${showPrize ? styles.show : styles.hide}`}
-        >
-          {!isMinigame && (
-            <>
-              <p>
-                +{lastPizeWon}{' '}
-                {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
-              </p>
-            </>
-          )}
-          <span>
-            {!isMinigame && 'Total '}
-            {totalPrize} {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
-          </span>
-        </div>
-      </div>
-      {saveResponse && (
-        <ModalContainer
-          title={'Error saving plinko game'}
-          isOpen={isOpen}
-          onClose={onClose}
-        >
+    <PlinkoContextProvider>
+      <div className={styles.plinkoBoardContainer}>
+        <div className={styles.headerContainer}>
           <div>
-            {saveResponse.map((error, index) => {
-              return <div key={index}>{error}</div>;
-            })}
+            <Button onClick={pushBall} mr={'1rem'}>
+              Shake
+            </Button>
+            <Button onClick={onOpenModalRules} mr={'1rem'}>
+              Rules
+            </Button>
           </div>
-        </ModalContainer>
-      )}
-      {gameOverFlag && gameOverMessage.length > 0 && (
-        <ModalContainer
-          title={'Game over'}
-          isOpen={isOpen}
-          onClose={closeGameOverModal}
-          closeOnOverlayClick={false}
-        >
-          <GameOverModalContent
-            prizeName={prizeNames[0]}
-            cheddarFound={totalPrize!}
-            endGameResponse={endGameResponse}
-          />
-        </ModalContainer>
-      )}
-    </div>
+
+          <div className={styles.chipsSection}>
+            {!isMinigame && <RenderPropperButton />}
+            {internalUserBalls === undefined ? (
+              <Spinner />
+            ) : (
+              <span>Chips left: {internalUserBalls ?? 0}</span>
+            )}
+          </div>
+        </div>
+        <div
+          className={styles.plinkoGame}
+          ref={scene}
+          onMouseMove={isMobile ? () => {} : handleShowNewBallPreviewMouse}
+          onTouchMove={handleShowNewBallPreviewTouch}
+          onTouchStart={handleShowNewBallPreviewTouch}
+          onTouchEnd={handleTouchEnd}
+          onMouseUp={isMobile ? () => {} : handleMouseDropNewBall}
+        />
+        <ModalBuyChips
+          isOpen={isOpenModalBuyChips}
+          onClose={onCloseModalBuyChips}
+        />
+        <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
+
+        <div className={styles.displayablePrizeContainer}>
+          <div
+            className={`${styles.displayablePrize} ${showPrize ? styles.show : styles.hide}`}
+          >
+            {!isMinigame && (
+              <>
+                <p>
+                  +{lastPizeWon}{' '}
+                  {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
+                </p>
+              </>
+            )}
+            <span>
+              {!isMinigame && 'Total '}
+              {totalPrize}{' '}
+              {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
+            </span>
+          </div>
+        </div>
+        {saveResponse && (
+          <ModalContainer
+            title={'Error saving plinko game'}
+            isOpen={isOpen}
+            onClose={onClose}
+          >
+            <div>
+              {saveResponse.map((error, index) => {
+                return <div key={index}>{error}</div>;
+              })}
+            </div>
+          </ModalContainer>
+        )}
+        {gameOverFlag && gameOverMessage.length > 0 && (
+          <ModalContainer
+            title={'Game over'}
+            isOpen={isOpen}
+            onClose={closeGameOverModal}
+            closeOnOverlayClick={false}
+          >
+            <GameOverModalContent
+              prizeName={prizeNames[0]}
+              cheddarFound={totalPrize!}
+              endGameResponse={endGameResponse}
+            />
+          </ModalContainer>
+        )}
+      </div>
+    </PlinkoContextProvider>
   );
 }

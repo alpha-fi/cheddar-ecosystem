@@ -28,7 +28,9 @@ export const PlinkoContextProvider = ({ children }: props) => {
   const [isMinigame, setIsMinigame] = useState(false);
 
   const [ballsYPosition, setBallsYPosition] = useState<number[]>(
-    isMinigame ? Array.from(Array(MINIGAME_MAX_BALLS_AMOUNT).keys()).fill(0) : []
+    isMinigame
+      ? Array.from(Array(MINIGAME_MAX_BALLS_AMOUNT).keys()).fill(0)
+      : []
   );
 
   return (
