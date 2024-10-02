@@ -35,7 +35,6 @@ import { createLetter } from './RenderLetterInWorld';
 import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
 import { useAccount } from 'wagmi';
-import { useQueryClient } from '@tanstack/react-query';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -48,7 +47,6 @@ export function PlinkoBoard() {
   const { address } = useAccount();
 
   const { accountId, selector } = useWalletSelector();
-  const queryClient = useQueryClient();
 
   const [clientHeight, setClientHeight] = useState<number>(
     INITIAL_CLIENT_HEIGHT
@@ -213,10 +211,6 @@ export function PlinkoBoard() {
       const endGameResponse = await callEndGame(endGameRequestData);
       setEndGameResponse(endGameResponse);
       if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
-      await queryClient.refetchQueries();
-      queryClient.invalidateQueries({
-        queryKey: ['baseBalance'],
-      });
     }
   }
 

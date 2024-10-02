@@ -8,10 +8,8 @@ import {
 } from '@/contracts/cheddarCalls';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 import { getConfig } from '@/configs/config';
-import { wagmiConfig } from '@/configs/wagmi';
 import { useAccount, useReadContract } from 'wagmi';
 import contractAbi from '@/constants/contract/abi.json';
-import { parseAbi } from 'viem';
 
 export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
   const { accountId } = useWalletSelector();
@@ -71,9 +69,11 @@ export const useGetCheddarBaseBalance = () => {
     abi: contractAbi,
     functionName: 'balanceOf',
     args: [address],
-    config: wagmiConfig,
-    blockTag: 'latest',
     scopeKey: 'baseBalance',
+    query: {
+      refetchInterval: 10000,
+      staleTime: 10000,
+    },
   });
 };
 export const useGetCheddarBaseTotalSupply = () => {
@@ -82,5 +82,9 @@ export const useGetCheddarBaseTotalSupply = () => {
     abi: contractAbi,
     functionName: 'totalSupply',
     scopeKey: 'baseTotalSupply',
+    query: {
+      refetchInterval: 10000,
+      staleTime: 10000,
+    },
   });
 };
