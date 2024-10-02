@@ -46,8 +46,10 @@ export function OnchainKitWallet({ handleCloseModal }: Props) {
             <Text mr="5px" display="inline-block">
               {isLoading ? (
                 <Spinner size="sm" />
-              ) : (
+              ) : cheddarBaseBalance ? (
                 Number(cheddarBaseBalance as bigint)
+              ) : (
+                0
               )}
             </Text>
             <RenderCheddarIcon />

@@ -135,7 +135,7 @@ export default function Navbar() {
                   {address
                     ? isLoadingBaseCheddarTotalSupply
                       ? 'Loading'
-                      : Number(baseCheddarTotalSupply as bigint)
+                      : Number((baseCheddarTotalSupply as bigint) || 0)
                     : isLoadingCheddarTotalSupply
                       ? 'Loading'
                       : new Intl.NumberFormat('de-DE', {
