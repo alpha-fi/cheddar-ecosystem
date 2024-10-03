@@ -317,14 +317,14 @@ function App() {
       await makeAvailableFt(
         wallet,
         ntoy(bidCheddar).toString(),
-        getConfig().contracts.cheddarToken,
+        getConfig().contracts.near.cheddarToken,
         accountId!
       );
     } else if (bidNeko >= 5) {
       await makeAvailableFt(
         wallet,
         ntoy(bidNeko).toString(),
-        getConfig().contracts.nekoToken,
+        getConfig().contracts.near.nekoToken,
         accountId!
       );
     } else {
