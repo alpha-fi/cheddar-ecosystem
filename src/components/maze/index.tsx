@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import { GameboardContainer } from './GameboardContainer';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
@@ -8,6 +9,7 @@ import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse } from '@/hooks/maze';
 import ModalWelcome from '../ModalWelcome';
 import { useToast } from '@chakra-ui/react';
+import { useAccount } from 'wagmi';
 
 export default function MazeContainer() {
   const {
@@ -25,7 +27,7 @@ export default function MazeContainer() {
   } = useContext(GameContext);
 
   const { selector, accountId } = useWalletSelector();
-
+  const { address } = useAccount();
   const { data: cheddarMetadata, isLoading: isLoadingCheddarMetadata } =
     useGetCheddarMetadata();
   const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
@@ -66,12 +68,14 @@ export default function MazeContainer() {
 
   useEffect(() => {
     function doesUserHaveEnoughBalance() {
-      if (!cheddarBalanceData) return false;
+      if (address) {
+        return true;
+      } else if (!cheddarBalanceData) return false;
 
       return minCheddarRequired <= cheddarBalanceData!;
     }
     setHasEnoughBalance(doesUserHaveEnoughBalance());
-  }, [cheddarBalanceData, accountId, selector, isAllowedResponse]);
+  }, [cheddarBalanceData, accountId, address, selector, isAllowedResponse]);
 
   function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);

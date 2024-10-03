@@ -14,7 +14,7 @@ export interface EndGameRequest {
     blockchain: BlockchainType;
     accountId: string | `0x${string}` | null;
     seedId: number;
-    referralAccount?: string;
+    referralAccount?: string | null;
   };
 }
 

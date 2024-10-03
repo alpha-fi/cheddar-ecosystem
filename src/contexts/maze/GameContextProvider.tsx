@@ -7,9 +7,15 @@ import React, {
   KeyboardEvent,
   TouchEvent,
   useRef,
+  useMemo,
 } from 'react';
 
-import { callEndGame, getScoreBoard, getSeedId } from '@/queries/maze/api';
+import {
+  BlockchainType,
+  callEndGame,
+  getScoreBoard,
+  getSeedId,
+} from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
@@ -28,6 +34,7 @@ import {
 } from '@/hooks/cheddar';
 import { useDisclosure, useToast } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
+import { useAccount } from 'wagmi';
 
 interface props {
   children: ReactNode;
@@ -282,7 +289,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [mazeCols, setMazeCols] = useState(9);
   const [mazeRows, setMazeRows] = useState(11);
   const [totalCells, setTotalCells] = useState(0);
-
+  const { address } = useAccount();
   function handleErrorToast(title: string) {
     toast({
       title,
@@ -386,6 +393,16 @@ export const GameContextProvider = ({ children }: props) => {
 
   const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
 
+  const account = useMemo(
+    () => accountId || (address as string),
+    [accountId, address]
+  );
+  console.log(account);
+  const blockchain = useMemo<BlockchainType>(
+    () => (address ? 'base' : 'near'),
+    [accountId, address]
+  );
+
   useEffect(() => {
     if (accountId) {
       getNFTs(accountId).then((nfts) => {
@@ -424,11 +441,11 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to restart the game
   async function restartGame() {
-    if (!accountId) {
+    if (!account) {
       return;
     }
 
-    const newSeedIdResponse = await getSeedId(accountId);
+    const newSeedIdResponse = await getSeedId(account, blockchain);
     if (!newSeedIdResponse.ok) {
       handleErrorToast(newSeedIdResponse.message);
 
@@ -880,7 +897,8 @@ export const GameContextProvider = ({ children }: props) => {
         path: [],
       },
       metadata: {
-        accountId: accountId!,
+        blockchain,
+        accountId: account!,
         seedId,
         referralAccount: referralAccount,
       },
@@ -1099,6 +1117,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    console.log('state');
     if (!showMovementButtons) {
       // event.preventDefault(); // Prevent screen scroll
       const touches = event.touches;

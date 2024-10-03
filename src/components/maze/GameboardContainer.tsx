@@ -43,6 +43,7 @@ import { Scoreboard } from './Scoreboard';
 import { callMintCheddar } from '@/queries/maze/api';
 import { getConfig } from '@/configs/config';
 import ModalHolonym from '../ModalHolonymSBT';
+import { useAccount } from 'wagmi';
 
 interface Props {
   remainingMinutes: number;
@@ -119,8 +120,14 @@ export function GameboardContainer({
     onOpen: onOpenBuyNFTPanel,
     onClose: onCloseBuyNFTPanel,
   } = useDisclosure();
+  const { address } = useAccount();
 
-  const { modal, selector, accountId } = useWalletSelector();
+  const { modal, selector, accountId, showSelectWalletModal } =
+    useWalletSelector();
+
+  const isUserLoggedIn: boolean = useMemo(() => {
+    return !!(address || accountId);
+  }, [address, accountId]);
 
   const [showMintErrorModal, setMintErrorModal] = useState(false);
   const [cheddarMintResponse, setCheddarMintResponse] =
@@ -170,7 +177,7 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return selector.isSignedIn() ? onOpenBuyNFTPanel() : modal.show();
+    return isUserLoggedIn ? onOpenBuyNFTPanel() : showSelectWalletModal(true);
   }
 
   function logOut() {
@@ -183,9 +190,9 @@ export function GameboardContainer({
   }
 
   function getStartGameButtonHandler() {
-    return accountId //If the accountId exists
+    return isUserLoggedIn //If the accountId exists
       ? getProperHandler(focusMazeAndStartGame)
-      : modal.show; //If accountId doesn't exist
+      : showSelectWalletModal(true); //If accountId doesn't exist
   }
 
   function getKeyDownMoveHandler() {
@@ -262,12 +269,13 @@ export function GameboardContainer({
     new URL(window.location.href).host +
     `?referralId=${accountId}`;
 
-  const notAllowedToPlay =
-    (!isUserNadabotVerfied &&
-      !isUserHolonymVerified &&
-      earnedButNotMintedCheddar >= 100) ||
-    (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
-    (!hasEnoughBalance && totalMintedCheddarToDate >= 100);
+  const notAllowedToPlay = address
+    ? false
+    : (!isUserNadabotVerfied &&
+        !isUserHolonymVerified &&
+        earnedButNotMintedCheddar >= 100) ||
+      (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
+      (!hasEnoughBalance && totalMintedCheddarToDate >= 100);
 
   const [showHolonymModal, setHolonymModal] = useState(false);
 
@@ -392,6 +400,7 @@ export function GameboardContainer({
                   setIsClaiming(true);
                   const response = await callMintCheddar({
                     accountId: accountId as string,
+                    blockchain: 'near',
                   });
                   setIsClaiming(false);
                   setCheddarMintResponse(response);
@@ -470,12 +479,12 @@ export function GameboardContainer({
         </div>
         <div style={{ position: 'relative' }}>
           <Gameboard
-            openLogIn={modal.show}
-            isUserLoggedIn={selector.isSignedIn()}
+            openLogIn={() => showSelectWalletModal(true)}
+            isUserLoggedIn={isUserLoggedIn}
             isAllowedResponse={isAllowedResponse!}
           />
         </div>
-        {!notAllowedToPlay && !timerStarted && accountId && (
+        {!notAllowedToPlay && !timerStarted && isUserLoggedIn && (
           <div className={styles.startGameBg}>
             <Heading as="h6" size="md">
               Play Cheddar Maze

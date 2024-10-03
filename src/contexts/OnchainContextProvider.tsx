@@ -1,31 +1,18 @@
 'use client';
+import { ReactNode } from 'react';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { baseSepolia } from 'wagmi/chains';
-import { type ReactNode, useState } from 'react';
-import { type State, WagmiProvider } from 'wagmi';
-import { wagmiConfig } from '@/configs/wagmi';
+import { baseSepolia } from 'viem/chains';
 
-type Props = {
-  children: ReactNode;
-  initialState?: State;
-};
+type Props = { children: ReactNode };
 
-function OnchainContextProvider(props: Props) {
-  const [config] = useState(() => wagmiConfig());
-  const [queryClient] = useState(() => new QueryClient());
-
+function OnchainContextProvider({ children }: Props) {
   return (
-    <WagmiProvider config={config} initialState={props.initialState}>
-      <QueryClientProvider client={queryClient}>
-        <OnchainKitProvider
-          apiKey={'M38cgIFQVu6ldPK0gob81k2_LblbB3jq'}
-          chain={baseSepolia}
-        >
-          {props.children}
-        </OnchainKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <OnchainKitProvider
+      apiKey={'M38cgIFQVu6ldPK0gob81k2_LblbB3jq'}
+      chain={baseSepolia}
+    >
+      {children}
+    </OnchainKitProvider>
   );
 }
 

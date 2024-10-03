@@ -6,21 +6,22 @@ import '../../public/assets/css/style.css';
 import '../../public/assets/css/near.css';
 import '@near-wallet-selector/modal-ui/styles.css';
 import { ChakraProvider } from '@chakra-ui/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletSelectorContextProvider } from '@/contexts/WalletSelectorContext';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PageContainer } from '@/components/PageContainer';
 import OnchainContextProvider from '@/contexts/OnchainContextProvider';
-import { cookieToInitialState } from 'wagmi';
-import { wagmiConfig } from '@/configs/wagmi';
+import WagmiContextProvider from '@/contexts/WagmiContextProvider';
 
 const inter = Inter({ subsets: ['latin'] });
+
+const queryClient = new QueryClient();
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialState = cookieToInitialState(wagmiConfig());
   return (
     <html lang="en">
       <head>
@@ -52,10 +53,14 @@ export default function RootLayout({
       <body className={inter.className + ' backgroundImg'}>
         <WalletSelectorContextProvider>
           <ChakraProvider>
-            <OnchainContextProvider initialState={initialState}>
-              <PageContainer>{children}</PageContainer>
-              <ReactQueryDevtools initialIsOpen={false} />
-            </OnchainContextProvider>
+            <WagmiContextProvider>
+              <QueryClientProvider client={queryClient}>
+                <OnchainContextProvider>
+                  <PageContainer>{children}</PageContainer>
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </OnchainContextProvider>
+              </QueryClientProvider>
+            </WagmiContextProvider>
           </ChakraProvider>
         </WalletSelectorContextProvider>
       </body>
