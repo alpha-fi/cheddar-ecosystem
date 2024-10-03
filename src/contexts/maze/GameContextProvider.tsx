@@ -397,7 +397,6 @@ export const GameContextProvider = ({ children }: props) => {
     () => accountId || (address as string),
     [accountId, address]
   );
-  console.log(account);
   const blockchain = useMemo<BlockchainType>(
     () => (address ? 'base' : 'near'),
     [accountId, address]

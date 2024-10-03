@@ -4,6 +4,7 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useToast, Link } from '@chakra-ui/react';
 import { Facebook, Telegram, Twitter } from '../icons';
 import { getConfig } from '@/configs/config';
+import { useAccount } from 'wagmi';
 
 interface Props {
   setHolonymModal: (v: boolean) => void;
@@ -23,7 +24,7 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
     isUserHolonymVerified,
   } = useContext(GameContext);
   const toast = useToast();
-
+  const { address } = useAccount();
   const properSecondsFormat =
     remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
 
@@ -80,7 +81,7 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
       <p className={getMessageStyles()}>{gameOverMessage}</p>
       {hasWon && (
         <p className={styles.earnings}>
-          {isUserNadabotVerfied || isUserHolonymVerified ? (
+          {address || isUserNadabotVerfied || isUserHolonymVerified ? (
             <span>
               You have farmed{' '}
               {cheddarFound <= pendingCheddarToMint
