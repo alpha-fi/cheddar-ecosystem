@@ -9,6 +9,7 @@ import {
   getEarnedAndMinted,
 } from '@/queries/maze/api';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
+import { useAccount } from 'wagmi';
 
 export interface IsAllowedResponse {
   ok: boolean;
@@ -27,10 +28,12 @@ export interface ScoreboardResponse {
 export const useGetIsAllowedResponse =
   (): UseQueryResult<null | IsAllowedResponse> => {
     const { accountId } = useWalletSelector();
-
+    const { address } = useAccount();
+    const account = accountId || (address as string);
     return useQuery({
-      queryKey: ['useGetIsAllowed', accountId],
-      queryFn: () => (accountId ? isAllowedResponse(accountId) : null),
+      queryKey: ['useGetIsAllowed', account],
+      queryFn: () =>
+        account ? isAllowedResponse(account, address ? 'base' : 'near') : null,
       refetchInterval: 10000,
       staleTime: 10000,
     });
@@ -48,10 +51,14 @@ export const useGetScoreboard =
 
 export const useGetPendingCheddarToMint = (): UseQueryResult<number> => {
   const { accountId } = useWalletSelector();
-
+  const { address } = useAccount();
+  const account = accountId || (address as string);
   return useQuery({
-    queryKey: ['useGetPendingCheddarToMint', accountId],
-    queryFn: () => (accountId ? getPendingCheddarToMint(accountId) : null),
+    queryKey: ['useGetPendingCheddarToMint', account],
+    queryFn: () =>
+      account
+        ? getPendingCheddarToMint(account, address ? 'base' : 'near')
+        : null,
     refetchInterval: 10000,
     staleTime: 10000,
   });
@@ -59,10 +66,14 @@ export const useGetPendingCheddarToMint = (): UseQueryResult<number> => {
 
 export const useGetEarnedButNotMintedCheddar = (): UseQueryResult<number> => {
   const { accountId } = useWalletSelector();
-
+  const { address } = useAccount();
+  const account = accountId || (address as string);
   return useQuery({
     queryKey: ['useGetEarnedButNotMintedCheddar', accountId],
-    queryFn: () => (accountId ? getEarnedButNotMinted(accountId) : null),
+    queryFn: () =>
+      account
+        ? getEarnedButNotMinted(account, address ? 'base' : 'near')
+        : null,
     refetchInterval: false,
     staleTime: Infinity,
   });
@@ -70,10 +81,12 @@ export const useGetEarnedButNotMintedCheddar = (): UseQueryResult<number> => {
 
 export const useGetEarnedAndMintedCheddar = (): UseQueryResult<number> => {
   const { accountId } = useWalletSelector();
-
+  const { address } = useAccount();
+  const account = accountId || (address as string);
   return useQuery({
     queryKey: ['useGetEarnedAndMintedCheddar', accountId],
-    queryFn: () => (accountId ? getEarnedAndMinted(accountId) : null),
+    queryFn: () =>
+      account ? getEarnedAndMinted(account, address ? 'base' : 'near') : null,
     refetchInterval: false,
     staleTime: Infinity,
   });
