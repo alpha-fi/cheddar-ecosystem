@@ -28,7 +28,7 @@ interface Props {
 }
 
 export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
-  const { setResetQuery, setThrownBallsQuantity } = useContext(PlinkoContext);
+  const { /*setResetQuery,*/ setThrownBallsQuantity } = useContext(PlinkoContext);
 
   const [isLoading, setIsLoading] = useState(false);
   const [selectAmountOfChips, setSelectAmountOfChips] = useState(3);
@@ -62,7 +62,7 @@ export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
         // const genericLastResult = await getTransactionLastResult(resp);
         // const lastResult: MintNFTLastResult = genericLastResult[1];
 
-        setResetQuery(true);
+        // setResetQuery(true);
         setThrownBallsQuantity(0);
 
         toast({
