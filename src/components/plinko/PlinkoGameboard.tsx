@@ -34,6 +34,8 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { createLetter } from './RenderLetterInWorld';
 import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
+import { useAccount } from 'wagmi';
+import { BlockchainType } from '@/queries/maze/api';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -69,7 +71,7 @@ export function PlinkoBoard() {
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
-
+  const { address } = useAccount();
   const {
     isOpen: isOpenModalRules,
     onOpen: onOpenModalRules,
@@ -198,7 +200,8 @@ export function PlinkoBoard() {
           prizeEarned: prizeNames[0],
         },
         metadata: {
-          accountId: accountId!,
+          blockchain: address ? 'near' : ('base' as BlockchainType),
+          accountId: (address as string) || accountId!,
           seedId,
         },
       };
