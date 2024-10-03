@@ -139,7 +139,7 @@ export interface EndGameRequest {
   metadata: {
     accountId: string;
     seedId: number;
-    referralAccount?: string;
+    referralAccount?: string | null;
   };
 }
 

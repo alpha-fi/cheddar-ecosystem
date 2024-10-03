@@ -846,10 +846,21 @@ export const GameContextProvider = ({ children }: props) => {
     setTimerStarted(false);
   }
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const referrerAccount = urlParams.get('referralId') ?? undefined;
+    if (referrerAccount) {
+      localStorage.setItem('referrer_account', referrerAccount);
+    }
+  }, []);
+
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const referralAccount = urlParams.get('referralId') ?? undefined;
+    const referralAccount = localStorage.getItem('referrer_account');
+
+    if (referralAccount) {
+      localStorage.removeItem('referrer_account');
+    }
 
     if (gameOverRefSent.current) {
       return;
