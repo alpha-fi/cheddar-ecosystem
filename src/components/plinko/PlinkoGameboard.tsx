@@ -284,8 +284,6 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
             ...ballSeparatorIndexArray,
           ]);
           // }
-          console.log('index: ', index);
-          console.log('ballFinishLines: ', ballFinishLines);
 
           if (!isMinigame) {
             useDebounce(() => useCallBallsPlayed(ballFinishLines), 1000, [
