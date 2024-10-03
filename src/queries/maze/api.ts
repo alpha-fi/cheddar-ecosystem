@@ -3,10 +3,25 @@ import { getConfig } from '@/configs/config';
 
 const { backendBaseUrl, holonym } = getConfig();
 
-export async function isAllowed(accountId: string) {
+export type BlockchainType = 'base' | 'near';
+export interface EndGameRequest {
+  data: {
+    cheddarEarned: number;
+    score: number;
+    path: number[];
+  };
+  metadata: {
+    blockchain: BlockchainType;
+    accountId: string | `0x${string}` | null;
+    seedId: number;
+    referralAccount?: string;
+  };
+}
+
+export async function isAllowed(accountId: string, blockchain: BlockchainType) {
   try {
     const url = new URL(
-      `api/maze/isAllowed?accountId=${accountId}`,
+      `api/maze/isAllowed?accountId=${accountId}&blockchain=${blockchain}`,
       backendBaseUrl
     ).toString();
     const response = await fetch(url);
@@ -24,10 +39,13 @@ export async function isAllowed(accountId: string) {
   }
 }
 
-export async function getPendingCheddarToMint(accountId: string) {
+export async function getPendingCheddarToMint(
+  accountId: string,
+  blockchain: BlockchainType
+) {
   try {
     const url = new URL(
-      `api/maze/pendingCheddar?accountId=${accountId}`,
+      `api/maze/pendingCheddar?accountId=${accountId}&blockchain=${blockchain}`,
       backendBaseUrl
     ).toString();
     const response = await fetch(url);
@@ -46,10 +64,13 @@ export async function getPendingCheddarToMint(accountId: string) {
   }
 }
 
-export async function getEarnedButNotMinted(accountId: string) {
+export async function getEarnedButNotMinted(
+  accountId: string,
+  blockchain: BlockchainType
+) {
   try {
     const url = new URL(
-      `api/maze/getNonMintedCheddar?accountId=${accountId}`,
+      `api/maze/getNonMintedCheddar?accountId=${accountId}&blockchain=${blockchain}`,
       backendBaseUrl
     ).toString();
     const response = await fetch(url);
@@ -68,10 +89,13 @@ export async function getEarnedButNotMinted(accountId: string) {
   }
 }
 
-export async function getEarnedAndMinted(accountId: string) {
+export async function getEarnedAndMinted(
+  accountId: string,
+  blockchain: BlockchainType
+) {
   try {
     const url = new URL(
-      `api/maze/mintedCheddar?accountId=${accountId}`,
+      `api/maze/mintedCheddar?accountId=${accountId}&blockchain=${blockchain}`,
       backendBaseUrl
     ).toString();
     const response = await fetch(url);
@@ -90,9 +114,9 @@ export async function getEarnedAndMinted(accountId: string) {
   }
 }
 
-export async function getSeedId(accountId: string) {
+export async function getSeedId(accountId: string, blockchain: BlockchainType) {
   try {
-    const data = { accountId };
+    const data = { accountId, blockchain };
     const url = new URL(`api/maze/getSeedId`, backendBaseUrl).toString();
     const response = await fetch(url, {
       method: 'POST',
@@ -130,19 +154,6 @@ export async function getScoreBoard() {
   }
 }
 
-export interface EndGameRequest {
-  data: {
-    cheddarEarned: number;
-    score: number;
-    path: number[];
-  };
-  metadata: {
-    accountId: string;
-    seedId: number;
-    referralAccount?: string | null;
-  };
-}
-
 export async function callEndGame(endGameData: EndGameRequest) {
   try {
     const url = new URL(`api/maze/endGame`, backendBaseUrl).toString();
@@ -165,7 +176,10 @@ export async function callEndGame(endGameData: EndGameRequest) {
   }
 }
 
-export async function callMintCheddar(mintCheddarBody: { accountId: string }) {
+export async function callMintCheddar(mintCheddarBody: {
+  accountId: string;
+  blockchain: BlockchainType;
+}) {
   try {
     const url = new URL(
       `api/maze/mintNonMintedCheddar`,
