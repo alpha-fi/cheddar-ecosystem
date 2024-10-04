@@ -1,18 +1,16 @@
+import React from 'react';
 import {
   FormControl,
   FormLabel,
   Button,
-  useToast,
   Image,
   VStack,
   Text,
-  Stack,
   Switch,
 } from '@chakra-ui/react';
 import { ModalContainer } from './ModalContainer';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { RadioButtonBroup } from './maze/RadioButtonGroup';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { RenderCheddarIcon } from './maze/RenderCheddarIcon';
 import { RenderNearIcon } from './maze/RenderNearIcon';
 import { buyNFT } from '@/contracts/cheddarCalls';
@@ -23,6 +21,7 @@ import { yton } from '@/contracts/contractUtils';
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
 import { MintNFTLastResult } from '@/entities/interfaces';
 import { getConfig } from '@/configs/config';
+import { ToastsContext } from '@/contexts/ToastsContext';
 
 interface Props {
   onClose: () => void;
@@ -35,13 +34,13 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
   const [showNftImage, setShowNftImage] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { selector } = useWalletSelector();
+  const { showToast } = useContext(ToastsContext);
   const {
     data: cheddarNftPriceInCheddar,
     isLoading: isNftPriceInCheddarLoading,
   } = useGetCheddarNFTPrice(true);
   const { data: cheddarNftPriceInNear, isLoading: isNftPriceInNearLoading } =
     useGetCheddarNFTPrice(false);
-  const toast = useToast();
 
   //The first option is the default one
   const payingOptions = [
@@ -90,21 +89,9 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
       if (lastResult.token_id) {
         setNftId(lastResult.token_id);
       }
-      toast({
-        title: 'Enjoy your purchase!',
-        status: 'success',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      showToast('Enjoy your purchase!', 'success');
     } catch (err: any) {
-      toast({
-        title: err.message,
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      showToast(err.message, 'error');
     }
     setIsLoading(false);
   }

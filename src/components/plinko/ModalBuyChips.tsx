@@ -21,6 +21,7 @@ import { useGetBallCost } from '@/hooks/plinko';
 import { yton } from '@/contracts/contractUtils';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { PlinkoContext } from '@/contexts/plinko/PlinkoContextProvider';
+import { ToastsContext } from '@/contexts/ToastsContext';
 
 interface Props {
   onClose: () => void;
@@ -36,7 +37,8 @@ export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
   const { selector } = useWalletSelector();
   const { data: chipPriceInCheddar, isLoading: isChipPriceInCheddarLoading } =
     useGetBallCost();
-  const toast = useToast();
+
+  const { showToast, showAsyncToast } = useContext(ToastsContext);
 
   const cheddarInfo = {
     name: 'Cheddar',
@@ -59,40 +61,22 @@ export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
 
       if (amount) {
         // const resp =
-        await buyBalls(wallet, amount.toString()!);
+        const buyPromise = await buyBalls(wallet, amount.toString()!);
+        showAsyncToast(buyPromise, 'Prossesing purchase', "Let's play!");
         // const genericLastResult = await getTransactionLastResult(resp);
         // const lastResult: MintNFTLastResult = genericLastResult[1];
 
         // setResetQuery(true);
         setThrownBallsQuantity(0);
-
-        toast({
-          title: "Let's play!",
-          status: 'success',
-          duration: 9000,
-          position: 'bottom-right',
-          isClosable: true,
-        });
       } else {
-        toast({
-          title:
-            'There was an error getting the chips price. Please, try again',
-          status: 'error',
-          duration: 9000,
-          position: 'bottom-right',
-          isClosable: true,
-        });
+        showToast(
+          'There was an error getting the chips price. Please, try again',
+          'error'
+        );
       }
-    } catch (err: any) {
-      toast({
-        title: err.message,
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }
 
   function changeSelectedAmountOfChips(e: string) {
@@ -100,13 +84,7 @@ export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
   }
 
   function openToast() {
-    toast({
-      title: 'You have to buy at least 1 chip',
-      status: 'error',
-      duration: 9000,
-      position: 'bottom-right',
-      isClosable: true,
-    });
+    showToast('You have to buy at least 1 chip', 'error');
   }
 
   return (
