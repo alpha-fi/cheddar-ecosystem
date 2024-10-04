@@ -28,7 +28,8 @@ interface Props {
 }
 
 export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
-  const { /*setResetQuery,*/ setThrownBallsQuantity } = useContext(PlinkoContext);
+  const { /*setResetQuery,*/ setThrownBallsQuantity } =
+    useContext(PlinkoContext);
 
   const [isLoading, setIsLoading] = useState(false);
   const [selectAmountOfChips, setSelectAmountOfChips] = useState(3);

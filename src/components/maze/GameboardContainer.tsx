@@ -1,5 +1,4 @@
 import { Gameboard } from './Gameboard';
-import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import styles from '@/styles/GameboardContainer.module.css';
 import {
   Button,
@@ -43,6 +42,8 @@ import { Scoreboard } from './Scoreboard';
 import { callMintCheddar } from '@/queries/maze/api';
 import { getConfig } from '@/configs/config';
 import ModalHolonym from '../ModalHolonymSBT';
+import Plinko from '@/app/plinko/page';
+import { PlinkoGame } from '../plinko/PlinkoGame';
 interface Props {
   remainingMinutes: number;
   remainingSeconds: number;
@@ -320,19 +321,19 @@ export function GameboardContainer({
 
     if (!isUserNadabotVerfied && !isUserHolonymVerified && !hasEnoughBalance) {
       message = (
-        <>
+        <span>
           Verify on {nadabotLink} or {holonymLink} and buy/hold 555{' '}
           {cheddarIcon} from {refLink}.
-        </>
+        </span>
       );
     } else if (
       (isUserNadabotVerfied || isUserHolonymVerified) &&
       !hasEnoughBalance
     ) {
       message = (
-        <>
+        <span>
           Buy/hold 555 {cheddarIcon} from {refLink}.
-        </>
+        </span>
       );
     } else if (
       !isUserNadabotVerfied &&
@@ -340,9 +341,9 @@ export function GameboardContainer({
       hasEnoughBalance
     ) {
       message = (
-        <>
+        <span>
           Verify on {nadabotLink} or {holonymLink}.
-        </>
+        </span>
       );
     }
 
@@ -559,7 +560,7 @@ export function GameboardContainer({
         hideButtons={true}
         showCloseBtn={false}
       >
-        <PlinkoBoard />
+        <PlinkoGame />
       </ModalContainer>
       <ModalContainer
         title={'Maze scoreboard'}
