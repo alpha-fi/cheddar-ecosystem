@@ -43,7 +43,7 @@ import { ModalBuyChips } from './ModalBuyChips';
 import { useGetUserBalls } from '@/hooks/plinko';
 import { PlinkoContext } from '@/contexts/plinko/PlinkoContextProvider';
 import { useQueryClient } from '@tanstack/react-query';
-import useDebounce from '@/hooks/custom';
+import { useDebounce } from 'use-debounce';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -143,25 +143,26 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const [value] = useDebounce(ballFinishLines, 1000);
+
+  useEffect(() => {
+    if (value.length > 0) {
+      setBallFinishLines([]);
+
+      handleCallBallsPlayed(value);
+    }
+  }, [value]);
+
   if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
     onOpen();
     setAllowOpenGameOverModal(true);
   }
 
-  // useEffect(() => {
-  //   // This useEffect is used because we have 2 states, one in the front and one in the contract. If user make an action such as buying a ball or playing it, then contract state
-  //   // is less accurate than the front state. For this reason we are reseting the timer of the query by setting resetQuery to true when doing one of this actions and changing
-  //   // it back to false as soon state is changed.
-  //   if (resetQuery) {
-  //     setResetQuery(false);
-  //   }
-  // }, [resetQuery]);
-
   useEffect(() => {
     engine.current.world.gravity.y = GRAVITY;
   }, []);
 
-  function useCallBallsPlayed(ballFinishLines: number[]) {
+  function handleCallBallsPlayed(ballFinishLines: number[]) {
     const prizesNames = ballFinishLines.map(
       (ballFinishLineIndex) => GOALS[ballFinishLineIndex - 1]
     );
@@ -195,13 +196,13 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
       });
 
       if (res.ok) {
-        toast({
-          title: `${cheddarTotalAmmount} ${(<RenderCheddarIcon />)} minted succesfully`,
-          status: 'success',
-          duration: 9000,
-          position: 'bottom-right',
-          isClosable: true,
-        });
+        // toast({
+        //   title: `${cheddarTotalAmmount} ${(<RenderCheddarIcon />)} minted succesfully`,
+        //   status: 'success',
+        //   duration: 9000,
+        //   position: 'bottom-right',
+        //   isClosable: true,
+        // });
         //   setBallFinishLines((prevState) => [
         //     ...prevState,
         //     ...ballSeparatorIndexArray,
@@ -286,9 +287,9 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
           // }
 
           if (!isMinigame) {
-            useDebounce(() => useCallBallsPlayed(ballFinishLines), 1000, [
-              ballFinishLines,
-            ]);
+            // useDebounce(() => useCallBallsPlayed(ballFinishLines), 1000, [
+            //   ballFinishLines,
+            // ]);
             //When the back call is made we have a pending response
             setPendingBallResponses((prevState) => prevState + 1);
           }

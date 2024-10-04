@@ -49,21 +49,19 @@ export async function callBallsPlayed(
   accountId: string,
   prizesNames: string[]
 ) {
-  return { ok: true, errors: ['None'] };
+  const data = {
+    accountId,
+    prizesNames,
+  };
+  const url = new URL(`/api/plinko/ballPlayed`, backendBaseUrl).toString();
 
-  // const data = {
-  //   accountId,
-  //   prizesNames,
-  // };
-  // const url = new URL(`/api/plinko/ballPlayed`, backendBaseUrl).toString();
-
-  // const response = await fetch(url, {
-  //   method: 'POST',
-  //   mode: 'cors',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify(data),
-  // });
-  // return response.json();
+  const response = await fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
 }
