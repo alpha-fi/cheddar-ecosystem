@@ -167,7 +167,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
       (ballFinishLineIndex) => GOALS[ballFinishLineIndex - 1]
     );
 
-    callBallsPlayed(accountId!, prizesNames).then((res) => {
+    const getPrize = callBallsPlayed(accountId!, prizesNames).then((res) => {
       const prizesValueArray = prizesNames.map((prizeName) => {
         const prize = PRIZES_DATA.find(
           (prize) => prize.name === prizeName
@@ -185,7 +185,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
       //When the back call get's the respose we discount a pending response
       setPendingBallResponses((prevState) => {
-        const currentValue = prevState - 1;
+        const currentValue = prevState - prizesValueArray.length;
 
         //And if it's 0 we get the back response
         if (currentValue === 0) {
@@ -195,21 +195,9 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
         return currentValue;
       });
 
-      if (res.ok) {
-        // toast({
-        //   title: `${cheddarTotalAmmount} ${(<RenderCheddarIcon />)} minted succesfully`,
-        //   status: 'success',
-        //   duration: 9000,
-        //   position: 'bottom-right',
-        //   isClosable: true,
-        // });
-        //   setBallFinishLines((prevState) => [
-        //     ...prevState,
-        //     ...ballSeparatorIndexArray,
-        //   ]);
-      } else {
+      if (!res.ok) {
         setInternalUserBalls((prevState) => {
-          if (prevState) return prevState + 1;
+          if (prevState) return prevState + prizesValueArray.length;
           return 0;
         });
 
@@ -217,18 +205,31 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
           if (prevState) return prevState - cheddarTotalAmmount!;
           return 0;
         });
-
-        res.errors.forEach((err: string) => {
-          toast({
-            title: err,
-            description: `Error minting ${cheddarTotalAmmount} ${(<RenderCheddarIcon />)}`,
-            status: 'error',
-            duration: 9000,
-            position: 'bottom-right',
-            isClosable: true,
-          });
-        });
       }
+    });
+
+    toast.promise(getPrize, {
+      success: {
+        title: 'Enjoy your prize!',
+        description: 'Cheddar minted succesfully',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      },
+      error: {
+        title: 'Oops',
+        description: "Something went wrong, you'll get your chips back",
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      },
+      loading: {
+        title: 'Processing your prize',
+        description: 'Please wait',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      },
     });
   }
 
