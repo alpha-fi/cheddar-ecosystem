@@ -21,12 +21,12 @@ export const PIN_SPACING = CURRENT_WIDTH / GOALS.length;
 export const INITIAL_CLIENT_HEIGHT = 450;
 export const PIN_RADIUS = 8;
 export const WALL_POSITION_ADJUST = 9;
-export const MAX_BALLS_AMOUNT = 1;
 export const BALL_RADIUS = 12;
 export const BALL_BOUNCINES = 1;
 export const BALL_FRICTION = 0.1;
 export const HIT_MACHINE_FORCE_MAGNITUDE = 0.05;
 export const GRAVITY = 0.3;
+export const MAX_BALLS_AMOUNT = 1;
 
 export const COLLISION_FILTER_1 = {
   group: -1,

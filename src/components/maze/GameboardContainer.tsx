@@ -43,7 +43,6 @@ import { Scoreboard } from './Scoreboard';
 import { callMintCheddar } from '@/queries/maze/api';
 import { getConfig } from '@/configs/config';
 import ModalHolonym from '../ModalHolonymSBT';
-
 interface Props {
   remainingMinutes: number;
   remainingSeconds: number;

@@ -2,7 +2,13 @@ import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import Matter, { Engine, Render, Bodies, World, Body } from 'matter-js';
 import styles from '@/styles/PlinkoGameboard.module.css';
-import { Button, useDisclosure } from '@chakra-ui/react';
+import {
+  Button,
+  Spinner,
+  Tooltip,
+  useDisclosure,
+  useToast,
+} from '@chakra-ui/react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import ModalRules from './ModalRules';
 import { RenderCheddarIcon } from '../maze/RenderCheddarIcon';
@@ -15,7 +21,6 @@ import {
   GRAVITY,
   HIT_MACHINE_FORCE_MAGNITUDE,
   INITIAL_CLIENT_HEIGHT,
-  MAX_BALLS_AMOUNT,
   PIN_RADIUS,
   PIN_SPACING,
   PRIZES_DATA,
@@ -29,20 +34,57 @@ import {
   GOALS_OPTIONS,
   GOALS_TIPS_OPTIONS,
 } from '@/constants/plinko';
-import { callEndGame } from '@/queries/plinko/api';
+import { callBallPlayed, callEndGame } from '@/queries/plinko/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { createLetter } from './RenderLetterInWorld';
 import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
+import { ModalBuyChips } from './ModalBuyChips';
+import { useGetUserBalls } from '@/hooks/plinko';
+import {
+  PlinkoContext,
+  PlinkoContextProvider,
+} from '@/contexts/plinko/PlinkoContextProvider';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
   cheddar: number;
 }
 
-export function PlinkoBoard() {
+interface Props {
+  isMinigame?: boolean;
+}
+
+export function PlinkoBoard({ isMinigame = true }: Props) {
   const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
     React.useContext(GameContext);
+
+  const {
+    // resetQuery,
+    // setResetQuery,
+    // thrownBallsQuantity,
+    // setThrownBallsQuantity,
+    setIsMinigame,
+    ballsYPosition,
+    setBallsYPosition,
+    MAX_BALLS_AMOUNT_IN_GAME,
+  } = React.useContext(PlinkoContext);
+
+  const queryClient = useQueryClient();
+
+  setIsMinigame(isMinigame);
+
+  const {
+    data: externalUserBalls,
+    isLoading: isLoadingUserBalls,
+    isPending: isPendingUserBalls,
+  } = useGetUserBalls();
+  // } = useGetUserBalls(resetQuery);
+
+  const [internalUserBalls, setInternalUserBalls] = useState(
+    isMinigame ? MAX_BALLS_AMOUNT_IN_GAME : 0
+  );
 
   const { accountId, selector } = useWalletSelector();
 
@@ -51,21 +93,21 @@ export function PlinkoBoard() {
   );
   const [saveResponse, setSaveResponse] = useState<string[] | undefined>();
   const [endGameResponse, setEndGameResponse] = useState<undefined | any>();
-  const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
   const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
   const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
-  const [prize, setPrize] = useState<number>();
+  const [totalPrize, setTotalPrize] = useState<number>();
+  const [lastPizeWon, setLastPrizeWon] = useState(0);
   const [prizeNames, setPrizeNames] = useState<
     ('giga' | 'mega' | 'micro' | 'nano' | 'splat')[]
   >([]);
   const [showPrize, setShowPrize] = useState(false);
-  const [ballsYPosition, setBallsYPosition] = useState<number[]>(
-    Array.from(Array(MAX_BALLS_AMOUNT).keys()).fill(0)
-  );
 
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
+
+  const [pendingBallResponses, setPendingBallResponses] = useState(0);
+  const [onlyInternalState, setOnlyInternalState] = useState(isMinigame);
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
@@ -75,6 +117,24 @@ export function PlinkoBoard() {
     onOpen: onOpenModalRules,
     onClose: onCloseModalRules,
   } = useDisclosure();
+
+  const {
+    isOpen: isOpenModalBuyChips,
+    onOpen: onOpenModalBuyChips,
+    onClose: onCloseModalBuyChips,
+  } = useDisclosure();
+
+  useEffect(() => {
+    setBallsYPosition(Array.from(Array(externalUserBalls).keys()).fill(0));
+
+    if (!onlyInternalState && externalUserBalls && pendingBallResponses === 0) {
+      setInternalUserBalls(externalUserBalls);
+    }
+
+    // setThrownBallsQuantity(0);
+  }, [externalUserBalls]);
+
+  const toast = useToast();
 
   function closeGameOverModal() {
     closePlinkoModal();
@@ -89,6 +149,15 @@ export function PlinkoBoard() {
     onOpen();
     setAllowOpenGameOverModal(true);
   }
+
+  // useEffect(() => {
+  //   // This useEffect is used because we have 2 states, one in the front and one in the contract. If user make an action such as buying a ball or playing it, then contract state
+  //   // is less accurate than the front state. For this reason we are reseting the timer of the query by setting resetQuery to true when doing one of this actions and changing
+  //   // it back to false as soon state is changed.
+  //   if (resetQuery) {
+  //     setResetQuery(false);
+  //   }
+  // }, [resetQuery]);
 
   useEffect(() => {
     engine.current.world.gravity.y = GRAVITY;
@@ -141,28 +210,93 @@ export function PlinkoBoard() {
         ballSeparatorIndexArray.push(index);
 
         if (ball.position.y > clientHeight) {
+          // if (isMinigame) {
           setBallFinishLines((prevState) => [
             ...prevState,
             ...ballSeparatorIndexArray,
           ]);
+          // }
+
+          if (!isMinigame) {
+            //When the back call is made we have a pending response
+            setPendingBallResponses((prevState) => prevState + 1);
+
+            callBallPlayed(accountId!, GOALS[index - 1]).then((res) => {
+              const cheddarAmmount = PRIZES_DATA.find(
+                (prize) => prize.name === GOALS[index - 1]
+              )?.cheddar;
+
+              //When the back call get's the respose we discount a pending response
+              setPendingBallResponses((prevState) => {
+                const currentValue = prevState - 1;
+
+                //And if it's 0 we get the back response
+                if (currentValue === 0) {
+                  setOnlyInternalState(false);
+                }
+
+                return currentValue;
+              });
+
+              if (res.ok) {
+                toast({
+                  title: `${cheddarAmmount} ${(<RenderCheddarIcon />)} minted succesfully`,
+                  status: 'success',
+                  duration: 9000,
+                  position: 'bottom-right',
+                  isClosable: true,
+                });
+                //   setBallFinishLines((prevState) => [
+                //     ...prevState,
+                //     ...ballSeparatorIndexArray,
+                //   ]);
+              } else {
+                setInternalUserBalls((prevState) => {
+                  if (prevState) return prevState + 1;
+                  return 0;
+                });
+
+                setTotalPrize((prevState) => {
+                  if (prevState) return prevState - cheddarAmmount!;
+                  return 0
+                });
+
+                res.errors.forEach((err: string) => {
+                  toast({
+                    title: err,
+                    description: `Error minting ${cheddarAmmount} ${(<RenderCheddarIcon />)}`,
+                    status: 'error',
+                    duration: 9000,
+                    position: 'bottom-right',
+                    isClosable: true,
+                  });
+                });
+              }
+            });
+          }
 
           removeBody(ball);
         }
       }
     }
-  }, [ballsYPosition, thrownBallsQuantity]);
+  }, [ballsYPosition, internalUserBalls]);
 
   useEffect(() => {
     let finalPrize = 0;
-    ballFinishLines.forEach((finishGoal) => {
+    ballFinishLines.forEach((finishGoal, index) => {
       const cheddarEarnedData = PRIZES_DATA.find((prizeData) => {
         return prizeData.name === GOALS[finishGoal - 1];
       }) as CheddarEarnedData;
 
       if (cheddarEarnedData) {
         const cheddarEarned = cheddarEarnedData?.cheddar;
+
+        if (ballFinishLines.length === index + 1) {
+          setLastPrizeWon(cheddarEarned);
+        }
+
         const cheddarPrizeName = cheddarEarnedData?.name;
-        console.log(1, cheddarPrizeName);
+
         setPrizeNames((prevState) => [...prevState, cheddarPrizeName]);
 
         finalPrize += cheddarEarned!;
@@ -170,26 +304,43 @@ export function PlinkoBoard() {
     });
 
     if (ballFinishLines.length > 0) {
-      finalPrize = Math.min(pendingCheddarToMint, finalPrize);
-      setPrize(finalPrize);
+      // finalPrize = pendingCheddarToMint
+      //   ? Math.min(pendingCheddarToMint, finalPrize)
+      //   : finalPrize;
+      setTotalPrize(finalPrize);
     }
   }, [ballFinishLines]);
 
   useEffect(() => {
-    if (ballFinishLines && ballFinishLines.length === MAX_BALLS_AMOUNT) {
+    if (
+      isMinigame &&
+      ballFinishLines &&
+      ballFinishLines.length === MAX_BALLS_AMOUNT_IN_GAME
+    ) {
       finishGame();
     }
-  }, [prizeNames, prize]);
+  }, [prizeNames, totalPrize]);
 
   useEffect(() => {
-    if (prize !== undefined) {
+    if (totalPrize !== undefined) {
       setShowPrize(true);
 
       setTimeout(() => {
         setShowPrize(false);
       }, 2000);
     }
-  }, [prize]);
+  }, [totalPrize, lastPizeWon]);
+
+  useEffect(() => {
+    // If we have pending responses we can't trust the external state se we only use the internal state
+    if (pendingBallResponses === 0) {
+      queryClient.resetQueries({ queryKey: ['useGetUserBalls'] });
+
+      setOnlyInternalState(false);
+    } else {
+      setOnlyInternalState(true);
+    }
+  }, [pendingBallResponses]);
 
   async function finishGame() {
     if (prizeNames[0]) {
@@ -203,11 +354,14 @@ export function PlinkoBoard() {
         },
       };
 
+      // setThrownBallsQuantity(0);
+      let endGameResponse;
       setGameOverFlag(true);
+      endGameResponse = await callEndGame(endGameRequestData);
       setGameOverMessage(`Your ball fell in ${prizeNames[0]} goal`);
-      const endGameResponse = await callEndGame(endGameRequestData);
       setEndGameResponse(endGameResponse);
       if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+      setBallFinishLines([]);
     }
   }
 
@@ -243,7 +397,8 @@ export function PlinkoBoard() {
   }
 
   function handleShowNewBallPreviewMouse(e: React.MouseEvent<HTMLDivElement>) {
-    if (thrownBallsQuantity >= MAX_BALLS_AMOUNT) return;
+    if ((internalUserBalls && internalUserBalls <= 0) || !internalUserBalls)
+      return;
     const mouseXPosition = getCurrentXPosition(e.clientX);
     setCurrentXPreview(mouseXPosition);
 
@@ -280,7 +435,7 @@ export function PlinkoBoard() {
 
     const currentXPosition = x;
 
-    if (allBalls.length < MAX_BALLS_AMOUNT) {
+    if (internalUserBalls && allBalls.length < internalUserBalls) {
       if (preview) {
         //Move preview ball
         Matter.Body.setPosition(preview, {
@@ -308,11 +463,14 @@ export function PlinkoBoard() {
     if (preview) {
       removeBody(preview);
     }
-    if (allBalls.length + ballFinishLines.length < MAX_BALLS_AMOUNT) {
+    if (internalUserBalls && 0 < internalUserBalls) {
       const currentXPosition = currentXPreview!;
 
       drawNewBall(currentXPosition);
-      setThrownBallsQuantity(thrownBallsQuantity + 1);
+
+      setInternalUserBalls((prevState) => prevState! - 1);
+      setOnlyInternalState(true);
+      // setResetQuery(true);
     }
   }
 
@@ -476,63 +634,106 @@ export function PlinkoBoard() {
     }
   }, []);
 
+  const RenderPropperButton = () => {
+    if (accountId) {
+      return (
+        <Button colorScheme="yellow" onClick={onOpenModalBuyChips}>
+          Buy Chips
+        </Button>
+      );
+    } else {
+      return (
+        <Tooltip hasArrow label="Login to buy" bg="#ECC94B">
+          <Button>Buy Chips</Button>
+        </Tooltip>
+      );
+    }
+  };
+
   return (
-    <div className={styles.plinkoBoardContainer}>
-      <div className={styles.headerContainer}>
-        <Button onClick={pushBall} mr={'1rem'}>
-          Shake
-        </Button>
-        <Button onClick={onOpenModalRules} mr={'1rem'}>
-          Rules
-        </Button>
-        <span>Chips left: {MAX_BALLS_AMOUNT - thrownBallsQuantity}</span>
-      </div>
-      <div
-        className={styles.plinkoGame}
-        ref={scene}
-        onMouseMove={isMobile ? () => {} : handleShowNewBallPreviewMouse}
-        onTouchMove={handleShowNewBallPreviewTouch}
-        onTouchStart={handleShowNewBallPreviewTouch}
-        onTouchEnd={handleTouchEnd}
-        onMouseUp={isMobile ? () => {} : handleMouseDropNewBall}
-      />
-
-      <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
-
-      <div className={styles.displayablePrizeContainer}>
-        <span
-          className={`${styles.displayablePrize} ${showPrize ? styles.show : styles.hide}`}
-        >
-          +{prize} {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
-        </span>
-      </div>
-      {saveResponse && (
-        <ModalContainer
-          title={'Error saving plinko game'}
-          isOpen={isOpen}
-          onClose={onClose}
-        >
+    <PlinkoContextProvider>
+      <div className={styles.plinkoBoardContainer}>
+        <div className={styles.headerContainer}>
           <div>
-            {saveResponse.map((error, index) => {
-              return <div key={index}>{error}</div>;
-            })}
+            <Button onClick={pushBall} mr={'1rem'}>
+              Shake
+            </Button>
+            <Button onClick={onOpenModalRules} mr={'1rem'}>
+              Rules
+            </Button>
           </div>
-        </ModalContainer>
-      )}
-      {gameOverFlag && gameOverMessage.length > 0 && (
-        <ModalContainer
-          title={'Game over'}
-          isOpen={isOpen}
-          onClose={closeGameOverModal}
-          closeOnOverlayClick={false}
-        >
-          <GameOverModalContent
-            prizeName={prizeNames[0]}
-            cheddarFound={prize!}
-            endGameResponse={endGameResponse}
-          />
-        </ModalContainer>
-      )}
-    </div>
+
+          <div className={styles.chipsSection}>
+            {!isMinigame && <RenderPropperButton />}
+            {internalUserBalls === undefined ? (
+              <Spinner />
+            ) : (
+              <span>Chips left: {internalUserBalls ?? 0}</span>
+            )}
+          </div>
+        </div>
+        <div
+          className={styles.plinkoGame}
+          ref={scene}
+          onMouseMove={isMobile ? () => {} : handleShowNewBallPreviewMouse}
+          onTouchMove={handleShowNewBallPreviewTouch}
+          onTouchStart={handleShowNewBallPreviewTouch}
+          onTouchEnd={handleTouchEnd}
+          onMouseUp={isMobile ? () => {} : handleMouseDropNewBall}
+        />
+        <ModalBuyChips
+          isOpen={isOpenModalBuyChips}
+          onClose={onCloseModalBuyChips}
+        />
+        <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
+
+        <div className={styles.displayablePrizeContainer}>
+          <div
+            className={`${styles.displayablePrize} ${showPrize ? styles.show : styles.hide}`}
+          >
+            {!isMinigame && (
+              <>
+                <p>
+                  +{lastPizeWon}{' '}
+                  {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
+                </p>
+              </>
+            )}
+            <span>
+              {!isMinigame && 'Total '}
+              {totalPrize}{' '}
+              {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
+            </span>
+          </div>
+        </div>
+        {saveResponse && (
+          <ModalContainer
+            title={'Error saving plinko game'}
+            isOpen={isOpen}
+            onClose={onClose}
+          >
+            <div>
+              {saveResponse.map((error, index) => {
+                return <div key={index}>{error}</div>;
+              })}
+            </div>
+          </ModalContainer>
+        )}
+        {gameOverFlag && gameOverMessage.length > 0 && (
+          <ModalContainer
+            title={'Game over'}
+            isOpen={isOpen}
+            onClose={closeGameOverModal}
+            closeOnOverlayClick={false}
+          >
+            <GameOverModalContent
+              prizeName={prizeNames[0]}
+              cheddarFound={totalPrize!}
+              endGameResponse={endGameResponse}
+            />
+          </ModalContainer>
+        )}
+      </div>
+    </PlinkoContextProvider>
   );
 }
