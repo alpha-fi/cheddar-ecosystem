@@ -26,7 +26,7 @@ export const BALL_BOUNCINES = 1;
 export const BALL_FRICTION = 0.1;
 export const HIT_MACHINE_FORCE_MAGNITUDE = 0.05;
 export const GRAVITY = 0.3;
-export const MAX_BALLS_AMOUNT = 1;
+export const MINIGAME_MAX_BALLS_AMOUNT = 1;
 
 export const COLLISION_FILTER_1 = {
   group: -1,
