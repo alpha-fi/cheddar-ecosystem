@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletSelectorContextProvider } from '@/contexts/WalletSelectorContext';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PageContainer } from '@/components/PageContainer';
+import { ToastsContextProvider } from '@/contexts/ToastsContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -52,8 +53,10 @@ export default function RootLayout({
         <WalletSelectorContextProvider>
           <ChakraProvider>
             <QueryClientProvider client={queryClient}>
-              <PageContainer>{children}</PageContainer>
-              <ReactQueryDevtools initialIsOpen={false} />
+              <ToastsContextProvider>
+                <PageContainer>{children}</PageContainer>
+                <ReactQueryDevtools initialIsOpen={false} />
+              </ToastsContextProvider>
             </QueryClientProvider>
           </ChakraProvider>
         </WalletSelectorContextProvider>

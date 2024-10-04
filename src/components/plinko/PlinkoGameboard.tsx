@@ -44,6 +44,7 @@ import { useGetUserBalls } from '@/hooks/plinko';
 import { PlinkoContext } from '@/contexts/plinko/PlinkoContextProvider';
 import { useQueryClient } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
+import { ToastsContext } from '@/contexts/ToastsContext';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -68,6 +69,8 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     setBallsYPosition,
     MAX_BALLS_AMOUNT_IN_GAME,
   } = React.useContext(PlinkoContext);
+
+  const { showAsyncToast } = React.useContext(ToastsContext);
 
   const queryClient = useQueryClient();
 
@@ -131,8 +134,6 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
     // setThrownBallsQuantity(0);
   }, [externalUserBalls]);
-
-  const toast = useToast();
 
   function closeGameOverModal() {
     closePlinkoModal();
@@ -208,29 +209,13 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
       }
     });
 
-    toast.promise(getPrize, {
-      success: {
-        title: 'Enjoy your prize!',
-        description: 'Cheddar minted succesfully',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      },
-      error: {
-        title: 'Oops',
-        description: "Something went wrong, you'll get your chips back",
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      },
-      loading: {
-        title: 'Processing your prize',
-        description: 'Please wait',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      },
-    });
+    showAsyncToast(
+      getPrize,
+      'Processing your prize',
+      'Enjoy your prize!',
+      'Please wait',
+      'Cheddar minted succesfully'
+    );
   }
 
   useEffect(() => {
