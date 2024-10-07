@@ -1,7 +1,7 @@
 import { MazeTileData } from '@/contexts/maze/GameContextProvider';
 import { useContext, useEffect, useRef } from 'react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { ListItem, OrderedList } from '@chakra-ui/react';
+import { Image, ListItem, OrderedList } from '@chakra-ui/react';
 
 import styles from '@/styles/Gameboard.module.css';
 
@@ -110,7 +110,7 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
             // else if (cell.hasEnemy) cellContent = '👺';
             // else if (cell.hasEnemy) cellContent = '😈';
             // else if (cell.hasEnemy) cellContent = '🐉';
-            else if (cell.hasEnemy) cellContent = '⚔️';
+            // else if (cell.hasEnemy) cellContent = '⚔️';
             //====================================================== End enemy logo options ======================================================
             //====================================================== Start exit logo options ======================================================
             else if (cell.hasExit) cellContent = '🚪';
@@ -162,15 +162,23 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
                 )}
               >
                 {/* Dynamic content based on cell */}
-                {cellContent && (
-                  <span
-                    role="img"
-                    aria-label={cellContent}
-                    // className="static-icon"
+                {cell.hasEnemy ? (
+                  <Image
+                    src="https://www.toysrus.co.za/media/wysiwyg/monophy_1.gif"
+                    alt="Fight gif"
                     className={styles.staticIcon}
-                  >
-                    {cellContent}
-                  </span>
+                  />
+                ) : (
+                  cellContent && (
+                    <span
+                      role="img"
+                      aria-label={cellContent}
+                      // className="static-icon"
+                      className={styles.staticIcon}
+                    >
+                      {cellContent}
+                    </span>
+                  )
                 )}
 
                 {/* Player icon */}

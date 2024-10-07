@@ -77,7 +77,7 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
   const { networkData } = getConfig();
   return (
     <div className={styles.gameOverModal}>
-      <p className={getMessageStyles()}>{gameOverMessage}</p>
+      <p className={getMessageStyles()}>Game Over! {gameOverMessage}</p>
       {hasWon &&
         (cheddarFound > pendingCheddarToMint ? (
           <p className={styles.earnings}>

@@ -527,7 +527,7 @@ export function GameboardContainer({
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer
-          title={'Game over'}
+          title={''}
           isOpen={isOpen}
           onClose={closeGameOverModal}
           neverCloseOnOverlayClick={true}
