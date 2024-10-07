@@ -4,19 +4,13 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { ListItem, OrderedList } from '@chakra-ui/react';
 
 import styles from '@/styles/Gameboard.module.css';
-import { IsAllowedResponse } from '@/hooks/maze';
 
 interface Props {
   isUserLoggedIn: boolean;
   openLogIn: () => void;
-  isAllowedResponse: IsAllowedResponse;
 }
 
-export function Gameboard({
-  isUserLoggedIn,
-  openLogIn,
-  isAllowedResponse,
-}: Props) {
+export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
   const {
     mazeData,
     playerPosition,
@@ -55,9 +49,7 @@ export function Gameboard({
   const handleConditionalFunction =
     (onTrue: (event: any) => void, onFalse: () => void) => (event: any) => {
       if (isUserLoggedIn) {
-        if (isAllowedResponse.ok) {
-          onTrue(event);
-        }
+        onTrue(event);
       } else {
         onFalse();
       }

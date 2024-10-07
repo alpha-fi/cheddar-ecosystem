@@ -3,27 +3,6 @@ import { getConfig } from '@/configs/config';
 
 const { backendBaseUrl, holonym } = getConfig();
 
-export async function isAllowed(accountId: string) {
-  try {
-    const url = new URL(
-      `api/maze/isAllowed?accountId=${accountId}`,
-      backendBaseUrl
-    ).toString();
-    const response = await fetch(url);
-    if (!response.ok) {
-      const jsonResponse = await response.json();
-      throw new Error(
-        jsonResponse.errors ||
-          `Failed to fetch isAllowed for account: ${accountId}`
-      );
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('Error in isAllowed:', error);
-    throw error; // Ensure the error is propagated
-  }
-}
-
 export async function getPendingCheddarToMint(accountId: string) {
   try {
     const url = new URL(
