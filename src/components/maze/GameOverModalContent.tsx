@@ -78,48 +78,54 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
   return (
     <div className={styles.gameOverModal}>
       <p className={getMessageStyles()}>{gameOverMessage}</p>
-      {hasWon && (
-        <p className={styles.earnings}>
-          {isUserNadabotVerfied || isUserHolonymVerified ? (
-            <span>
-              You have farmed{' '}
-              {cheddarFound <= pendingCheddarToMint
-                ? cheddarFound
-                : pendingCheddarToMint}{' '}
-              🧀
-            </span>
-          ) : (
-            <span>
-              You have won{' '}
-              {cheddarFound <= pendingCheddarToMint
-                ? cheddarFound
-                : pendingCheddarToMint}{' '}
-              🧀, please verify using{' '}
-              <Link
-                className={styles.link}
-                href={networkData.nadaBotUrl}
-                target="_blank"
-                style={{ textDecoration: 'underline' }}
-              >
-                nada.bot
-              </Link>{' '}
-              or{' '}
-              <Link
-                className={styles.link}
-                onClick={() => {
-                  setHolonymModal(true);
-                  onClose();
-                }}
-                target="_blank"
-                style={{ textDecoration: 'underline' }}
-              >
-                Holonym
-              </Link>{' '}
-              to claim your cheddar.
-            </span>
-          )}
-        </p>
-      )}
+      {hasWon &&
+        (cheddarFound > pendingCheddarToMint ? (
+          <p className={styles.earnings}>
+            You rocked it today by reaching the daily 555 Cheddar limit. Let’s
+            go again tomorrow
+          </p>
+        ) : (
+          <p className={styles.earnings}>
+            {isUserNadabotVerfied || isUserHolonymVerified ? (
+              <span>
+                You have farmed{' '}
+                {cheddarFound <= pendingCheddarToMint
+                  ? cheddarFound
+                  : pendingCheddarToMint}{' '}
+                🧀
+              </span>
+            ) : (
+              <span>
+                You have won{' '}
+                {cheddarFound <= pendingCheddarToMint
+                  ? cheddarFound
+                  : pendingCheddarToMint}{' '}
+                🧀, please verify using{' '}
+                <Link
+                  className={styles.link}
+                  href={networkData.nadaBotUrl}
+                  target="_blank"
+                  style={{ textDecoration: 'underline' }}
+                >
+                  nada.bot
+                </Link>{' '}
+                or{' '}
+                <Link
+                  className={styles.link}
+                  onClick={() => {
+                    setHolonymModal(true);
+                    onClose();
+                  }}
+                  target="_blank"
+                  style={{ textDecoration: 'underline' }}
+                >
+                  Holonym
+                </Link>{' '}
+                to claim your cheddar.
+              </span>
+            )}
+          </p>
+        ))}
       {cheddarFound > 0 && !hasWon && (
         <p className={styles.loseEarnings}>
           {remainingMinutes === 0 && remainingSeconds === 0 ? (
