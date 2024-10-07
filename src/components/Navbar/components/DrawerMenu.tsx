@@ -19,22 +19,21 @@ import { useContext } from 'react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import Link from 'next/link';
+import { getConfig } from '@/configs/config';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 interface Props {
   onOpenVideoModal: () => void;
-  cheddarTotalSupply: bigint | undefined;
-  isLoadingCheddarTotalSupply: boolean;
   setHolonymModal: (v: boolean) => void;
 }
 
 export function DrawerMenu({
   onOpenVideoModal,
-  cheddarTotalSupply,
-  isLoadingCheddarTotalSupply,
   setHolonymModal,
 }: Props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isUserHolonymVerified } = useContext(GameContext);
+  const { nadaBotUrl } = getConfig().networkData;
+  const { blockchain, isConnected, isUserVerified, cheddarTotalSupply, isCheddarTotalSupplyLoading } = useGlobalContext()
 
   return (
     <>
@@ -54,9 +53,8 @@ export function DrawerMenu({
             _focus={{ textDecoration: 'none', boxShadow: '0 0 0 0 #0000' }}
           />
           <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
-
           <DrawerBody display="flex" flexDirection="column" gap="0.5rem" px="0">
-            {!isUserHolonymVerified && (
+            {blockchain==="base" && isConnected && !isUserVerified && (
               <Button
                 colorScheme="yellow"
                 _hover={{ bg: 'yellowgreen' }}
@@ -68,6 +66,19 @@ export function DrawerMenu({
                 }}
               >
                 Get Holonym SBT
+              </Button>
+            )}
+            {blockchain==="near" && isConnected && !isUserVerified && (
+              <Button
+                colorScheme="yellow"
+                _hover={{ bg: 'yellowgreen' }}
+                mx={3}
+                px={{ base: 2, md: 3 }}
+                as={Link}
+                href={nadaBotUrl}
+                target='_blank'
+              >
+                Get NadaBot SBT
               </Button>
             )}
 
@@ -100,11 +111,17 @@ export function DrawerMenu({
             <Text display="flex" justifyContent="space-between" w="100%">
               <Text as="i" pb="0.5rem">
                 Total supply:{' '}
-                {isLoadingCheddarTotalSupply
-                  ? 'Loading'
-                  : new Intl.NumberFormat('de-DE', {
-                      maximumFractionDigits: 0,
-                    }).format(yton(cheddarTotalSupply!))}{' '}
+                {isCheddarTotalSupplyLoading ? 
+                      'Loading'
+                    : 
+                      blockchain=== "near" ?
+                        new Intl.NumberFormat('de-DE', {
+                          maximumFractionDigits: 0,
+                        }).format(yton(cheddarTotalSupply!))
+                      : 
+                        Number((cheddarTotalSupply as bigint) || 0)
+                }
+                {' '}
                 <RenderCheddarIcon />
               </Text>
             </Text>

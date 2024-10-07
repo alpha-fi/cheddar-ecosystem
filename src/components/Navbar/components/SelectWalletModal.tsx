@@ -36,7 +36,6 @@ export const SelectWalletModal = () => {
         onClose={() => walletSelector.showSelectWalletModal(false)}
       >
         <VStack spacing={4} align="center">
-          {/* <DynamicWidget /> */}
           <ButtonConnectWallet
             handleButtonCLick={() =>
               walletSelector.showSelectWalletModal(false)

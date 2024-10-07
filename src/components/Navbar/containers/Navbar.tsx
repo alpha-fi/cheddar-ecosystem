@@ -15,7 +15,7 @@ import { DrawerMenu } from '../components/DrawerMenu';
 import styles from '@/styles/NavBar.module.css';
 
 import {
-  useGetCheddarTotalSupply,
+  useGetCheddarNearTotalSupply,
   useGetCheddarBaseTotalSupply,
 } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
@@ -28,6 +28,10 @@ import ModalHolonym from '@/components/ModalHolonymSBT';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useAccount } from 'wagmi';
 import { SelectWalletModal } from '../components/SelectWalletModal';
+import { useGlobalContext } from '@/contexts/GlobalContext';
+import { BlockchainSelector } from '../components/BlockchainSelector';
+import { WalletMenu } from '../components/WalletMenu';
+import { getConfig } from '@/configs/config';
 
 export default function Navbar() {
   const {
@@ -35,16 +39,12 @@ export default function Navbar() {
     onOpen: onOpenVideoModal,
     onClose: onCloseVideoModal,
   } = useDisclosure();
-  const { address } = useAccount();
 
-  const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
-    useGetCheddarTotalSupply();
-  const {
-    data: baseCheddarTotalSupply,
-    isLoading: isLoadingBaseCheddarTotalSupply,
-  } = useGetCheddarBaseTotalSupply();
+  const { nadaBotUrl } = getConfig().networkData;
+
+  const { addresses, blockchain, isConnected, isUserVerified, cheddarTotalSupply, isCheddarTotalSupplyLoading } = useGlobalContext()
+
   const [showHolonymModal, setHolonymModal] = useState(false);
-  const { isUserHolonymVerified } = useContext(GameContext);
   const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   return (
@@ -136,22 +136,25 @@ export default function Navbar() {
               <Text as="i">
                 Total supply:{' '}
                 <div style={{ width: 'max-content' }}>
-                  {address
-                    ? isLoadingBaseCheddarTotalSupply
-                      ? 'Loading'
-                      : Number((baseCheddarTotalSupply as bigint) || 0)
-                    : isLoadingCheddarTotalSupply
-                      ? 'Loading'
-                      : new Intl.NumberFormat('de-DE', {
+                  {
+                    isCheddarTotalSupplyLoading ? 
+                      'Loading'
+                    : 
+                      blockchain=== "near" ?
+                        new Intl.NumberFormat('de-DE', {
                           maximumFractionDigits: 0,
-                        }).format(yton(cheddarTotalSupply!))}{' '}
+                        }).format(yton(cheddarTotalSupply!))
+                      : 
+                        Number((cheddarTotalSupply as bigint) || 0)
+                    }
+                    {' '}
                   {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
                 </div>
               </Text>
             </Text>
             <About />
 
-            {!address && !isUserHolonymVerified && (
+            {blockchain==="base" && isConnected && !isUserVerified && (
               <Button
                 display={{ base: 'none', lg: 'flex' }}
                 px={{ base: 2, md: 3 }}
@@ -160,17 +163,27 @@ export default function Navbar() {
                 Get Holonym SBT
               </Button>
             )}
+            {blockchain==="near" && isConnected && !isUserVerified && (
+              <Button
+                display={{ base: 'none', lg: 'flex' }}
+                px={{ base: 2, md: 3 }}
+                as={Link}
+                href={nadaBotUrl}
+                target='_blank'
+              >
+                Get NadaBot SBT
+              </Button>
+            )}
             <ModalHolonym
               isOpen={showHolonymModal}
               onClose={() => setHolonymModal(false)}
             />
-            <SelectWalletModal />
+            <BlockchainSelector/>
+            <WalletMenu/>
 
             <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
               <DrawerMenu
                 onOpenVideoModal={onOpenVideoModal}
-                cheddarTotalSupply={cheddarTotalSupply}
-                isLoadingCheddarTotalSupply={isLoadingCheddarTotalSupply}
                 setHolonymModal={setHolonymModal}
               />
             </Box>

@@ -45,9 +45,9 @@ export const useGetCheddarNFTs = (): UseQueryResult => {
   });
 };
 
-export const useGetCheddarTotalSupply = (): UseQueryResult<bigint> => {
+export const useGetCheddarNearTotalSupply = (): UseQueryResult<bigint> => {
   return useQuery({
-    queryKey: ['useGetCheddarTotalSupply'],
+    queryKey: ['useGetCheddarNearTotalSupply'],
     queryFn: () => getTotalSupply(),
     refetchInterval: 10000,
     staleTime: 10000,

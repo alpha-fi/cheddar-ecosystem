@@ -12,6 +12,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PageContainer } from '@/components/PageContainer';
 import OnchainContextProvider from '@/contexts/OnchainContextProvider';
 import WagmiContextProvider from '@/contexts/WagmiContextProvider';
+import { GlobalContextProvider } from '@/contexts/GlobalContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -56,8 +57,10 @@ export default function RootLayout({
             <WagmiContextProvider>
               <QueryClientProvider client={queryClient}>
                 <OnchainContextProvider>
-                  <PageContainer>{children}</PageContainer>
-                  <ReactQueryDevtools initialIsOpen={false} />
+                  <GlobalContextProvider>
+                    <PageContainer>{children}</PageContainer>
+                    <ReactQueryDevtools initialIsOpen={false} />
+                  </GlobalContextProvider>
                 </OnchainContextProvider>
               </QueryClientProvider>
             </WagmiContextProvider>
