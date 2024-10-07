@@ -28,7 +28,6 @@ import { ModalBuyNFT } from '../ModalBuyNFT';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ModalContainer } from '../ModalContainer';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
-import { IsAllowedResponse } from '@/hooks/maze';
 import ModalNotAllowedToMint from './ModalNotAllowedToMint';
 import ModalRules from './ModalRules';
 import { GameOverModalContent } from './GameOverModalContent';
@@ -51,7 +50,6 @@ interface Props {
   cellSize: number;
   hasEnoughBalance: boolean | null;
   minCheddarRequired: number;
-  isAllowedResponse: IsAllowedResponse | null | undefined;
 }
 
 interface CheddarMintResponse {
@@ -65,7 +63,6 @@ export function GameboardContainer({
   cellSize,
   hasEnoughBalance,
   minCheddarRequired,
-  isAllowedResponse,
 }: Props) {
   const {
     mazeData,
@@ -102,7 +99,7 @@ export function GameboardContainer({
   } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
-
+  const walletSelector = useWalletSelector();
   if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
     onOpen();
     setAllowOpenGameOverModal(true);
@@ -155,15 +152,6 @@ export function GameboardContainer({
     }
   }, [cheddarMintResponse, toast]);
 
-  function getProperHandler(handler: any) {
-    //Uncomment the next line to ignore the isAllowedResponse.ok returning false
-    // return handler;
-    if (isAllowedResponse?.ok) {
-      return handler;
-    }
-    return onOpenNotAlloWedModal;
-  }
-
   function getGameContainerClasses() {
     return `${styles.gameContainer}`;
     // return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
@@ -184,12 +172,12 @@ export function GameboardContainer({
 
   function getStartGameButtonHandler() {
     return accountId //If the accountId exists
-      ? getProperHandler(focusMazeAndStartGame)
+      ? focusMazeAndStartGame
       : modal.show; //If accountId doesn't exist
   }
 
   function getKeyDownMoveHandler() {
-    return timerStarted ? getProperHandler(handleKeyPress) : () => {};
+    return timerStarted ? handleKeyPress : () => {};
   }
 
   function getStartButtonStyles() {
@@ -350,6 +338,10 @@ export function GameboardContainer({
     return <span>{message}</span>;
   }
 
+  const handleLogin = () => {
+    walletSelector.modal.show();
+  };
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -472,9 +464,15 @@ export function GameboardContainer({
           <Gameboard
             openLogIn={modal.show}
             isUserLoggedIn={selector.isSignedIn()}
-            isAllowedResponse={isAllowedResponse!}
           />
         </div>
+        {!accountId && (
+          <div className={styles.startGameBg}>
+            <Button _hover={{ bg: 'yellowgreen' }} onClick={handleLogin}>
+              Login
+            </Button>
+          </div>
+        )}
         {!notAllowedToPlay && !timerStarted && accountId && (
           <div className={styles.startGameBg}>
             <Heading as="h6" size="md">
