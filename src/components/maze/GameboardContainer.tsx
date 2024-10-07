@@ -533,6 +533,7 @@ export function GameboardContainer({
           neverCloseOnOverlayClick={true}
         >
           <GameOverModalContent
+            handleBuyClick={handleBuyClick}
             setHolonymModal={setHolonymModal}
             onClose={closeGameOverModal}
           />

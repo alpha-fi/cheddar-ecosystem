@@ -59,7 +59,7 @@ const pointsOfActions = {
 };
 
 const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
 const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 interface GameContextProps {

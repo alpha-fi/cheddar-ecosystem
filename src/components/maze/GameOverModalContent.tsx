@@ -1,15 +1,23 @@
 import { useContext, useEffect } from 'react';
 import styles from '@/styles/GameOverModalContent.module.css';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { useToast, Link } from '@chakra-ui/react';
+import { useToast, Link, Stack } from '@chakra-ui/react';
 import { Facebook, Telegram, Twitter } from '../icons';
 import { getConfig } from '@/configs/config';
+import { Ad1 } from './Ad1';
+import { Ad2 } from './Ad2';
+import { Ad3 } from './Ad3';
 
 interface Props {
   setHolonymModal: (v: boolean) => void;
   onClose: () => void;
+  handleBuyClick: () => void;
 }
-export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
+export const GameOverModalContent = ({
+  setHolonymModal,
+  onClose,
+  handleBuyClick,
+}: Props) => {
   const {
     remainingMinutes,
     remainingSeconds,
@@ -158,6 +166,17 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
           <Telegram boxSize={7} />
         </a>
       </div>
+      <Stack
+        flexDirection={'column'}
+        border={'2px solid black'}
+        borderRadius={'10px'}
+        mt={'1rem'}
+        boxShadow={'11px 10px 32px -13px rgba(0,0,0,0.75)'}
+      >
+        <Ad1 handleBuyClick={handleBuyClick} />
+        <Ad2 />
+        <Ad3 />
+      </Stack>
     </div>
   );
 };
