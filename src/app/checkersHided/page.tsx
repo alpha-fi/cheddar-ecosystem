@@ -428,8 +428,7 @@ function App() {
         <ul style={{ marginLeft: '16px' }}>
           <li>
             Click a checkbox &quot;double jump&quot; on the top of the board
-            before every double jump.
-            {/* Shift key makes the same trick. */}
+            before every double jump.{' '}
           </li>
           <li>
             Set a bid and join waiting list or select an available player to
@@ -750,9 +749,6 @@ function App() {
               <div className="clearfix"></div>
               <div className="turn"></div>
               <span id="winner"></span>
-              {/* <div className="">
-                <button id="cleargame">Reload</button>
-              </div> */}
             </div>
           )}
           <div className="account only-after-login">

@@ -80,14 +80,14 @@ export function DrawerMenu({
                   Maze
                 </Text>
               </Link>
-              <Link
+              {/* <Link
                 href={'/checkers'}
                 style={{ textDecorationColor: 'purple' }}
               >
                 <Text fontSize={'16px'} fontWeight="600" color="purple">
                   Checkers
                 </Text>
-              </Link>
+              </Link> */}
             </VStack>
           </DrawerBody>
 

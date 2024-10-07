@@ -91,14 +91,14 @@ export default function Navbar() {
                       Maze
                     </Text>
                   </Link>
-                  <Link
+                  {/* <Link
                     href={'/checkers'}
                     style={{ textDecorationColor: 'white' }}
                   >
                     <Text fontSize={'16px'} fontWeight="600" color="white">
                       Checkers
                     </Text>
-                  </Link>
+                  </Link> */}
                 </HStack>
               </Flex>
             </Flex>
