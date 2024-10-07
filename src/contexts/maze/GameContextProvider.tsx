@@ -57,7 +57,7 @@ const pointsOfActions = {
 };
 
 const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
 const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 interface GameContextProps {
@@ -889,9 +889,12 @@ export const GameContextProvider = ({ children }: props) => {
     setHasWon(won);
     setCoveredCells([]);
     setGameOverFlag(true);
-    setGameOverMessage(message);
-    stopTimer();
-    setHasFoundPlinko(false);
+
+    setTimeout(() => {
+      stopTimer();
+      setGameOverMessage(message);
+      setHasFoundPlinko(false);
+    }, 800);
 
     const endGameResponse = await callEndGame(endGameRequestData).catch(
       (error) => setSaveResponse(error)

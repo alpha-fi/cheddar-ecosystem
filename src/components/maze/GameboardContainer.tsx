@@ -1,3 +1,4 @@
+import React from 'react';
 import { Gameboard } from './Gameboard';
 import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import styles from '@/styles/GameboardContainer.module.css';
@@ -100,6 +101,7 @@ export function GameboardContainer({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
   const walletSelector = useWalletSelector();
+
   if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
     onOpen();
     setAllowOpenGameOverModal(true);
