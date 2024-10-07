@@ -17,17 +17,13 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
     direction,
     selectedColorSet,
     lastCellX,
-    setLastCellX,
     lastCellY,
-    setLastCellY,
     calculateBlurRadius,
     handleTouchStart,
     handleTouchMove,
-    timerStarted,
   } = useContext(GameContext);
 
   const touchContainerRef = useRef<HTMLDivElement>(null);
-  const gameStartedRef = useRef(false);
 
   // Check if the game has started for the first time
   const gameStarted = playerPosition !== null;
@@ -66,7 +62,7 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
   }
   function getPlayerTileClasses(cell: MazeTileData) {
     let backgroundImage;
-    if (cell.enemyWon || cell.hasCartel || cell.hasExit) {
+    if (cell.fight || cell.enemyWon || cell.hasCartel || cell.hasExit) {
       backgroundImage = 'playerBackgroundEmpty';
     } else {
       backgroundImage = 'playerBackgroundElementOnTop';
@@ -85,8 +81,6 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
             const applyBlur = blurRadius > 0; // Determine if blur should be applied
             // Define cell content based on cell type
             let cellContent = '';
-
-            //TODO choose best logos options
 
             //====================================================== Start cheese logo options ======================================================
             if (cell.hasCheese) cellContent = '🧀';
@@ -110,7 +104,7 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
             // else if (cell.hasEnemy) cellContent = '👺';
             // else if (cell.hasEnemy) cellContent = '😈';
             // else if (cell.hasEnemy) cellContent = '🐉';
-            // else if (cell.hasEnemy) cellContent = '⚔️';
+            else if (cell.hasEnemy) cellContent = '⚔️';
             //====================================================== End enemy logo options ======================================================
             //====================================================== Start exit logo options ======================================================
             else if (cell.hasExit) cellContent = '🚪';
@@ -162,7 +156,7 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
                 )}
               >
                 {/* Dynamic content based on cell */}
-                {cell.hasEnemy ? (
+                {cell.fight ? (
                   <Image
                     src="https://www.toysrus.co.za/media/wysiwyg/monophy_1.gif"
                     alt="Fight gif"
