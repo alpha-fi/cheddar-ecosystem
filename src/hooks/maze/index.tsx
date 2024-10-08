@@ -1,4 +1,5 @@
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import {
   isAllowed as isAllowedResponse,
@@ -27,13 +28,12 @@ export interface ScoreboardResponse {
 
 export const useGetIsAllowedResponse =
   (): UseQueryResult<null | IsAllowedResponse> => {
-    const { accountId } = useWalletSelector();
-    const { address } = useAccount();
-    const account = accountId || (address as string);
+    const { blockchain, selectedBlockchainAddress } = useGlobalContext()
+
     return useQuery({
-      queryKey: ['useGetIsAllowed', account],
+      queryKey: ['useGetIsAllowed', selectedBlockchainAddress],
       queryFn: () =>
-        account ? isAllowedResponse(account, address ? 'base' : 'near') : null,
+        selectedBlockchainAddress ? isAllowedResponse(selectedBlockchainAddress, blockchain) : null,
       refetchInterval: 10000,
       staleTime: 10000,
     });
@@ -50,14 +50,13 @@ export const useGetScoreboard =
   };
 
 export const useGetPendingCheddarToMint = (): UseQueryResult<number> => {
-  const { accountId } = useWalletSelector();
-  const { address } = useAccount();
-  const account = accountId || (address as string);
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
+
   return useQuery({
-    queryKey: ['useGetPendingCheddarToMint', account],
+    queryKey: ['useGetPendingCheddarToMint', selectedBlockchainAddress],
     queryFn: () =>
-      account
-        ? getPendingCheddarToMint(account, address ? 'base' : 'near')
+      selectedBlockchainAddress
+        ? getPendingCheddarToMint(selectedBlockchainAddress, blockchain)
         : null,
     refetchInterval: 10000,
     staleTime: 10000,
@@ -65,14 +64,13 @@ export const useGetPendingCheddarToMint = (): UseQueryResult<number> => {
 };
 
 export const useGetEarnedButNotMintedCheddar = (): UseQueryResult<number> => {
-  const { accountId } = useWalletSelector();
-  const { address } = useAccount();
-  const account = accountId || (address as string);
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
+  
   return useQuery({
-    queryKey: ['useGetEarnedButNotMintedCheddar', accountId],
+    queryKey: ['useGetEarnedButNotMintedCheddar', selectedBlockchainAddress],
     queryFn: () =>
-      account
-        ? getEarnedButNotMinted(account, address ? 'base' : 'near')
+      selectedBlockchainAddress
+        ? getEarnedButNotMinted(selectedBlockchainAddress, blockchain)
         : null,
     refetchInterval: false,
     staleTime: Infinity,
@@ -80,13 +78,12 @@ export const useGetEarnedButNotMintedCheddar = (): UseQueryResult<number> => {
 };
 
 export const useGetEarnedAndMintedCheddar = (): UseQueryResult<number> => {
-  const { accountId } = useWalletSelector();
-  const { address } = useAccount();
-  const account = accountId || (address as string);
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
+
   return useQuery({
-    queryKey: ['useGetEarnedAndMintedCheddar', accountId],
+    queryKey: ['useGetEarnedAndMintedCheddar', selectedBlockchainAddress],
     queryFn: () =>
-      account ? getEarnedAndMinted(account, address ? 'base' : 'near') : null,
+      selectedBlockchainAddress ? getEarnedAndMinted(selectedBlockchainAddress, blockchain) : null,
     refetchInterval: false,
     staleTime: Infinity,
   });

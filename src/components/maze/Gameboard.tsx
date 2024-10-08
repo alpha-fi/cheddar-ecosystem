@@ -6,6 +6,7 @@ import { ListItem, OrderedList } from '@chakra-ui/react';
 import styles from '@/styles/Gameboard.module.css';
 import { IsAllowedResponse } from '@/hooks/maze';
 import { useAccount } from 'wagmi';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 interface Props {
   isUserLoggedIn: boolean;
@@ -33,7 +34,7 @@ export function Gameboard({
     timerStarted,
   } = useContext(GameContext);
 
-  const { address } = useAccount();
+  const { blockchain } = useGlobalContext()
 
   const touchContainerRef = useRef<HTMLDivElement>(null);
   const gameStartedRef = useRef(false);
@@ -58,7 +59,7 @@ export function Gameboard({
   const handleConditionalFunction =
     (onTrue: (event: any) => void, onFalse: () => void) => (event: any) => {
       if (isUserLoggedIn) {
-        if (address || isAllowedResponse.ok) {
+        if (blockchain==="base" || isAllowedResponse.ok) {
           console.log('stating');
           onTrue(event);
         }

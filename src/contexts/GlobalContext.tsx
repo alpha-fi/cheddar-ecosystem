@@ -66,7 +66,7 @@ export const GlobalContextProvider: any = ({ children }: any) => {
       near: nearAddress || null,
       base: evmAddress || null
     }
-  }, [nearAddress,evmAddress])
+  }, [nearAddress,evmAddress,blockchain])
 
   const selectedBlockchainAddress = useMemo(() => addresses[blockchain], [addresses,blockchain])
 

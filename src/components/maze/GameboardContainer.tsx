@@ -44,6 +44,7 @@ import { callMintCheddar } from '@/queries/maze/api';
 import { getConfig } from '@/configs/config';
 import ModalHolonym from '../ModalHolonymSBT';
 import { useAccount } from 'wagmi';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 interface Props {
   remainingMinutes: number;
@@ -95,6 +96,8 @@ export function GameboardContainer({
     totalMintedCheddarToDate,
   } = useContext(GameContext);
 
+  const { addresses, isConnected, showConnectionModal } = useGlobalContext()
+
   const gameboardRef = useRef<HTMLDivElement>(null);
   const {
     isOpen: isOpenNotAlloWedModal,
@@ -120,14 +123,8 @@ export function GameboardContainer({
     onOpen: onOpenBuyNFTPanel,
     onClose: onCloseBuyNFTPanel,
   } = useDisclosure();
-  const { address } = useAccount();
 
-  const { modal, selector, accountId, showSelectWalletModal } =
-    useWalletSelector();
-
-  const isUserLoggedIn: boolean = useMemo(() => {
-    return !!(address || accountId);
-  }, [address, accountId]);
+  const { showSelectWalletModal } = useWalletSelector();
 
   const [showMintErrorModal, setMintErrorModal] = useState(false);
   const [cheddarMintResponse, setCheddarMintResponse] =
@@ -177,11 +174,7 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return isUserLoggedIn ? onOpenBuyNFTPanel() : showSelectWalletModal(true);
-  }
-
-  function logOut() {
-    selector.wallet().then((wallet) => wallet.signOut());
+    return addresses['near'] ? onOpenBuyNFTPanel() : showSelectWalletModal(true); ///TODO: check if buy is only with near
   }
 
   function focusMazeAndStartGame() {
@@ -190,9 +183,9 @@ export function GameboardContainer({
   }
 
   function getStartGameButtonHandler() {
-    return isUserLoggedIn //If the accountId exists
+    return isConnected //If the accountId exists
       ? getProperHandler(focusMazeAndStartGame)
-      : showSelectWalletModal(true); //If accountId doesn't exist
+      : showConnectionModal(); //If accountId doesn't exist
   }
 
   function getKeyDownMoveHandler() {
@@ -256,7 +249,7 @@ export function GameboardContainer({
   };
 
   function getPowerUpBtnText() {
-    if (accountId) {
+    if (addresses['near']) {
       if (nfts?.length) {
         return '⚡';
       } else return 'Buy ⚡';
@@ -267,9 +260,9 @@ export function GameboardContainer({
   const shareReferralLink =
     'https://' +
     new URL(window.location.href).host +
-    `?referralId=${accountId}`;
+    `?referralId=${addresses['near']}`;
 
-  const notAllowedToPlay = address
+  const notAllowedToPlay = addresses['base']
     ? false
     : (!isUserNadabotVerfied &&
         !isUserHolonymVerified &&
@@ -399,8 +392,8 @@ export function GameboardContainer({
                 } else {
                   setIsClaiming(true);
                   const response = await callMintCheddar({
-                    accountId: accountId as string,
-                    blockchain: 'near',
+                    accountId: addresses['near'] as string,
+                    blockchain: 'near', ///TODO: check backend
                   });
                   setIsClaiming(false);
                   setCheddarMintResponse(response);
@@ -479,12 +472,12 @@ export function GameboardContainer({
         </div>
         <div style={{ position: 'relative' }}>
           <Gameboard
-            openLogIn={() => showSelectWalletModal(true)}
-            isUserLoggedIn={isUserLoggedIn}
+            openLogIn={showConnectionModal}
+            isUserLoggedIn={isConnected}
             isAllowedResponse={isAllowedResponse!}
           />
         </div>
-        {!notAllowedToPlay && !timerStarted && isUserLoggedIn && (
+        {!notAllowedToPlay && !timerStarted && isConnected && (
           <div className={styles.startGameBg}>
             <Heading as="h6" size="md">
               Play Cheddar Maze
@@ -503,7 +496,7 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsFirstLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowUp')}
-                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
+                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
                 >
                   <ArrowUpIcon />
                 </Button>
@@ -511,19 +504,19 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsSecondLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowLeft')}
-                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
+                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
                 >
                   <ArrowBackIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowDown')}
-                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
+                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
                 >
                   <ArrowDownIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowRight')}
-                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
+                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
                 >
                   <ArrowForwardIcon />
                 </Button>

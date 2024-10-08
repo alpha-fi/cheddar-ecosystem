@@ -1,3 +1,5 @@
+import { base, baseSepolia } from 'wagmi/chains';
+
 export interface Config {
   networkData: {
     networkId: string;
@@ -22,6 +24,9 @@ export interface Config {
     base: {
       cheddarToken: string;
     };
+  };
+  chains: {
+    base: any
   };
   socialKeys: {
     ecosystem: string;
@@ -75,6 +80,9 @@ export const getConfig = (): Config => {
             cheddarToken: '0x0000000000000000000000000000000000000000',
           },
         },
+        chains:{
+          base: base
+        },
         socialKeys: {
           ecosystem: 'cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
@@ -110,6 +118,9 @@ export const getConfig = (): Config => {
             cheddarToken: '0x36fCd2184dAC09E2EC5EEdF2E46C015a1De27B13',
           },
         },
+        chains:{
+          base: baseSepolia
+        },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
@@ -144,6 +155,9 @@ export const getConfig = (): Config => {
           base: {
             cheddarToken: '0x36fCd2184dAC09E2EC5EEdF2E46C015a1De27B13',
           },
+        },
+        chains:{
+          base: baseSepolia
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',

@@ -10,6 +10,7 @@ import { useGetIsAllowedResponse } from '@/hooks/maze';
 import ModalWelcome from '../ModalWelcome';
 import { useToast } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 export default function MazeContainer() {
   const {
@@ -26,12 +27,10 @@ export default function MazeContainer() {
     restartGame,
   } = useContext(GameContext);
 
-  const { selector, accountId } = useWalletSelector();
-  const { address } = useAccount();
-  const { data: cheddarMetadata, isLoading: isLoadingCheddarMetadata } =
-    useGetCheddarMetadata();
-  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
-    useGetCheddarBalance();
+  const { addresses, cheddarBalance, isCheddarBalanceLoading } = useGlobalContext()
+
+  const { isLoading: isLoadingCheddarMetadata } = useGetCheddarMetadata();
+
   const {
     data: isAllowedResponse,
     isLoading: isLoadingIsAllowed,
@@ -43,7 +42,7 @@ export default function MazeContainer() {
 
   if (!queriesLoaded) {
     if (
-      !isLoadingCheddarBalance &&
+      !isCheddarBalanceLoading &&
       !isLoadingCheddarMetadata &&
       !isLoadingIsAllowed
     ) {
@@ -68,14 +67,15 @@ export default function MazeContainer() {
 
   useEffect(() => {
     function doesUserHaveEnoughBalance() {
-      if (address) {
+      if (addresses["base"]) {
         return true;
-      } else if (!cheddarBalanceData) return false;
-
-      return minCheddarRequired <= cheddarBalanceData!;
+      } else if(!cheddarBalance){
+        return false;
+      }
+      return minCheddarRequired <= cheddarBalance;
     }
     setHasEnoughBalance(doesUserHaveEnoughBalance());
-  }, [cheddarBalanceData, accountId, address, selector, isAllowedResponse]);
+  }, [cheddarBalance, addresses, isAllowedResponse]);
 
   function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);

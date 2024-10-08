@@ -5,15 +5,11 @@ import React, {
   useEffect,
   useState,
   KeyboardEvent,
-  TouchEvent,
   useRef,
-  useMemo,
 } from 'react';
 
 import {
-  BlockchainType,
   callEndGame,
-  getScoreBoard,
   getSeedId,
 } from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
@@ -25,8 +21,7 @@ import {
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
-import { PlayerScoreData } from '@/components/maze/Scoreboard';
-import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
+import { NFT } from '@/contracts/nftCheddarContract';
 import {
   useGetCheddarNFTs,
   useIsNadabotVerfified,
@@ -34,7 +29,7 @@ import {
 } from '@/hooks/cheddar';
 import { useDisclosure, useToast } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
-import { useAccount } from 'wagmi';
+import { useGlobalContext } from '../GlobalContext';
 
 interface props {
   children: ReactNode;
@@ -217,11 +212,6 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseScoreboard,
   } = useDisclosure();
 
-  function openScoreboard() {
-    console.log('open scoreboard');
-    onOpenScoreboard();
-  }
-
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
@@ -289,7 +279,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [mazeCols, setMazeCols] = useState(9);
   const [mazeRows, setMazeRows] = useState(11);
   const [totalCells, setTotalCells] = useState(0);
-  const { address } = useAccount();
+
   function handleErrorToast(title: string) {
     toast({
       title,
@@ -393,14 +383,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
 
-  const account = useMemo(
-    () => accountId || (address as string),
-    [accountId, address]
-  );
-  const blockchain = useMemo<BlockchainType>(
-    () => (address ? 'base' : 'near'),
-    [accountId, address]
-  );
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
 
   useEffect(() => {
     if (accountId) {
@@ -440,11 +423,11 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to restart the game
   async function restartGame() {
-    if (!account) {
+    if (!selectedBlockchainAddress) {
       return;
     }
 
-    const newSeedIdResponse = await getSeedId(account, blockchain);
+    const newSeedIdResponse = await getSeedId(selectedBlockchainAddress, blockchain);
     if (!newSeedIdResponse.ok) {
       handleErrorToast(newSeedIdResponse.message);
 
@@ -897,7 +880,7 @@ export const GameContextProvider = ({ children }: props) => {
       },
       metadata: {
         blockchain,
-        accountId: account!,
+        accountId: selectedBlockchainAddress!,
         seedId,
         referralAccount: referralAccount,
       },
@@ -1116,7 +1099,6 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    console.log('state');
     if (!showMovementButtons) {
       // event.preventDefault(); // Prevent screen scroll
       const touches = event.touches;

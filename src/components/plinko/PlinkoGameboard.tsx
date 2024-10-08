@@ -36,6 +36,7 @@ import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
 import { useAccount } from 'wagmi';
 import { BlockchainType } from '@/queries/maze/api';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -77,6 +78,7 @@ export function PlinkoBoard() {
     onOpen: onOpenModalRules,
     onClose: onCloseModalRules,
   } = useDisclosure();
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
 
   function closeGameOverModal() {
     closePlinkoModal();
@@ -200,8 +202,8 @@ export function PlinkoBoard() {
           prizeEarned: prizeNames[0],
         },
         metadata: {
-          blockchain: address ? 'near' : ('base' as BlockchainType),
-          accountId: (address as string) || accountId!,
+          blockchain: blockchain,
+          accountId: selectedBlockchainAddress!,
           seedId,
         },
       };
