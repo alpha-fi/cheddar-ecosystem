@@ -44,6 +44,8 @@ export interface MazeTileData {
   hasExit: boolean;
   hasCartel: boolean;
   hasPlinko: boolean;
+
+  fight: boolean;
 }
 
 const amountOfCheddarInBag = 5;
@@ -57,7 +59,7 @@ const pointsOfActions = {
 };
 
 const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
 const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 interface GameContextProps {
@@ -283,6 +285,16 @@ export const GameContextProvider = ({ children }: props) => {
   const [mazeRows, setMazeRows] = useState(11);
   const [totalCells, setTotalCells] = useState(0);
 
+  function handleErrorToast(title: string) {
+    toast({
+      title,
+      status: 'error',
+      duration: 9000,
+      position: 'bottom-right',
+      isClosable: true,
+    });
+  }
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
     const handleMediaChange = (e: any) => {
@@ -309,17 +321,40 @@ export const GameContextProvider = ({ children }: props) => {
     data: pendingCheddarToMint = 0,
     isLoading: isLoadingPendingCheddarToMint,
     refetch: refetchPendingCheddarToMint,
+    error: pendingCheddarError,
   } = useGetPendingCheddarToMint();
+
+  useEffect(() => {
+    if (pendingCheddarError) {
+      handleErrorToast(
+        "Error occured while retrieving user's pending cheddar!"
+      );
+    }
+  }, [pendingCheddarError]);
 
   const {
     data: earnedButNotMintedCheddar = 0,
     refetch: refetchEarnedButNotMintedCheddar,
+    error: earnedButNotMintedError,
   } = useGetEarnedButNotMintedCheddar();
+
+  useEffect(() => {
+    if (earnedButNotMintedError) {
+      handleErrorToast("Error occured while retrieving user's earned cheddar!");
+    }
+  }, [earnedButNotMintedError]);
 
   const {
     data: totalMintedCheddarToDate = 0,
     refetch: refetchEarnedAndMintedCheddar,
+    error: mintedCheddarError,
   } = useGetEarnedAndMintedCheddar();
+
+  useEffect(() => {
+    if (mintedCheddarError) {
+      handleErrorToast("Error occured while retrieving user's minted cheddar!");
+    }
+  }, [mintedCheddarError]);
 
   useEffect(() => {
     function getPathLength() {
@@ -397,13 +432,8 @@ export const GameContextProvider = ({ children }: props) => {
 
     const newSeedIdResponse = await getSeedId(accountId);
     if (!newSeedIdResponse.ok) {
-      toast({
-        title: newSeedIdResponse.message,
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      handleErrorToast(newSeedIdResponse.message);
+
       return;
     }
 
@@ -464,6 +494,7 @@ export const GameContextProvider = ({ children }: props) => {
         enemyWon: false,
         hasCartel: false,
         hasPlinko: false,
+        fight: false,
       }))
     );
 
@@ -528,50 +559,45 @@ export const GameContextProvider = ({ children }: props) => {
       }
     }
 
-    // Check if any column is completely unreachable
-    let unreachableColumns: number[] = [];
-    for (let c = 0; c < cols; c++) {
-      let reachable = false;
-      for (let r = 0; r < rows; r++) {
-        if (maze[r][c].isPath) {
-          reachable = true;
-          break;
+    // Ensure all unreachable columns are connected
+    function connectUnreachableColumns() {
+      let unreachableColumns: number[] = [];
+      for (let c = 0; c < cols; c++) {
+        let reachable = false;
+        for (let r = 0; r < rows; r++) {
+          if (maze[r][c].isPath) {
+            reachable = true;
+            break;
+          }
+        }
+        if (!reachable) {
+          unreachableColumns.push(c);
         }
       }
-      if (!reachable) {
-        unreachableColumns.push(c);
-      }
-    }
 
-    // Ensure at least one cell in each unreachable column isPath = true
-    unreachableColumns.forEach((col) => {
-      const row = rng.nextRange(1, rows - 2);
-      maze[row][col].isPath = true;
-    });
+      // Actively connect unreachable columns
+      unreachableColumns.forEach((col) => {
+        const row = rng.nextRange(1, rows - 2);
+        maze[row][col].isPath = true;
 
-    // Randomly turn a few non-path cells into paths
-    const totalCells = rows * cols;
-    const nonPathCells = [];
-
-    // Collect all non-path cells
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        if (!maze[i][j].isPath) {
-          nonPathCells.push([i, j]);
+        // Now connect it to the nearest path
+        let connected = false;
+        for (let r = 0; r < rows; r++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const nx = col + dx;
+            if (nx >= 0 && nx < cols && maze[r][nx].isPath) {
+              maze[r][col].isPath = true;
+              connected = true;
+              break;
+            }
+          }
+          if (connected) break;
         }
-      }
+      });
     }
 
-    // Determine how many cells to turn into paths (adjust percentage as needed)
-    const numToTurnIntoPaths = Math.floor(totalCells * 0.05); // 5% of total cells
+    connectUnreachableColumns();
 
-    // Randomly select and turn cells into paths
-    for (let i = 0; i < numToTurnIntoPaths; i++) {
-      const randomIndex = rng.nextRange(0, nonPathCells.length);
-      const [r, c] = nonPathCells[randomIndex];
-      maze[r][c].isPath = true;
-      nonPathCells.splice(randomIndex, 1); // Remove selected cell from array
-    }
     return maze;
   }
 
@@ -642,6 +668,14 @@ export const GameContextProvider = ({ children }: props) => {
     );
   }
 
+  function showFighting(mazeData: MazeTileData[][], x: number, y: number) {
+    const clonedMazeData = mazeData;
+    clonedMazeData[y][x].fight = true;
+
+    setGameOverFlag(true);
+    setMazeData(clonedMazeData);
+  }
+
   function handleEnemyFound(
     clonedMazeData: MazeTileData[][],
     x: number,
@@ -651,6 +685,7 @@ export const GameContextProvider = ({ children }: props) => {
     // Code for adding enemy artifact...
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     // Add logic for the enemy defeating the player
+    clonedMazeData[y][x].fight = false;
     if (rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
@@ -658,6 +693,7 @@ export const GameContextProvider = ({ children }: props) => {
 
       gameOver('Enemy won! Game Over!', false);
     } else {
+      setGameOverFlag(false);
       clonedMazeData[y][x].hasEnemy = true;
 
       setScore(score + pointsOfActions.enemyDefeated);
@@ -750,7 +786,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const chancesOfFinding = {
     exit: 0.0021,
-    enemy: 0.19,
+    enemy: 0.17,
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
@@ -802,7 +838,10 @@ export const GameContextProvider = ({ children }: props) => {
     ) {
       handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
-      handleEnemyFound(clonedMazeData, newX, newY);
+      showFighting(clonedMazeData, newX, newY);
+      setTimeout(() => {
+        handleEnemyFound(clonedMazeData, newX, newY);
+      }, 500);
     } else if (
       !cheeseCooldown &&
       rng.nextFloat() < getChancesOfFindingCheese()
@@ -823,10 +862,21 @@ export const GameContextProvider = ({ children }: props) => {
     setTimerStarted(false);
   }
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const referrerAccount = urlParams.get('referralId') ?? undefined;
+    if (referrerAccount) {
+      localStorage.setItem('referrer_account', referrerAccount);
+    }
+  }, []);
+
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const referralAccount = urlParams.get('referralId') ?? undefined;
+    const referralAccount = localStorage.getItem('referrer_account');
+
+    if (referralAccount) {
+      localStorage.removeItem('referrer_account');
+    }
 
     if (gameOverRefSent.current) {
       return;
@@ -855,11 +905,16 @@ export const GameContextProvider = ({ children }: props) => {
     setHasWon(won);
     setCoveredCells([]);
     setGameOverFlag(true);
-    setGameOverMessage(message);
-    stopTimer();
-    setHasFoundPlinko(false);
 
-    const endGameResponse = await callEndGame(endGameRequestData);
+    setTimeout(() => {
+      stopTimer();
+      setGameOverMessage(message);
+      setHasFoundPlinko(false);
+    }, 800);
+
+    const endGameResponse = await callEndGame(endGameRequestData).catch(
+      (error) => setSaveResponse(error)
+    );
     await refetchEarnedButNotMintedCheddar();
     await refetchEarnedAndMintedCheddar();
     setEndGameResponse(endGameResponse);
@@ -872,7 +927,7 @@ export const GameContextProvider = ({ children }: props) => {
     if (timerStarted && !gameOverFlag && startTimestamp) {
       intervalId = setInterval(() => {
         if (
-          //The game is not stopped (Prevent entering this flow when minigame is open)
+          // The game is not stopped (Prevent entering this flow when minigame is open)
           timestampStartStopTimerArray.length ===
           timestampEndStopTimerArray.length
         ) {
@@ -883,28 +938,31 @@ export const GameContextProvider = ({ children }: props) => {
               setTimestampStartStopTimerArray([]);
               setTimestampEndStopTimerArray([]);
               gameOver("⏰ Time's up! Game Over!", false);
-              return prevTime;
+              return 0; // Time's up, return 0
             }
 
-            let secondsWithTimerStoped = 0;
+            let secondsWithTimerStopped = 0;
 
             if (
               timestampStartStopTimerArray.length > 0 &&
               timestampEndStopTimerArray.length > 0
             ) {
               timestampStartStopTimerArray.forEach((startTimestamp, index) => {
-                secondsWithTimerStoped +=
-                  timestampEndStopTimerArray[index] / 1000 -
-                  startTimestamp / 1000;
+                secondsWithTimerStopped +=
+                  (timestampEndStopTimerArray[index] - startTimestamp) / 1000;
               });
             }
 
-            return Math.floor(
+            // Calculate the remaining time
+            const calculatedRemainingTime = Math.floor(
               startTimestamp / 1000 +
                 timeLimitInSeconds +
-                secondsWithTimerStoped -
+                secondsWithTimerStopped -
                 Date.now() / 1000
             );
+
+            // Ensure that remainingTime doesn't exceed the timeLimitInSeconds
+            return Math.min(calculatedRemainingTime, timeLimitInSeconds);
           });
         }
       }, 500);
@@ -920,6 +978,8 @@ export const GameContextProvider = ({ children }: props) => {
     gameOverFlag,
     timestampStartStopTimerArray,
     timestampEndStopTimerArray,
+    startTimestamp,
+    timeLimitInSeconds,
   ]);
 
   function handleMoveByArrow(direction: string) {
@@ -1093,8 +1153,11 @@ export const GameContextProvider = ({ children }: props) => {
     return square?.id || '';
   };
 
-  const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
-    useGetScoreboard();
+  const {
+    data: scoreboardResponse,
+    isLoading: isLoadingScoreboard,
+    error: scoreboardError,
+  } = useGetScoreboard();
 
   const {
     isOpen: plinkoModalOpened,
@@ -1116,6 +1179,11 @@ export const GameContextProvider = ({ children }: props) => {
     setTimestampEndStopTimerArray(newTimestampEndStopTimer);
     onClosePlinkoModal();
   }
+  useEffect(() => {
+    if (scoreboardError) {
+      handleErrorToast('Error occured while fetching scoreboard!');
+    }
+  }, [scoreboardError, scoreboardResponse]);
 
   return (
     <GameContext.Provider

@@ -34,12 +34,10 @@ export interface Config {
 export const getConfig = (): Config => {
   const network = process.env.NEXT_PUBLIC_NETWORK;
   const holonym = {
-    phoneIssuance:
-      'https://silksecure.net/holonym/diff-wallet/phone/issuance/prereqs',
+    phoneIssuance: 'https://silksecure.net/holonym/diff-wallet/phone',
     phoneSBT:
       'https://api.holonym.io/sybil-resistance/phone/near?action-id=123456789',
-    govIdIssuance:
-      'https://silksecure.net/holonym/diff-wallet/gov-id/issuance/prereqs',
+    govIdIssuance: 'https://silksecure.net/holonym/diff-wallet/gov-id',
     govIdSBT:
       'https://api.holonym.io/sybil-resistance/gov-id/near?action-id=123456789',
   };
@@ -71,7 +69,7 @@ export const getConfig = (): Config => {
           ecosystem: 'cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
         },
-        backendBaseUrl: 'https://api.cheddar.farm:3002/',
+        backendBaseUrl: 'https://api.cheddar.farm:3000/',
         holonym: holonym,
       };
     case 'testnet':
@@ -101,7 +99,7 @@ export const getConfig = (): Config => {
           ecosystem: 'test_cheddarEcosystem',
           mazeVersion: 'maze_v0.0.1',
         },
-        backendBaseUrl: 'https://api.cheddar.farm:3002/',
+        backendBaseUrl: 'https://api.cheddar.farm:3001/',
         holonym: holonym,
       };
     case 'local':

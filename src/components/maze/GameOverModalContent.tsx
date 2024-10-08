@@ -1,15 +1,23 @@
 import { useContext, useEffect } from 'react';
 import styles from '@/styles/GameOverModalContent.module.css';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { useToast, Link } from '@chakra-ui/react';
+import { useToast, Link, Stack } from '@chakra-ui/react';
 import { Facebook, Telegram, Twitter } from '../icons';
 import { getConfig } from '@/configs/config';
+import { Ad1 } from './Ad1';
+import { Ad2 } from './Ad2';
+import { Ad3 } from './Ad3';
 
 interface Props {
   setHolonymModal: (v: boolean) => void;
   onClose: () => void;
+  handleBuyClick: () => void;
 }
-export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
+export const GameOverModalContent = ({
+  setHolonymModal,
+  onClose,
+  handleBuyClick,
+}: Props) => {
   const {
     remainingMinutes,
     remainingSeconds,
@@ -77,52 +85,58 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
   const { networkData } = getConfig();
   return (
     <div className={styles.gameOverModal}>
-      <p className={getMessageStyles()}>{gameOverMessage}</p>
-      {hasWon && (
-        <p className={styles.earnings}>
-          {isUserNadabotVerfied || isUserHolonymVerified ? (
-            <span>
-              You have farmed{' '}
-              {cheddarFound <= pendingCheddarToMint
-                ? cheddarFound
-                : pendingCheddarToMint}{' '}
-              🧀
-            </span>
-          ) : (
-            <span>
-              You have won{' '}
-              {cheddarFound <= pendingCheddarToMint
-                ? cheddarFound
-                : pendingCheddarToMint}{' '}
-              🧀, please verify using{' '}
-              <Link
-                className={styles.link}
-                href={networkData.nadaBotUrl}
-                target="_blank"
-                style={{ textDecoration: 'underline' }}
-              >
-                nada.bot
-              </Link>{' '}
-              or{' '}
-              <Link
-                className={styles.link}
-                onClick={() => {
-                  setHolonymModal(true);
-                  onClose();
-                }}
-                target="_blank"
-                style={{ textDecoration: 'underline' }}
-              >
-                Holonym
-              </Link>{' '}
-              to claim your cheddar.
-            </span>
-          )}
-        </p>
-      )}
+      <p className={getMessageStyles()}>Game Over! {gameOverMessage}</p>
+      {hasWon &&
+        (cheddarFound > pendingCheddarToMint ? (
+          <p className={styles.earnings}>
+            You rocked it today by reaching the daily 555 Cheddar limit. Let’s
+            go again tomorrow
+          </p>
+        ) : (
+          <p className={styles.earnings}>
+            {isUserNadabotVerfied || isUserHolonymVerified ? (
+              <span>
+                You have farmed{' '}
+                {cheddarFound <= pendingCheddarToMint
+                  ? cheddarFound
+                  : pendingCheddarToMint}{' '}
+                🧀
+              </span>
+            ) : (
+              <span>
+                You have won{' '}
+                {cheddarFound <= pendingCheddarToMint
+                  ? cheddarFound
+                  : pendingCheddarToMint}{' '}
+                🧀, please verify using{' '}
+                <Link
+                  className={styles.link}
+                  href={networkData.nadaBotUrl}
+                  target="_blank"
+                  style={{ textDecoration: 'underline' }}
+                >
+                  nada.bot
+                </Link>{' '}
+                or{' '}
+                <Link
+                  className={styles.link}
+                  onClick={() => {
+                    setHolonymModal(true);
+                    onClose();
+                  }}
+                  target="_blank"
+                  style={{ textDecoration: 'underline' }}
+                >
+                  Holonym
+                </Link>{' '}
+                to claim your cheddar.
+              </span>
+            )}
+          </p>
+        ))}
       {cheddarFound > 0 && !hasWon && (
         <p className={styles.loseEarnings}>
-          {remainingMinutes === 0 ? (
+          {remainingMinutes === 0 && remainingSeconds === 0 ? (
             <span>
               Oops you ran out of time and lost your {cheddarFound} 🧀.{' '}
             </span>
@@ -152,6 +166,17 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
           <Telegram boxSize={7} />
         </a>
       </div>
+      <Stack
+        flexDirection={'column'}
+        border={'2px solid black'}
+        borderRadius={'10px'}
+        mt={'1rem'}
+        boxShadow={'11px 10px 32px -13px rgba(0,0,0,0.75)'}
+      >
+        <Ad1 handleBuyClick={handleBuyClick} />
+        <Ad2 />
+        <Ad3 />
+      </Stack>
     </div>
   );
 };
