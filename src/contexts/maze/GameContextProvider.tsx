@@ -44,6 +44,8 @@ export interface MazeTileData {
   hasExit: boolean;
   hasCartel: boolean;
   hasPlinko: boolean;
+
+  fight: boolean;
 }
 
 const amountOfCheddarInBag = 5;
@@ -57,7 +59,7 @@ const pointsOfActions = {
 };
 
 const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
 const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 interface GameContextProps {
@@ -492,6 +494,7 @@ export const GameContextProvider = ({ children }: props) => {
         enemyWon: false,
         hasCartel: false,
         hasPlinko: false,
+        fight: false,
       }))
     );
 
@@ -665,6 +668,14 @@ export const GameContextProvider = ({ children }: props) => {
     );
   }
 
+  function showFighting(mazeData: MazeTileData[][], x: number, y: number) {
+    const clonedMazeData = mazeData;
+    clonedMazeData[y][x].fight = true;
+
+    setGameOverFlag(true);
+    setMazeData(clonedMazeData);
+  }
+
   function handleEnemyFound(
     clonedMazeData: MazeTileData[][],
     x: number,
@@ -674,6 +685,7 @@ export const GameContextProvider = ({ children }: props) => {
     // Code for adding enemy artifact...
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     // Add logic for the enemy defeating the player
+    clonedMazeData[y][x].fight = false;
     if (rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
@@ -681,6 +693,7 @@ export const GameContextProvider = ({ children }: props) => {
 
       gameOver('Enemy won! Game Over!', false);
     } else {
+      setGameOverFlag(false);
       clonedMazeData[y][x].hasEnemy = true;
 
       setScore(score + pointsOfActions.enemyDefeated);
@@ -773,7 +786,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const chancesOfFinding = {
     exit: 0.0021,
-    enemy: 0.19,
+    enemy: 0.17,
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
@@ -825,7 +838,10 @@ export const GameContextProvider = ({ children }: props) => {
     ) {
       handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
-      handleEnemyFound(clonedMazeData, newX, newY);
+      showFighting(clonedMazeData, newX, newY);
+      setTimeout(() => {
+        handleEnemyFound(clonedMazeData, newX, newY);
+      }, 500);
     } else if (
       !cheeseCooldown &&
       rng.nextFloat() < getChancesOfFindingCheese()
@@ -889,9 +905,12 @@ export const GameContextProvider = ({ children }: props) => {
     setHasWon(won);
     setCoveredCells([]);
     setGameOverFlag(true);
-    setGameOverMessage(message);
-    stopTimer();
-    setHasFoundPlinko(false);
+
+    setTimeout(() => {
+      stopTimer();
+      setGameOverMessage(message);
+      setHasFoundPlinko(false);
+    }, 800);
 
     const endGameResponse = await callEndGame(endGameRequestData).catch(
       (error) => setSaveResponse(error)
