@@ -924,6 +924,13 @@ export const GameContextProvider = ({ children }: props) => {
   // Define a new useEffect hook to manage the timer
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
+    console.log({
+      timerStarted,
+      gameOverFlag,
+      startTimestamp,
+      timestampStartStopTimerArray,
+      timestampEndStopTimerArray,
+    });
     if (timerStarted && !gameOverFlag && startTimestamp) {
       intervalId = setInterval(() => {
         if (
@@ -960,7 +967,7 @@ export const GameContextProvider = ({ children }: props) => {
                 secondsWithTimerStopped -
                 Date.now() / 1000
             );
-
+            console.log({ calculatedRemainingTime });
             // Ensure that remainingTime doesn't exceed the timeLimitInSeconds
             return Math.min(calculatedRemainingTime, timeLimitInSeconds);
           });
