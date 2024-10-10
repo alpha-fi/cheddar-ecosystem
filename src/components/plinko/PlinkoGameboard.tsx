@@ -47,8 +47,6 @@ export function PlinkoBoard() {
   const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
     React.useContext(GameContext);
 
-  const { accountId, selector } = useWalletSelector();
-
   const [clientHeight, setClientHeight] = useState<number>(
     INITIAL_CLIENT_HEIGHT
   );
@@ -72,7 +70,7 @@ export function PlinkoBoard() {
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
-  const { address } = useAccount();
+  
   const {
     isOpen: isOpenModalRules,
     onOpen: onOpenModalRules,

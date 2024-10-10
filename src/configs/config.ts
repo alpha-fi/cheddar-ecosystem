@@ -23,6 +23,7 @@ export interface Config {
     };
     base: {
       cheddarToken: string;
+      cheddarMinter: string;
     };
   };
   chains: {
@@ -78,6 +79,7 @@ export const getConfig = (): Config => {
           },
           base: {
             cheddarToken: '0x0000000000000000000000000000000000000000',
+            cheddarMinter: '0x0000000000000000000000000000000000000000',
           },
         },
         chains:{
@@ -115,7 +117,8 @@ export const getConfig = (): Config => {
             nadaBot: 'v1.nadabot.testnet',
           },
           base: {
-            cheddarToken: '0x36fCd2184dAC09E2EC5EEdF2E46C015a1De27B13',
+            cheddarToken: '0xd6DDB2F86cEc8fD31e7488e7F1874060b376eAfD',
+            cheddarMinter: '0x4D2e7A7dA2abB9d3A12538C645f5D7aB080EAa90'
           },
         },
         chains:{
@@ -153,7 +156,8 @@ export const getConfig = (): Config => {
             nadaBot: 'v1.nadabot.testnet',
           },
           base: {
-            cheddarToken: '0x36fCd2184dAC09E2EC5EEdF2E46C015a1De27B13',
+            cheddarToken: '0xd6DDB2F86cEc8fD31e7488e7F1874060b376eAfD',
+            cheddarMinter: '0x4D2e7A7dA2abB9d3A12538C645f5D7aB080EAa90'
           },
         },
         chains:{

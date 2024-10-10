@@ -10,28 +10,18 @@ import {
   useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react';
-import { ButtonConnectWallet } from '../components/ButtonConnectWallet';
 import { DrawerMenu } from '../components/DrawerMenu';
 import styles from '@/styles/NavBar.module.css';
-
-import {
-  useGetCheddarNearTotalSupply,
-  useGetCheddarBaseTotalSupply,
-} from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { ModalContainer } from '@/components/ModalContainer';
 import Link from 'next/link';
 import { About } from '../components/About';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import ModalHolonym from '@/components/ModalHolonymSBT';
-import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { useAccount } from 'wagmi';
-import { SelectWalletModal } from '../components/SelectWalletModal';
 import { useGlobalContext } from '@/contexts/GlobalContext';
 import { BlockchainSelector } from '../components/BlockchainSelector';
 import { WalletMenu } from '../components/WalletMenu';
-import { getConfig } from '@/configs/config';
 
 export default function Navbar() {
   const {
@@ -40,9 +30,7 @@ export default function Navbar() {
     onClose: onCloseVideoModal,
   } = useDisclosure();
 
-  const { nadaBotUrl } = getConfig().networkData;
-
-  const { addresses, blockchain, isConnected, isUserVerified, cheddarTotalSupply, isCheddarTotalSupplyLoading } = useGlobalContext()
+  const { blockchain, isConnected, isUserVerified, cheddarTotalSupply, isCheddarTotalSupplyLoading } = useGlobalContext()
 
   const [showHolonymModal, setHolonymModal] = useState(false);
   const isDesktop = useBreakpointValue({ base: false, lg: true });
@@ -161,17 +149,6 @@ export default function Navbar() {
                 onClick={() => setHolonymModal(true)}
               >
                 Get Holonym SBT
-              </Button>
-            )}
-            {blockchain==="near" && isConnected && !isUserVerified && (
-              <Button
-                display={{ base: 'none', lg: 'flex' }}
-                px={{ base: 2, md: 3 }}
-                as={Link}
-                href={nadaBotUrl}
-                target='_blank'
-              >
-                Get NadaBot SBT
               </Button>
             )}
             <ModalHolonym

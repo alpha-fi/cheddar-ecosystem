@@ -4,7 +4,6 @@ import { useWalletSelector } from './WalletSelectorContext';
 import { coinbaseWallet } from 'wagmi/connectors';
 import { useGetCheddarBalance, useGetCheddarBaseBalance, useGetCheddarBaseTotalSupply, useGetCheddarNearTotalSupply, useIsHolonymVerfified, useIsNadabotVerfified } from '@/hooks/cheddar';
 
-
 export type Blockchain = 'base' | 'near';
 
 interface GlobalContextProps {
@@ -118,9 +117,9 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   const isUserVerified = useMemo(() => {
     switch (blockchain) {
       case 'near':
-        return isUserNadabotVerified
+        return isUserNadabotVerified || isUserHolonymVerified
       case 'base':
-        return isUserHolonymVerified
+        return true
     }
   }, [blockchain,isUserNadabotVerified,isUserHolonymVerified])
 
