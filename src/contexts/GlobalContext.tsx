@@ -38,8 +38,7 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   const { data: cheddarNearTotalSupply, isLoading: isLoadingCheddarNearTotalSupply } = useGetCheddarNearTotalSupply();
   const { data: cheddarBaseTotalSupply, isLoading: isLoadingCheddarBaseTotalSupply } = useGetCheddarBaseTotalSupply();
   const { data: isUserNadabotVerified } = useIsNadabotVerfified(nearAddress);
-  const { data: isUserHolonymVerified } = useIsHolonymVerfified(evmAddress||null);
-
+  const { data: isUserHolonymVerified } = useIsHolonymVerfified(nearAddress);
   
   const showConnectionModal = useMemo(() => {
     switch (blockchain) {

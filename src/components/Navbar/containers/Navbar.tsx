@@ -58,11 +58,11 @@ export default function Navbar() {
         >
           <Flex alignContent="center" minW={{ base: undefined, lg: '341px' }}>
             <Flex flexDirection="column" mr="20px">
-              <HStack spacing={0} minW={'25px'}>
+              <HStack spacing={0} minW={isDesktop?'25px':'35px'}>
                 <Img
-                  src={'/assets/cheddar-logo.png'}
+                  src={isDesktop? '/assets/cheddar-logo.png' : '/assets/cheddar-logo-reduced.png'}
                   alt="Cheddar icon"
-                  height="25px"
+                  height={isDesktop?'25px':'35px'}
                 />
               </HStack>
             </Flex>
@@ -128,21 +128,18 @@ export default function Navbar() {
                     isCheddarTotalSupplyLoading ? 
                       'Loading'
                     : 
-                      blockchain=== "near" ?
-                        new Intl.NumberFormat('de-DE', {
-                          maximumFractionDigits: 0,
-                        }).format(yton(cheddarTotalSupply!))
-                      : 
-                        Number((cheddarTotalSupply as bigint) || 0)
-                    }
-                    {' '}
+                      new Intl.NumberFormat('de-DE', {
+                        maximumFractionDigits: 0,
+                      }).format(yton(cheddarTotalSupply!))
+                  }
+                  {' '}
                   {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
                 </div>
               </Text>
             </Text>
             <About />
 
-            {blockchain==="base" && isConnected && !isUserVerified && (
+            {blockchain==="near" && isConnected && !isUserVerified && (
               <Button
                 display={{ base: 'none', lg: 'flex' }}
                 px={{ base: 2, md: 3 }}

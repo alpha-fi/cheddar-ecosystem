@@ -3,13 +3,11 @@ import React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import { GameboardContainer } from './GameboardContainer';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ntoy, yton } from '@/contracts/contractUtils';
-import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
+import { useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse } from '@/hooks/maze';
 import ModalWelcome from '../ModalWelcome';
 import { useToast } from '@chakra-ui/react';
-import { useAccount } from 'wagmi';
 import { useGlobalContext } from '@/contexts/GlobalContext';
 
 export default function MazeContainer() {

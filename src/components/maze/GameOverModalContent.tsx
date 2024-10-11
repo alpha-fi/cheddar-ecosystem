@@ -5,6 +5,7 @@ import { useToast, Link } from '@chakra-ui/react';
 import { Facebook, Telegram, Twitter } from '../icons';
 import { getConfig } from '@/configs/config';
 import { useAccount } from 'wagmi';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 interface Props {
   setHolonymModal: (v: boolean) => void;
@@ -24,7 +25,7 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
     isUserHolonymVerified,
   } = useContext(GameContext);
   const toast = useToast();
-  const { address } = useAccount();
+  const { blockchain } = useGlobalContext()
   const properSecondsFormat =
     remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
 
@@ -81,7 +82,7 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
       <p className={getMessageStyles()}>{gameOverMessage}</p>
       {hasWon && (
         <p className={styles.earnings}>
-          {address || isUserNadabotVerfied || isUserHolonymVerified ? (
+          {blockchain==="base" || isUserNadabotVerfied || isUserHolonymVerified ? (
             <span>
               You have farmed{' '}
               {cheddarFound <= pendingCheddarToMint

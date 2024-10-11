@@ -112,14 +112,11 @@ export function DrawerMenu({
               <Text as="i" pb="0.5rem">
                 Total supply:{' '}
                 {isCheddarTotalSupplyLoading ? 
-                      'Loading'
-                    : 
-                      blockchain=== "near" ?
-                        new Intl.NumberFormat('de-DE', {
-                          maximumFractionDigits: 0,
-                        }).format(yton(cheddarTotalSupply!))
-                      : 
-                        Number((cheddarTotalSupply as bigint) || 0)
+                    'Loading'
+                  : 
+                    new Intl.NumberFormat('de-DE', {
+                      maximumFractionDigits: 0,
+                    }).format(yton(cheddarTotalSupply!))
                 }
                 {' '}
                 <RenderCheddarIcon />
