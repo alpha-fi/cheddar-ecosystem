@@ -77,14 +77,7 @@ export const GlobalContextProvider: any = ({ children }: any) => {
     }
   }, [blockchain,cheddarNearBalance,cheddarBaseBalance])
 
-  const cheddarTotalSupply = useMemo(() => {
-    switch (blockchain) {
-      case 'near':
-        return cheddarNearTotalSupply
-      case 'base':
-        return cheddarBaseTotalSupply
-    }
-  }, [blockchain,cheddarNearTotalSupply,cheddarBaseTotalSupply])
+  const cheddarTotalSupply = useMemo(() =>cheddarBaseTotalSupply && cheddarNearTotalSupply ? cheddarBaseTotalSupply as bigint + cheddarNearTotalSupply : BigInt(0), [cheddarBaseTotalSupply,cheddarNearTotalSupply])
 
   const isCheddarBalanceLoading = useMemo(() => {
     switch (blockchain) {
@@ -95,14 +88,10 @@ export const GlobalContextProvider: any = ({ children }: any) => {
     }
   }, [blockchain, isLoadingCheddarNearBalance, isLoadingCheddarBaseBalance])
 
-  const isCheddarTotalSupplyLoading = useMemo(() => {
-    switch (blockchain) {
-      case 'near':
-        return isLoadingCheddarNearTotalSupply
-      case 'base':
-        return isLoadingCheddarBaseTotalSupply
-    }
-  }, [blockchain, isLoadingCheddarNearTotalSupply, isLoadingCheddarBaseTotalSupply])
+  const isCheddarTotalSupplyLoading = useMemo(
+    () => isLoadingCheddarNearTotalSupply && isLoadingCheddarBaseTotalSupply, 
+    [blockchain, isLoadingCheddarNearTotalSupply, isLoadingCheddarBaseTotalSupply]
+  )
 
   const isConnected = useMemo(() => {
     switch (blockchain) {
