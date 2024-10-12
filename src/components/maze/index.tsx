@@ -3,11 +3,12 @@ import React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import { GameboardContainer } from './GameboardContainer';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ntoy, yton } from '@/contracts/contractUtils';
-import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
+import { useGetCheddarMetadata } from '@/hooks/cheddar';
+import { useGetIsAllowedResponse } from '@/hooks/maze';
 import ModalWelcome from '../ModalWelcome';
 import { useToast } from '@chakra-ui/react';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 export default function MazeContainer() {
   const {
@@ -24,17 +25,25 @@ export default function MazeContainer() {
     restartGame,
   } = useContext(GameContext);
 
-  const { selector, accountId } = useWalletSelector();
+  const { addresses, cheddarBalance, isCheddarBalanceLoading } = useGlobalContext()
 
-  const { data: cheddarMetadata, isLoading: isLoadingCheddarMetadata } =
-    useGetCheddarMetadata();
-  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
-    useGetCheddarBalance();
+  const { isLoading: isLoadingCheddarMetadata } = useGetCheddarMetadata();
+
+  const {
+    data: isAllowedResponse,
+    isLoading: isLoadingIsAllowed,
+    error: userAllowedError,
+  } = useGetIsAllowedResponse();
+
   const [queriesLoaded, setQueriesLoaded] = useState(false);
   const [hasEnoughBalance, setHasEnoughBalance] = useState(false);
 
   if (!queriesLoaded) {
-    if (!isLoadingCheddarBalance && !isLoadingCheddarMetadata) {
+    if (
+      !isCheddarBalanceLoading &&
+      !isLoadingCheddarMetadata &&
+      !isLoadingIsAllowed
+    ) {
       setQueriesLoaded(true);
     }
   }
@@ -45,12 +54,15 @@ export default function MazeContainer() {
 
   useEffect(() => {
     function doesUserHaveEnoughBalance() {
-      if (!cheddarBalanceData) return false;
-
-      return minCheddarRequired <= cheddarBalanceData!;
+      if (addresses["base"]) {
+        return true;
+      } else if(!cheddarBalance){
+        return false;
+      }
+      return minCheddarRequired <= cheddarBalance;
     }
     setHasEnoughBalance(doesUserHaveEnoughBalance());
-  }, [cheddarBalanceData, accountId, selector]);
+  }, [cheddarBalance, addresses, isAllowedResponse]);
 
   function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);
@@ -94,6 +106,7 @@ export default function MazeContainer() {
           cellSize={cellSize}
           hasEnoughBalance={hasEnoughBalance}
           minCheddarRequired={yton(minCheddarRequired.toString())}
+          isAllowedResponse={isAllowedResponse}
         />
       )}
     </>

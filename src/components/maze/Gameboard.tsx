@@ -4,13 +4,17 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { Image, ListItem, OrderedList } from '@chakra-ui/react';
 
 import styles from '@/styles/Gameboard.module.css';
+import { IsAllowedResponse } from '@/hooks/maze';
+import { useAccount } from 'wagmi';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 interface Props {
   isUserLoggedIn: boolean;
   openLogIn: () => void;
+  isAllowedResponse: IsAllowedResponse;
 }
 
-export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
+export function Gameboard({ isUserLoggedIn, openLogIn, isAllowedResponse }: Props) {
   const {
     mazeData,
     playerPosition,
@@ -22,6 +26,8 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
     handleTouchStart,
     handleTouchMove,
   } = useContext(GameContext);
+
+  const { blockchain } = useGlobalContext()
 
   const touchContainerRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +51,10 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
   const handleConditionalFunction =
     (onTrue: (event: any) => void, onFalse: () => void) => (event: any) => {
       if (isUserLoggedIn) {
-        onTrue(event);
+        if (blockchain==="base" || isAllowedResponse.ok) {
+          console.log('stating');
+          onTrue(event);
+        }
       } else {
         onFalse();
       }

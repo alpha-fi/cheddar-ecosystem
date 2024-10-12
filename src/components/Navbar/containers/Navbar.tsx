@@ -13,19 +13,18 @@ import {
   useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react';
-import { ButtonConnectWallet } from '../components/ButtonConnectWallet';
 import { DrawerMenu } from '../components/DrawerMenu';
 import styles from '@/styles/NavBar.module.css';
-
-import { useGetCheddarTotalSupply } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { ModalContainer } from '@/components/ModalContainer';
 import Link from 'next/link';
 import { About } from '../components/About';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import ModalHolonym from '@/components/ModalHolonymSBT';
-import { GameContext } from '@/contexts/maze/GameContextProvider';
+import { useGlobalContext } from '@/contexts/GlobalContext';
+import { BlockchainSelector } from '../components/BlockchainSelector';
+import { WalletMenu } from '../components/WalletMenu';
 
 export default function Navbar() {
   const {
@@ -34,10 +33,9 @@ export default function Navbar() {
     onClose: onCloseVideoModal,
   } = useDisclosure();
 
-  const { data: cheddarTotalSupply, isLoading: isLoadingCheddarTotalSupply } =
-    useGetCheddarTotalSupply();
+  const { blockchain, isConnected, isUserVerified, cheddarTotalSupply, isCheddarTotalSupplyLoading } = useGlobalContext()
+
   const [showHolonymModal, setHolonymModal] = useState(false);
-  const { isUserHolonymVerified } = useContext(GameContext);
   const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   return (
@@ -138,17 +136,22 @@ export default function Navbar() {
               <Text as="i">
                 Total supply:{' '}
                 <div style={{ width: 'max-content' }}>
-                  {isLoadingCheddarTotalSupply
-                    ? 'Loading'
-                    : new Intl.NumberFormat('de-DE', {
+                  {
+                    isCheddarTotalSupplyLoading ? 
+                      'Loading'
+                    : 
+                      new Intl.NumberFormat('de-DE', {
                         maximumFractionDigits: 0,
-                      }).format(yton(cheddarTotalSupply!))}{' '}
+                      }).format(yton(cheddarTotalSupply!))
+                  }
+                  {' '}
                   {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
                 </div>
               </Text>
             </Text>
             <About />
-            {!isUserHolonymVerified && (
+
+            {blockchain==="near" && isConnected && !isUserVerified && (
               <Button
                 display={{ base: 'none', lg: 'flex' }}
                 px={{ base: 2, md: 3 }}
@@ -161,12 +164,12 @@ export default function Navbar() {
               isOpen={showHolonymModal}
               onClose={() => setHolonymModal(false)}
             />
-            <ButtonConnectWallet />
+            <BlockchainSelector/>
+            <WalletMenu/>
+
             <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
               <DrawerMenu
                 onOpenVideoModal={onOpenVideoModal}
-                cheddarTotalSupply={cheddarTotalSupply}
-                isLoadingCheddarTotalSupply={isLoadingCheddarTotalSupply}
                 setHolonymModal={setHolonymModal}
               />
             </Box>

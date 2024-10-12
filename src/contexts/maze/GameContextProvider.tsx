@@ -5,11 +5,13 @@ import React, {
   useEffect,
   useState,
   KeyboardEvent,
-  TouchEvent,
   useRef,
 } from 'react';
 
-import { callEndGame, getScoreBoard, getSeedId } from '@/queries/maze/api';
+import {
+  callEndGame,
+  getSeedId,
+} from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
@@ -19,8 +21,7 @@ import {
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
-import { PlayerScoreData } from '@/components/maze/Scoreboard';
-import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
+import { NFT } from '@/contracts/nftCheddarContract';
 import {
   useGetCheddarNFTs,
   useIsNadabotVerfified,
@@ -28,6 +29,7 @@ import {
 } from '@/hooks/cheddar';
 import { useDisclosure, useToast } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
+import { useGlobalContext } from '../GlobalContext';
 
 interface props {
   children: ReactNode;
@@ -212,11 +214,6 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseScoreboard,
   } = useDisclosure();
 
-  function openScoreboard() {
-    console.log('open scoreboard');
-    onOpenScoreboard();
-  }
-
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
@@ -388,6 +385,8 @@ export const GameContextProvider = ({ children }: props) => {
 
   const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
 
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
+
   useEffect(() => {
     if (accountId) {
       getNFTs(accountId).then((nfts) => {
@@ -426,11 +425,11 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to restart the game
   async function restartGame() {
-    if (!accountId) {
+    if (!selectedBlockchainAddress) {
       return;
     }
 
-    const newSeedIdResponse = await getSeedId(accountId);
+    const newSeedIdResponse = await getSeedId(selectedBlockchainAddress, blockchain);
     if (!newSeedIdResponse.ok) {
       handleErrorToast(newSeedIdResponse.message);
 
@@ -896,7 +895,8 @@ export const GameContextProvider = ({ children }: props) => {
         path: [],
       },
       metadata: {
-        accountId: accountId!,
+        blockchain,
+        accountId: selectedBlockchainAddress!,
         seedId,
         referralAccount: referralAccount,
       },
