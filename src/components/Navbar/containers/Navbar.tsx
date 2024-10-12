@@ -1,10 +1,13 @@
+import React, { useRef } from 'react';
 import {
   Box,
   Button,
   Container,
   Flex,
+  Hide,
   HStack,
   Img,
+  Show,
   Stack,
   Text,
   useBreakpointValue,
@@ -58,12 +61,21 @@ export default function Navbar() {
         >
           <Flex alignContent="center" minW={{ base: undefined, lg: '341px' }}>
             <Flex flexDirection="column" mr="20px">
-              <HStack spacing={0} minW={isDesktop?'25px':'35px'}>
-                <Img
-                  src={isDesktop? '/assets/cheddar-logo.png' : '/assets/cheddar-logo-reduced.png'}
-                  alt="Cheddar icon"
-                  height={isDesktop?'25px':'35px'}
-                />
+              <HStack spacing={0} minW={'25px'}>
+                <Show breakpoint="(max-width: 600px)">
+                  <Img
+                    src={'/assets/cheddar-logo-reduced.png'}
+                    alt="Cheddar icon"
+                    height={'50px'}
+                  />
+                </Show>
+                <Hide breakpoint="(max-width: 600px)">
+                  <Img
+                    src={'/assets/cheddar-logo.png'}
+                    alt="Cheddar icon"
+                    height={'50px'}
+                  />
+                </Hide>
               </HStack>
             </Flex>
           </Flex>
@@ -77,14 +89,14 @@ export default function Navbar() {
                       Maze
                     </Text>
                   </Link>
-                  <Link
+                  {/* <Link
                     href={'/checkers'}
                     style={{ textDecorationColor: 'white' }}
                   >
                     <Text fontSize={'16px'} fontWeight="600" color="white">
                       Checkers
                     </Text>
-                  </Link>
+                  </Link> */}
                 </HStack>
               </Flex>
             </Flex>

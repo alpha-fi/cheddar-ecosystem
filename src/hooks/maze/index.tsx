@@ -10,13 +10,11 @@ import {
   getEarnedAndMinted,
 } from '@/queries/maze/api';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
-import { useAccount } from 'wagmi';
 
 export interface IsAllowedResponse {
   ok: boolean;
   errors?: string[];
 }
-
 export interface ScoreboardResponse {
   ok: boolean;
   scoreboard: {

@@ -1,7 +1,7 @@
 import { MazeTileData } from '@/contexts/maze/GameContextProvider';
 import { useContext, useEffect, useRef } from 'react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { ListItem, OrderedList } from '@chakra-ui/react';
+import { Image, ListItem, OrderedList } from '@chakra-ui/react';
 
 import styles from '@/styles/Gameboard.module.css';
 import { IsAllowedResponse } from '@/hooks/maze';
@@ -14,30 +14,22 @@ interface Props {
   isAllowedResponse: IsAllowedResponse;
 }
 
-export function Gameboard({
-  isUserLoggedIn,
-  openLogIn,
-  isAllowedResponse,
-}: Props) {
+export function Gameboard({ isUserLoggedIn, openLogIn, isAllowedResponse }: Props) {
   const {
     mazeData,
     playerPosition,
     direction,
     selectedColorSet,
     lastCellX,
-    setLastCellX,
     lastCellY,
-    setLastCellY,
     calculateBlurRadius,
     handleTouchStart,
     handleTouchMove,
-    timerStarted,
   } = useContext(GameContext);
 
   const { blockchain } = useGlobalContext()
 
   const touchContainerRef = useRef<HTMLDivElement>(null);
-  const gameStartedRef = useRef(false);
 
   // Check if the game has started for the first time
   const gameStarted = playerPosition !== null;
@@ -79,7 +71,7 @@ export function Gameboard({
   }
   function getPlayerTileClasses(cell: MazeTileData) {
     let backgroundImage;
-    if (cell.enemyWon || cell.hasCartel || cell.hasExit) {
+    if (cell.fight || cell.enemyWon || cell.hasCartel || cell.hasExit) {
       backgroundImage = 'playerBackgroundEmpty';
     } else {
       backgroundImage = 'playerBackgroundElementOnTop';
@@ -98,8 +90,6 @@ export function Gameboard({
             const applyBlur = blurRadius > 0; // Determine if blur should be applied
             // Define cell content based on cell type
             let cellContent = '';
-
-            //TODO choose best logos options
 
             //====================================================== Start cheese logo options ======================================================
             if (cell.hasCheese) cellContent = '🧀';
@@ -175,15 +165,23 @@ export function Gameboard({
                 )}
               >
                 {/* Dynamic content based on cell */}
-                {cellContent && (
-                  <span
-                    role="img"
-                    aria-label={cellContent}
-                    // className="static-icon"
+                {cell.fight ? (
+                  <Image
+                    src="https://www.toysrus.co.za/media/wysiwyg/monophy_1.gif"
+                    alt="Fight gif"
                     className={styles.staticIcon}
-                  >
-                    {cellContent}
-                  </span>
+                  />
+                ) : (
+                  cellContent && (
+                    <span
+                      role="img"
+                      aria-label={cellContent}
+                      // className="static-icon"
+                      className={styles.staticIcon}
+                    >
+                      {cellContent}
+                    </span>
+                  )
                 )}
 
                 {/* Player icon */}

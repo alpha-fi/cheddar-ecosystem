@@ -1,3 +1,4 @@
+import React from 'react';
 import { Gameboard } from './Gameboard';
 import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import styles from '@/styles/GameboardContainer.module.css';
@@ -28,7 +29,6 @@ import { ModalBuyNFT } from '../ModalBuyNFT';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ModalContainer } from '../ModalContainer';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
-import { IsAllowedResponse } from '@/hooks/maze';
 import ModalNotAllowedToMint from './ModalNotAllowedToMint';
 import ModalRules from './ModalRules';
 import { GameOverModalContent } from './GameOverModalContent';
@@ -45,6 +45,7 @@ import { getConfig } from '@/configs/config';
 import ModalHolonym from '../ModalHolonymSBT';
 import { useAccount } from 'wagmi';
 import { useGlobalContext } from '@/contexts/GlobalContext';
+import { IsAllowedResponse } from '@/hooks/maze';
 
 interface Props {
   remainingMinutes: number;
@@ -67,7 +68,7 @@ export function GameboardContainer({
   cellSize,
   hasEnoughBalance,
   minCheddarRequired,
-  isAllowedResponse,
+  isAllowedResponse
 }: Props) {
   const {
     mazeData,
@@ -106,6 +107,7 @@ export function GameboardContainer({
   } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
+  const walletSelector = useWalletSelector();
 
   if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
     onOpen();
@@ -189,7 +191,7 @@ export function GameboardContainer({
   }
 
   function getKeyDownMoveHandler() {
-    return timerStarted ? getProperHandler(handleKeyPress) : () => {};
+    return timerStarted ? handleKeyPress : () => {};
   }
 
   function getStartButtonStyles() {
@@ -350,6 +352,10 @@ export function GameboardContainer({
 
     return <span>{message}</span>;
   }
+
+  const handleLogin = () => {
+    walletSelector.modal.show();
+  };
 
   return (
     <div
@@ -529,12 +535,13 @@ export function GameboardContainer({
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer
-          title={'Game over'}
+          title={''}
           isOpen={isOpen}
           onClose={closeGameOverModal}
           neverCloseOnOverlayClick={true}
         >
           <GameOverModalContent
+            handleBuyClick={handleBuyClick}
             setHolonymModal={setHolonymModal}
             onClose={closeGameOverModal}
           />

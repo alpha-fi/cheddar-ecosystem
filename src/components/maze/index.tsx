@@ -49,17 +49,6 @@ export default function MazeContainer() {
   }
 
   const toast = useToast();
-  useEffect(() => {
-    if (userAllowedError) {
-      toast({
-        title: 'Error occured while verifying current user!',
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
-    }
-  }, [userAllowedError]);
 
   const minCheddarRequired = ntoy(555);
 
