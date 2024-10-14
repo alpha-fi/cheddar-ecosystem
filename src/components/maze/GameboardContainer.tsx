@@ -359,6 +359,10 @@ export function GameboardContainer({
     walletSelector.modal.show();
   };
 
+  function getGameInfoClases(subtitle: string) {
+    return `${styles[subtitle]} ${styles.subtitle}`;
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -379,8 +383,8 @@ export function GameboardContainer({
       )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
       <div className={styles.gameInfo}>
-        <div className={styles.score}>Score: {score}</div>
-        <div className={styles.time}>
+        <div className={getGameInfoClases('score')}>Score: {score}</div>
+        <div className={getGameInfoClases('time')}>
           Time:{' '}
           {remainingMinutes < 10 ? '0' + remainingMinutes : remainingMinutes}:
           {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
@@ -427,7 +431,7 @@ export function GameboardContainer({
               Rules
             </Button>
           </span>
-          <div className={styles.toolbar}>
+          <div className={styles.toolbarbuttons}>
             <Button
               px={{ base: 2, md: 3 }}
               _hover={{ bg: 'yellowgreen' }}
