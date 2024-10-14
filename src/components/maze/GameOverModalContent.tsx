@@ -6,9 +6,6 @@ import { Facebook, Telegram, Twitter } from '../icons';
 import { getConfig } from '@/configs/config';
 import { useAccount } from 'wagmi';
 import { useGlobalContext } from '@/contexts/GlobalContext';
-import { Ad1 } from './Ad1';
-import { Ad2 } from './Ad2';
-import { Ad3 } from './Ad3';
 import { RandomAd } from './RandomAd';
 
 interface Props {

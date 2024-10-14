@@ -17,14 +17,15 @@ export const RandomAd = ({ handleBuyClick }: Props) => {
   const randomIndex = Math.floor(Math.random() * AdArray.length);
 
   return (
-    <Stack
-      flexDirection={'column'}
-      border={'2px solid black'}
-      borderRadius={'10px'}
-      m={'1rem'}
-      boxShadow={'11px 10px 32px -13px rgba(0,0,0,0.75)'}
+    <div
+      style={{
+        border: '2px solid black',
+        borderRadius: '10px',
+        margin: '1rem',
+        boxShadow: '11px 10px 32px -13px rgba(0,0,0,0.75)',
+      }}
     >
       {AdArray[randomIndex]}
-    </Stack>
+    </div>
   );
 };

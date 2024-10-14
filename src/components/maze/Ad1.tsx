@@ -6,8 +6,18 @@ interface props {
 
 export const Ad1 = ({ handleBuyClick }: props) => {
   return (
-    <Link textDecoration="underline" onClick={handleBuyClick}>
+    <a
+      style={{
+        outline: '2px solid transparent',
+        outlineOffset: '2px',
+        color: 'inherit',
+        textDecoration: 'underline',
+        cursor: 'pointer',
+        margin: '1rem',
+      }}
+      onClick={handleBuyClick}
+    >
       Get BOOSTED with PowerUps⚡️
-    </Link>
+    </a>
   );
 };

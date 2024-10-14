@@ -59,7 +59,7 @@ const pointsOfActions = {
 };
 
 const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
 const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 interface GameContextProps {
@@ -217,6 +217,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
+  const [fightingEnemyFlag, setFightingEnemyFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [hasWon, setHasWon] = useState<undefined | boolean>(undefined);
   const [timerStarted, setTimerStarted] = useState(false);
@@ -674,7 +675,7 @@ export const GameContextProvider = ({ children }: props) => {
     const clonedMazeData = mazeData;
     clonedMazeData[y][x].fight = true;
 
-    setGameOverFlag(true);
+    setFightingEnemyFlag(true);
     setMazeData(clonedMazeData);
   }
 
@@ -688,6 +689,7 @@ export const GameContextProvider = ({ children }: props) => {
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     // Add logic for the enemy defeating the player
     clonedMazeData[y][x].fight = false;
+    setFightingEnemyFlag(false);
     if (rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
@@ -996,7 +998,7 @@ export const GameContextProvider = ({ children }: props) => {
   ]);
 
   function handleMoveByArrow(direction: string) {
-    if (gameOverFlag) return; // If game over, prevent further movement
+    if (gameOverFlag || fightingEnemyFlag) return; // If game over of fight animation is active, prevent further movement
 
     let newX = playerPosition.x;
     let newY = playerPosition.y;
