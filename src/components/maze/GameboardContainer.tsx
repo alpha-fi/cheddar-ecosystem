@@ -68,7 +68,7 @@ export function GameboardContainer({
   cellSize,
   hasEnoughBalance,
   minCheddarRequired,
-  isAllowedResponse
+  isAllowedResponse,
 }: Props) {
   const {
     mazeData,
@@ -97,7 +97,7 @@ export function GameboardContainer({
     totalMintedCheddarToDate,
   } = useContext(GameContext);
 
-  const { addresses, isConnected, showConnectionModal } = useGlobalContext()
+  const { addresses, isConnected, showConnectionModal } = useGlobalContext();
 
   const gameboardRef = useRef<HTMLDivElement>(null);
   const {
@@ -176,7 +176,9 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return addresses['near'] ? onOpenBuyNFTPanel() : showSelectWalletModal(true); ///TODO: check if buy is only with near
+    return addresses['near']
+      ? onOpenBuyNFTPanel()
+      : showSelectWalletModal(true); ///TODO: check if buy is only with near
   }
 
   function focusMazeAndStartGame() {
@@ -476,7 +478,7 @@ export function GameboardContainer({
             </Button>
           </Show>
         </div>
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', backgroundColor: '#ECC94B' }}>
           <Gameboard
             openLogIn={showConnectionModal}
             isUserLoggedIn={isConnected}
@@ -502,7 +504,9 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsFirstLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowUp')}
-                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowUpIcon />
                 </Button>
@@ -510,19 +514,25 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsSecondLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowLeft')}
-                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowBackIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowDown')}
-                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowDownIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowRight')}
-                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowForwardIcon />
                 </Button>
