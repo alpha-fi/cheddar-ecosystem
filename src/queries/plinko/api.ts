@@ -1,13 +1,15 @@
 import { getConfig } from '@/configs/config';
 
 const { backendBaseUrl } = getConfig();
+export type BlockchainType = 'base' | 'near';
 
 export interface EndGameRequest {
   data: {
     prizeEarned: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
   };
   metadata: {
-    accountId: string;
+    blockchain: BlockchainType;
+    accountId: string | `0x${string}`;
     seedId: number;
   };
 }

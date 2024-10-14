@@ -16,11 +16,24 @@ import Link from 'next/link';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { smartTrim } from '@/utilities/exportableFunctions';
 import { useGetCheddarBalance } from '@/hooks/cheddar';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
+import { useAccount } from 'wagmi';
+import { useConnect } from 'wagmi';
+import { useDisconnect } from 'wagmi';
+import { coinbaseWallet } from 'wagmi/connectors';
 
-export function ButtonConnectWallet() {
+type Props = {
+  handleButtonCLick?: () => void;
+  text?: string;
+};
+
+export function ButtonConnectWallet({ handleButtonCLick, text }: Props) {
   const walletSelector = useWalletSelector();
+  const { connect: connectBase } = useConnect();
+  const { address } = useAccount();
+  const { disconnect: disconnectBase } = useDisconnect();
+
   const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
     useGetCheddarBalance();
 
@@ -37,6 +50,19 @@ export function ButtonConnectWallet() {
       walletSelector.modal.show();
     }
   };
+
+  // Detect when user logs in or out from Base
+  useEffect(() => {
+    if (address && walletSelector.selector.isSignedIn()) {
+      // User is logged into NEAR, disconnect from Base
+      disconnectBase();
+    } else if (!walletSelector.selector.isSignedIn() && !address) {
+      // connectBase({
+      //   connector: coinbaseWallet(),
+      // });
+    }
+  }, [address, walletSelector, walletSelector.accounts]);
+
   return (
     <>
       {walletSelector.selector.isSignedIn() ? (
@@ -83,11 +109,26 @@ export function ButtonConnectWallet() {
                 {smartTrim(walletSelector.accountId ?? '', 12)}
               </Link>
             </MenuItem>
+            {/* <MenuItem onClick={handleOnClick}>Switch to Base</MenuItem> */}
+
             <MenuItem onClick={handleOnClick}>Log out</MenuItem>
           </MenuList>
         </Menu>
       ) : (
-        <YellowButton onClick={handleOnClick}>Login</YellowButton>
+        <Button
+          onClick={() => {
+            handleOnClick();
+            if (handleButtonCLick) handleButtonCLick();
+          }}
+          bg="black"
+          color="white"
+          _hover={{
+            bg: 'gray.700',
+            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.4)',
+          }}
+        >
+          {text ? text : 'Login Near'}
+        </Button>
       )}
     </>
   );
