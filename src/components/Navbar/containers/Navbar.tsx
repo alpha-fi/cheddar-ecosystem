@@ -151,7 +151,9 @@ export default function Navbar() {
                 </div>
               </Text>
             </Text>
-            <About />
+            <Stack display={{ base: 'none', lg: 'flex' }}>
+              <About />
+            </Stack>
 
             {blockchain === 'near' && isConnected && !isUserVerified && (
               <Button
