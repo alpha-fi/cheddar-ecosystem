@@ -8,10 +8,7 @@ import React, {
   useRef,
 } from 'react';
 
-import {
-  callEndGame,
-  getSeedId,
-} from '@/queries/maze/api';
+import { callEndGame, getSeedId } from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
@@ -46,6 +43,7 @@ export interface MazeTileData {
   hasExit: boolean;
   hasCartel: boolean;
   hasPlinko: boolean;
+  hasNothing: boolean;
 
   fight: boolean;
 }
@@ -385,7 +383,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
 
-  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext();
 
   useEffect(() => {
     if (accountId) {
@@ -429,7 +427,10 @@ export const GameContextProvider = ({ children }: props) => {
       return;
     }
 
-    const newSeedIdResponse = await getSeedId(selectedBlockchainAddress, blockchain);
+    const newSeedIdResponse = await getSeedId(
+      selectedBlockchainAddress,
+      blockchain
+    );
     if (!newSeedIdResponse.ok) {
       handleErrorToast(newSeedIdResponse.message);
 
@@ -494,6 +495,7 @@ export const GameContextProvider = ({ children }: props) => {
         hasCartel: false,
         hasPlinko: false,
         fight: false,
+        hasNothing: false,
       }))
     );
 
@@ -663,7 +665,8 @@ export const GameContextProvider = ({ children }: props) => {
       mazeData[y][x].hasBag ||
       mazeData[y][x].hasEnemy ||
       mazeData[y][x].hasCartel ||
-      mazeData[y][x].hasExit
+      mazeData[y][x].hasExit ||
+      mazeData[y][x].hasNothing
     );
   }
 
@@ -773,6 +776,15 @@ export const GameContextProvider = ({ children }: props) => {
     gameOver('You ran into the cartel! Game Over!', false);
   }
 
+  function handleNothingFound(
+    clonedMazeData: MazeTileData[][],
+    x: number,
+    y: number
+  ) {
+    clonedMazeData[y][x].hasNothing = true;
+    setCellsWithItemAmount(cellsWithItemAmount + 1);
+  }
+
   function handleExitFound(
     clonedMazeData: MazeTileData[][],
     x: number,
@@ -785,7 +797,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const chancesOfFinding = {
     exit: 0.0021,
-    enemy: 0.17,
+    enemy: 0.125,
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
@@ -840,7 +852,7 @@ export const GameContextProvider = ({ children }: props) => {
       showFighting(clonedMazeData, newX, newY);
       setTimeout(() => {
         handleEnemyFound(clonedMazeData, newX, newY);
-      }, 500);
+      }, 750);
     } else if (
       !cheeseCooldown &&
       rng.nextFloat() < getChancesOfFindingCheese()
@@ -851,6 +863,7 @@ export const GameContextProvider = ({ children }: props) => {
     } else if (isTestCartel || rng.nextFloat() < chancesOfFinding.cartel) {
       handleCartelFound(clonedMazeData, newX, newY);
     } else {
+      handleNothingFound(clonedMazeData, newX, newY);
       setScore(score + pointsOfActions.moveWithoutDying);
     }
     setMazeData(clonedMazeData);
