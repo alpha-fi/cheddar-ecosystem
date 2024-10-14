@@ -71,7 +71,8 @@ export function Gameboard({
     } else {
       backgroundColor = 'backgroundColorSet';
     }
-    return `${styles.mazeCell} nonPathColorSet${selectedColorSet} ${backgroundColor}${selectedColorSet}`;
+    // return `${styles.mazeCell} nonPathColorSet${selectedColorSet} ${backgroundColor}${selectedColorSet}`;
+    return `${styles.mazeCell} ${backgroundColor}${selectedColorSet}`;
   }
   function getPlayerTileClasses(cell: MazeTileData) {
     let backgroundImage;
