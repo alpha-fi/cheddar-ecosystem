@@ -6,9 +6,7 @@ import { Facebook, Telegram, Twitter } from '../icons';
 import { getConfig } from '@/configs/config';
 import { useAccount } from 'wagmi';
 import { useGlobalContext } from '@/contexts/GlobalContext';
-import { Ad1 } from './Ad1';
-import { Ad2 } from './Ad2';
-import { Ad3 } from './Ad3';
+import { RandomAd } from './RandomAd';
 
 interface Props {
   setHolonymModal: (v: boolean) => void;
@@ -33,7 +31,7 @@ export const GameOverModalContent = ({
     isUserHolonymVerified,
   } = useContext(GameContext);
   const toast = useToast();
-  const { blockchain } = useGlobalContext()
+  const { blockchain } = useGlobalContext();
   const properSecondsFormat =
     remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
 
@@ -85,12 +83,15 @@ export const GameOverModalContent = ({
   }
 
   const { networkData } = getConfig();
+
   return (
     <div className={styles.gameOverModal}>
       <p className={getMessageStyles()}>{gameOverMessage}</p>
       {hasWon && (
         <p className={styles.earnings}>
-          {blockchain==="base" || isUserNadabotVerfied || isUserHolonymVerified ? (
+          {blockchain === 'base' ||
+          isUserNadabotVerfied ||
+          isUserHolonymVerified ? (
             <span>
               You have farmed{' '}
               {cheddarFound <= pendingCheddarToMint
@@ -162,17 +163,7 @@ export const GameOverModalContent = ({
           <Telegram boxSize={7} />
         </a>
       </div>
-      <Stack
-        flexDirection={'column'}
-        border={'2px solid black'}
-        borderRadius={'10px'}
-        mt={'1rem'}
-        boxShadow={'11px 10px 32px -13px rgba(0,0,0,0.75)'}
-      >
-        <Ad1 handleBuyClick={handleBuyClick} />
-        <Ad2 />
-        <Ad3 />
-      </Stack>
+      <RandomAd handleBuyClick={handleBuyClick} />
     </div>
   );
 };

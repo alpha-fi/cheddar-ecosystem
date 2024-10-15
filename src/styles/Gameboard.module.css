@@ -13,9 +13,14 @@
   position: relative;
   border-style: solid;
   border-width: 1px;
+  border-radius: 7px;
+  border-color: white;
 }
 .staticIcon {
   position: absolute;
+}
+.smallCellIcon {
+  font-size: medium;
 }
 .playerCell {
   pointer-events: none;

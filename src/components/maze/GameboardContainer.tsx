@@ -5,6 +5,7 @@ import styles from '@/styles/GameboardContainer.module.css';
 import {
   Button,
   Heading,
+  Hide,
   Link,
   Menu,
   MenuButton,
@@ -68,14 +69,13 @@ export function GameboardContainer({
   cellSize,
   hasEnoughBalance,
   minCheddarRequired,
-  isAllowedResponse
+  isAllowedResponse,
 }: Props) {
   const {
     mazeData,
     score,
     gameOverFlag,
     gameOverMessage,
-    hasPowerUp,
     handleKeyPress,
     restartGame,
     timerStarted,
@@ -95,9 +95,10 @@ export function GameboardContainer({
     isUserNadabotVerfied,
     isUserHolonymVerified,
     totalMintedCheddarToDate,
+    selectedColorSet,
   } = useContext(GameContext);
 
-  const { addresses, isConnected, showConnectionModal } = useGlobalContext()
+  const { addresses, isConnected, showConnectionModal } = useGlobalContext();
 
   const gameboardRef = useRef<HTMLDivElement>(null);
   const {
@@ -176,7 +177,9 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return addresses['near'] ? onOpenBuyNFTPanel() : showSelectWalletModal(true); ///TODO: check if buy is only with near
+    return addresses['near']
+      ? onOpenBuyNFTPanel()
+      : showSelectWalletModal(true); ///TODO: check if buy is only with near
   }
 
   function focusMazeAndStartGame() {
@@ -357,6 +360,10 @@ export function GameboardContainer({
     walletSelector.modal.show();
   };
 
+  function getGameInfoClases(subtitle: string) {
+    return `${styles[subtitle]} ${styles.subtitle}`;
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -365,7 +372,8 @@ export function GameboardContainer({
         maxWidth: `${mazeData[0].length * cellSize + 50}px`,
       }}
     >
-      <div className={styles.publicityDecoration}></div>
+      
+        <div className={styles.publicityDecoration}></div>
       <ModalHolonym
         isOpen={showHolonymModal}
         onClose={() => setHolonymModal(false)}
@@ -377,8 +385,8 @@ export function GameboardContainer({
       )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
       <div className={styles.gameInfo}>
-        <div className={styles.score}>Score: {score}</div>
-        <div className={styles.time}>
+        <div className={getGameInfoClases('score')}>Score: {score}</div>
+        <div className={getGameInfoClases('time')}>
           Time:{' '}
           {remainingMinutes < 10 ? '0' + remainingMinutes : remainingMinutes}:
           {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
@@ -425,7 +433,7 @@ export function GameboardContainer({
               Rules
             </Button>
           </span>
-          <div className={styles.toolbar}>
+          <div className={styles.toolbarbuttons}>
             <Button
               px={{ base: 2, md: 3 }}
               _hover={{ bg: 'yellowgreen' }}
@@ -476,7 +484,10 @@ export function GameboardContainer({
             </Button>
           </Show>
         </div>
-        <div style={{ position: 'relative' }}>
+        <div
+          style={{ position: 'relative' }}
+          className={`pathColorSet${selectedColorSet}`}
+        >
           <Gameboard
             openLogIn={showConnectionModal}
             isUserLoggedIn={isConnected}
@@ -502,7 +513,9 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsFirstLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowUp')}
-                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowUpIcon />
                 </Button>
@@ -510,19 +523,25 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsSecondLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowLeft')}
-                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowBackIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowDown')}
-                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowDownIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowRight')}
-                  isDisabled={!addresses["near"] || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowForwardIcon />
                 </Button>

@@ -8,10 +8,7 @@ import React, {
   useRef,
 } from 'react';
 
-import {
-  callEndGame,
-  getSeedId,
-} from '@/queries/maze/api';
+import { callEndGame, getSeedId } from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
@@ -46,6 +43,7 @@ export interface MazeTileData {
   hasExit: boolean;
   hasCartel: boolean;
   hasPlinko: boolean;
+  hasNothing: boolean;
 
   fight: boolean;
 }
@@ -61,7 +59,7 @@ const pointsOfActions = {
 };
 
 const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
+const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 interface GameContextProps {
@@ -219,6 +217,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
+  const [fightingEnemyFlag, setFightingEnemyFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [hasWon, setHasWon] = useState<undefined | boolean>(undefined);
   const [timerStarted, setTimerStarted] = useState(false);
@@ -385,7 +384,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
 
-  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext();
 
   useEffect(() => {
     if (accountId) {
@@ -429,7 +428,10 @@ export const GameContextProvider = ({ children }: props) => {
       return;
     }
 
-    const newSeedIdResponse = await getSeedId(selectedBlockchainAddress, blockchain);
+    const newSeedIdResponse = await getSeedId(
+      selectedBlockchainAddress,
+      blockchain
+    );
     if (!newSeedIdResponse.ok) {
       handleErrorToast(newSeedIdResponse.message);
 
@@ -494,6 +496,7 @@ export const GameContextProvider = ({ children }: props) => {
         hasCartel: false,
         hasPlinko: false,
         fight: false,
+        hasNothing: false,
       }))
     );
 
@@ -663,7 +666,8 @@ export const GameContextProvider = ({ children }: props) => {
       mazeData[y][x].hasBag ||
       mazeData[y][x].hasEnemy ||
       mazeData[y][x].hasCartel ||
-      mazeData[y][x].hasExit
+      mazeData[y][x].hasExit ||
+      mazeData[y][x].hasNothing
     );
   }
 
@@ -671,7 +675,7 @@ export const GameContextProvider = ({ children }: props) => {
     const clonedMazeData = mazeData;
     clonedMazeData[y][x].fight = true;
 
-    setGameOverFlag(true);
+    setFightingEnemyFlag(true);
     setMazeData(clonedMazeData);
   }
 
@@ -685,6 +689,7 @@ export const GameContextProvider = ({ children }: props) => {
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     // Add logic for the enemy defeating the player
     clonedMazeData[y][x].fight = false;
+    setFightingEnemyFlag(false);
     if (rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
@@ -773,6 +778,15 @@ export const GameContextProvider = ({ children }: props) => {
     gameOver('You ran into the cartel! Game Over!', false);
   }
 
+  function handleNothingFound(
+    clonedMazeData: MazeTileData[][],
+    x: number,
+    y: number
+  ) {
+    clonedMazeData[y][x].hasNothing = true;
+    setCellsWithItemAmount(cellsWithItemAmount + 1);
+  }
+
   function handleExitFound(
     clonedMazeData: MazeTileData[][],
     x: number,
@@ -785,7 +799,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const chancesOfFinding = {
     exit: 0.0021,
-    enemy: 0.17,
+    enemy: 0.125,
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
@@ -840,7 +854,7 @@ export const GameContextProvider = ({ children }: props) => {
       showFighting(clonedMazeData, newX, newY);
       setTimeout(() => {
         handleEnemyFound(clonedMazeData, newX, newY);
-      }, 500);
+      }, 750);
     } else if (
       !cheeseCooldown &&
       rng.nextFloat() < getChancesOfFindingCheese()
@@ -851,6 +865,7 @@ export const GameContextProvider = ({ children }: props) => {
     } else if (isTestCartel || rng.nextFloat() < chancesOfFinding.cartel) {
       handleCartelFound(clonedMazeData, newX, newY);
     } else {
+      handleNothingFound(clonedMazeData, newX, newY);
       setScore(score + pointsOfActions.moveWithoutDying);
     }
     setMazeData(clonedMazeData);
@@ -983,7 +998,7 @@ export const GameContextProvider = ({ children }: props) => {
   ]);
 
   function handleMoveByArrow(direction: string) {
-    if (gameOverFlag) return; // If game over, prevent further movement
+    if (gameOverFlag || fightingEnemyFlag) return; // If game over of fight animation is active, prevent further movement
 
     let newX = playerPosition.x;
     let newY = playerPosition.y;
@@ -1077,6 +1092,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   function moveIfValid(id: string) {
+    if (fightingEnemyFlag) return;
     if (id) {
       const touchedCoordinate = getCoordinatesFromTileId(id);
 

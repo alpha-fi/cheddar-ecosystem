@@ -1,11 +1,13 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Button,
+  Hide,
   Img,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
+  Show,
   Spinner,
   Text,
 } from '@chakra-ui/react';
@@ -26,7 +28,7 @@ export function WalletMenu() {
     isCheddarBalanceLoading,
     isConnected,
     isUserVerified,
-  } = useGlobalContext()
+  } = useGlobalContext();
 
   return (
     <>
@@ -47,7 +49,14 @@ export function WalletMenu() {
               {isCheddarBalanceLoading ? (
                 <Spinner size="sm" />
               ) : (
-                yton(`${cheddarBalance}`)
+                <>
+                  <Show breakpoint="(max-width: 664px)">
+                    {yton(`${cheddarBalance}`, undefined, 0)}
+                  </Show>
+                  <Hide breakpoint="(max-width: 664px)">
+                    {yton(`${cheddarBalance}`)}
+                  </Hide>
+                </>
               )}
             </Text>
             <RenderCheddarIcon />
@@ -68,7 +77,11 @@ export function WalletMenu() {
                 }
               />
               <Link
-                href={blockchain==="near"?`https://nearblocks.io/address/${selectedBlockchainAddress}`:"https://keys.coinbase.com"}
+                href={
+                  blockchain === 'near'
+                    ? `https://nearblocks.io/address/${selectedBlockchainAddress}`
+                    : 'https://keys.coinbase.com'
+                }
                 target="_blank"
               >
                 {smartTrim(selectedBlockchainAddress ?? '', 12)}

@@ -14,7 +14,11 @@ interface Props {
   isAllowedResponse: IsAllowedResponse;
 }
 
-export function Gameboard({ isUserLoggedIn, openLogIn, isAllowedResponse }: Props) {
+export function Gameboard({
+  isUserLoggedIn,
+  openLogIn,
+  isAllowedResponse,
+}: Props) {
   const {
     mazeData,
     playerPosition,
@@ -27,7 +31,7 @@ export function Gameboard({ isUserLoggedIn, openLogIn, isAllowedResponse }: Prop
     handleTouchMove,
   } = useContext(GameContext);
 
-  const { blockchain } = useGlobalContext()
+  const { blockchain } = useGlobalContext();
 
   const touchContainerRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +55,7 @@ export function Gameboard({ isUserLoggedIn, openLogIn, isAllowedResponse }: Prop
   const handleConditionalFunction =
     (onTrue: (event: any) => void, onFalse: () => void) => (event: any) => {
       if (isUserLoggedIn) {
-        if (blockchain==="base" || isAllowedResponse.ok) {
+        if (blockchain === 'base' || isAllowedResponse.ok) {
           console.log('stating');
           onTrue(event);
         }
@@ -67,7 +71,8 @@ export function Gameboard({ isUserLoggedIn, openLogIn, isAllowedResponse }: Prop
     } else {
       backgroundColor = 'backgroundColorSet';
     }
-    return `${styles.mazeCell} nonPathColorSet${selectedColorSet} ${backgroundColor}${selectedColorSet}`;
+    // return `${styles.mazeCell} nonPathColorSet${selectedColorSet} ${backgroundColor}${selectedColorSet}`;
+    return `${styles.mazeCell} ${backgroundColor}${selectedColorSet}`;
   }
   function getPlayerTileClasses(cell: MazeTileData) {
     let backgroundImage;
@@ -145,6 +150,13 @@ export function Gameboard({ isUserLoggedIn, openLogIn, isAllowedResponse }: Prop
             // else if(cell.hasPlinko) cellContent = '🕹️'
             else if (cell.hasPlinko) cellContent = '🎰';
             //====================================================== End plinko logo options ======================================================
+            //====================================================== Start nothing logo options ======================================================
+            else if (cell.hasNothing) cellContent = '✅';
+            //====================================================== End nothing logo options ======================================================
+
+            function getCellClasses(cell: MazeTileData) {
+              return `${styles.staticIcon} ${cell.hasNothing && styles.smallCellIcon}`;
+            }
 
             return (
               <div
@@ -177,7 +189,7 @@ export function Gameboard({ isUserLoggedIn, openLogIn, isAllowedResponse }: Prop
                       role="img"
                       aria-label={cellContent}
                       // className="static-icon"
-                      className={styles.staticIcon}
+                      className={getCellClasses(cell)}
                     >
                       {cellContent}
                     </span>

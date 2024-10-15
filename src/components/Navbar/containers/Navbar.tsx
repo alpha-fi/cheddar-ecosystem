@@ -33,7 +33,13 @@ export default function Navbar() {
     onClose: onCloseVideoModal,
   } = useDisclosure();
 
-  const { blockchain, isConnected, isUserVerified, cheddarTotalSupply, isCheddarTotalSupplyLoading } = useGlobalContext()
+  const {
+    blockchain,
+    isConnected,
+    isUserVerified,
+    cheddarTotalSupply,
+    isCheddarTotalSupplyLoading,
+  } = useGlobalContext();
 
   const [showHolonymModal, setHolonymModal] = useState(false);
   const isDesktop = useBreakpointValue({ base: false, lg: true });
@@ -62,14 +68,14 @@ export default function Navbar() {
           <Flex alignContent="center" minW={{ base: undefined, lg: '341px' }}>
             <Flex flexDirection="column" mr="20px">
               <HStack spacing={0} minW={'25px'}>
-                <Show breakpoint="(max-width: 600px)">
+                <Show breakpoint="(max-width: 664px)">
                   <Img
                     src={'/assets/cheddar-logo-reduced.png'}
                     alt="Cheddar icon"
-                    height={'50px'}
+                    maxHeight={'50px'}
                   />
                 </Show>
-                <Hide breakpoint="(max-width: 600px)">
+                <Hide breakpoint="(max-width: 664px)">
                   <Img
                     src={'/assets/cheddar-logo.png'}
                     alt="Cheddar icon"
@@ -136,22 +142,20 @@ export default function Navbar() {
               <Text as="i">
                 Total supply:{' '}
                 <div style={{ width: 'max-content' }}>
-                  {
-                    isCheddarTotalSupplyLoading ? 
-                      'Loading'
-                    : 
-                      new Intl.NumberFormat('de-DE', {
+                  {isCheddarTotalSupplyLoading
+                    ? 'Loading'
+                    : new Intl.NumberFormat('de-DE', {
                         maximumFractionDigits: 0,
-                      }).format(yton(cheddarTotalSupply!))
-                  }
-                  {' '}
+                      }).format(yton(cheddarTotalSupply!))}{' '}
                   {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
                 </div>
               </Text>
             </Text>
-            <About />
+            <Stack display={{ base: 'none', lg: 'flex' }}>
+              <About />
+            </Stack>
 
-            {blockchain==="near" && isConnected && !isUserVerified && (
+            {blockchain === 'near' && isConnected && !isUserVerified && (
               <Button
                 display={{ base: 'none', lg: 'flex' }}
                 px={{ base: 2, md: 3 }}
@@ -164,8 +168,8 @@ export default function Navbar() {
               isOpen={showHolonymModal}
               onClose={() => setHolonymModal(false)}
             />
-            <BlockchainSelector/>
-            <WalletMenu/>
+            <BlockchainSelector />
+            <WalletMenu />
 
             <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
               <DrawerMenu
@@ -190,7 +194,9 @@ export default function Navbar() {
           ></video>
         </div>
       </ModalContainer>
-      <div className={styles.publicityDecoration}></div>
+      <Hide breakpoint="(max-width: 450px)">
+        <div className={styles.publicityDecoration}></div>
+      </Hide>
     </>
   );
 }
