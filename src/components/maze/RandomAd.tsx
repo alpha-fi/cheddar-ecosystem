@@ -1,20 +1,25 @@
 import { Stack } from '@chakra-ui/react';
-import { Ad1 } from './Ad1';
-import { Ad2 } from './Ad2';
-import { Ad3 } from './Ad3';
+import { Ad1Powerup } from './Ad1Powerup';
+import { Ad2NewMiniGame } from './Ad2NewMiniGame';
+import { Ad3Plinko } from './Ad3Plinko';
+import { useEffect, useMemo } from 'react';
 
 interface Props {
   handleBuyClick: () => void;
 }
 
 export const RandomAd = ({ handleBuyClick }: Props) => {
-  const AdArray = [
-    <Ad1 key="Ad1" handleBuyClick={handleBuyClick} />,
-    <Ad2 key="Ad2" />,
-    <Ad3 key="Ad3" />,
-  ];
-
-  const randomIndex = Math.floor(Math.random() * AdArray.length);
+  const AdArray = useMemo(() => {
+    return [
+      <Ad1Powerup handleBuyClick={handleBuyClick} />,
+      <Ad2NewMiniGame />,
+      <Ad3Plinko />,
+    ]
+  } ,[]);
+  
+  const randomIndex = useMemo(() => {
+    return Math.floor(Math.random() * AdArray.length);
+  }, [])
 
   return (
     <div

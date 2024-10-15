@@ -4,7 +4,7 @@ interface props {
   handleBuyClick: () => void;
 }
 
-export const Ad1 = ({ handleBuyClick }: props) => {
+export const Ad1Powerup = ({ handleBuyClick }: props) => {
   return (
     <a
       style={{
