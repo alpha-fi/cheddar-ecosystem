@@ -487,7 +487,6 @@ export const GameContextProvider = ({ children }: props) => {
 
     // Regenerate maze data
     const rng = new RNG(newSeedIdResponse.seedId);
-    console.log(1, newSeedIdResponse.seedId);
     setRng(rng);
 
     const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
