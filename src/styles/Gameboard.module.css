@@ -19,6 +19,9 @@
 .staticIcon {
   position: absolute;
 }
+.smallCellIcon {
+  font-size: medium;
+}
 .playerCell {
   pointer-events: none;
   position: relative;

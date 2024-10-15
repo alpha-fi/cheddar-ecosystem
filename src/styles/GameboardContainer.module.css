@@ -18,7 +18,6 @@
   margin: 0 auto;
   padding: 0;
   border: 1px solid rgb(133, 66, 235);
-  font-family: Bubblegum Sans !important;
   background-size: cover;
   background-position: center;
   background-color: rgba(255, 255, 255, 0.5);
@@ -204,7 +203,7 @@
 .subtitle {
   font-weight: bold;
   color: rebeccapurple;
-  border: 1px 1px 0 1px dashed mediumpurple;
+  border: 1px dashed mediumpurple;
 }
 .time {
   flex: 1;

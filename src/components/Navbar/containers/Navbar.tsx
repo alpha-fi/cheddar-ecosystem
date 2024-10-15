@@ -194,7 +194,9 @@ export default function Navbar() {
           ></video>
         </div>
       </ModalContainer>
-      <div className={styles.publicityDecoration}></div>
+      <Hide breakpoint="(max-width: 450px)">
+        <div className={styles.publicityDecoration}></div>
+      </Hide>
     </>
   );
 }

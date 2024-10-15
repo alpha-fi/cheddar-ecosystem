@@ -154,6 +154,10 @@ export function Gameboard({
             else if (cell.hasNothing) cellContent = '✅';
             //====================================================== End nothing logo options ======================================================
 
+            function getCellClasses(cell: MazeTileData) {
+              return `${styles.staticIcon} ${cell.hasNothing && styles.smallCellIcon}`;
+            }
+
             return (
               <div
                 key={colIndex}
@@ -185,7 +189,7 @@ export function Gameboard({
                       role="img"
                       aria-label={cellContent}
                       // className="static-icon"
-                      className={styles.staticIcon}
+                      className={getCellClasses(cell)}
                     >
                       {cellContent}
                     </span>

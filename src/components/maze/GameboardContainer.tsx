@@ -5,6 +5,7 @@ import styles from '@/styles/GameboardContainer.module.css';
 import {
   Button,
   Heading,
+  Hide,
   Link,
   Menu,
   MenuButton,
@@ -75,7 +76,6 @@ export function GameboardContainer({
     score,
     gameOverFlag,
     gameOverMessage,
-    hasPowerUp,
     handleKeyPress,
     restartGame,
     timerStarted,
@@ -95,6 +95,7 @@ export function GameboardContainer({
     isUserNadabotVerfied,
     isUserHolonymVerified,
     totalMintedCheddarToDate,
+    selectedColorSet,
   } = useContext(GameContext);
 
   const { addresses, isConnected, showConnectionModal } = useGlobalContext();
@@ -371,7 +372,8 @@ export function GameboardContainer({
         maxWidth: `${mazeData[0].length * cellSize + 50}px`,
       }}
     >
-      <div className={styles.publicityDecoration}></div>
+      
+        <div className={styles.publicityDecoration}></div>
       <ModalHolonym
         isOpen={showHolonymModal}
         onClose={() => setHolonymModal(false)}
@@ -482,7 +484,10 @@ export function GameboardContainer({
             </Button>
           </Show>
         </div>
-        <div style={{ position: 'relative', backgroundColor: '#ECC94B' }}>
+        <div
+          style={{ position: 'relative' }}
+          className={`pathColorSet${selectedColorSet}`}
+        >
           <Gameboard
             openLogIn={showConnectionModal}
             isUserLoggedIn={isConnected}

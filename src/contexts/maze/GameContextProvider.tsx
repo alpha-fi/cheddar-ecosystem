@@ -1092,6 +1092,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   function moveIfValid(id: string) {
+    if (fightingEnemyFlag) return;
     if (id) {
       const touchedCoordinate = getCoordinatesFromTileId(id);
 
