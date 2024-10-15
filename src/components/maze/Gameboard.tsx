@@ -29,6 +29,9 @@ export function Gameboard({
     calculateBlurRadius,
     handleTouchStart,
     handleTouchMove,
+    handleMouseDown,
+    handleOnMouseUp,
+    handleOnMouseOver,
   } = useContext(GameContext);
 
   const { blockchain } = useGlobalContext();
@@ -56,7 +59,6 @@ export function Gameboard({
     (onTrue: (event: any) => void, onFalse: () => void) => (event: any) => {
       if (isUserLoggedIn) {
         if (blockchain === 'base' || isAllowedResponse.ok) {
-          console.log('stating');
           onTrue(event);
         }
       } else {
@@ -85,7 +87,7 @@ export function Gameboard({
   }
 
   return (
-    <div ref={touchContainerRef}>
+    <div className={styles.gameboard} ref={touchContainerRef}>
       {mazeData.map((row: MazeTileData[], rowIndex: number) => (
         <div key={rowIndex} className={styles.mazeRow}>
           {row.map((cell: MazeTileData, colIndex: number) => {
@@ -166,7 +168,12 @@ export function Gameboard({
                 style={{
                   filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
                 }}
-                onClick={handleConditionalFunction(() => {}, openLogIn)}
+                onMouseDown={handleConditionalFunction(
+                  handleMouseDown,
+                  openLogIn
+                )}
+                onMouseOver={handleOnMouseOver}
+                onMouseUp={handleOnMouseUp}
                 onTouchStart={handleConditionalFunction(
                   handleTouchStart,
                   openLogIn
