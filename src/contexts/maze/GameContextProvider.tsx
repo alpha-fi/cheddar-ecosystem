@@ -153,6 +153,12 @@ interface GameContextProps {
 
   handleTouchMove: (event: React.TouchEvent<HTMLDivElement>) => void;
 
+  handleMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
+
+  handleOnMouseOver: (event: React.MouseEvent<HTMLDivElement>) => void;
+
+  handleOnMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void;
+
   cheddarFound: number;
   setCheddarFound: React.Dispatch<React.SetStateAction<number>>;
 
@@ -268,6 +274,10 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [hasFoundPlinko, setHasFoundPlinko] = useState(false);
 
+  const [isMouseDown, setIsMouseDown] = useState(false);
+
+  const [lastDivId, setLastDivId] = useState('');
+
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
 
@@ -374,6 +384,15 @@ export const GameContextProvider = ({ children }: props) => {
     setRemainingMinutes(minutes);
     setRemainingSeconds(seconds);
   }, [remainingTime]);
+
+  useEffect(() => {
+    // Asegura que el mouseUp se detecte fuera de los divs también
+    window.addEventListener('mouseup', handleOnMouseUp);
+
+    return () => {
+      window.removeEventListener('mouseup', handleOnMouseUp);
+    };
+  }, []);
 
   const { accountId, selector } = useWalletSelector();
   const [nfts, setNFTs] = useState<NFT[]>([]);
@@ -1066,6 +1085,8 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   function getCoordinatesFromTileId(id: string) {
+    if (!id.includes('cell-')) return;
+
     const stringCoordinates = id.slice('cell-'.length);
 
     const splitStringCoordinates = stringCoordinates.split('-');
@@ -1099,7 +1120,7 @@ export const GameContextProvider = ({ children }: props) => {
     if (id) {
       const touchedCoordinate = getCoordinatesFromTileId(id);
 
-      if (isValidTileToMove(touchedCoordinate)) {
+      if (touchedCoordinate && isValidTileToMove(touchedCoordinate)) {
         let newX = playerPosition.x;
         let dX = playerPosition.x - touchedCoordinate.x;
 
@@ -1150,7 +1171,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
     if (!showMovementButtons) {
-      event.preventDefault(); // Prevent screen scroll
+      // event.preventDefault(); // Prevent screen scroll
       const touches = event.touches;
 
       // Calculate touchedSquares
@@ -1164,6 +1185,29 @@ export const GameContextProvider = ({ children }: props) => {
         }
       }
     }
+  };
+
+  const handleOnMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (isMouseDown) {
+      setLastDivId(event.currentTarget.id);
+    }
+  };
+
+  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (showMovementButtons) {
+      setIsMouseDown(true);
+      setLastDivId(event.currentTarget.id);
+    }
+  };
+
+  useEffect(() => {
+    if (!gameOverFlag && lastDivId) {
+      moveIfValid(lastDivId);
+    }
+  }, [lastDivId]);
+
+  const handleOnMouseUp = () => {
+    setIsMouseDown(false);
   };
 
   const getSquareIdFromTouch = (touch: Touch) => {
@@ -1266,6 +1310,9 @@ export const GameContextProvider = ({ children }: props) => {
         calculateBlurRadius,
         handleTouchStart,
         handleTouchMove,
+        handleMouseDown,
+        handleOnMouseOver,
+        handleOnMouseUp,
         cheddarFound,
         setCheddarFound,
         saveResponse,
