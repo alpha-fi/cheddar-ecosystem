@@ -253,6 +253,60 @@ export function GameboardContainer({
     );
   };
 
+  const renderCursorClickIcon = () => {
+    return (
+      <svg
+        fill="#000000"
+        version="1.1"
+        id="Layer_1"
+        viewBox="0 0 511.996 511.996"
+      >
+        <title>Cursor</title>
+        <g>
+          <g>
+            <rect
+              x="56.21"
+              y="36.231"
+              transform="matrix(0.7071 -0.7071 0.7071 0.7071 -28.8553 71.5153)"
+              width="31.377"
+              height="68.716"
+            />
+          </g>
+        </g>
+        <g>
+          <g>
+            <rect
+              x="22.641"
+              y="100.857"
+              transform="matrix(0.3423 -0.9396 0.9396 0.3423 -101.8378 124.9468)"
+              width="31.378"
+              height="68.718"
+            />
+          </g>
+        </g>
+        <g>
+          <g>
+            <rect
+              x="120.21"
+              y="3.295"
+              transform="matrix(0.9396 -0.3423 0.3423 0.9396 -4.6793 48.7924)"
+              width="31.378"
+              height="68.718"
+            />
+          </g>
+        </g>
+        <g>
+          <g>
+            <polygon
+              points="376.942,316.704 451.763,263.492 133.809,133.089 264.235,451.102 316.181,377.774 450.402,511.996 
+       511.319,451.08 		"
+            />
+          </g>
+        </g>
+      </svg>
+    );
+  };
+
   function getPowerUpBtnText() {
     if (addresses['near']) {
       if (nfts?.length) {
@@ -372,8 +426,7 @@ export function GameboardContainer({
         maxWidth: `${mazeData[0].length * cellSize + 50}px`,
       }}
     >
-      
-        <div className={styles.publicityDecoration}></div>
+      <div className={styles.publicityDecoration}></div>
       <ModalHolonym
         isOpen={showHolonymModal}
         onClose={() => setHolonymModal(false)}
@@ -480,6 +533,19 @@ export function GameboardContainer({
             >
               <div className={styles.togglePlayModeIconContainer}>
                 {showMovementButtons ? renderSwipeIcon() : renderArrowsIcon()}
+              </div>
+            </Button>
+          </Show>
+          <Show above="lg">
+            <Button
+              px={{ base: 2, md: 3 }}
+              onClick={() => handleToggleShowMovementButtons()}
+              colorScheme="gray"
+            >
+              <div className={styles.togglePlayModeIconContainer}>
+                {showMovementButtons
+                  ? renderCursorClickIcon()
+                  : renderArrowsIcon()}
               </div>
             </Button>
           </Show>
