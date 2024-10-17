@@ -179,7 +179,7 @@ export function Gameboard({
                 {/* Dynamic content based on cell */}
                 {cell.fight ? (
                   <Image
-                    src="https://www.toysrus.co.za/media/wysiwyg/monophy_1.gif"
+                    src="assets/img/fight.gif"
                     alt="Fight gif"
                     className={styles.staticIcon}
                   />
