@@ -804,6 +804,7 @@ export const GameContextProvider = ({ children }: props) => {
     bag: 0.027,
     cartel: 0.0002,
     plinko: 0.01,
+    safe: 0.2,
   };
 
   const NFTCheeseBuffMultiplier = 1.28;
@@ -864,8 +865,10 @@ export const GameContextProvider = ({ children }: props) => {
       handleBagFound(clonedMazeData, newX, newY);
     } else if (isTestCartel || rng.nextFloat() < chancesOfFinding.cartel) {
       handleCartelFound(clonedMazeData, newX, newY);
-    } else {
+    } else if (rng.nextFloat() < chancesOfFinding.safe) {
       handleNothingFound(clonedMazeData, newX, newY);
+      setScore(score + pointsOfActions.moveWithoutDying);
+    } else {
       setScore(score + pointsOfActions.moveWithoutDying);
     }
     setMazeData(clonedMazeData);
