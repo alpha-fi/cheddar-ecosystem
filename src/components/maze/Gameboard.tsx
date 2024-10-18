@@ -98,13 +98,6 @@ export function Gameboard({
 
   function getMouseDownFunction() {
     if (!isDesktop) {
-      toast({
-        title: "in getMouseDownFunction",
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
       return () => {};
     }
 
