@@ -45,7 +45,7 @@ export default function Navbar() {
   } = useGlobalContext();
 
   const [showHolonymModal, setHolonymModal] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(!isConnected);
   const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   function toggleIsOpen() {
@@ -54,7 +54,7 @@ export default function Navbar() {
 
   return (
     <>
-      <Collapse in={isOpen || isDesktop} animateOpacity>
+      <Collapse in={isOpen || isDesktop} style={{overflow: "visible !important"}}animateOpacity>
         <Box
           position="relative"
           as="nav"
