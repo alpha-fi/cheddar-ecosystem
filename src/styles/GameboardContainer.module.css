@@ -15,7 +15,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 auto;
+  margin: 0.5rem auto 0 auto;
   padding: 0;
   border: 1px solid rgb(133, 66, 235);
   background-size: cover;
@@ -32,7 +32,7 @@
   font-weight: bolder;
   color: rebeccapurple;
   font-size: 1.25rem;
-  margin-top: -0.75em;
+  margin-top: -1rem !important;
 }
 
 .headerLeftPortionContainer {
@@ -204,6 +204,7 @@
   font-weight: bold;
   color: rebeccapurple;
   border: 1px dashed mediumpurple;
+  padding-top: 0;
 }
 .time {
   flex: 1;
