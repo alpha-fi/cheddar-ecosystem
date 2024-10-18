@@ -6,6 +6,7 @@ import {
   ListItem,
   OrderedList,
   useBreakpointValue,
+  useToast,
 } from '@chakra-ui/react';
 
 import styles from '@/styles/Gameboard.module.css';
@@ -93,8 +94,19 @@ export function Gameboard({
     return `${styles.mazeCell} ${styles.playerCell} ${getPlayerImgDirection()} ${backgroundImage}`;
   }
 
+  const toast = useToast();
+
   function getMouseDownFunction() {
-    if (!isDesktop) return () => {};
+    if (!isDesktop) {
+      toast({
+        title: "in getMouseDownFunction",
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+      return () => {};
+    }
 
     return handleConditionalFunction(handleMouseDown, openLogIn);
   }
