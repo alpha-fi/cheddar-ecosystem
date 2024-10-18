@@ -207,7 +207,7 @@ export default function Navbar() {
             justifyContent="center"
             boxShadow="md"
             position={'absolute'}
-            top={1}
+            top={isOpen ? "64px" : "4px"}
             shadow={"1px 1px 3px #232621"}
           >
             <Icon
