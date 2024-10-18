@@ -193,15 +193,28 @@ export default function Navbar() {
           </Container>
         </Box>
       </Collapse>
-      
+
       {!isDesktop && (
-        <Flex justify={'center'}>
-          <Icon
-            onClick={toggleIsOpen}
-            as={isOpen ? ChevronUpIcon : ChevronDownIcon}
-            w={6}
-            h={6}
-          />
+        <Flex justify={'center'}
+          h={6}
+        >
+          <Box
+            bg="white"
+            borderRadius="full"
+            p={1}
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            boxShadow="md"
+            position={'absolute'}
+            top={1}
+            shadow={"1px 1px 3px #232621"}
+          >
+            <Icon
+              onClick={toggleIsOpen}
+              as={isOpen ? ChevronUpIcon : ChevronDownIcon}
+            />
+          </Box>
         </Flex>
       )}
 
