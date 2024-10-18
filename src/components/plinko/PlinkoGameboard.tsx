@@ -70,13 +70,13 @@ export function PlinkoBoard() {
 
   const scene = useRef() as React.LegacyRef<HTMLDivElement> | undefined;
   const engine = useRef(Engine.create());
-  
+
   const {
     isOpen: isOpenModalRules,
     onOpen: onOpenModalRules,
     onClose: onCloseModalRules,
   } = useDisclosure();
-  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext();
 
   function closeGameOverModal() {
     closePlinkoModal();
@@ -164,7 +164,6 @@ export function PlinkoBoard() {
       if (cheddarEarnedData) {
         const cheddarEarned = cheddarEarnedData?.cheddar;
         const cheddarPrizeName = cheddarEarnedData?.name;
-        console.log(1, cheddarPrizeName);
         setPrizeNames((prevState) => [...prevState, cheddarPrizeName]);
 
         finalPrize += cheddarEarned!;
