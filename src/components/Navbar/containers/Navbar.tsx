@@ -2,10 +2,12 @@ import React, { useRef } from 'react';
 import {
   Box,
   Button,
+  Collapse,
   Container,
   Flex,
   Hide,
   HStack,
+  Icon,
   Img,
   Show,
   Stack,
@@ -25,6 +27,7 @@ import ModalHolonym from '@/components/ModalHolonymSBT';
 import { useGlobalContext } from '@/contexts/GlobalContext';
 import { BlockchainSelector } from '../components/BlockchainSelector';
 import { WalletMenu } from '../components/WalletMenu';
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 
 export default function Navbar() {
   const {
@@ -42,60 +45,69 @@ export default function Navbar() {
   } = useGlobalContext();
 
   const [showHolonymModal, setHolonymModal] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const isDesktop = useBreakpointValue({ base: false, lg: true });
+
+  function toggleIsOpen() {
+    setIsOpen(!isOpen);
+  }
 
   return (
     <>
-      <Box
-        position="relative"
-        as="nav"
-        w="100%"
-        h="60px"
-        bg="#8542eb"
-        css={{ backdropFilter: 'blur(2px)' }}
-        zIndex={1}
-      >
-        <Container
-          display="flex"
-          alignContent="center"
-          maxW="container.xl"
-          justifyContent="space-between"
-          alignItems="center"
-          px="32px"
-          gap="1rem"
-          height="100%"
+      <Collapse in={isOpen || isDesktop} animateOpacity>
+        <Box
+          position="relative"
+          as="nav"
+          w="100%"
+          h="60px"
+          bg="#8542eb"
+          css={{ backdropFilter: 'blur(2px)' }}
+          zIndex={1}
         >
-          <Flex alignContent="center" minW={{ base: undefined, lg: '341px' }}>
-            <Flex flexDirection="column" mr="20px">
-              <HStack spacing={0} minW={'25px'}>
-                <Show breakpoint="(max-width: 664px)">
-                  <Img
-                    src={'/assets/cheddar-logo-reduced.png'}
-                    alt="Cheddar icon"
-                    maxHeight={'50px'}
-                  />
-                </Show>
-                <Hide breakpoint="(max-width: 664px)">
-                  <Img
-                    src={'/assets/cheddar-logo.png'}
-                    alt="Cheddar icon"
-                    height={'50px'}
-                  />
-                </Hide>
-              </HStack>
-            </Flex>
-          </Flex>
-
-          {isDesktop && (
-            <Flex alignContent="center">
+          <Container
+            display="flex"
+            alignContent="center"
+            maxW="container.xl"
+            justifyContent="space-between"
+            alignItems="center"
+            px="32px"
+            gap="1rem"
+            height="100%"
+          >
+            <Flex alignContent="center" minW={{ base: undefined, lg: '341px' }}>
               <Flex flexDirection="column" mr="20px">
-                <HStack spacing={'16px'} minW={'25px'}>
-                  <Link href={'/maze'} style={{ textDecorationColor: 'white' }}>
-                    <Text fontSize={'16px'} fontWeight="600" color="white">
-                      Maze
-                    </Text>
-                  </Link>
-                  {/* <Link
+                <HStack spacing={0} minW={'25px'}>
+                  <Show breakpoint="(max-width: 664px)">
+                    <Img
+                      src={'/assets/cheddar-logo-reduced.png'}
+                      alt="Cheddar icon"
+                      maxHeight={'50px'}
+                    />
+                  </Show>
+                  <Hide breakpoint="(max-width: 664px)">
+                    <Img
+                      src={'/assets/cheddar-logo.png'}
+                      alt="Cheddar icon"
+                      height={'50px'}
+                    />
+                  </Hide>
+                </HStack>
+              </Flex>
+            </Flex>
+
+            {isDesktop && (
+              <Flex alignContent="center">
+                <Flex flexDirection="column" mr="20px">
+                  <HStack spacing={'16px'} minW={'25px'}>
+                    <Link
+                      href={'/maze'}
+                      style={{ textDecorationColor: 'white' }}
+                    >
+                      <Text fontSize={'16px'} fontWeight="600" color="white">
+                        Maze
+                      </Text>
+                    </Link>
+                    {/* <Link
                     href={'/checkers'}
                     style={{ textDecorationColor: 'white' }}
                   >
@@ -103,83 +115,95 @@ export default function Navbar() {
                       Checkers
                     </Text>
                   </Link> */}
-                </HStack>
+                  </HStack>
+                </Flex>
               </Flex>
-            </Flex>
-          )}
-
-          <Flex
-            flexDir="row"
-            justifyContent="end"
-            gap="1rem"
-            alignItems="center"
-          >
-            <Stack
-              direction={{ base: 'column', md: 'row' }}
-              display={{ base: 'none', lg: 'flex' }}
-              width={{ base: 'full', md: 'auto' }}
-              alignItems="center"
-              justifyContent="center"
-              flexGrow={1}
-              mt={{ base: 4, md: 0 }}
-              fontWeight="700"
-              lineHeight="1"
-            >
-              <Button
-                _hover={{ bg: '#63b3ed' }}
-                colorScheme="blue"
-                onClick={onOpenVideoModal}
-              >
-                🎶
-              </Button>
-            </Stack>
-
-            <Text
-              display={{ base: 'none', lg: 'flex' }}
-              justifyContent="space-between"
-              textColor="white"
-            >
-              <Text as="i">
-                Total supply:{' '}
-                <div style={{ width: 'max-content' }}>
-                  {isCheddarTotalSupplyLoading
-                    ? 'Loading'
-                    : new Intl.NumberFormat('de-DE', {
-                        maximumFractionDigits: 0,
-                      }).format(yton(cheddarTotalSupply!))}{' '}
-                  {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
-                </div>
-              </Text>
-            </Text>
-            <Stack display={{ base: 'none', lg: 'flex' }}>
-              <About />
-            </Stack>
-
-            {blockchain === 'near' && isConnected && !isUserVerified && (
-              <Button
-                display={{ base: 'none', lg: 'flex' }}
-                px={{ base: 2, md: 3 }}
-                onClick={() => setHolonymModal(true)}
-              >
-                Get Holonym SBT
-              </Button>
             )}
-            <ModalHolonym
-              isOpen={showHolonymModal}
-              onClose={() => setHolonymModal(false)}
-            />
-            <BlockchainSelector />
-            <WalletMenu />
 
-            <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
-              <DrawerMenu
-                onOpenVideoModal={onOpenVideoModal}
-                setHolonymModal={setHolonymModal}
+            <Flex
+              flexDir="row"
+              justifyContent="end"
+              gap="1rem"
+              alignItems="center"
+            >
+              <Stack
+                direction={{ base: 'column', md: 'row' }}
+                display={{ base: 'none', lg: 'flex' }}
+                width={{ base: 'full', md: 'auto' }}
+                alignItems="center"
+                justifyContent="center"
+                flexGrow={1}
+                mt={{ base: 4, md: 0 }}
+                fontWeight="700"
+                lineHeight="1"
+              >
+                <Button
+                  _hover={{ bg: '#63b3ed' }}
+                  colorScheme="blue"
+                  onClick={onOpenVideoModal}
+                >
+                  🎶
+                </Button>
+              </Stack>
+
+              <Text
+                display={{ base: 'none', lg: 'flex' }}
+                justifyContent="space-between"
+                textColor="white"
+              >
+                <Text as="i">
+                  Total supply:{' '}
+                  <div style={{ width: 'max-content' }}>
+                    {isCheddarTotalSupplyLoading
+                      ? 'Loading'
+                      : new Intl.NumberFormat('de-DE', {
+                          maximumFractionDigits: 0,
+                        }).format(yton(cheddarTotalSupply!))}{' '}
+                    {RenderCheddarIcon({ width: '2rem', height: '1.5rem' })}
+                  </div>
+                </Text>
+              </Text>
+              <Stack display={{ base: 'none', lg: 'flex' }}>
+                <About />
+              </Stack>
+
+              {blockchain === 'near' && isConnected && !isUserVerified && (
+                <Button
+                  display={{ base: 'none', lg: 'flex' }}
+                  px={{ base: 2, md: 3 }}
+                  onClick={() => setHolonymModal(true)}
+                >
+                  Get Holonym SBT
+                </Button>
+              )}
+              <ModalHolonym
+                isOpen={showHolonymModal}
+                onClose={() => setHolonymModal(false)}
               />
-            </Box>
-          </Flex>
-        </Container>
-      </Box>
+              <BlockchainSelector />
+              <WalletMenu />
+
+              <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
+                <DrawerMenu
+                  onOpenVideoModal={onOpenVideoModal}
+                  setHolonymModal={setHolonymModal}
+                />
+              </Box>
+            </Flex>
+          </Container>
+        </Box>
+      </Collapse>
+      
+      {!isDesktop && (
+        <Flex justify={'center'}>
+          <Icon
+            onClick={toggleIsOpen}
+            as={isOpen ? ChevronUpIcon : ChevronDownIcon}
+            w={6}
+            h={6}
+          />
+        </Flex>
+      )}
 
       <ModalContainer
         title={'Cheddar rap'}
