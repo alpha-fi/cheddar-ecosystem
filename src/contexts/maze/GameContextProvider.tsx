@@ -1170,7 +1170,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
     if (!showMovementButtons) {
-      // event.preventDefault(); // Prevent screen scroll
+      event.preventDefault(); // Prevent screen scroll
       const touches = event.touches;
 
       // Calculate touchedSquares
