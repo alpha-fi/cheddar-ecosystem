@@ -42,19 +42,25 @@ export default function Navbar() {
     isUserVerified,
     cheddarTotalSupply,
     isCheddarTotalSupplyLoading,
+    collapsableNavbar,
+    toggleCollapsableNavbar,
+    collapsableNavbarActivated,
   } = useGlobalContext();
 
   const [showHolonymModal, setHolonymModal] = useState(false);
-  const [isOpen, setIsOpen] = useState(!isConnected);
   const isDesktop = useBreakpointValue({ base: false, lg: true });
-
-  function toggleIsOpen() {
-    setIsOpen(!isOpen);
-  }
 
   return (
     <>
-      <Collapse in={isOpen || isDesktop} style={{overflow: "visible !important"}}animateOpacity>
+      <Collapse
+        in={
+          !collapsableNavbarActivated ||
+          (collapsableNavbarActivated && collapsableNavbar) ||
+          isDesktop
+        }
+        style={{ overflow: 'visible !important' }}
+        animateOpacity
+      >
         <Box
           position="relative"
           as="nav"
@@ -194,10 +200,8 @@ export default function Navbar() {
         </Box>
       </Collapse>
 
-      {!isDesktop && (
-        <Flex justify={'center'}
-          h={6}
-        >
+      {!isDesktop && collapsableNavbarActivated && (
+        <Flex justify={'center'} h={6}>
           <Box
             bg="white"
             borderRadius="full"
@@ -207,12 +211,12 @@ export default function Navbar() {
             justifyContent="center"
             boxShadow="md"
             position={'absolute'}
-            top={isOpen ? "64px" : "4px"}
-            shadow={"1px 1px 3px #232621"}
+            top={collapsableNavbar ? '64px' : '4px'}
+            shadow={'1px 1px 3px #232621'}
           >
             <Icon
-              onClick={toggleIsOpen}
-              as={isOpen ? ChevronUpIcon : ChevronDownIcon}
+              onClick={toggleCollapsableNavbar}
+              as={collapsableNavbar ? ChevronUpIcon : ChevronDownIcon}
             />
           </Box>
         </Flex>
