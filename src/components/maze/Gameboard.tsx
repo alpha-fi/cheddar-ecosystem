@@ -1,7 +1,13 @@
 import { MazeTileData } from '@/contexts/maze/GameContextProvider';
 import { useContext, useEffect, useRef } from 'react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { Image, ListItem, OrderedList } from '@chakra-ui/react';
+import {
+  Image,
+  ListItem,
+  OrderedList,
+  useBreakpointValue,
+  useToast,
+} from '@chakra-ui/react';
 
 import styles from '@/styles/Gameboard.module.css';
 import { IsAllowedResponse } from '@/hooks/maze';
@@ -33,6 +39,8 @@ export function Gameboard({
     handleOnMouseUp,
     handleOnMouseOver,
   } = useContext(GameContext);
+
+  const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   const { blockchain } = useGlobalContext();
 
@@ -84,6 +92,16 @@ export function Gameboard({
       backgroundImage = 'playerBackgroundElementOnTop';
     }
     return `${styles.mazeCell} ${styles.playerCell} ${getPlayerImgDirection()} ${backgroundImage}`;
+  }
+
+  const toast = useToast();
+
+  function getMouseDownFunction() {
+    if (!isDesktop) {
+      return () => {};
+    }
+
+    return handleConditionalFunction(handleMouseDown, openLogIn);
   }
 
   return (
@@ -168,10 +186,7 @@ export function Gameboard({
                 style={{
                   filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
                 }}
-                onMouseDown={handleConditionalFunction(
-                  handleMouseDown,
-                  openLogIn
-                )}
+                onMouseDown={getMouseDownFunction()}
                 onMouseOver={handleOnMouseOver}
                 onMouseUp={handleOnMouseUp}
                 onTouchStart={handleConditionalFunction(

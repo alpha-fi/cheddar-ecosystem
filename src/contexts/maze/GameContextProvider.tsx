@@ -403,7 +403,11 @@ export const GameContextProvider = ({ children }: props) => {
 
   const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
 
-  const { blockchain, selectedBlockchainAddress } = useGlobalContext();
+  const {
+    blockchain,
+    selectedBlockchainAddress,
+    setCollapsableNavbarActivated,
+  } = useGlobalContext();
 
   useEffect(() => {
     if (accountId) {
@@ -498,6 +502,7 @@ export const GameContextProvider = ({ children }: props) => {
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
     setLastCellX(-1);
     setLastCellY(-1);
+    setCollapsableNavbarActivated(true);
   }
 
   // Function to generate maze data
@@ -947,6 +952,8 @@ export const GameContextProvider = ({ children }: props) => {
       setGameOverMessage(message);
       setHasFoundPlinko(false);
     }, 800);
+
+    setCollapsableNavbarActivated(false);
 
     const endGameResponse = await callEndGame(endGameRequestData).catch(
       (error) => setSaveResponse(error)
