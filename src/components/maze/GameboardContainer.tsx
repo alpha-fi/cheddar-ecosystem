@@ -47,6 +47,7 @@ import ModalHolonym from '../ModalHolonymSBT';
 import { useAccount } from 'wagmi';
 import { useGlobalContext } from '@/contexts/GlobalContext';
 import { IsAllowedResponse } from '@/hooks/maze';
+import { Energymeter } from '../Energymeter';
 
 interface Props {
   remainingMinutes: number;
@@ -414,8 +415,9 @@ export function GameboardContainer({
     walletSelector.modal.show();
   };
 
-  function getGameInfoClases(subtitle: string) {
-    return `${styles[subtitle]} ${styles.subtitle}`;
+  function getGameInfoClases(infoType: string) {
+    if (infoType === 'cicularLabeledEnergy') return `${styles[infoType]}`;
+    return `${styles[infoType]} ${styles.subtitle}`;
   }
 
   return (
@@ -437,12 +439,28 @@ export function GameboardContainer({
         </div>
       )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
-      <div className={styles.gameInfo}>
-        <div className={getGameInfoClases('score')}>Score: {score}</div>
-        <div className={getGameInfoClases('time')}>
-          Time:{' '}
-          {remainingMinutes < 10 ? '0' + remainingMinutes : remainingMinutes}:
-          {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
+      <div className={styles.gameInfoContainer}>
+        <div className={styles.gameInfo}>
+          <div className={getGameInfoClases('score')}>Score: {score}</div>
+          {/* <div className={getGameInfoClases('energy')}>
+            <Energymeter type="circular" style={{}} />
+          </div> */}
+          <div className={getGameInfoClases('time')}>
+            Time:{' '}
+            {remainingMinutes < 10 ? '0' + remainingMinutes : remainingMinutes}:
+            {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
+          </div>
+          {/* <div className={getGameInfoClases('cicularLabeledEnergy')}>
+            <Energymeter
+              type="labeledCircular"
+              circularSize="30px"
+              style={{ marginRight: '0.5rem' }}
+            />
+          </div> */}
+        </div>
+        <div className={styles.subtitle}>
+          {/* <Energymeter /> */}
+          <Energymeter type="labeledBar" />
         </div>
       </div>
       <div className={styles.mazeContainer} ref={gameboardRef} tabIndex={0}>
