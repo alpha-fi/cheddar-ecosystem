@@ -42,6 +42,7 @@ import { Scoreboard } from './Scoreboard';
 import { callMintCheddar } from '@/queries/maze/api';
 import { getConfig } from '@/configs/config';
 import ModalHolonym from '../ModalHolonymSBT';
+import { ModalViewNFTs } from '../ViewNFTsModal';
 
 interface Props {
   remainingMinutes: number;
@@ -123,6 +124,7 @@ export function GameboardContainer({
   const [cheddarMintResponse, setCheddarMintResponse] =
     useState<CheddarMintResponse | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [isViewNFTModalOpen, setViewNFTModal] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -237,13 +239,10 @@ export function GameboardContainer({
   };
 
   function getPowerUpBtnText() {
-    if (accountId) {
-      if (nfts?.length) {
-        return '⚡';
-      } else return 'Buy ⚡';
-    } else {
-      return 'Buy ⚡';
+    if (accountId && nfts?.length) {
+      return '⚡';
     }
+    return 'Buy ⚡';
   }
   const shareReferralLink =
     'https://' +
@@ -341,6 +340,10 @@ export function GameboardContainer({
   const handleLogin = () => {
     walletSelector.modal.show();
   };
+
+  function toggleViewNftModal() {
+    setViewNFTModal(!isViewNFTModalOpen);
+  }
 
   return (
     <div
@@ -442,7 +445,9 @@ export function GameboardContainer({
               <Button
                 px={{ base: 2, md: 3 }}
                 colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
-                onClick={handleBuyClick}
+                onClick={() =>
+                  nfts?.length ? toggleViewNftModal() : handleBuyClick()
+                }
               >
                 {getPowerUpBtnText()}
               </Button>
@@ -522,6 +527,8 @@ export function GameboardContainer({
         )}
       </div>
       <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
+      <ModalViewNFTs onClose={toggleViewNftModal} isOpen={isViewNFTModalOpen} />
+
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer
