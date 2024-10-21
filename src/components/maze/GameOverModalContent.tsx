@@ -4,6 +4,7 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useToast, Link } from '@chakra-ui/react';
 import { Facebook, Telegram, Twitter } from '../icons';
 import { getConfig } from '@/configs/config';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 
 interface Props {
   setHolonymModal: (v: boolean) => void;
@@ -23,7 +24,7 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
     isUserHolonymVerified,
   } = useContext(GameContext);
   const toast = useToast();
-
+  const { accountId } = useWalletSelector();
   const properSecondsFormat =
     remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
 
@@ -60,7 +61,9 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
 
   const shareText = `I just ${hasWon ? 'won' : 'lost'} ${cheddarFound} Cheddar playing the Cheddar Maze game. Check it out its fun and with more features coming.`;
   const encodedText = encodeURIComponent(shareText);
-  const encodedLink = encodeURIComponent('https://cheddar.farm/');
+  const encodedLink = encodeURIComponent(
+    `https://cheddar.farm/?referralId=${accountId}`
+  );
 
   function getTwitterUrl() {
     return `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedLink}`;
