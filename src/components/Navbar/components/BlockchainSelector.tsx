@@ -1,10 +1,11 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Button, Circle, HStack, Img, Menu, MenuButton, MenuItem, MenuList, Text, useBreakpointValue } from '@chakra-ui/react';
-import { useGlobalContext } from '@/contexts/GlobalContext';
+import { Blockchain, useGlobalContext } from '@/contexts/GlobalContext';
 
 export function BlockchainSelector() {
   const {blockchain, setBlockchain, addresses} = useGlobalContext()
   const isMobile = useBreakpointValue({ base: true, md: false });
+  
   return (
     <Menu>
       <MenuButton
@@ -25,26 +26,21 @@ export function BlockchainSelector() {
           </HStack>
       </MenuButton>
       <MenuList minWidth="auto" p="0" borderRadius="full" bg="yellowCheddar">
-        <MenuItem onClick={() => setBlockchain('near')}>
-          <HStack>
-            <Img
-              style={{ height: 20 }}
-              src={'/assets/near-logo.svg'}
-            />
-            <Text>Near</Text>
-            <Circle size={"9px"} bg={addresses["near"] ? "#00D26D" : "#7D8491"}></Circle>
-          </HStack>
-        </MenuItem>
-        <MenuItem onClick={() => setBlockchain('base')}>
-          <HStack>
-            <Img
-              style={{ height: 20 }}
-              src={'/assets/base-logo.svg'}
-            />
-            <Text>Base</Text>
-            <Circle size={"9px"} bg={addresses["base"] ? "#00D26D" : "#7D8491"}></Circle>
-          </HStack>
-        </MenuItem>
+        {Object.entries(addresses)
+          .sort((a,b)=>Boolean(a[1]) !== Boolean(b[1]) ? 1:-1)
+          .map(item=>
+            <MenuItem onClick={() => setBlockchain(item[0] as Blockchain)}>
+              <HStack>
+                <Img
+                  style={{ height: 20 }}
+                  src={`/assets/${item[0]}-logo.svg`}
+                />
+                <Text>{item[0].toUpperCase()}</Text>
+                <Circle size={"9px"} bg={addresses[item[0]] ? "#00D26D" : "#7D8491"}></Circle>
+              </HStack>
+            </MenuItem>
+          )
+        }
       </MenuList>
     </Menu>
   );
