@@ -567,11 +567,11 @@ export function GameboardContainer({
               Play Cheddar Maze
             </Heading>
             <ul>
-              <li>Run Cheddy in Maze and Fill all Cells</li>
-              <li>Find hidden door🚪 before times up ⏰</li>
-              <li>Encounter Random Enemies Win⚔️or Lose💀</li>
-              <li>Find Random PopUp🎰 Games like Plinko🟠</li>
-              <li>The PowerUp⚡️ NFT Boosts Winnings🏆 🧀 ⚔️</li>
+              <li>Fill all Cells in Maze</li>
+              <li>Find door🚪 in 2min ⏰</li>
+              <li>Encounter Enemies ⚔️</li>
+              <li>Find PopUp🎰 Plinko🟠</li>
+              <li>PowerUps Boosts Winnings🏆 🧀 ⚔️</li>
             </ul>
             <Flex wrap={'wrap'} m={'0 0.7rem'}>
               <span>✅: filled cell |</span>
