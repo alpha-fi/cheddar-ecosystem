@@ -821,8 +821,8 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const chancesOfFinding = {
-    exit: 0.0021,
-    enemy: 0.125,
+    exit: 0.0022,
+    enemy: 0.1,
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
