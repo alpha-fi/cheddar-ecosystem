@@ -311,7 +311,7 @@
   top: 21%;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(34, 34, 34, 0.7);
+  background-color: rgba(34, 34, 34, 0.95);
   height: 450px;
   width: 360px;
   border: 10px solid rgba(255, 255, 255, 0.8);
