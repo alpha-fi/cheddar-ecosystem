@@ -442,24 +442,13 @@ export function GameboardContainer({
       <div className={styles.gameInfoContainer}>
         <div className={styles.gameInfo}>
           <div className={getGameInfoClases('score')}>Score: {score}</div>
-          {/* <div className={getGameInfoClases('energy')}>
-            <Energymeter type="circular" style={{}} />
-          </div> */}
           <div className={getGameInfoClases('time')}>
             Time:{' '}
             {remainingMinutes < 10 ? '0' + remainingMinutes : remainingMinutes}:
             {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
           </div>
-          {/* <div className={getGameInfoClases('cicularLabeledEnergy')}>
-            <Energymeter
-              type="labeledCircular"
-              circularSize="30px"
-              style={{ marginRight: '0.5rem' }}
-            />
-          </div> */}
         </div>
         <div className={styles.subtitle}>
-          {/* <Energymeter /> */}
           <Energymeter type="labeledBar" />
         </div>
       </div>
