@@ -442,6 +442,9 @@ export const GameContextProvider = ({ children }: props) => {
     setHasWon(undefined);
     setTimerStarted(true);
     setStartTimestamp(Date.now());
+    setTimestampStartStopTimerArray([]);
+    setTimestampEndStopTimerArray([]);
+
     // clearInterval(timerId);
     setScore(0);
     setTimeLimitInSeconds(120);
