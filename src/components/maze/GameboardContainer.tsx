@@ -13,6 +13,7 @@ import {
   MenuItem,
   MenuList,
   Show,
+  Spinner,
   Tooltip,
   useDisclosure,
   useToast,
@@ -109,6 +110,14 @@ export function GameboardContainer({
   } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
+  const [startingGame, setStartingGame] = useState(false);
+
+  useEffect(() => {
+    if (timerStarted) {
+      setStartingGame(false);
+    }
+  }, [timerStarted]);
+
   const walletSelector = useWalletSelector();
 
   if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
@@ -184,11 +193,15 @@ export function GameboardContainer({
   }
 
   function focusMazeAndStartGame() {
+    setStartingGame(true);
     gameboardRef.current?.focus();
     restartGame();
   }
 
   function getStartGameButtonHandler() {
+    if (startingGame) {
+      return () => {}; //If the game is starting disable the button until game starts (When it get's hided)
+    }
     return isConnected //If the accountId exists
       ? getProperHandler(focusMazeAndStartGame)
       : showConnectionModal(); //If accountId doesn't exist
@@ -584,7 +597,7 @@ export function GameboardContainer({
               _hover={{ bg: 'yellowgreen' }}
               onClick={getStartGameButtonHandler()}
             >
-              {gameOverFlag ? 'Restart' : 'Start'}
+              {startingGame ? <Spinner /> : gameOverFlag ? 'Restart' : 'Start'}
             </Button>
           </div>
         )}
