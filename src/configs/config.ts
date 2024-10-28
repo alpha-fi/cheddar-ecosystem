@@ -55,7 +55,7 @@ export const getConfig = (): Config => {
             'https://app.ref.finance/#near|token.cheddar.near',
           nadaBotUrl: 'https://app.nada.bot/',
           nftImageBaseUrl:
-            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
+            'https://bafybeicoln5rvccttgypzo26irjlskslnfynkzig6bowpsj6ay45geeice.ipfs.nftstorage.link/',
         },
         contracts: {
           cheddarNft: 'nft.cheddar.near',
@@ -85,7 +85,7 @@ export const getConfig = (): Config => {
             'https://testnet.ref.finance/#near|token.cheddar.testnet',
           nadaBotUrl: 'https://testnet.nada.bot/',
           nftImageBaseUrl:
-            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
+            'https://bafybeicoln5rvccttgypzo26irjlskslnfynkzig6bowpsj6ay45geeice.ipfs.nftstorage.link/',
         },
         contracts: {
           cheddarNft: 'nft.cheddar.testnet',
@@ -115,7 +115,7 @@ export const getConfig = (): Config => {
             'https://testnet.ref.finance/#near|token.cheddar.testnet',
           nadaBotUrl: 'https://testnet.nada.bot/',
           nftImageBaseUrl:
-            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
+            'https://bafybeicoln5rvccttgypzo26irjlskslnfynkzig6bowpsj6ay45geeice.ipfs.nftstorage.link/',
         },
         contracts: {
           cheddarNft: 'nft.cheddar.testnet',
