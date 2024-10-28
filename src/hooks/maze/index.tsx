@@ -26,12 +26,14 @@ export interface ScoreboardResponse {
 
 export const useGetIsAllowedResponse =
   (): UseQueryResult<null | IsAllowedResponse> => {
-    const { blockchain, selectedBlockchainAddress } = useGlobalContext()
+    const { blockchain, selectedBlockchainAddress } = useGlobalContext();
 
     return useQuery({
       queryKey: ['useGetIsAllowed', selectedBlockchainAddress],
       queryFn: () =>
-        selectedBlockchainAddress ? isAllowedResponse(selectedBlockchainAddress, blockchain) : null,
+        selectedBlockchainAddress
+          ? isAllowedResponse(selectedBlockchainAddress, blockchain)
+          : null,
       refetchInterval: 10000,
       staleTime: 10000,
     });
@@ -48,7 +50,7 @@ export const useGetScoreboard =
   };
 
 export const useGetPendingCheddarToMint = (): UseQueryResult<number> => {
-  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext();
 
   return useQuery({
     queryKey: ['useGetPendingCheddarToMint', selectedBlockchainAddress],
@@ -62,8 +64,8 @@ export const useGetPendingCheddarToMint = (): UseQueryResult<number> => {
 };
 
 export const useGetEarnedButNotMintedCheddar = (): UseQueryResult<number> => {
-  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
-  
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext();
+
   return useQuery({
     queryKey: ['useGetEarnedButNotMintedCheddar', selectedBlockchainAddress],
     queryFn: () =>
@@ -76,12 +78,14 @@ export const useGetEarnedButNotMintedCheddar = (): UseQueryResult<number> => {
 };
 
 export const useGetEarnedAndMintedCheddar = (): UseQueryResult<number> => {
-  const { blockchain, selectedBlockchainAddress } = useGlobalContext()
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext();
 
   return useQuery({
     queryKey: ['useGetEarnedAndMintedCheddar', selectedBlockchainAddress],
     queryFn: () =>
-      selectedBlockchainAddress ? getEarnedAndMinted(selectedBlockchainAddress, blockchain) : null,
+      selectedBlockchainAddress
+        ? getEarnedAndMinted(selectedBlockchainAddress, blockchain)
+        : null,
     refetchInterval: false,
     staleTime: Infinity,
   });

@@ -3,7 +3,7 @@ import { coinbaseWallet } from 'wagmi/connectors';
 import { getConfig } from './config';
 
 export function wagmiConfig() {
-  const { base } = getConfig().chains
+  const { base } = getConfig().chains;
   return createConfig({
     chains: [base],
     connectors: [

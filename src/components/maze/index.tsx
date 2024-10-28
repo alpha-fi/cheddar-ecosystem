@@ -25,7 +25,8 @@ export default function MazeContainer() {
     restartGame,
   } = useContext(GameContext);
 
-  const { addresses, cheddarBalance, isCheddarBalanceLoading } = useGlobalContext()
+  const { addresses, cheddarBalance, isCheddarBalanceLoading } =
+    useGlobalContext();
 
   const { isLoading: isLoadingCheddarMetadata } = useGetCheddarMetadata();
 
@@ -54,9 +55,9 @@ export default function MazeContainer() {
 
   useEffect(() => {
     function doesUserHaveEnoughBalance() {
-      if (addresses["base"]) {
+      if (addresses['base']) {
         return true;
-      } else if(!cheddarBalance){
+      } else if (!cheddarBalance) {
         return false;
       }
       return minCheddarRequired <= cheddarBalance;

@@ -14,12 +14,12 @@ export const RandomAd = ({ handleBuyClick }: Props) => {
       <Ad1Powerup handleBuyClick={handleBuyClick} />,
       <Ad2NewMiniGame />,
       <Ad3Plinko />,
-    ]
-  } ,[]);
-  
+    ];
+  }, []);
+
   const randomIndex = useMemo(() => {
     return Math.floor(Math.random() * AdArray.length);
-  }, [])
+  }, []);
 
   return (
     <div

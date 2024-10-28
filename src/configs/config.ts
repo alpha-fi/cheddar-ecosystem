@@ -27,7 +27,7 @@ export interface Config {
     };
   };
   chains: {
-    base: any
+    base: any;
   };
   socialKeys: {
     ecosystem: string;
@@ -82,8 +82,8 @@ export const getConfig = (): Config => {
             cheddarMinter: '0x0000000000000000000000000000000000000000',
           },
         },
-        chains:{
-          base: base
+        chains: {
+          base: base,
         },
         socialKeys: {
           ecosystem: 'cheddarEcosystem',
@@ -118,11 +118,11 @@ export const getConfig = (): Config => {
           },
           base: {
             cheddarToken: '0xd6DDB2F86cEc8fD31e7488e7F1874060b376eAfD',
-            cheddarMinter: '0x4D2e7A7dA2abB9d3A12538C645f5D7aB080EAa90'
+            cheddarMinter: '0x4D2e7A7dA2abB9d3A12538C645f5D7aB080EAa90',
           },
         },
-        chains:{
-          base: baseSepolia
+        chains: {
+          base: baseSepolia,
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
@@ -157,11 +157,11 @@ export const getConfig = (): Config => {
           },
           base: {
             cheddarToken: '0xd6DDB2F86cEc8fD31e7488e7F1874060b376eAfD',
-            cheddarMinter: '0x4D2e7A7dA2abB9d3A12538C645f5D7aB080EAa90'
+            cheddarMinter: '0x4D2e7A7dA2abB9d3A12538C645f5D7aB080EAa90',
           },
         },
-        chains:{
-          base: baseSepolia
+        chains: {
+          base: baseSepolia,
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
