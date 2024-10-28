@@ -13,8 +13,20 @@ import { PageContainer } from '@/components/PageContainer';
 import OnchainContextProvider from '@/contexts/OnchainContextProvider';
 import WagmiContextProvider from '@/contexts/WagmiContextProvider';
 import { GlobalContextProvider } from '@/contexts/GlobalContext';
+import { getConfig } from '@/configs/config';
 
 const inter = Inter({ subsets: ['latin'] });
+
+const networkId = getConfig().networkData.networkId;
+
+console.log = function (...args) {
+  if (
+    process.env.NEXT_PUBLIC_SHOW_LOGS_ON_MAINNET === 'true' ||
+    networkId !== 'mainnet'
+  ) {
+    console.debug(...args);
+  }
+};
 
 const queryClient = new QueryClient();
 
