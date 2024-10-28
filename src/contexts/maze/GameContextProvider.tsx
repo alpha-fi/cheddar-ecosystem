@@ -288,7 +288,7 @@ export const GameContextProvider = ({ children }: props) => {
   } = useDisclosure();
 
   const [mazeCols, setMazeCols] = useState(9);
-  const [mazeRows, setMazeRows] = useState(11);
+  const [mazeRows, setMazeRows] = useState(10);
   const [totalCells, setTotalCells] = useState(0);
 
   function handleErrorToast(title: string) {
@@ -821,8 +821,8 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const chancesOfFinding = {
-    exit: 0.0021,
-    enemy: 0.125,
+    exit: 0.0022,
+    enemy: 0.05,
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,

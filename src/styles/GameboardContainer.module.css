@@ -150,6 +150,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  margin: auto;
+  padding-top: 0.5rem;
 }
 .score,
 .time,
@@ -314,12 +317,12 @@
 
 .startGameBg {
   position: absolute;
-  top: 37%;
+  top: 21%;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(34, 34, 34, 0.6);
-  height: 300px;
-  width: 300px;
+  background-color: rgba(34, 34, 34, 0.95);
+  height: 450px;
+  width: 360px;
   border: 10px solid rgba(255, 255, 255, 0.8);
   color: white;
   display: flex;
@@ -327,6 +330,17 @@
   align-items: center;
   justify-content: center;
   gap: 15px;
+}
+
+.startGameBg li {
+  margin: 0.2rem 2rem;
+  list-style: circle;
+}
+
+.startGameBg li,
+.startGameBg span {
+  font-weight: bold;
+  font-size: medium;
 }
 
 .referralLink {

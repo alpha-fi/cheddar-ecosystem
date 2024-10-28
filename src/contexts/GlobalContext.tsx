@@ -39,12 +39,12 @@ interface GlobalContextProps {
 const GlobalContext = React.createContext({} as GlobalContextProps);
 
 export const GlobalContextProvider: any = ({ children }: any) => {
-  const [blockchain, setBlockchain] = useState<Blockchain>('near');
+  const [ blockchain, setBlockchain ] = useState<Blockchain>("base")
+  const { accountId: nearAddress, selector, modal } = useWalletSelector()
+  const { address: evmAddress, isConnected: isBaseConnected } = useAccount()
   const [collapsableNavbarActivated, setCollapsableNavbarActivated] =
     useState(false);
   const [collapsableNavbar, setCollapsableNavbar] = useState(false);
-  const { accountId: nearAddress, selector, modal } = useWalletSelector();
-  const { address: evmAddress, isConnected: isBaseConnected } = useAccount();
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
   const { data: cheddarNearBalance, isLoading: isLoadingCheddarNearBalance } =
