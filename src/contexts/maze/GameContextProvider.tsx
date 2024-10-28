@@ -445,6 +445,19 @@ export const GameContextProvider = ({ children }: props) => {
     return pathCells[rng.nextRange(0, pathCells.length)];
   }
 
+  function getSeedIdErrorMsg(errors: string[]) {
+    const finalErrorMsg = `Error getting seedId: ${errors.map(
+      (res: string, index: number) => {
+        if (errors.length === index + 1) {
+          return ` ${res}`;
+        }
+        return res;
+      }
+    )}`;
+
+    return finalErrorMsg;
+  }
+
   // Function to restart the game
   async function restartGame() {
     if (!selectedBlockchainAddress) {
@@ -455,8 +468,10 @@ export const GameContextProvider = ({ children }: props) => {
       selectedBlockchainAddress,
       blockchain
     );
+
     if (!newSeedIdResponse.ok) {
-      handleErrorToast(newSeedIdResponse.message);
+      const errorMsg = getSeedIdErrorMsg(newSeedIdResponse.errors);
+      handleErrorToast(errorMsg);
 
       return;
     }

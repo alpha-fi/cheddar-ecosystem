@@ -324,11 +324,12 @@ export function GameboardContainer({
 
   const notAllowedToPlay = addresses['base']
     ? false
-    : (!isUserNadabotVerfied &&
-        !isUserHolonymVerified &&
-        earnedButNotMintedCheddar >= 100) ||
-      (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
-      (!hasEnoughBalance && totalMintedCheddarToDate >= 100);
+    : !isUserNadabotVerfied &&
+      !isUserHolonymVerified &&
+      earnedButNotMintedCheddar >= 100;
+  //    ||
+  // (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
+  // (!hasEnoughBalance && totalMintedCheddarToDate >= 100);
 
   const [showHolonymModal, setHolonymModal] = useState(false);
 

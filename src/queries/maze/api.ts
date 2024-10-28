@@ -1,5 +1,6 @@
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { getConfig } from '@/configs/config';
+import { useToast } from '@chakra-ui/react';
 
 const { backendBaseUrl, holonym } = getConfig();
 
@@ -126,16 +127,17 @@ export async function getSeedId(accountId: string, blockchain: BlockchainType) {
       },
       body: JSON.stringify(data),
     });
-    if (!response.ok) {
-      const jsonResponse = await response.json();
-      throw new Error(
-        jsonResponse.errors || `Failed to get seed ID for account: ${accountId}`
-      );
-    }
+    // if (!response.ok) {
+    //   const jsonResponse = await response.json();
+    //   throw new Error(
+    //     jsonResponse.errors || `Failed to get seed ID for account: ${accountId}`
+    //   );
+    // }
     return await response.json();
   } catch (error) {
-    console.error('Error in getSeedId:', error);
-    throw error;
+    // console.error('Error in getSeedId:', error);
+    return error;
+    // throw error;
   }
 }
 
