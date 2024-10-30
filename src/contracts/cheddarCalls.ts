@@ -83,7 +83,7 @@ export const buyNFT = async (
                 methodName: 'nft_mint_one',
                 args: { with_cheddar: true },
                 gas: '300' + '0'.repeat(12),
-                deposit: '1' + '0'.repeat(21),
+                deposit: '1' + '0'.repeat(22),
               },
             },
           ],
