@@ -3,6 +3,7 @@ import {
   getCheddarBalance,
   getCheddarMetadata,
   getCheddarNFTBuyPrice,
+  getNFTCheddarBalance,
   getNFTs,
   getTotalSupply,
   isNadabotVerfied,
@@ -16,6 +17,17 @@ export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
   return useQuery({
     queryKey: ['useGetCheddarBalance', accountId],
     queryFn: () => (accountId ? getCheddarBalance(accountId) : null),
+    refetchInterval: 10000,
+    staleTime: 10000,
+  });
+};
+
+export const useGetNFTCheddarBalance = (): UseQueryResult<string> => {
+  const { accountId } = useWalletSelector();
+
+  return useQuery({
+    queryKey: ['useGetNFTCheddarBalance', accountId],
+    queryFn: () => (accountId ? getNFTCheddarBalance(accountId) : null),
     refetchInterval: 10000,
     staleTime: 10000,
   });

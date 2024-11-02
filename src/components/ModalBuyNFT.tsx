@@ -12,13 +12,13 @@ import {
 import { ModalContainer } from './ModalContainer';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RadioButtonBroup } from './maze/RadioButtonGroup';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { RenderCheddarIcon } from './maze/RenderCheddarIcon';
 import { RenderNearIcon } from './maze/RenderNearIcon';
 import { buyNFT } from '@/contracts/cheddarCalls';
 
 import styles from '@/styles/BuyNFTSection.module.css';
-import { useGetCheddarNFTPrice } from '@/hooks/cheddar';
+import { useGetCheddarNFTPrice, useGetNFTCheddarBalance } from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
 import { MintNFTLastResult } from '@/entities/interfaces';
@@ -41,15 +41,26 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
   } = useGetCheddarNFTPrice(true);
   const { data: cheddarNftPriceInNear, isLoading: isNftPriceInNearLoading } =
     useGetCheddarNFTPrice(false);
+  const { data: nftCheddarBalance, isLoading: isLoadingNftCheddarBalance } = useGetNFTCheddarBalance()
+
+  const nftRemainingCheddarToPay = useMemo(() => {
+    if(cheddarNftPriceInCheddar && nftCheddarBalance){
+      if(BigInt(cheddarNftPriceInCheddar) > BigInt(nftCheddarBalance)){
+        return (BigInt(cheddarNftPriceInCheddar) - BigInt(nftCheddarBalance)).toString()
+      }
+      return "0"
+    }
+  }, [cheddarNftPriceInCheddar,nftCheddarBalance])
+  
   const toast = useToast();
 
   //The first option is the default one
   const payingOptions = [
     {
       name: 'Cheddar',
-      price: isNftPriceInCheddarLoading
+      price: !nftRemainingCheddarToPay
         ? 'Loading'
-        : yton(cheddarNftPriceInCheddar!),
+        : yton(nftRemainingCheddarToPay),
       icon: <RenderCheddarIcon className={styles.tokenIcon} />,
       color: 'yellow',
     },
@@ -80,7 +91,7 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
       const wallet = await selector.wallet();
       const withCheddar = tokenToPayWith === 'Cheddar';
       const amount = withCheddar
-        ? cheddarNftPriceInCheddar
+        ? nftRemainingCheddarToPay
         : cheddarNftPriceInNear;
       const resp = await buyNFT(wallet, withCheddar, amount!);
       const genericLastResult = await getTransactionLastResult(resp);
