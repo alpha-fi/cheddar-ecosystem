@@ -39,86 +39,34 @@ export const AutoPlayAudio = () => {
     setIsPlaying((prevValue) => !prevValue);
   };
 
-  const renderUnmuteIcon = () => {
+  const renderPlayIcon = () => {
     return (
       <svg
+        fill="#000000"
         width="1rem"
         height="1rem"
-        viewBox="0 0 24 24"
-        fill="none"
+        viewBox="0 0 32 32"
+        version="1.1"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clip-path="url(#clip0_15_174)">
-          <rect width="24" height="24" fill="white" />
-          <path
-            d="M3 16V8H6L11 4V20L6 16H3Z"
-            stroke="#000000"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M13 9C13 9 15 9.5 15 12C15 14.5 13 15 13 15"
-            stroke="#000000"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M15 7C15 7 18 7.83333 18 12C18 16.1667 15 17 15 17"
-            stroke="#000000"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M17 5C17 5 21 6.16667 21 12C21 17.8333 17 19 17 19"
-            stroke="#000000"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </g>
-        <defs>
-          <clipPath id="clip0_15_174">
-            <rect width="24" height="24" fill="white" />
-          </clipPath>
-        </defs>
+        <title>play</title>
+        <path d="M5.92 24.096q0 1.088 0.928 1.728 0.512 0.288 1.088 0.288 0.448 0 0.896-0.224l16.16-8.064q0.48-0.256 0.8-0.736t0.288-1.088-0.288-1.056-0.8-0.736l-16.16-8.064q-0.448-0.224-0.896-0.224-0.544 0-1.088 0.288-0.928 0.608-0.928 1.728v16.16z"></path>
       </svg>
     );
   };
 
-  const renderMuteIcon = () => {
+  const renderPauseIcon = () => {
     return (
       <svg
+        fill="#000000"
         width="1rem"
         height="1rem"
-        viewBox="0 0 24 24"
-        fill="none"
+        viewBox="0 0 32 32"
+        version="1.1"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clip-path="url(#clip0_15_183)">
-          <rect width="24" height="24" fill="white" />
-          <path
-            d="M3 16V8H6L11 4V20L6 16H3Z"
-            stroke="#000000"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M14.5 15L20.5 9"
-            stroke="#000000"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M14.5 9L20.5 15"
-            stroke="#000000"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </g>
-        <defs>
-          <clipPath id="clip0_15_183">
-            <rect width="24" height="24" fill="white" />
-          </clipPath>
-        </defs>
+        <title>pause</title>
+        <path d="M5.92 24.096q0 0.832 0.576 1.408t1.44 0.608h4.032q0.832 0 1.44-0.608t0.576-1.408v-16.16q0-0.832-0.576-1.44t-1.44-0.576h-4.032q-0.832 0-1.44 0.576t-0.576 1.44v16.16zM18.016 24.096q0 0.832 0.608 1.408t1.408 0.608h4.032q0.832 0 1.44-0.608t0.576-1.408v-16.16q0-0.832-0.576-1.44t-1.44-0.576h-4.032q-0.832 0-1.408 0.576t-0.608 1.44v16.16z"></path>
       </svg>
     );
   };
@@ -128,7 +76,7 @@ export const AutoPlayAudio = () => {
       <audio ref={audioRef}>Your browser does not suppor this audio file</audio>
 
       <button className={styles.button} onClick={togglePlayPause}>
-        {isPlaying ? renderUnmuteIcon() : renderMuteIcon()}
+        {isPlaying ? renderPauseIcon() : renderPlayIcon()}
       </button>
     </Flex>
   );
