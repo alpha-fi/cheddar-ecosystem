@@ -49,6 +49,7 @@ import ModalHolonym from '../ModalHolonymSBT';
 import { useAccount } from 'wagmi';
 import { useGlobalContext } from '@/contexts/GlobalContext';
 import { IsAllowedResponse } from '@/hooks/maze';
+import { AutoPlayAudio } from '../Navbar/components/AutoPlayAudio';
 
 interface Props {
   remainingMinutes: number;

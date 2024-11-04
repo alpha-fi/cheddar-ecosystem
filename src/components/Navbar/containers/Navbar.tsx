@@ -28,6 +28,7 @@ import { useGlobalContext } from '@/contexts/GlobalContext';
 import { BlockchainSelector } from '../components/BlockchainSelector';
 import { WalletMenu } from '../components/WalletMenu';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
+import { AutoPlayAudio } from '../components/AutoPlayAudio';
 
 export default function Navbar() {
   const {
@@ -132,6 +133,7 @@ export default function Navbar() {
               gap="1rem"
               alignItems="center"
             >
+              <AutoPlayAudio />
               <Stack
                 direction={{ base: 'column', md: 'row' }}
                 display={{ base: 'none', lg: 'flex' }}
