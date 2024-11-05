@@ -117,8 +117,8 @@ export const getConfig = (): Config => {
             nadaBot: 'v1.nadabot.testnet',
           },
           base: {
-            cheddarToken: '0xd6DDB2F86cEc8fD31e7488e7F1874060b376eAfD',
-            cheddarMinter: '0x4D2e7A7dA2abB9d3A12538C645f5D7aB080EAa90',
+            cheddarToken: '0xE757c0263C1828a7380D66bef7Fd10b5d189Ee35',
+            cheddarMinter: '0xF693f6450fb51033D744Cc6b78371b7d0d9797E7',
           },
         },
         chains: {

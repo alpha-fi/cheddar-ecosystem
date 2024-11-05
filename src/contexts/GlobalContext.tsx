@@ -106,10 +106,11 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   }, [blockchain, cheddarNearBalance, cheddarBaseBalance]);
 
   const cheddarTotalSupply = useMemo(
-    () =>
-      cheddarBaseTotalSupply && cheddarNearTotalSupply
+    () => {
+      return cheddarBaseTotalSupply !== undefined && cheddarNearTotalSupply !== undefined
         ? (cheddarBaseTotalSupply as bigint) + cheddarNearTotalSupply
-        : BigInt(0),
+        : BigInt(0)
+    },
     [cheddarBaseTotalSupply, cheddarNearTotalSupply]
   );
 
