@@ -87,7 +87,7 @@ export const useIsHolonymVerfified = (
   });
 };
 
-export const useGetCheddarBaseBalance = () => {
+export const useGetCheddarBaseBalance = (): UseQueryResult<bigint|undefined> => {
   const { address } = useAccount();
   return useReadContract({
     address: getConfig().contracts.base.cheddarToken as `0x${string}`,
@@ -102,7 +102,7 @@ export const useGetCheddarBaseBalance = () => {
     },
   });
 };
-export const useGetCheddarBaseTotalSupply = () => {
+export const useGetCheddarBaseTotalSupply = (): UseQueryResult<bigint|undefined> => {
   return useReadContract({
     address: getConfig().contracts.base.cheddarToken as `0x${string}`,
     abi: contractAbi,
