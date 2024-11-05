@@ -1,20 +1,27 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from '@/styles/AutoPlayAudio.module.css';
 import { Flex } from '@chakra-ui/react';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 export const AutoPlayAudio = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(0);
 
+  const { forcePlayMusic } = useGlobalContext();
+
   const tracks = ['../../../assets/chezzy-game.mp3', '../../../assets/rap.mp3'];
+
+  function play() {
+    audioRef.current!.play().catch((error) => {
+      console.log('Autoplay prevented:', error);
+    });
+  }
 
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.src = tracks[currentTrack];
-      audioRef.current.play().catch((error) => {
-        console.log('Autoplay prevented:', error);
-      });
+      play();
 
       const handleEnded = () => {
         setCurrentTrack((prevTrack) => (prevTrack + 1) % tracks.length); // Pasar a la siguiente pista en bucle
@@ -27,6 +34,12 @@ export const AutoPlayAudio = () => {
       };
     }
   }, [currentTrack]);
+
+  useEffect(() => {
+    if (forcePlayMusic && audioRef.current) {
+      togglePlayPause();
+    }
+  }, [forcePlayMusic]);
 
   const togglePlayPause = () => {
     if (audioRef.current) {

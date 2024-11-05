@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { ModalContainer } from './ModalContainer';
 import { HStack, Image, Text } from '@chakra-ui/react';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 export const WeHaveMusicModal = () => {
   const [showWeHaveMusicModal, setShowWeHaveMusicModal] = useState(false);
+
+  const { setForcePlayMusic } = useGlobalContext();
 
   useEffect(() => {
     const weHaveMusicModalWasShown = localStorage.getItem(
@@ -18,10 +21,15 @@ export const WeHaveMusicModal = () => {
     }
   }, []);
 
+  function handleCloseWeHaveMusicModal() {
+    setForcePlayMusic(true);
+    setShowWeHaveMusicModal(false);
+  }
+
   return (
     <ModalContainer
       isOpen={showWeHaveMusicModal}
-      onClose={() => setShowWeHaveMusicModal(false)}
+      onClose={handleCloseWeHaveMusicModal}
       neverCloseOnOverlayClick={true}
       title=""
       hideButtons
