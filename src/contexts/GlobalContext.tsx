@@ -105,14 +105,12 @@ export const GlobalContextProvider: any = ({ children }: any) => {
     }
   }, [blockchain, cheddarNearBalance, cheddarBaseBalance]);
 
-  const cheddarTotalSupply = useMemo(
-    () => {
-      return cheddarBaseTotalSupply !== undefined && cheddarNearTotalSupply !== undefined
-        ? (cheddarBaseTotalSupply as bigint) + cheddarNearTotalSupply
-        : BigInt(0)
-    },
-    [cheddarBaseTotalSupply, cheddarNearTotalSupply]
-  );
+  const cheddarTotalSupply = useMemo(() => {
+    return cheddarBaseTotalSupply !== undefined &&
+      cheddarNearTotalSupply !== undefined
+      ? (cheddarBaseTotalSupply as bigint) + cheddarNearTotalSupply
+      : BigInt(0);
+  }, [cheddarBaseTotalSupply, cheddarNearTotalSupply]);
 
   const isCheddarBalanceLoading = useMemo(() => {
     switch (blockchain) {

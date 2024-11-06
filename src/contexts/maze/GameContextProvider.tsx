@@ -200,6 +200,23 @@ interface GameContextProps {
   isUserHolonymVerified: boolean | undefined;
 }
 
+interface StoredGameInfo {
+  bagCooldown: boolean;
+  cellsWithItemAmount: number;
+  cheddarFound: number;
+  cheeseCooldown: boolean;
+  coveredCells: string[];
+  hasFoundPlinko: boolean;
+  mazeData: MazeTileData[][];
+  pathLength: number;
+  playerPosition: Coordinates;
+  remainingMinutes: number;
+  remainingSeconds: number;
+  score: number;
+  seedId: number;
+  moves: number;
+}
+
 export const GameContext = createContext<GameContextProps>(
   {} as GameContextProps
 );
@@ -218,16 +235,35 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseScoreboard,
   } = useDisclosure();
 
-  const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
-  const [pathLength, setPathLength] = useState(0);
-  const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
-  const [score, setScore] = useState(0);
+  const storedGameInfo = useRef(localStorage.getItem('stored_game'));
+  const storedGameInfoParsed =
+    storedGameInfo.current &&
+    (JSON.parse(storedGameInfo.current) as StoredGameInfo | null);
+
+  const [mazeData, setMazeData] = useState(
+    storedGameInfoParsed
+      ? storedGameInfoParsed.mazeData
+      : ([[]] as MazeTileData[][])
+  );
+  const [pathLength, setPathLength] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.pathLength : 0
+  );
+  const [playerPosition, setPlayerPosition] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.playerPosition : { x: 1, y: 1 }
+  );
+  const [score, setScore] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.score : 0
+  );
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [fightingEnemyFlag, setFightingEnemyFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [hasWon, setHasWon] = useState<undefined | boolean>(undefined);
-  const [timerStarted, setTimerStarted] = useState(false);
-  const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
+  const [timerStarted, setTimerStarted] = useState(
+    storedGameInfoParsed !== null
+  );
+  const [startTimestamp, setStartTimestamp] = useState<number | null>(
+    storedGameInfoParsed ? getGameStartedTimestamp() : null
+  );
   const [direction, setDirection] = useState(
     'right' as 'right' | 'left' | 'down' | 'up'
   );
@@ -238,24 +274,42 @@ export const GameContextProvider = ({ children }: props) => {
   const [isPowerUpOn, setIsPowerUpOn] = useState(false);
 
   const [timeLimitInSeconds, setTimeLimitInSeconds] = useState(120);
-  const [remainingTime, setRemainingTime] = useState(timeLimitInSeconds);
-  const [remainingMinutes, setRemainingMinutes] = useState(0);
-  const [remainingSeconds, setRemainingSeconds] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(getStartRemainingTime());
+  const [remainingMinutes, setRemainingMinutes] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.remainingMinutes : 0
+  );
+  const [remainingSeconds, setRemainingSeconds] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.remainingSeconds : 0
+  );
 
-  const [cheeseCooldown, setCheeseCooldown] = useState(false);
-  const [bagCooldown, setBagCooldown] = useState(false);
+  const [cheeseCooldown, setCheeseCooldown] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.cheeseCooldown : false
+  );
+  const [bagCooldown, setBagCooldown] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.bagCooldown : false
+  );
   const [enemyCooldown, setEnemyCooldown] = useState(false);
-  const [moves, setMoves] = useState(0);
+  const [moves, setMoves] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.moves : 0
+  );
 
   const [won, setWon] = useState(false);
   const [touchStart, setTouchStart] = useState({ x: -1, y: -1 });
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
-  const [coveredCells, setCoveredCells] = useState<string[]>([]);
-  const [cellsWithItemAmount, setCellsWithItemAmount] = useState(0);
+  const [coveredCells, setCoveredCells] = useState<string[]>(
+    storedGameInfoParsed ? storedGameInfoParsed.coveredCells : []
+  );
+  const [cellsWithItemAmount, setCellsWithItemAmount] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.cellsWithItemAmount : 0
+  );
 
-  const [cheddarFound, setCheddarFound] = useState(0);
+  const [cheddarFound, setCheddarFound] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.cheddarFound : 0
+  );
 
-  const [seedId, setSeedId] = useState(0);
+  const [seedId, setSeedId] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.seedId : 0
+  );
 
   const [rng, setRng] = useState(new RNG(0));
 
@@ -272,7 +326,9 @@ export const GameContextProvider = ({ children }: props) => {
     number[]
   >([]);
 
-  const [hasFoundPlinko, setHasFoundPlinko] = useState(false);
+  const [hasFoundPlinko, setHasFoundPlinko] = useState(
+    storedGameInfoParsed ? storedGameInfoParsed.hasFoundPlinko : false
+  );
 
   const [isMouseDown, setIsMouseDown] = useState(false);
 
@@ -299,6 +355,42 @@ export const GameContextProvider = ({ children }: props) => {
       position: 'bottom-right',
       isClosable: true,
     });
+  }
+
+  function getGameStartedTimestamp(): number | null {
+    if (storedGameInfoParsed === null || storedGameInfoParsed === '') {
+      return null;
+    }
+
+    const minutes = storedGameInfoParsed.remainingMinutes;
+    const seconds = storedGameInfoParsed.remainingSeconds;
+
+    if (minutes > 2 || minutes < 0) {
+      throw new Error('Minutes number should be between 0 and 2.');
+    }
+
+    if (seconds >= 60 || seconds < 0) {
+      throw new Error('Seconds number should be between 0 and 60.');
+    }
+
+    const totalMilliseconds = (minutes * 60 + seconds) * 1000;
+
+    const currentTimestamp = Date.now();
+
+    const newTimestamp = currentTimestamp - totalMilliseconds;
+
+    return newTimestamp;
+  }
+
+  function getStartRemainingTime() {
+    if (storedGameInfoParsed === null || storedGameInfoParsed === '') {
+      return timeLimitInSeconds;
+    }
+
+    const minutes = storedGameInfoParsed.remainingMinutes;
+    const seconds = storedGameInfoParsed.remainingSeconds;
+
+    return timeLimitInSeconds - seconds - minutes * 60;
   }
 
   useEffect(() => {
@@ -677,6 +769,26 @@ export const GameContextProvider = ({ children }: props) => {
     // Periodically add artifacts to the board based on cooldowns and randomness
     addArtifacts(newX, newY, newMazeData, moves);
 
+    //Store match info in local storage
+    const gameInfo = {
+      mazeData: newMazeData,
+      pathLength,
+      playerPosition,
+      score,
+      remainingMinutes,
+      remainingSeconds,
+      cheeseCooldown,
+      bagCooldown,
+      cellsWithItemAmount,
+      coveredCells,
+      cheddarFound,
+      seedId,
+      hasFoundPlinko,
+      moves,
+    };
+
+    localStorage.setItem('stored_game', JSON.stringify(gameInfo));
+
     // Set lastCellX and lastCellY to the new player position
     // Update last cell coordinates
     setLastCellX(playerPosition.x);
@@ -946,6 +1058,9 @@ export const GameContextProvider = ({ children }: props) => {
     setHasWon(won);
     setCoveredCells([]);
     setGameOverFlag(true);
+
+    const storedGame = localStorage.getItem('stored_game');
+    if (storedGame) localStorage.removeItem('stored_game');
 
     setTimeout(() => {
       stopTimer();
