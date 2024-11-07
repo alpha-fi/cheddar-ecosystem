@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ModalContainer } from './ModalContainer';
 import { HStack, Image, Text } from '@chakra-ui/react';
 import { useGlobalContext } from '@/contexts/GlobalContext';
@@ -8,16 +8,18 @@ export const WeHaveMusicModal = () => {
 
   const { setForcePlayMusic } = useGlobalContext();
 
+  const weHaveMusicModalWasShown = useRef(
+    localStorage.getItem('weHaveMusicModalWasShown')
+  ).current;
+
+  const welcomeModalWasShown = useRef(
+    localStorage.getItem('welcomeModalWasShown')
+  ).current;
+
   useEffect(() => {
-    const weHaveMusicModalWasShown = localStorage.getItem(
-      'weHaveMusicModalWasShown'
-    );
-
-    const welcomeModalWasShown = localStorage.getItem('welcomeModalWasShown');
-
-    if (welcomeModalWasShown && weHaveMusicModalWasShown === null) {
-      localStorage.setItem('weHaveMusicModalWasShown', 'true');
+    if (welcomeModalWasShown === 'true' && weHaveMusicModalWasShown === null) {
       setShowWeHaveMusicModal(true);
+      localStorage.setItem('weHaveMusicModalWasShown', 'true');
     }
   }, []);
 
