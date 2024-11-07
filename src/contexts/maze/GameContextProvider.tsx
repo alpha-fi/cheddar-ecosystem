@@ -785,6 +785,9 @@ export const GameContextProvider = ({ children }: props) => {
       seedId,
       hasFoundPlinko,
       moves,
+      accountId,
+      timestampStartStopTimerArray,
+      timestampEndStopTimerArray
     };
 
     localStorage.setItem('stored_game', JSON.stringify(gameInfo));
