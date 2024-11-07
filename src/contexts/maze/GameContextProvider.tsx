@@ -787,7 +787,7 @@ export const GameContextProvider = ({ children }: props) => {
       moves,
       accountId,
       timestampStartStopTimerArray,
-      timestampEndStopTimerArray
+      timestampEndStopTimerArray,
     };
 
     localStorage.setItem('stored_game', JSON.stringify(gameInfo));
