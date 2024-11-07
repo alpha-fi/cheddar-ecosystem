@@ -7,8 +7,9 @@ export const AutoPlayAudio = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(0);
+  const [pauseForced, setPauseForced] = useState(false);
 
-  const { forcePlayMusic } = useGlobalContext();
+  const { forcePlayMusic, forcePauseMusic } = useGlobalContext();
 
   const tracks = ['../../../assets/chezzy-game.mp3', '../../../assets/rap.mp3'];
 
@@ -36,8 +37,26 @@ export const AutoPlayAudio = () => {
   }, [currentTrack]);
 
   useEffect(() => {
+    if (audioRef.current) {
+      if (forcePauseMusic) {
+        audioRef.current.pause();
+
+        isPlaying && setPauseForced(true);
+
+        setIsPlaying(false);
+      } else if (pauseForced && pauseForced) {
+        audioRef.current.play();
+
+        setIsPlaying(true);
+        setPauseForced(false);
+      }
+    }
+  }, [forcePauseMusic]);
+
+  useEffect(() => {
     if (forcePlayMusic && audioRef.current) {
-      togglePlayPause();
+      audioRef.current.play();
+      setIsPlaying(true);
     }
   }, [forcePlayMusic]);
 

@@ -46,10 +46,21 @@ export default function Navbar() {
     collapsableNavbar,
     toggleCollapsableNavbar,
     collapsableNavbarActivated,
+    setForcePauseMusic,
   } = useGlobalContext();
 
   const [showHolonymModal, setHolonymModal] = useState(false);
   const isDesktop = useBreakpointValue({ base: false, lg: true });
+
+  function openVideoModal() {
+    onOpenVideoModal();
+    setForcePauseMusic(true);
+  }
+
+  function closeVideoModal() {
+    onCloseVideoModal();
+    setForcePauseMusic(false);
+  }
 
   return (
     <>
@@ -148,7 +159,7 @@ export default function Navbar() {
                 <Button
                   _hover={{ bg: '#63b3ed' }}
                   colorScheme="blue"
-                  onClick={onOpenVideoModal}
+                  onClick={openVideoModal}
                 >
                   🎶
                 </Button>
@@ -193,7 +204,7 @@ export default function Navbar() {
 
               <Box ml={2} display={{ base: 'inline-block', lg: 'none' }}>
                 <DrawerMenu
-                  onOpenVideoModal={onOpenVideoModal}
+                  onOpenVideoModal={openVideoModal}
                   setHolonymModal={setHolonymModal}
                 />
               </Box>
@@ -227,7 +238,7 @@ export default function Navbar() {
       <ModalContainer
         title={'Cheddar rap'}
         isOpen={isVideoModalOpened}
-        onClose={onCloseVideoModal}
+        onClose={closeVideoModal}
       >
         <div className={styles.videoContainer}>
           <video
