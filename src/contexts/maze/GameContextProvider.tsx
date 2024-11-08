@@ -108,6 +108,8 @@ interface GameContextProps {
   timeLimitInSeconds: number;
   setTimeLimitInSeconds: React.Dispatch<React.SetStateAction<number>>;
 
+  loadingRemainingMinutesAndSeconds: boolean;
+
   remainingMinutes: number;
   setRemainingMinutes: React.Dispatch<React.SetStateAction<number>>;
 
@@ -201,20 +203,22 @@ interface GameContextProps {
 }
 
 interface StoredGameInfo {
-  bagCooldown: boolean;
-  cellsWithItemAmount: number;
-  cheddarFound: number;
-  cheeseCooldown: boolean;
-  coveredCells: string[];
-  hasFoundPlinko: boolean;
   mazeData: MazeTileData[][];
   pathLength: number;
   playerPosition: Coordinates;
-  remainingMinutes: number;
-  remainingSeconds: number;
   score: number;
+  startTimestamp: number | null;
+  cheeseCooldown: boolean;
+  bagCooldown: boolean;
+  cellsWithItemAmount: number;
+  coveredCells: string[];
+  cheddarFound: number;
   seedId: number;
+  hasFoundPlinko: boolean;
   moves: number;
+  accountId: string | null;
+  timestampStartStopTimerArray: number[];
+  timestampEndStopTimerArray: number[];
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -235,34 +239,54 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseScoreboard,
   } = useDisclosure();
 
-  const storedGameInfo = useRef(localStorage.getItem('stored_game'));
+  const storedGameInfo = useRef(
+    localStorage.getItem('stored_cheddar_echosystem_maze_game')
+  );
   const storedGameInfoParsed =
     storedGameInfo.current &&
     (JSON.parse(storedGameInfo.current) as StoredGameInfo | null);
 
-  const [mazeData, setMazeData] = useState(
-    storedGameInfoParsed
-      ? storedGameInfoParsed.mazeData
-      : ([[]] as MazeTileData[][])
+  const { accountId, selector } = useWalletSelector();
+
+  //==========================================================IMPORTANT===================================================================================
+  //hasCheckedStoredStopTimerArray, timeLimitInSeconds, timestampStartStopTimerArray, startTimestamp, timestampEndStopTimerArray MOST be the first useState to be inizialized
+  const [hasCheckedStoredStopTimerArray, setHasCheckedStoredStopTimerArray] =
+    useState(false);
+  const [hasCheckedStartTimestamp, setHasCheckedStartTimestamp] =
+    useState(false);
+
+  const [timeLimitInSeconds, setTimeLimitInSeconds] = useState(120);
+  const [startTimestamp, setStartTimestamp] = useState<number | null>(
+    getDefaultOrStoredValue('startTimestamp', null)
   );
-  const [pathLength, setPathLength] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.pathLength : 0
+  const [timestampStartStopTimerArray, setTimestampStartStopTimerArray] =
+    useState<number[]>(
+      getDefaultOrStoredValue('timestampStartStopTimerArray', [])
+    );
+
+  const [timestampEndStopTimerArray, setTimestampEndStopTimerArray] = useState<
+    number[]
+  >(getDefaultOrStoredValue('timestampEndStopTimerArray', []));
+  //==========================================================IMPORTANT===================================================================================
+
+  const [mazeData, setMazeData] = useState<MazeTileData[][]>(
+    getDefaultOrStoredValue('mazeData', [[]])
   );
-  const [playerPosition, setPlayerPosition] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.playerPosition : { x: 1, y: 1 }
+  const [pathLength, setPathLength] = useState<number>(
+    getDefaultOrStoredValue('pathLength', 0)
   );
-  const [score, setScore] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.score : 0
+  const [playerPosition, setPlayerPosition] = useState<Coordinates>(
+    getDefaultOrStoredValue('playerPosition', { x: 1, y: 1 })
+  );
+  const [score, setScore] = useState<number>(
+    getDefaultOrStoredValue('score', 0)
   );
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [fightingEnemyFlag, setFightingEnemyFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [hasWon, setHasWon] = useState<undefined | boolean>(undefined);
-  const [timerStarted, setTimerStarted] = useState(
-    storedGameInfoParsed !== null
-  );
-  const [startTimestamp, setStartTimestamp] = useState<number | null>(
-    storedGameInfoParsed ? getGameStartedTimestamp() : null
+  const [timerStarted, setTimerStarted] = useState<boolean>(
+    getDefaultOrStoredValue('timerStarted', false)
   );
   const [direction, setDirection] = useState(
     'right' as 'right' | 'left' | 'down' | 'up'
@@ -273,42 +297,44 @@ export const GameContextProvider = ({ children }: props) => {
   const [hasPowerUp, setHasPowerUp] = useState(false);
   const [isPowerUpOn, setIsPowerUpOn] = useState(false);
 
-  const [timeLimitInSeconds, setTimeLimitInSeconds] = useState(120);
-  const [remainingTime, setRemainingTime] = useState(getStartRemainingTime());
-  const [remainingMinutes, setRemainingMinutes] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.remainingMinutes : 0
-  );
-  const [remainingSeconds, setRemainingSeconds] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.remainingSeconds : 0
+  const [remainingTime, setRemainingTime] = useState<number>(
+    getDefaultOrStoredValue('remainingTime', timeLimitInSeconds)
   );
 
-  const [cheeseCooldown, setCheeseCooldown] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.cheeseCooldown : false
+  const [
+    loadingRemainingMinutesAndSeconds,
+    setLoadingRemainingMinutesAndSeconds,
+  ] = useState<boolean>(!!storedGameInfoParsed);
+  const [remainingMinutes, setRemainingMinutes] = useState(0);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+
+  const [cheeseCooldown, setCheeseCooldown] = useState<boolean>(
+    getDefaultOrStoredValue('cheeseCooldown', false)
   );
-  const [bagCooldown, setBagCooldown] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.bagCooldown : false
+  const [bagCooldown, setBagCooldown] = useState<boolean>(
+    getDefaultOrStoredValue('bagCooldown', false)
   );
   const [enemyCooldown, setEnemyCooldown] = useState(false);
-  const [moves, setMoves] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.moves : 0
+  const [moves, setMoves] = useState<number>(
+    getDefaultOrStoredValue('moves', 0)
   );
 
   const [won, setWon] = useState(false);
   const [touchStart, setTouchStart] = useState({ x: -1, y: -1 });
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
   const [coveredCells, setCoveredCells] = useState<string[]>(
-    storedGameInfoParsed ? storedGameInfoParsed.coveredCells : []
+    getDefaultOrStoredValue('coveredCells', false)
   );
-  const [cellsWithItemAmount, setCellsWithItemAmount] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.cellsWithItemAmount : 0
-  );
-
-  const [cheddarFound, setCheddarFound] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.cheddarFound : 0
+  const [cellsWithItemAmount, setCellsWithItemAmount] = useState<number>(
+    getDefaultOrStoredValue('cellsWithItemAmount', false)
   );
 
-  const [seedId, setSeedId] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.seedId : 0
+  const [cheddarFound, setCheddarFound] = useState<number>(
+    getDefaultOrStoredValue('cheddarFound', 0)
+  );
+
+  const [seedId, setSeedId] = useState<number>(
+    getDefaultOrStoredValue('seedId', 0)
   );
 
   const [rng, setRng] = useState(new RNG(0));
@@ -319,15 +345,8 @@ export const GameContextProvider = ({ children }: props) => {
   const [showMovementButtons, setShowMovementButtons] = useState(true);
   const [renderBoard, setRenderBoard] = useState(false); // to update board color on restart
 
-  const [timestampStartStopTimerArray, setTimestampStartStopTimerArray] =
-    useState<number[]>([]);
-
-  const [timestampEndStopTimerArray, setTimestampEndStopTimerArray] = useState<
-    number[]
-  >([]);
-
-  const [hasFoundPlinko, setHasFoundPlinko] = useState(
-    storedGameInfoParsed ? storedGameInfoParsed.hasFoundPlinko : false
+  const [hasFoundPlinko, setHasFoundPlinko] = useState<boolean>(
+    getDefaultOrStoredValue('seedId', false)
   );
 
   const [isMouseDown, setIsMouseDown] = useState(false);
@@ -357,40 +376,88 @@ export const GameContextProvider = ({ children }: props) => {
     });
   }
 
-  function getGameStartedTimestamp(): number | null {
-    if (storedGameInfoParsed === null || storedGameInfoParsed === '') {
-      return null;
+  function getDefaultOrStoredValue(
+    caseName:
+      | 'mazeData'
+      | 'pathLength'
+      | 'playerPosition'
+      | 'score'
+      | 'startTimestamp'
+      | 'remainingTime'
+      | 'cheeseCooldown'
+      | 'bagCooldown'
+      | 'moves'
+      | 'coveredCells'
+      | 'cellsWithItemAmount'
+      | 'cheddarFound'
+      | 'seedId'
+      | 'hasFoundPlinko'
+      | 'timestampStartStopTimerArray'
+      | 'timestampEndStopTimerArray'
+      | 'timerStarted',
+    defaultValue: any
+  ): any {
+    //If you don't have a stored game you can't calculate the remaining time on the first render so i do this to prevent the error and just return the default value
+    if (
+      (caseName === 'timestampStartStopTimerArray' ||
+        caseName === 'timestampEndStopTimerArray' ||
+        caseName === 'startTimestamp') &&
+      (storedGameInfoParsed === null || storedGameInfoParsed === '')
+    ) {
+      return defaultValue;
     }
 
-    const minutes = storedGameInfoParsed.remainingMinutes;
-    const seconds = storedGameInfoParsed.remainingSeconds;
+    console.log('caseName: ', caseName);
 
-    if (minutes > 2 || minutes < 0) {
-      throw new Error('Minutes number should be between 0 and 2.');
+    const remainingTime = calculateRemainingTime();
+
+    if (
+      storedGameInfoParsed === null ||
+      storedGameInfoParsed === '' ||
+      storedGameInfoParsed.accountId !== accountId ||
+      remainingTime < 0
+    ) {
+      return defaultValue;
     }
 
-    if (seconds >= 60 || seconds < 0) {
-      throw new Error('Seconds number should be between 0 and 60.');
+    switch (caseName) {
+      case 'mazeData':
+        return storedGameInfoParsed.mazeData;
+      case 'pathLength':
+        return storedGameInfoParsed.pathLength;
+      case 'playerPosition':
+        return storedGameInfoParsed.playerPosition;
+      case 'score':
+        return storedGameInfoParsed.score;
+      case 'startTimestamp':
+        setHasCheckedStartTimestamp(true);
+        return storedGameInfoParsed.startTimestamp;
+      case 'remainingTime':
+        return remainingTime;
+      case 'cheeseCooldown':
+        return storedGameInfoParsed.cheeseCooldown;
+      case 'bagCooldown':
+        return storedGameInfoParsed.bagCooldown;
+      case 'moves':
+        return storedGameInfoParsed.moves;
+      case 'coveredCells':
+        return storedGameInfoParsed.coveredCells;
+      case 'cellsWithItemAmount':
+        return storedGameInfoParsed.cellsWithItemAmount;
+      case 'cheddarFound':
+        return storedGameInfoParsed.cheddarFound;
+      case 'seedId':
+        return storedGameInfoParsed.seedId;
+      case 'hasFoundPlinko':
+        return storedGameInfoParsed.hasFoundPlinko;
+      case 'timestampStartStopTimerArray':
+        return storedGameInfoParsed.timestampStartStopTimerArray;
+      case 'timestampEndStopTimerArray':
+        setHasCheckedStoredStopTimerArray(true);
+        return storedGameInfoParsed.timestampEndStopTimerArray;
+      case 'timerStarted':
+        return true;
     }
-
-    const totalMilliseconds = (minutes * 60 + seconds) * 1000;
-
-    const currentTimestamp = Date.now();
-
-    const newTimestamp = currentTimestamp - totalMilliseconds;
-
-    return newTimestamp;
-  }
-
-  function getStartRemainingTime() {
-    if (storedGameInfoParsed === null || storedGameInfoParsed === '') {
-      return timeLimitInSeconds;
-    }
-
-    const minutes = storedGameInfoParsed.remainingMinutes;
-    const seconds = storedGameInfoParsed.remainingSeconds;
-
-    return timeLimitInSeconds - seconds - minutes * 60;
   }
 
   useEffect(() => {
@@ -473,6 +540,7 @@ export const GameContextProvider = ({ children }: props) => {
   useEffect(() => {
     const minutes = Math.floor(remainingTime / 60);
     const seconds = remainingTime % 60;
+    setLoadingRemainingMinutesAndSeconds(false);
     setRemainingMinutes(minutes);
     setRemainingSeconds(seconds);
   }, [remainingTime]);
@@ -486,7 +554,6 @@ export const GameContextProvider = ({ children }: props) => {
     };
   }, []);
 
-  const { accountId, selector } = useWalletSelector();
   const [nfts, setNFTs] = useState<NFT[]>([]);
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
     useGetCheddarNFTs();
@@ -775,8 +842,7 @@ export const GameContextProvider = ({ children }: props) => {
       pathLength,
       playerPosition,
       score,
-      remainingMinutes,
-      remainingSeconds,
+      startTimestamp,
       cheeseCooldown,
       bagCooldown,
       cellsWithItemAmount,
@@ -790,7 +856,10 @@ export const GameContextProvider = ({ children }: props) => {
       timestampEndStopTimerArray,
     };
 
-    localStorage.setItem('stored_game', JSON.stringify(gameInfo));
+    localStorage.setItem(
+      'stored_cheddar_echosystem_maze_game',
+      JSON.stringify(gameInfo)
+    );
 
     // Set lastCellX and lastCellY to the new player position
     // Update last cell coordinates
@@ -1062,8 +1131,11 @@ export const GameContextProvider = ({ children }: props) => {
     setCoveredCells([]);
     setGameOverFlag(true);
 
-    const storedGame = localStorage.getItem('stored_game');
-    if (storedGame) localStorage.removeItem('stored_game');
+    const storedGame = localStorage.getItem(
+      'stored_cheddar_echosystem_maze_game'
+    );
+    if (storedGame)
+      localStorage.removeItem('stored_cheddar_echosystem_maze_game');
 
     setTimeout(() => {
       stopTimer();
@@ -1080,6 +1152,54 @@ export const GameContextProvider = ({ children }: props) => {
     await refetchEarnedAndMintedCheddar();
     setEndGameResponse(endGameResponse);
     if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+  }
+
+  function calculateRemainingTime() {
+    return Math.min(calculateRemainingTimeInTimeStamp(), timeLimitInSeconds);
+  }
+
+  function calculateRemainingTimeInTimeStamp() {
+    let secondsWithTimerStopped = 0;
+
+    const storedDataDetected =
+      storedGameInfoParsed !== '' && storedGameInfoParsed !== null;
+
+    const useStoredStopTimerData =
+      storedDataDetected && !hasCheckedStoredStopTimerArray;
+
+    const validTimestampStartStopTimerArray = useStoredStopTimerData
+      ? storedGameInfoParsed.timestampStartStopTimerArray
+      : timestampStartStopTimerArray;
+
+    const validTimestampEndStopTimerArray = useStoredStopTimerData
+      ? storedGameInfoParsed.timestampEndStopTimerArray
+      : timestampStartStopTimerArray;
+
+    const validStartTimeStamp =
+      storedDataDetected && !hasCheckedStartTimestamp
+        ? storedGameInfoParsed.startTimestamp
+        : startTimestamp;
+
+    if (
+      validTimestampStartStopTimerArray.length > 0 &&
+      validTimestampEndStopTimerArray &&
+      validTimestampEndStopTimerArray.length > 0
+    ) {
+      validTimestampStartStopTimerArray.forEach((startTimestamp, index) => {
+        secondsWithTimerStopped +=
+          (validTimestampEndStopTimerArray[index] - startTimestamp) / 1000;
+      });
+    }
+
+    // Calculate the remaining time
+    const calculatedRemainingTime = Math.floor(
+      validStartTimeStamp! / 1000 +
+        timeLimitInSeconds +
+        secondsWithTimerStopped -
+        Date.now() / 1000
+    );
+
+    return calculatedRemainingTime;
   }
 
   // Define a new useEffect hook to manage the timer
@@ -1102,28 +1222,8 @@ export const GameContextProvider = ({ children }: props) => {
               return 0; // Time's up, return 0
             }
 
-            let secondsWithTimerStopped = 0;
-
-            if (
-              timestampStartStopTimerArray.length > 0 &&
-              timestampEndStopTimerArray.length > 0
-            ) {
-              timestampStartStopTimerArray.forEach((startTimestamp, index) => {
-                secondsWithTimerStopped +=
-                  (timestampEndStopTimerArray[index] - startTimestamp) / 1000;
-              });
-            }
-
-            // Calculate the remaining time
-            const calculatedRemainingTime = Math.floor(
-              startTimestamp / 1000 +
-                timeLimitInSeconds +
-                secondsWithTimerStopped -
-                Date.now() / 1000
-            );
-
             // Ensure that remainingTime doesn't exceed the timeLimitInSeconds
-            return Math.min(calculatedRemainingTime, timeLimitInSeconds);
+            return calculateRemainingTime();
           });
         }
       }, 500);
@@ -1404,6 +1504,7 @@ export const GameContextProvider = ({ children }: props) => {
         setTimeLimitInSeconds,
         remainingTime,
         setRemainingTime,
+        loadingRemainingMinutesAndSeconds,
         remainingMinutes,
         setRemainingMinutes,
         remainingSeconds,

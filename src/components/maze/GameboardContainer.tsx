@@ -51,6 +51,7 @@ import { useGlobalContext } from '@/contexts/GlobalContext';
 import { IsAllowedResponse } from '@/hooks/maze';
 
 interface Props {
+  loadingRemainingMinutesAndSeconds: boolean;
   remainingMinutes: number;
   remainingSeconds: number;
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
@@ -65,6 +66,7 @@ interface CheddarMintResponse {
   cheddarMinted?: number;
 }
 export function GameboardContainer({
+  loadingRemainingMinutesAndSeconds,
   remainingMinutes,
   remainingSeconds,
   handlePowerUpClick,
@@ -455,8 +457,19 @@ export function GameboardContainer({
         <div className={getGameInfoClases('score')}>Score: {score}</div>
         <div className={getGameInfoClases('time')}>
           Time:{' '}
-          {remainingMinutes < 10 ? '0' + remainingMinutes : remainingMinutes}:
-          {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
+          {loadingRemainingMinutesAndSeconds ? (
+            <Spinner />
+          ) : (
+            <>
+              {remainingMinutes < 10
+                ? '0' + remainingMinutes
+                : remainingMinutes}
+              :
+              {remainingSeconds < 10
+                ? '0' + remainingSeconds
+                : remainingSeconds}
+            </>
+          )}
         </div>
       </div>
       <div className={styles.mazeContainer} ref={gameboardRef} tabIndex={0}>
