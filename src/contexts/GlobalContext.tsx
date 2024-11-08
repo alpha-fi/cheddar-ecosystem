@@ -16,6 +16,10 @@ export type Blockchain = 'base' | 'near';
 interface GlobalContextProps {
   setBlockchain: React.Dispatch<React.SetStateAction<Blockchain>>;
   blockchain: Blockchain;
+  forcePlayMusic: boolean;
+  setForcePlayMusic: React.Dispatch<React.SetStateAction<boolean>>;
+  forcePauseMusic: boolean;
+  setForcePauseMusic: React.Dispatch<React.SetStateAction<boolean>>;
   addresses: {
     [key: string]: string | null;
     near: string | null;
@@ -40,6 +44,8 @@ const GlobalContext = React.createContext({} as GlobalContextProps);
 
 export const GlobalContextProvider: any = ({ children }: any) => {
   const [blockchain, setBlockchain] = useState<Blockchain>('base');
+  const [forcePlayMusic, setForcePlayMusic] = useState(false);
+  const [forcePauseMusic, setForcePauseMusic] = useState(false);
   const { accountId: nearAddress, selector, modal } = useWalletSelector();
   const { address: evmAddress, isConnected: isBaseConnected } = useAccount();
   const [collapsableNavbarActivated, setCollapsableNavbarActivated] =
@@ -105,14 +111,12 @@ export const GlobalContextProvider: any = ({ children }: any) => {
     }
   }, [blockchain, cheddarNearBalance, cheddarBaseBalance]);
 
-  const cheddarTotalSupply = useMemo(
-    () => {
-      return cheddarBaseTotalSupply !== undefined && cheddarNearTotalSupply !== undefined
-        ? (cheddarBaseTotalSupply as bigint) + cheddarNearTotalSupply
-        : BigInt(0)
-    },
-    [cheddarBaseTotalSupply, cheddarNearTotalSupply]
-  );
+  const cheddarTotalSupply = useMemo(() => {
+    return cheddarBaseTotalSupply !== undefined &&
+      cheddarNearTotalSupply !== undefined
+      ? (cheddarBaseTotalSupply as bigint) + cheddarNearTotalSupply
+      : BigInt(0);
+  }, [cheddarBaseTotalSupply, cheddarNearTotalSupply]);
 
   const isCheddarBalanceLoading = useMemo(() => {
     switch (blockchain) {
@@ -155,6 +159,10 @@ export const GlobalContextProvider: any = ({ children }: any) => {
       value={{
         setBlockchain,
         blockchain,
+        forcePlayMusic,
+        setForcePlayMusic,
+        forcePauseMusic,
+        setForcePauseMusic,
         addresses,
         selectedBlockchainAddress,
         showConnectionModal,

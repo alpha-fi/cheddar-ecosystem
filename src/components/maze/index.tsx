@@ -9,6 +9,7 @@ import { useGetIsAllowedResponse } from '@/hooks/maze';
 import ModalWelcome from '../ModalWelcome';
 import { useToast } from '@chakra-ui/react';
 import { useGlobalContext } from '@/contexts/GlobalContext';
+import { WeHaveMusicModal } from '../ModalWeHaveMusic';
 
 export default function MazeContainer() {
   const {
@@ -99,6 +100,7 @@ export default function MazeContainer() {
   return (
     <>
       <ModalWelcome />
+      <WeHaveMusicModal />
       {initialized() && ( // Replace `condition` with your actual condition
         <GameboardContainer
           remainingMinutes={Math.floor(remainingTime / 60)}
