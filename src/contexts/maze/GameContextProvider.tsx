@@ -26,7 +26,7 @@ import {
 } from '@/hooks/cheddar';
 import { useDisclosure, useToast } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
-import { useGlobalContext } from '../GlobalContext';
+import { Blockchain, useGlobalContext } from '../GlobalContext';
 
 interface props {
   children: ReactNode;
@@ -219,6 +219,7 @@ interface StoredGameInfo {
   accountId: string | null;
   timestampStartStopTimerArray: number[];
   timestampEndStopTimerArray: number[];
+  blockchain: Blockchain;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -401,6 +402,8 @@ export const GameContextProvider = ({ children }: props) => {
       );
       console.log('remainingTimeWithStoredData: ', remainingTimeWithStoredData);
       if (remainingTimeWithStoredData > 0) {
+        setBlockchain(storedGameInfoParsed.blockchain);
+        setBlockchain('near');
         setMazeData(storedGameInfoParsed.mazeData);
         setPathLength(storedGameInfoParsed.pathLength);
         setPlayerPosition(storedGameInfoParsed.playerPosition);
@@ -532,6 +535,7 @@ export const GameContextProvider = ({ children }: props) => {
     blockchain,
     selectedBlockchainAddress,
     setCollapsableNavbarActivated,
+    setBlockchain,
   } = useGlobalContext();
 
   useEffect(() => {
@@ -820,6 +824,7 @@ export const GameContextProvider = ({ children }: props) => {
       accountId,
       timestampStartStopTimerArray,
       timestampEndStopTimerArray,
+      blockchain,
     };
 
     localStorage.setItem(
