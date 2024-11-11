@@ -878,7 +878,7 @@ export const GameContextProvider = ({ children }: props) => {
       showFighting(clonedMazeData, newX, newY);
       setTimeout(() => {
         handleEnemyFound(clonedMazeData, newX, newY);
-      }, 750);
+      }, 500);
     } else if (
       !cheeseCooldown &&
       rng.nextFloat() < getChancesOfFindingCheese()
