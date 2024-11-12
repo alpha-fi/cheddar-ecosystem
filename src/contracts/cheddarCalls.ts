@@ -23,6 +23,12 @@ export const getCheddarBalance = async (accountId: string): Promise<bigint> => {
   }).then(BigInt);
 };
 
+export const getNFTCheddarBalance = async (accountId: string): Promise<NFT[]> => {
+  return view(cheddarNft, "balance_of", {
+    account_id: accountId,
+  });
+};
+
 export const getTotalSupply = async (): Promise<bigint> => {
   return view(cheddarToken, tokenViewMethods.ftTotalSupply)
     .then(BigInt)
