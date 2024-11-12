@@ -34,6 +34,9 @@ import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { createLetter } from './RenderLetterInWorld';
 import { ModalContainer } from '../ModalContainer';
 import { GameOverModalContent } from './GameOverModalContent';
+import { useAccount } from 'wagmi';
+import { BlockchainType } from '@/queries/maze/api';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -43,8 +46,6 @@ interface CheddarEarnedData {
 export function PlinkoBoard() {
   const { isMobile, seedId, closePlinkoModal, pendingCheddarToMint } =
     React.useContext(GameContext);
-
-  const { accountId, selector } = useWalletSelector();
 
   const [clientHeight, setClientHeight] = useState<number>(
     INITIAL_CLIENT_HEIGHT
@@ -75,6 +76,7 @@ export function PlinkoBoard() {
     onOpen: onOpenModalRules,
     onClose: onCloseModalRules,
   } = useDisclosure();
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext();
 
   function closeGameOverModal() {
     closePlinkoModal();
@@ -162,7 +164,6 @@ export function PlinkoBoard() {
       if (cheddarEarnedData) {
         const cheddarEarned = cheddarEarnedData?.cheddar;
         const cheddarPrizeName = cheddarEarnedData?.name;
-        console.log(1, cheddarPrizeName);
         setPrizeNames((prevState) => [...prevState, cheddarPrizeName]);
 
         finalPrize += cheddarEarned!;
@@ -198,7 +199,8 @@ export function PlinkoBoard() {
           prizeEarned: prizeNames[0],
         },
         metadata: {
-          accountId: accountId!,
+          blockchain: blockchain,
+          accountId: selectedBlockchainAddress!,
           seedId,
         },
       };

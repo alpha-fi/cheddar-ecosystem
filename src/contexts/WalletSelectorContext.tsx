@@ -30,6 +30,8 @@ interface WalletSelectorContextValue {
   modal: WalletSelectorModal;
   accounts: Array<AccountState>;
   accountId: string | null;
+  isSelectWalletModal: boolean;
+  showSelectWalletModal: (modalState: boolean) => void;
 }
 
 enum Wallets {
@@ -48,6 +50,8 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
 
   const NETWORK_ID = networkData.networkId;
   const [selector, setSelector] = useState<WalletSelector | null>(null);
+  const [isSelectWalletModal, setIsSelectWalletModal] = useState(false);
+
   const [modal, setModal] = useState<WalletSelectorModal | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
   const DEFAULT_ENABLE_WALLETS = [
@@ -171,6 +175,9 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
     return null;
   }
 
+  const showSelectWalletModal = (modalState: boolean) => {
+    setIsSelectWalletModal(modalState);
+  };
   const accountId =
     accounts.find((account) => account.active)?.accountId || null;
 
@@ -181,6 +188,8 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
         modal,
         accounts,
         accountId,
+        isSelectWalletModal,
+        showSelectWalletModal,
       }}
     >
       {children}

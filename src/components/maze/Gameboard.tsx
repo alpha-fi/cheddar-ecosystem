@@ -1,33 +1,50 @@
 import { MazeTileData } from '@/contexts/maze/GameContextProvider';
 import { useContext, useEffect, useRef } from 'react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { ListItem, OrderedList } from '@chakra-ui/react';
+import {
+  Image,
+  ListItem,
+  OrderedList,
+  useBreakpointValue,
+  useToast,
+} from '@chakra-ui/react';
 
 import styles from '@/styles/Gameboard.module.css';
+import { IsAllowedResponse } from '@/hooks/maze';
+import { useAccount } from 'wagmi';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 interface Props {
   isUserLoggedIn: boolean;
   openLogIn: () => void;
+  isAllowedResponse: IsAllowedResponse;
 }
 
-export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
+export function Gameboard({
+  isUserLoggedIn,
+  openLogIn,
+  isAllowedResponse,
+}: Props) {
   const {
     mazeData,
     playerPosition,
     direction,
     selectedColorSet,
     lastCellX,
-    setLastCellX,
     lastCellY,
-    setLastCellY,
     calculateBlurRadius,
     handleTouchStart,
     handleTouchMove,
-    timerStarted,
+    handleMouseDown,
+    handleOnMouseUp,
+    handleOnMouseOver,
   } = useContext(GameContext);
 
+  const isDesktop = useBreakpointValue({ base: false, lg: true });
+
+  const { blockchain } = useGlobalContext();
+
   const touchContainerRef = useRef<HTMLDivElement>(null);
-  const gameStartedRef = useRef(false);
 
   // Check if the game has started for the first time
   const gameStarted = playerPosition !== null;
@@ -49,7 +66,9 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
   const handleConditionalFunction =
     (onTrue: (event: any) => void, onFalse: () => void) => (event: any) => {
       if (isUserLoggedIn) {
-        onTrue(event);
+        if (blockchain === 'base' || isAllowedResponse.ok) {
+          onTrue(event);
+        }
       } else {
         onFalse();
       }
@@ -62,11 +81,12 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
     } else {
       backgroundColor = 'backgroundColorSet';
     }
-    return `${styles.mazeCell} nonPathColorSet${selectedColorSet} ${backgroundColor}${selectedColorSet}`;
+    // return `${styles.mazeCell} nonPathColorSet${selectedColorSet} ${backgroundColor}${selectedColorSet}`;
+    return `${styles.mazeCell} ${backgroundColor}${selectedColorSet}`;
   }
   function getPlayerTileClasses(cell: MazeTileData) {
     let backgroundImage;
-    if (cell.enemyWon || cell.hasCartel || cell.hasExit) {
+    if (cell.fight || cell.enemyWon || cell.hasCartel || cell.hasExit) {
       backgroundImage = 'playerBackgroundEmpty';
     } else {
       backgroundImage = 'playerBackgroundElementOnTop';
@@ -74,8 +94,18 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
     return `${styles.mazeCell} ${styles.playerCell} ${getPlayerImgDirection()} ${backgroundImage}`;
   }
 
+  const toast = useToast();
+
+  function getMouseDownFunction() {
+    if (!isDesktop) {
+      return () => {};
+    }
+
+    return handleConditionalFunction(handleMouseDown, openLogIn);
+  }
+
   return (
-    <div ref={touchContainerRef}>
+    <div className={styles.gameboard} ref={touchContainerRef}>
       {mazeData.map((row: MazeTileData[], rowIndex: number) => (
         <div key={rowIndex} className={styles.mazeRow}>
           {row.map((cell: MazeTileData, colIndex: number) => {
@@ -85,8 +115,6 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
             const applyBlur = blurRadius > 0; // Determine if blur should be applied
             // Define cell content based on cell type
             let cellContent = '';
-
-            //TODO choose best logos options
 
             //====================================================== Start cheese logo options ======================================================
             if (cell.hasCheese) cellContent = '🧀';
@@ -142,6 +170,13 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
             // else if(cell.hasPlinko) cellContent = '🕹️'
             else if (cell.hasPlinko) cellContent = '🎰';
             //====================================================== End plinko logo options ======================================================
+            //====================================================== Start nothing logo options ======================================================
+            else if (cell.hasNothing) cellContent = '✅';
+            //====================================================== End nothing logo options ======================================================
+
+            function getCellClasses(cell: MazeTileData) {
+              return `${styles.staticIcon} ${cell.hasNothing && styles.smallCellIcon}`;
+            }
 
             return (
               <div
@@ -151,7 +186,9 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
                 style={{
                   filter: applyBlur ? `blur(${blurRadius}px)` : 'none', // Apply blur conditionally
                 }}
-                onClick={handleConditionalFunction(() => {}, openLogIn)}
+                onMouseDown={getMouseDownFunction()}
+                onMouseOver={handleOnMouseOver}
+                onMouseUp={handleOnMouseUp}
                 onTouchStart={handleConditionalFunction(
                   handleTouchStart,
                   openLogIn
@@ -162,15 +199,23 @@ export function Gameboard({ isUserLoggedIn, openLogIn }: Props) {
                 )}
               >
                 {/* Dynamic content based on cell */}
-                {cellContent && (
-                  <span
-                    role="img"
-                    aria-label={cellContent}
-                    // className="static-icon"
+                {cell.fight ? (
+                  <Image
+                    src="assets/img/fight.gif"
+                    alt="Fight gif"
                     className={styles.staticIcon}
-                  >
-                    {cellContent}
-                  </span>
+                  />
+                ) : (
+                  cellContent && (
+                    <span
+                      role="img"
+                      aria-label={cellContent}
+                      // className="static-icon"
+                      className={getCellClasses(cell)}
+                    >
+                      {cellContent}
+                    </span>
+                  )
                 )}
 
                 {/* Player icon */}

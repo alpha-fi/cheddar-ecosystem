@@ -1,15 +1,19 @@
+import React from 'react';
 import { Gameboard } from './Gameboard';
 import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import styles from '@/styles/GameboardContainer.module.css';
 import {
   Button,
+  Flex,
   Heading,
+  Hide,
   Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   Show,
+  Spinner,
   Tooltip,
   useDisclosure,
   useToast,
@@ -42,6 +46,10 @@ import { Scoreboard } from './Scoreboard';
 import { callMintCheddar } from '@/queries/maze/api';
 import { getConfig } from '@/configs/config';
 import ModalHolonym from '../ModalHolonymSBT';
+import { useAccount } from 'wagmi';
+import { useGlobalContext } from '@/contexts/GlobalContext';
+import { IsAllowedResponse } from '@/hooks/maze';
+import { AutoPlayAudio } from '../Navbar/components/AutoPlayAudio';
 import { ModalViewNFTs } from '../ViewNFTsModal';
 
 interface Props {
@@ -51,6 +59,7 @@ interface Props {
   cellSize: number;
   hasEnoughBalance: boolean | null;
   minCheddarRequired: number;
+  isAllowedResponse: IsAllowedResponse | null | undefined;
 }
 
 interface CheddarMintResponse {
@@ -64,13 +73,13 @@ export function GameboardContainer({
   cellSize,
   hasEnoughBalance,
   minCheddarRequired,
+  isAllowedResponse,
 }: Props) {
   const {
     mazeData,
     score,
     gameOverFlag,
     gameOverMessage,
-    hasPowerUp,
     handleKeyPress,
     restartGame,
     timerStarted,
@@ -90,7 +99,10 @@ export function GameboardContainer({
     isUserNadabotVerfied,
     isUserHolonymVerified,
     totalMintedCheddarToDate,
+    selectedColorSet,
   } = useContext(GameContext);
+
+  const { addresses, isConnected, showConnectionModal } = useGlobalContext();
 
   const gameboardRef = useRef<HTMLDivElement>(null);
   const {
@@ -100,7 +112,16 @@ export function GameboardContainer({
   } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
+  const [startingGame, setStartingGame] = useState(false);
+
+  useEffect(() => {
+    if (timerStarted) {
+      setStartingGame(false);
+    }
+  }, [timerStarted]);
+
   const walletSelector = useWalletSelector();
+
   if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
     onOpen();
     setAllowOpenGameOverModal(true);
@@ -118,7 +139,7 @@ export function GameboardContainer({
     onClose: onCloseBuyNFTPanel,
   } = useDisclosure();
 
-  const { modal, selector, accountId } = useWalletSelector();
+  const { showSelectWalletModal } = useWalletSelector();
 
   const [showMintErrorModal, setMintErrorModal] = useState(false);
   const [cheddarMintResponse, setCheddarMintResponse] =
@@ -154,28 +175,39 @@ export function GameboardContainer({
     }
   }, [cheddarMintResponse, toast]);
 
+  function getProperHandler(handler: any) {
+    //Uncomment the next line to ignore the isAllowedResponse.ok returning false
+    // return handler;
+    if (isAllowedResponse?.ok) {
+      return handler;
+    }
+    return onOpenNotAlloWedModal;
+  }
+
   function getGameContainerClasses() {
     return `${styles.gameContainer}`;
     // return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
   }
 
   function handleBuyClick() {
-    return selector.isSignedIn() ? onOpenBuyNFTPanel() : modal.show();
-  }
-
-  function logOut() {
-    selector.wallet().then((wallet) => wallet.signOut());
+    return addresses['near']
+      ? onOpenBuyNFTPanel()
+      : showSelectWalletModal(true); ///TODO: check if buy is only with near
   }
 
   function focusMazeAndStartGame() {
+    setStartingGame(true);
     gameboardRef.current?.focus();
     restartGame();
   }
 
   function getStartGameButtonHandler() {
-    return accountId //If the accountId exists
-      ? focusMazeAndStartGame
-      : modal.show; //If accountId doesn't exist
+    if (startingGame) {
+      return () => {}; //If the game is starting disable the button until game starts (When it get's hided)
+    }
+    return isConnected //If the accountId exists
+      ? getProperHandler(focusMazeAndStartGame)
+      : showConnectionModal(); //If accountId doesn't exist
   }
 
   function getKeyDownMoveHandler() {
@@ -239,7 +271,7 @@ export function GameboardContainer({
   };
 
   function getPowerUpBtnText() {
-    if (accountId && nfts?.length) {
+    if (addresses['near'] && nfts?.length) {
       return '⚡';
     }
     return 'Buy ⚡';
@@ -247,14 +279,15 @@ export function GameboardContainer({
   const shareReferralLink =
     'https://' +
     new URL(window.location.href).host +
-    `?referralId=${accountId}`;
+    `?referralId=${addresses['near']}`;
 
-  const notAllowedToPlay =
-    (!isUserNadabotVerfied &&
-      !isUserHolonymVerified &&
-      earnedButNotMintedCheddar >= 100) ||
-    (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
-    (!hasEnoughBalance && totalMintedCheddarToDate >= 100);
+  const notAllowedToPlay = addresses['base']
+    ? false
+    : (!isUserNadabotVerfied &&
+        !isUserHolonymVerified &&
+        earnedButNotMintedCheddar >= 100) ||
+      (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
+      (!hasEnoughBalance && totalMintedCheddarToDate >= 100);
 
   const [showHolonymModal, setHolonymModal] = useState(false);
 
@@ -341,6 +374,10 @@ export function GameboardContainer({
     walletSelector.modal.show();
   };
 
+  function getGameInfoClases(subtitle: string) {
+    return `${styles[subtitle]} ${styles.subtitle}`;
+  }
+  
   function toggleViewNftModal() {
     setViewNFTModal(!isViewNFTModalOpen);
   }
@@ -365,8 +402,8 @@ export function GameboardContainer({
       )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
       <div className={styles.gameInfo}>
-        <div className={styles.score}>Score: {score}</div>
-        <div className={styles.time}>
+        <div className={getGameInfoClases('score')}>Score: {score}</div>
+        <div className={getGameInfoClases('time')}>
           Time:{' '}
           {remainingMinutes < 10 ? '0' + remainingMinutes : remainingMinutes}:
           {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
@@ -386,7 +423,8 @@ export function GameboardContainer({
                 } else {
                   setIsClaiming(true);
                   const response = await callMintCheddar({
-                    accountId: accountId as string,
+                    accountId: addresses['near'] as string,
+                    blockchain: 'near', ///TODO: check backend
                   });
                   setIsClaiming(false);
                   setCheddarMintResponse(response);
@@ -412,7 +450,7 @@ export function GameboardContainer({
               Rules
             </Button>
           </span>
-          <div className={styles.toolbar}>
+          <div className={styles.toolbarbuttons}>
             <Button
               px={{ base: 2, md: 3 }}
               _hover={{ bg: 'yellowgreen' }}
@@ -465,29 +503,40 @@ export function GameboardContainer({
             </Button>
           </Show>
         </div>
-        <div style={{ position: 'relative' }}>
+        <div
+          style={{ position: 'relative' }}
+          className={`pathColorSet${selectedColorSet}`}
+        >
           <Gameboard
-            openLogIn={modal.show}
-            isUserLoggedIn={selector.isSignedIn()}
+            openLogIn={showConnectionModal}
+            isUserLoggedIn={isConnected}
+            isAllowedResponse={isAllowedResponse!}
           />
         </div>
-        {!accountId && (
+        {!notAllowedToPlay && !timerStarted && isConnected && (
           <div className={styles.startGameBg}>
-            <Button _hover={{ bg: 'yellowgreen' }} onClick={handleLogin}>
-              Login
-            </Button>
-          </div>
-        )}
-        {!notAllowedToPlay && !timerStarted && accountId && (
-          <div className={styles.startGameBg}>
-            <Heading as="h6" size="md">
+            <Heading as="h6" size="lg">
               Play Cheddar Maze
             </Heading>
+            <ul>
+              <li>Fill all Cells in Maze</li>
+              <li>Find door🚪 in 2min ⏰</li>
+              <li>Encounter Enemies ⚔️</li>
+              <li>Find PopUp🎰 Plinko🟠</li>
+              <li>PowerUps Boosts Winnings🏆 🧀 ⚔️</li>
+            </ul>
+            <Flex wrap={'wrap'} m={'0 0.7rem'}>
+              <span>✅: filled cell |</span>
+              <span>🧀: Cheddar |</span>
+              <span>💰: 🧀 Bag |</span>
+              <span>⚔️: Won Dustup |</span>
+              <span>🎰 Plinko</span>
+            </Flex>
             <Button
               _hover={{ bg: 'yellowgreen' }}
               onClick={getStartGameButtonHandler()}
             >
-              {gameOverFlag ? 'Restart' : 'Start'}
+              {startingGame ? <Spinner /> : gameOverFlag ? 'Restart' : 'Start'}
             </Button>
           </div>
         )}
@@ -497,7 +546,9 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsFirstLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowUp')}
-                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowUpIcon />
                 </Button>
@@ -505,19 +556,25 @@ export function GameboardContainer({
               <div className={styles.arrowButtonsSecondLine}>
                 <Button
                   onClick={() => handleArrowPress('ArrowLeft')}
-                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowBackIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowDown')}
-                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowDownIcon />
                 </Button>
                 <Button
                   onClick={() => handleArrowPress('ArrowRight')}
-                  isDisabled={!accountId || !timerStarted || notAllowedToPlay}
+                  isDisabled={
+                    !addresses['near'] || !timerStarted || notAllowedToPlay
+                  }
                 >
                   <ArrowForwardIcon />
                 </Button>
@@ -532,12 +589,13 @@ export function GameboardContainer({
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer
-          title={'Game over'}
+          title={''}
           isOpen={isOpen}
           onClose={closeGameOverModal}
           neverCloseOnOverlayClick={true}
         >
           <GameOverModalContent
+            handleBuyClick={handleBuyClick}
             setHolonymModal={setHolonymModal}
             onClose={closeGameOverModal}
           />
