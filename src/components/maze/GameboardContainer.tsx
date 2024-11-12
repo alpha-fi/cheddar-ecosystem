@@ -50,6 +50,7 @@ import { useAccount } from 'wagmi';
 import { useGlobalContext } from '@/contexts/GlobalContext';
 import { IsAllowedResponse } from '@/hooks/maze';
 import { AutoPlayAudio } from '../Navbar/components/AutoPlayAudio';
+import { ModalViewNFTs } from '../ViewNFTsModal';
 
 interface Props {
   remainingMinutes: number;
@@ -144,6 +145,7 @@ export function GameboardContainer({
   const [cheddarMintResponse, setCheddarMintResponse] =
     useState<CheddarMintResponse | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [isViewNFTModalOpen, setViewNFTModal] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -269,13 +271,10 @@ export function GameboardContainer({
   };
 
   function getPowerUpBtnText() {
-    if (addresses['near']) {
-      if (nfts?.length) {
-        return '⚡';
-      } else return 'Buy ⚡';
-    } else {
-      return 'Buy ⚡';
+    if (addresses['near'] && nfts?.length) {
+      return '⚡';
     }
+    return 'Buy ⚡';
   }
   const shareReferralLink =
     'https://' +
@@ -377,6 +376,10 @@ export function GameboardContainer({
 
   function getGameInfoClases(subtitle: string) {
     return `${styles[subtitle]} ${styles.subtitle}`;
+  }
+  
+  function toggleViewNftModal() {
+    setViewNFTModal(!isViewNFTModalOpen);
   }
 
   return (
@@ -480,7 +483,9 @@ export function GameboardContainer({
               <Button
                 px={{ base: 2, md: 3 }}
                 colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
-                onClick={handleBuyClick}
+                onClick={() =>
+                  nfts?.length ? toggleViewNftModal() : handleBuyClick()
+                }
               >
                 {getPowerUpBtnText()}
               </Button>
@@ -579,6 +584,8 @@ export function GameboardContainer({
         )}
       </div>
       <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
+      <ModalViewNFTs onClose={toggleViewNftModal} isOpen={isViewNFTModalOpen} />
+
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer

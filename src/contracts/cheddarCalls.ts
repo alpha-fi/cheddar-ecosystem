@@ -2,7 +2,7 @@ import { getConfig } from '@/configs/config';
 import { view } from './contractUtils';
 import { Metadata } from './CheddarToken';
 import { NFT } from './nftCheddarContract';
-import { Wallet } from '@near-wallet-selector/core';
+import { Transaction, Wallet } from '@near-wallet-selector/core';
 
 const { cheddarToken, cheddarNft, nadaBot } = getConfig().contracts.near;
 
@@ -53,58 +53,67 @@ export const buyNFT = async (
   amount: string
 ): Promise<any> => {
   const tokenCheddarContractId = getConfig().contracts.near.cheddarToken;
+  const accounts = await wallet.getAccounts()
+  const signerId = accounts[0].accountId;
   if (withCheddar) {
-    return wallet.signAndSendTransactions({
-      transactions: [
-        {
-          receiverId: tokenCheddarContractId,
-          actions: [
-            {
-              type: 'FunctionCall',
-              params: {
-                methodName: 'ft_transfer_call',
-                args: {
-                  receiver_id: cheddarNft,
-                  amount,
-                  msg: '',
-                },
-                gas: '300' + '0'.repeat(12),
-                deposit: '1',
+    const transactions: Transaction[] = []
+    if (BigInt(amount) > BigInt(0)) {
+      // Push cheddar transfer transaction
+      transactions.push({
+        signerId,
+        receiverId: tokenCheddarContractId,
+        actions: [
+          {
+            type: 'FunctionCall',
+            params: {
+              methodName: 'ft_transfer_call',
+              args: {
+                receiver_id: cheddarNft,
+                amount,
+                msg: '',
               },
+              gas: '300' + '0'.repeat(12),
+              deposit: '1',
             },
-          ],
-        },
-        {
-          receiverId: cheddarNft,
-          actions: [
-            {
-              type: 'FunctionCall',
-              params: {
-                methodName: 'nft_mint_one',
-                args: { with_cheddar: true },
-                gas: '300' + '0'.repeat(12),
-                deposit: '1' + '0'.repeat(21),
-              },
-            },
-          ],
-        },
-      ],
-    });
-  } else {
-    return wallet.signAndSendTransaction({
+          },
+        ],
+      },)
+    }
+    // Push mint NFT transaction
+    transactions.push({
+      signerId,
       receiverId: cheddarNft,
       actions: [
         {
           type: 'FunctionCall',
           params: {
             methodName: 'nft_mint_one',
-            args: { with_cheddar: false },
+            args: { with_cheddar: true },
             gas: '300' + '0'.repeat(12),
-            deposit: amount,
+            deposit: '1' + '0'.repeat(22),
           },
         },
       ],
+    },
+    )
+    return wallet.signAndSendTransactions({
+      transactions
     });
+} else {
+  return wallet.signAndSendTransaction({
+    receiverId: cheddarNft,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName: 'nft_mint_one',
+          args: { with_cheddar: false },
+          gas: '300' + '0'.repeat(12),
+          deposit: amount,
+        },
+      },
+    ],
+  });
   }
 };
 

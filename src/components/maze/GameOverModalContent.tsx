@@ -1,11 +1,11 @@
-import { useContext, useEffect } from 'react';
-import styles from '@/styles/GameOverModalContent.module.css';
-import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { useToast, Link, Stack } from '@chakra-ui/react';
-import { Facebook, Telegram, Twitter } from '../icons';
 import { getConfig } from '@/configs/config';
-import { useAccount } from 'wagmi';
 import { useGlobalContext } from '@/contexts/GlobalContext';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import styles from '@/styles/GameOverModalContent.module.css';
+import { Link, useToast } from '@chakra-ui/react';
+import { useContext, useEffect } from 'react';
+import { Facebook, Telegram, Twitter } from '../icons';
 import { RandomAd } from './RandomAd';
 
 interface Props {
@@ -32,6 +32,7 @@ export const GameOverModalContent = ({
   } = useContext(GameContext);
   const toast = useToast();
   const { blockchain } = useGlobalContext();
+  const { accountId } = useWalletSelector();
   const properSecondsFormat =
     remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
 
@@ -68,7 +69,9 @@ export const GameOverModalContent = ({
 
   const shareText = `I just ${hasWon ? 'won' : 'lost'} ${cheddarFound} Cheddar playing the Cheddar Maze game. Check it out its fun and with more features coming.`;
   const encodedText = encodeURIComponent(shareText);
-  const encodedLink = encodeURIComponent('https://cheddar.farm/');
+  const encodedLink = encodeURIComponent(
+    `https://cheddar.farm/?referralId=${accountId}`
+  );
 
   function getTwitterUrl() {
     return `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedLink}`;
