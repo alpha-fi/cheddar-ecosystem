@@ -721,58 +721,62 @@ export const GameContextProvider = ({ children }: props) => {
     return maze;
   }
 
+  function restartMaze() {
+    // Generate maze data and set it to the state
+    const newMazeData = generateMazeData(mazeRows, mazeCols, new RNG(0));
+    setMazeData(newMazeData);
+
+    const playerStartCell = getRandomPathCell(newMazeData);
+    setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
+  }
+
   // Inside the component where you're using the Maze component
   useEffect(() => {
     const randomColorSet = selectRandomColorSet();
     setSelectedColorSet(randomColorSet);
     // setBackgroundImage(randomColorSet.backgroundImage);
     // setRarity(randomColorSet.rarity);
-
-    if (
-      storedGameInfoParsed !== '' &&
-      storedGameInfoParsed !== null &&
-      storedGameInfoParsed.accountId === accountId
-    ) {
-      const remainingTimeWithStoredData = calculateRemainingTime(
-        storedGameInfoParsed.timestampStartStopTimerArray,
-        storedGameInfoParsed.timestampEndStopTimerArray,
-        storedGameInfoParsed.startTimestamp
-      );
-      if (remainingTimeWithStoredData > 0) {
-        setBlockchain(storedGameInfoParsed.blockchain);
-        setPathLength(storedGameInfoParsed.pathLength);
-        setPlayerPosition(storedGameInfoParsed.playerPosition);
-        setScore(storedGameInfoParsed.score);
-        setStartTimestamp(storedGameInfoParsed.startTimestamp);
-        setCheeseCooldown(storedGameInfoParsed.cheeseCooldown);
-        setBagCooldown(storedGameInfoParsed.bagCooldown);
-        setMoves(storedGameInfoParsed.moves);
-        setCoveredCells(storedGameInfoParsed.coveredCells);
-        setCellsWithItemAmount(storedGameInfoParsed.cellsWithItemAmount);
-        setCheddarFound(storedGameInfoParsed.cheddarFound);
-        setSeedId(storedGameInfoParsed.seedId);
-        setHasFoundPlinko(storedGameInfoParsed.hasFoundPlinko);
-        setTimestampStartStopTimerArray(
-          storedGameInfoParsed.timestampStartStopTimerArray
-        );
-        setTimestampEndStopTimerArray(
-          storedGameInfoParsed.timestampEndStopTimerArray
-        );
-        setRemainingTime(remainingTimeWithStoredData);
-        setTimerStarted(true);
-
-        setMazeData(storedGameInfoParsed.mazeData);
-
-        setStoredDataLoaded(true);
-      }
-    } else {
-      // Generate maze data and set it to the state
-      const newMazeData = generateMazeData(mazeRows, mazeCols, new RNG(0));
-      setMazeData(newMazeData);
-
-      const playerStartCell = getRandomPathCell(newMazeData);
-      setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
+    const savedGame = localStorage.getItem(localStorageSavedGameKey)
+    if (savedGame === null) {
+      restartMaze()
+      return
     }
+    const savedGameParsed = JSON.parse(savedGame) as StoredGameInfo
+    const remainingTimeWithStoredData = calculateRemainingTime(
+      savedGameParsed.timestampStartStopTimerArray,
+      savedGameParsed.timestampEndStopTimerArray,
+      savedGameParsed.startTimestamp
+    );
+    if (savedGameParsed.accountId !== accountId || remainingTimeWithStoredData <= 0) {
+      restartMaze()
+      return
+    }
+
+    setBlockchain(savedGameParsed.blockchain);
+    setPathLength(savedGameParsed.pathLength);
+    setPlayerPosition(savedGameParsed.playerPosition);
+    setScore(savedGameParsed.score);
+    setStartTimestamp(savedGameParsed.startTimestamp);
+    setCheeseCooldown(savedGameParsed.cheeseCooldown);
+    setBagCooldown(savedGameParsed.bagCooldown);
+    setMoves(savedGameParsed.moves);
+    setCoveredCells(savedGameParsed.coveredCells);
+    setCellsWithItemAmount(savedGameParsed.cellsWithItemAmount);
+    setCheddarFound(savedGameParsed.cheddarFound);
+    setSeedId(savedGameParsed.seedId);
+    setHasFoundPlinko(savedGameParsed.hasFoundPlinko);
+    setTimestampStartStopTimerArray(
+      savedGameParsed.timestampStartStopTimerArray
+    );
+    setTimestampEndStopTimerArray(
+      savedGameParsed.timestampEndStopTimerArray
+    );
+    setRemainingTime(remainingTimeWithStoredData);
+    setTimerStarted(true);
+
+    setMazeData(savedGameParsed.mazeData);
+
+    setStoredDataLoaded(true);
   }, [totalCells, renderBoard]); // Empty dependency array to run this effect only once on component mount
 
   useEffect(() => {
@@ -1190,9 +1194,9 @@ export const GameContextProvider = ({ children }: props) => {
     // Calculate the remaining time
     const calculatedRemainingTime = Math.floor(
       validStartTimestamp! / 1000 +
-        timeLimitInSeconds +
-        secondsWithTimerStopped -
-        Date.now() / 1000
+      timeLimitInSeconds +
+      secondsWithTimerStopped -
+      Date.now() / 1000
     );
 
     return calculatedRemainingTime;
