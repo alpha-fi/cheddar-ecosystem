@@ -221,6 +221,7 @@ interface StoredGameInfo {
   timestampStartStopTimerArray: number[];
   timestampEndStopTimerArray: number[];
   blockchain: Blockchain;
+  rng: RNG;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -773,6 +774,7 @@ export const GameContextProvider = ({ children }: props) => {
     );
     setRemainingTime(remainingTimeWithStoredData);
     setTimerStarted(true);
+    setRng(savedGameParsed.rng)
 
     setMazeData(savedGameParsed.mazeData);
 
@@ -830,7 +832,7 @@ export const GameContextProvider = ({ children }: props) => {
     }
 
     //Store match info in local storage
-    const gameInfo = {
+    const gameInfo: StoredGameInfo = {
       mazeData: newMazeData,
       pathLength,
       playerPosition,
@@ -848,6 +850,7 @@ export const GameContextProvider = ({ children }: props) => {
       timestampStartStopTimerArray,
       timestampEndStopTimerArray,
       blockchain,
+      rng.state,
     };
 
     localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
