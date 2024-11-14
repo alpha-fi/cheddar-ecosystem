@@ -378,6 +378,8 @@ export const GameContextProvider = ({ children }: props) => {
   const [mazeRows, setMazeRows] = useState(10);
   const [totalCells, setTotalCells] = useState(0);
 
+  const [storedDataLoaded, setStoredDataLoaded] = useState(false);
+
   function handleErrorToast(title: string) {
     toast({
       title,
@@ -389,45 +391,10 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   useEffect(() => {
-    if (
-      storedGameInfoParsed !== '' &&
-      storedGameInfoParsed !== null &&
-      storedGameInfoParsed.accountId === accountId
-    ) {
-      console.log('storedGameInfoParsed: ', storedGameInfoParsed);
-      const remainingTimeWithStoredData = calculateRemainingTime(
-        storedGameInfoParsed.timestampStartStopTimerArray,
-        storedGameInfoParsed.timestampEndStopTimerArray,
-        storedGameInfoParsed.startTimestamp
-      );
-      console.log('remainingTimeWithStoredData: ', remainingTimeWithStoredData);
-      if (remainingTimeWithStoredData > 0) {
-        setBlockchain(storedGameInfoParsed.blockchain);
-        setBlockchain('near');
-        setMazeData(storedGameInfoParsed.mazeData);
-        setPathLength(storedGameInfoParsed.pathLength);
-        setPlayerPosition(storedGameInfoParsed.playerPosition);
-        setScore(storedGameInfoParsed.score);
-        setStartTimestamp(storedGameInfoParsed.startTimestamp);
-        setCheeseCooldown(storedGameInfoParsed.cheeseCooldown);
-        setBagCooldown(storedGameInfoParsed.bagCooldown);
-        setMoves(storedGameInfoParsed.moves);
-        setCoveredCells(storedGameInfoParsed.coveredCells);
-        setCellsWithItemAmount(storedGameInfoParsed.cellsWithItemAmount);
-        setCheddarFound(storedGameInfoParsed.cheddarFound);
-        setSeedId(storedGameInfoParsed.seedId);
-        setHasFoundPlinko(storedGameInfoParsed.hasFoundPlinko);
-        setTimestampStartStopTimerArray(
-          storedGameInfoParsed.timestampStartStopTimerArray
-        );
-        setTimestampEndStopTimerArray(
-          storedGameInfoParsed.timestampEndStopTimerArray
-        );
-        setRemainingTime(remainingTimeWithStoredData);
-        setTimerStarted(true);
-      }
-    }
-  }, []);
+    const stored = localStorage.getItem('stored_cheddar_echosystem_maze_game');
+    let mdParced;
+    if (stored) mdParced = JSON.parse(stored);
+  }, [mazeData]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
@@ -757,18 +724,74 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Inside the component where you're using the Maze component
   useEffect(() => {
-    // Generate maze data and set it to the state
-    const newMazeData = generateMazeData(mazeRows, mazeCols, new RNG(0));
-    setMazeData(newMazeData);
-
     const randomColorSet = selectRandomColorSet();
     setSelectedColorSet(randomColorSet);
     // setBackgroundImage(randomColorSet.backgroundImage);
     // setRarity(randomColorSet.rarity);
 
-    const playerStartCell = getRandomPathCell(newMazeData);
-    setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
+    if (
+      storedGameInfoParsed !== '' &&
+      storedGameInfoParsed !== null &&
+      storedGameInfoParsed.accountId === accountId
+    ) {
+      const remainingTimeWithStoredData = calculateRemainingTime(
+        storedGameInfoParsed.timestampStartStopTimerArray,
+        storedGameInfoParsed.timestampEndStopTimerArray,
+        storedGameInfoParsed.startTimestamp
+      );
+      if (remainingTimeWithStoredData > 0) {
+        setBlockchain(storedGameInfoParsed.blockchain);
+        setPathLength(storedGameInfoParsed.pathLength);
+        setPlayerPosition(storedGameInfoParsed.playerPosition);
+        setScore(storedGameInfoParsed.score);
+        setStartTimestamp(storedGameInfoParsed.startTimestamp);
+        setCheeseCooldown(storedGameInfoParsed.cheeseCooldown);
+        setBagCooldown(storedGameInfoParsed.bagCooldown);
+        setMoves(storedGameInfoParsed.moves);
+        setCoveredCells(storedGameInfoParsed.coveredCells);
+        setCellsWithItemAmount(storedGameInfoParsed.cellsWithItemAmount);
+        setCheddarFound(storedGameInfoParsed.cheddarFound);
+        setSeedId(storedGameInfoParsed.seedId);
+        setHasFoundPlinko(storedGameInfoParsed.hasFoundPlinko);
+        setTimestampStartStopTimerArray(
+          storedGameInfoParsed.timestampStartStopTimerArray
+        );
+        setTimestampEndStopTimerArray(
+          storedGameInfoParsed.timestampEndStopTimerArray
+        );
+        setRemainingTime(remainingTimeWithStoredData);
+        setTimerStarted(true);
+
+        setMazeData(storedGameInfoParsed.mazeData);
+
+        setStoredDataLoaded(true);
+      }
+    } else {
+      // Generate maze data and set it to the state
+      const newMazeData = generateMazeData(mazeRows, mazeCols, new RNG(0));
+      setMazeData(newMazeData);
+
+      const playerStartCell = getRandomPathCell(newMazeData);
+      setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
+    }
   }, [totalCells, renderBoard]); // Empty dependency array to run this effect only once on component mount
+
+  useEffect(() => {
+    if (storedDataLoaded) {
+      mazeData.forEach((row, rowIndex) => {
+        row.forEach((col, colIndex) => {
+          if (col.fight) {
+            setFightingEnemyFlag(true);
+            setTimeout(() => {
+              handleEnemyFound(mazeData, rowIndex, colIndex);
+            }, 500);
+          }
+        });
+      });
+
+      setStoredDataLoaded(false);
+    }
+  }, [storedDataLoaded]);
 
   function movePlayer(newX: number, newY: number) {
     if (
@@ -853,8 +876,8 @@ export const GameContextProvider = ({ children }: props) => {
     const clonedMazeData = mazeData;
     clonedMazeData[y][x].fight = true;
 
-    setFightingEnemyFlag(true);
     setMazeData(clonedMazeData);
+    setFightingEnemyFlag(true);
   }
 
   function handleEnemyFound(
@@ -868,6 +891,7 @@ export const GameContextProvider = ({ children }: props) => {
     // Add logic for the enemy defeating the player
     clonedMazeData[y][x].fight = false;
     setFightingEnemyFlag(false);
+
     if (rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
@@ -1033,7 +1057,7 @@ export const GameContextProvider = ({ children }: props) => {
       showFighting(clonedMazeData, newX, newY);
       setTimeout(() => {
         handleEnemyFound(clonedMazeData, newX, newY);
-      }, 750);
+      }, 500);
     } else if (
       !cheeseCooldown &&
       rng.nextFloat() < getChancesOfFindingCheese()
@@ -1067,6 +1091,11 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
+    const storedGame = localStorage.getItem(
+      'stored_cheddar_echosystem_maze_game'
+    );
+    if (storedGame)
+      localStorage.removeItem('stored_cheddar_echosystem_maze_game');
     const referralAccount = localStorage.getItem('referrer_account');
 
     if (referralAccount) {
@@ -1092,21 +1121,15 @@ export const GameContextProvider = ({ children }: props) => {
       },
       metadata: {
         blockchain,
-        accountId: selectedBlockchainAddress!,
+        accountId,
         seedId,
-        referralAccount: referralAccount,
+        referralAccount,
       },
     };
 
     setHasWon(won);
     setCoveredCells([]);
     setGameOverFlag(true);
-
-    const storedGame = localStorage.getItem(
-      'stored_cheddar_echosystem_maze_game'
-    );
-    if (storedGame)
-      localStorage.removeItem('stored_cheddar_echosystem_maze_game');
 
     setTimeout(() => {
       stopTimer();

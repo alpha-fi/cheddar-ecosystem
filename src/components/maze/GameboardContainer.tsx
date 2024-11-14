@@ -51,9 +51,6 @@ import { useGlobalContext } from '@/contexts/GlobalContext';
 import { IsAllowedResponse } from '@/hooks/maze';
 
 interface Props {
-  loadingRemainingMinutesAndSeconds: boolean;
-  remainingMinutes: number;
-  remainingSeconds: number;
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
   cellSize: number;
   hasEnoughBalance: boolean | null;
@@ -66,9 +63,6 @@ interface CheddarMintResponse {
   cheddarMinted?: number;
 }
 export function GameboardContainer({
-  loadingRemainingMinutesAndSeconds,
-  remainingMinutes,
-  remainingSeconds,
   handlePowerUpClick,
   cellSize,
   hasEnoughBalance,
@@ -100,6 +94,8 @@ export function GameboardContainer({
     isUserHolonymVerified,
     totalMintedCheddarToDate,
     selectedColorSet,
+    loadingRemainingMinutesAndSeconds,
+    remainingTime,
   } = useContext(GameContext);
 
   const { addresses, isConnected, showConnectionModal } = useGlobalContext();
@@ -225,6 +221,14 @@ export function GameboardContainer({
 
   function handleToggleShowMovementButtons() {
     setShowMovementButtons(!showMovementButtons);
+  }
+
+  function getRemainingMinutes() {
+    return Math.floor(remainingTime / 60);
+  }
+
+  function getRemainingSeconds() {
+    return remainingTime % 60;
   }
 
   const renderSwipeIcon = () => {
@@ -461,13 +465,13 @@ export function GameboardContainer({
             <Spinner />
           ) : (
             <>
-              {remainingMinutes < 10
-                ? '0' + remainingMinutes
-                : remainingMinutes}
+              {getRemainingMinutes() < 10
+                ? '0' + getRemainingMinutes()
+                : getRemainingMinutes()}
               :
-              {remainingSeconds < 10
-                ? '0' + remainingSeconds
-                : remainingSeconds}
+              {getRemainingSeconds() < 10
+                ? '0' + getRemainingSeconds()
+                : getRemainingSeconds()}
             </>
           )}
         </div>
@@ -673,7 +677,7 @@ export function GameboardContainer({
           />
         </ModalContainer>
       )}
-      {saveResponse && (
+      {/* {saveResponse && (
         <ModalContainer
           title={'Error saving game'}
           isOpen={isOpen}
@@ -685,7 +689,7 @@ export function GameboardContainer({
             })}
           </div>
         </ModalContainer>
-      )}
+      )} */}
       <ModalContainer
         title={'Plinko game!'}
         isOpen={plinkoModalOpened}
