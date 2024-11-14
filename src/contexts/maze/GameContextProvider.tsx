@@ -221,7 +221,7 @@ interface StoredGameInfo {
   timestampStartStopTimerArray: number[];
   timestampEndStopTimerArray: number[];
   blockchain: Blockchain;
-  rng: RNG;
+  rngState: number;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -737,20 +737,23 @@ export const GameContextProvider = ({ children }: props) => {
     setSelectedColorSet(randomColorSet);
     // setBackgroundImage(randomColorSet.backgroundImage);
     // setRarity(randomColorSet.rarity);
-    const savedGame = localStorage.getItem(localStorageSavedGameKey)
+    const savedGame = localStorage.getItem(localStorageSavedGameKey);
     if (savedGame === null) {
-      restartMaze()
-      return
+      restartMaze();
+      return;
     }
-    const savedGameParsed = JSON.parse(savedGame) as StoredGameInfo
+    const savedGameParsed = JSON.parse(savedGame) as StoredGameInfo;
     const remainingTimeWithStoredData = calculateRemainingTime(
       savedGameParsed.timestampStartStopTimerArray,
       savedGameParsed.timestampEndStopTimerArray,
       savedGameParsed.startTimestamp
     );
-    if (savedGameParsed.accountId !== accountId || remainingTimeWithStoredData <= 0) {
-      restartMaze()
-      return
+    if (
+      savedGameParsed.accountId !== accountId ||
+      remainingTimeWithStoredData <= 0
+    ) {
+      restartMaze();
+      return;
     }
 
     setBlockchain(savedGameParsed.blockchain);
@@ -769,12 +772,12 @@ export const GameContextProvider = ({ children }: props) => {
     setTimestampStartStopTimerArray(
       savedGameParsed.timestampStartStopTimerArray
     );
-    setTimestampEndStopTimerArray(
-      savedGameParsed.timestampEndStopTimerArray
-    );
+    setTimestampEndStopTimerArray(savedGameParsed.timestampEndStopTimerArray);
     setRemainingTime(remainingTimeWithStoredData);
     setTimerStarted(true);
-    setRng(savedGameParsed.rng)
+    setRng(new RNG(savedGameParsed.rngState));
+    setLastCellX(savedGameParsed.playerPosition.x);
+    setLastCellY(savedGameParsed.playerPosition.y);
 
     setMazeData(savedGameParsed.mazeData);
 
@@ -788,7 +791,7 @@ export const GameContextProvider = ({ children }: props) => {
           if (col.fight) {
             setFightingEnemyFlag(true);
             setTimeout(() => {
-              handleEnemyFound(mazeData, rowIndex, colIndex);
+              handleEnemyFound(mazeData, colIndex, rowIndex, true);
             }, 500);
           }
         });
@@ -818,7 +821,8 @@ export const GameContextProvider = ({ children }: props) => {
     newMazeData[playerPosition.y][playerPosition.x].isActive = false;
 
     // Update player position state
-    setPlayerPosition({ x: newX, y: newY });
+    const newPlayerPosition = { x: newX, y: newY }
+    setPlayerPosition(newPlayerPosition);
 
     // Update mazeData state
     setMazeData(newMazeData);
@@ -831,11 +835,19 @@ export const GameContextProvider = ({ children }: props) => {
       setCoveredCells(newCoveredCells);
     }
 
+    // Set lastCellX and lastCellY to the new player position
+    // Update last cell coordinates
+    setLastCellX(playerPosition.x);
+    setLastCellY(playerPosition.y);
+
+    // Periodically add artifacts to the board based on cooldowns and randomness
+    addArtifacts(newX, newY, newMazeData, moves);
+
     //Store match info in local storage
     const gameInfo: StoredGameInfo = {
       mazeData: newMazeData,
       pathLength,
-      playerPosition,
+      playerPosition: newPlayerPosition,
       score,
       startTimestamp,
       cheeseCooldown,
@@ -850,18 +862,10 @@ export const GameContextProvider = ({ children }: props) => {
       timestampStartStopTimerArray,
       timestampEndStopTimerArray,
       blockchain,
-      rng.state,
+      rngState: rng.state,
     };
 
     localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
-
-    // Periodically add artifacts to the board based on cooldowns and randomness
-    addArtifacts(newX, newY, newMazeData, moves);
-
-    // Set lastCellX and lastCellY to the new player position
-    // Update last cell coordinates
-    setLastCellX(playerPosition.x);
-    setLastCellY(playerPosition.y);
   }
 
   function doesCellHasArtifact(x: number, y: number) {
@@ -886,7 +890,8 @@ export const GameContextProvider = ({ children }: props) => {
   function handleEnemyFound(
     clonedMazeData: MazeTileData[][],
     x: number,
-    y: number
+    y: number,
+    forceRefreshMazeData?: boolean,
   ) {
     // 30% chance of encountering an enemy
     // Code for adding enemy artifact...
@@ -913,6 +918,10 @@ export const GameContextProvider = ({ children }: props) => {
         },
         rng.nextRange(1000, 6000)
       );
+    }
+
+    if(forceRefreshMazeData) {
+      setMazeData(clonedMazeData);
     }
   }
 
@@ -1095,7 +1104,6 @@ export const GameContextProvider = ({ children }: props) => {
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
     const storedGame = localStorage.getItem(localStorageSavedGameKey);
-    console.log('storedGame: ', storedGame);
 
     if (storedGame) localStorage.removeItem(localStorageSavedGameKey);
     const referralAccount = localStorage.getItem('referrer_account');
@@ -1105,7 +1113,6 @@ export const GameContextProvider = ({ children }: props) => {
     }
 
     const storedGame2 = localStorage.getItem(localStorageSavedGameKey);
-    console.log('storedGame 2: ', storedGame2);
 
     if (gameOverRefSent.current) {
       return;
@@ -1197,9 +1204,9 @@ export const GameContextProvider = ({ children }: props) => {
     // Calculate the remaining time
     const calculatedRemainingTime = Math.floor(
       validStartTimestamp! / 1000 +
-      timeLimitInSeconds +
-      secondsWithTimerStopped -
-      Date.now() / 1000
+        timeLimitInSeconds +
+        secondsWithTimerStopped -
+        Date.now() / 1000
     );
 
     return calculatedRemainingTime;
