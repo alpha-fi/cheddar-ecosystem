@@ -677,7 +677,7 @@ export function GameboardContainer({
           />
         </ModalContainer>
       )}
-      {/* {saveResponse && (
+      {saveResponse && (
         <ModalContainer
           title={'Error saving game'}
           isOpen={isOpen}
@@ -689,7 +689,7 @@ export function GameboardContainer({
             })}
           </div>
         </ModalContainer>
-      )} */}
+      )}
       <ModalContainer
         title={'Plinko game!'}
         isOpen={plinkoModalOpened}
