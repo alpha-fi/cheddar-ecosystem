@@ -27,6 +27,7 @@ import {
 import { useDisclosure, useToast } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
 import { Blockchain, useGlobalContext } from '../GlobalContext';
+import { localStorageSavedGameKey } from '@/constants/maze';
 
 interface props {
   children: ReactNode;
@@ -240,9 +241,7 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseScoreboard,
   } = useDisclosure();
 
-  const storedGameInfo = useRef(
-    localStorage.getItem('stored_cheddar_echosystem_maze_game')
-  );
+  const storedGameInfo = useRef(localStorage.getItem(localStorageSavedGameKey));
   const storedGameInfoParsed =
     storedGameInfo.current &&
     (JSON.parse(storedGameInfo.current) as StoredGameInfo | null);
@@ -391,7 +390,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   useEffect(() => {
-    const stored = localStorage.getItem('stored_cheddar_echosystem_maze_game');
+    const stored = localStorage.getItem(localStorageSavedGameKey);
     let mdParced;
     if (stored) mdParced = JSON.parse(stored);
   }, [mazeData]);
@@ -826,9 +825,6 @@ export const GameContextProvider = ({ children }: props) => {
       setCoveredCells(newCoveredCells);
     }
 
-    // Periodically add artifacts to the board based on cooldowns and randomness
-    addArtifacts(newX, newY, newMazeData, moves);
-
     //Store match info in local storage
     const gameInfo = {
       mazeData: newMazeData,
@@ -850,10 +846,10 @@ export const GameContextProvider = ({ children }: props) => {
       blockchain,
     };
 
-    localStorage.setItem(
-      'stored_cheddar_echosystem_maze_game',
-      JSON.stringify(gameInfo)
-    );
+    localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
+
+    // Periodically add artifacts to the board based on cooldowns and randomness
+    addArtifacts(newX, newY, newMazeData, moves);
 
     // Set lastCellX and lastCellY to the new player position
     // Update last cell coordinates
@@ -1091,16 +1087,18 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
-    const storedGame = localStorage.getItem(
-      'stored_cheddar_echosystem_maze_game'
-    );
-    if (storedGame)
-      localStorage.removeItem('stored_cheddar_echosystem_maze_game');
+    const storedGame = localStorage.getItem(localStorageSavedGameKey);
+    console.log('storedGame: ', storedGame);
+
+    if (storedGame) localStorage.removeItem(localStorageSavedGameKey);
     const referralAccount = localStorage.getItem('referrer_account');
 
     if (referralAccount) {
       localStorage.removeItem('referrer_account');
     }
+
+    const storedGame2 = localStorage.getItem(localStorageSavedGameKey);
+    console.log('storedGame 2: ', storedGame2);
 
     if (gameOverRefSent.current) {
       return;
