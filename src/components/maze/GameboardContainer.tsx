@@ -78,7 +78,7 @@ export function GameboardContainer({
     restartGame,
     timerStarted,
     setGameOverMessage,
-    saveResponse,
+    endGameResponseErrors,
     plinkoModalOpened,
     closePlinkoModal,
     nfts,
@@ -329,7 +329,7 @@ export function GameboardContainer({
 
   function getPowerUpBtnText() {
     if (addresses['near']) {
-      if (nfts?.length) {
+      if (nfts && nfts?.length) {
         return '⚡';
       } else return 'Buy ⚡';
     } else {
@@ -677,14 +677,14 @@ export function GameboardContainer({
           />
         </ModalContainer>
       )}
-      {saveResponse && (
+      {endGameResponseErrors && (
         <ModalContainer
           title={'Error saving game'}
           isOpen={isOpen}
           onClose={onClose}
         >
           <div>
-            {saveResponse.map((error, index) => {
+            {endGameResponseErrors.map((error, index) => {
               return <div key={index}>{error}</div>;
             })}
           </div>

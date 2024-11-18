@@ -7,9 +7,11 @@ import {
   useGetCheddarBaseBalance,
   useGetCheddarBaseTotalSupply,
   useGetCheddarNearTotalSupply,
+  useGetCheddarNFTs,
   useIsHolonymVerfified,
   useIsNadabotVerfified,
 } from '@/hooks/cheddar';
+import { NFT } from '@/contracts/nftCheddarContract';
 
 export type Blockchain = 'base' | 'near';
 
@@ -34,12 +36,18 @@ interface GlobalContextProps {
   toggleCollapsableNavbar: () => void;
   collapsableNavbarActivated: boolean;
   setCollapsableNavbarActivated: React.Dispatch<React.SetStateAction<boolean>>;
+  cheddarNFTsData: NFT[] | null | undefined;
+  isLoadingCheddarNFTs: boolean;
 }
 
 const GlobalContext = React.createContext({} as GlobalContextProps);
 
 export const GlobalContextProvider: any = ({ children }: any) => {
   const [blockchain, setBlockchain] = useState<Blockchain>('base');
+
+  const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
+    useGetCheddarNFTs();
+
   const { accountId: nearAddress, selector, modal } = useWalletSelector();
   const { address: evmAddress, isConnected: isBaseConnected } = useAccount();
   const [collapsableNavbarActivated, setCollapsableNavbarActivated] =
@@ -167,6 +175,8 @@ export const GlobalContextProvider: any = ({ children }: any) => {
         toggleCollapsableNavbar,
         collapsableNavbarActivated,
         setCollapsableNavbarActivated,
+        cheddarNFTsData,
+        isLoadingCheddarNFTs,
       }}
     >
       {children}

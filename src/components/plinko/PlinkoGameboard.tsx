@@ -50,7 +50,7 @@ export function PlinkoBoard() {
   const [clientHeight, setClientHeight] = useState<number>(
     INITIAL_CLIENT_HEIGHT
   );
-  const [saveResponse, setSaveResponse] = useState<string[] | undefined>();
+  const [endGameResponseErrors, setEndGameResponseErrors] = useState<string[] | undefined>();
   const [endGameResponse, setEndGameResponse] = useState<undefined | any>();
   const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
   const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
@@ -209,7 +209,7 @@ export function PlinkoBoard() {
       setGameOverMessage(`Your ball fell in ${prizeNames[0]} goal`);
       const endGameResponse = await callEndGame(endGameRequestData);
       setEndGameResponse(endGameResponse);
-      if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+      if (!endGameResponse.ok) setEndGameResponseErrors(endGameResponse.errors);
     }
   }
 
@@ -508,14 +508,14 @@ export function PlinkoBoard() {
           +{prize} {RenderCheddarIcon({ height: '2rem', width: '2rem' })}
         </span>
       </div>
-      {saveResponse && (
+      {endGameResponseErrors && (
         <ModalContainer
           title={'Error saving plinko game'}
           isOpen={isOpen}
           onClose={onClose}
         >
           <div>
-            {saveResponse.map((error, index) => {
+            {endGameResponseErrors.map((error, index) => {
               return <div key={index}>{error}</div>;
             })}
           </div>

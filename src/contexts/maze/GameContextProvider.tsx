@@ -165,14 +165,14 @@ interface GameContextProps {
   cheddarFound: number;
   setCheddarFound: React.Dispatch<React.SetStateAction<number>>;
 
-  saveResponse: string[] | undefined;
+  endGameResponseErrors: string[] | undefined;
   hasWon: undefined | boolean;
   pendingCheddarToMint: number;
   earnedButNotMintedCheddar: number;
   endGameResponse: any;
   totalMintedCheddarToDate: number;
 
-  nfts: NFT[];
+  nfts: NFT[] | null | undefined;
 
   showMovementButtons: boolean;
   setShowMovementButtons: React.Dispatch<React.SetStateAction<boolean>>;
@@ -246,8 +246,6 @@ export const GameContextProvider = ({ children }: props) => {
   const storedGameInfoParsed =
     storedGameInfo.current &&
     (JSON.parse(storedGameInfo.current) as StoredGameInfo | null);
-
-  const { accountId, selector } = useWalletSelector();
 
   const [timeLimitInSeconds, setTimeLimitInSeconds] = useState(120);
   const [startTimestamp, setStartTimestamp] = useState<number | null>(
@@ -350,7 +348,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [rng, setRng] = useState(new RNG(0));
 
-  const [saveResponse, setSaveResponse] = useState();
+  const [endGameResponseErrors, setEndGameResponseErrors] = useState();
   const [endGameResponse, setEndGameResponse] = useState();
 
   const [showMovementButtons, setShowMovementButtons] = useState(true);
@@ -490,30 +488,18 @@ export const GameContextProvider = ({ children }: props) => {
     };
   }, []);
 
-  const [nfts, setNFTs] = useState<NFT[]>([]);
-  const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
-    useGetCheddarNFTs();
-
-  const { data: isUserNadabotVerfied } = useIsNadabotVerfified(accountId);
-
-  const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
-
   const {
     blockchain,
     selectedBlockchainAddress,
+    addresses,
     setCollapsableNavbarActivated,
     setBlockchain,
+    cheddarNFTsData,
   } = useGlobalContext();
 
-  useEffect(() => {
-    if (accountId) {
-      getNFTs(accountId).then((nfts) => {
-        setNFTs(nfts);
-      });
-    } else {
-      setNFTs([]);
-    }
-  }, [accountId]);
+  const { data: isUserNadabotVerfied } = useIsNadabotVerfified(addresses.near);
+
+  const { data: isUserHolonymVerified } = useIsHolonymVerfified(addresses.near);
 
   // Function to select a random color set, background image, and rarity
   const selectRandomColorSet = () => {
@@ -578,7 +564,7 @@ export const GameContextProvider = ({ children }: props) => {
     setGameOverMessage('');
     setDirection('right');
     setCoveredCells([]);
-    setSaveResponse(undefined);
+    setEndGameResponseErrors(undefined);
     setEndGameResponse(undefined);
     setCellsWithItemAmount(0);
     setRenderBoard(!renderBoard);
@@ -749,7 +735,7 @@ export const GameContextProvider = ({ children }: props) => {
       savedGameParsed.startTimestamp
     );
     if (
-      savedGameParsed.accountId !== accountId ||
+      savedGameParsed.accountId !== selectedBlockchainAddress ||
       remainingTimeWithStoredData <= 0
     ) {
       restartMaze();
@@ -821,7 +807,7 @@ export const GameContextProvider = ({ children }: props) => {
     newMazeData[playerPosition.y][playerPosition.x].isActive = false;
 
     // Update player position state
-    const newPlayerPosition = { x: newX, y: newY }
+    const newPlayerPosition = { x: newX, y: newY };
     setPlayerPosition(newPlayerPosition);
 
     // Update mazeData state
@@ -858,7 +844,7 @@ export const GameContextProvider = ({ children }: props) => {
       seedId,
       hasFoundPlinko,
       moves,
-      accountId,
+      accountId: selectedBlockchainAddress,
       timestampStartStopTimerArray,
       timestampEndStopTimerArray,
       blockchain,
@@ -891,7 +877,7 @@ export const GameContextProvider = ({ children }: props) => {
     clonedMazeData: MazeTileData[][],
     x: number,
     y: number,
-    forceRefreshMazeData?: boolean,
+    forceRefreshMazeData?: boolean
   ) {
     // 30% chance of encountering an enemy
     // Code for adding enemy artifact...
@@ -920,7 +906,7 @@ export const GameContextProvider = ({ children }: props) => {
       );
     }
 
-    if(forceRefreshMazeData) {
+    if (forceRefreshMazeData) {
       setMazeData(clonedMazeData);
     }
   }
@@ -1025,14 +1011,14 @@ export const GameContextProvider = ({ children }: props) => {
   const NFTExitBuffMultiplier = 10;
 
   function getChancesOfFindingCheese() {
-    if (nfts.length > 0) {
+    if (cheddarNFTsData && cheddarNFTsData.length > 0) {
       return chancesOfFinding.cheese * NFTCheeseBuffMultiplier;
     }
     return chancesOfFinding.cheese;
   }
 
   function getChancesOfFindingExit() {
-    if (nfts.length > 0) {
+    if (cheddarNFTsData && cheddarNFTsData.length > 0) {
       return chancesOfFinding.exit * NFTExitBuffMultiplier;
     }
     return chancesOfFinding.exit;
@@ -1112,13 +1098,13 @@ export const GameContextProvider = ({ children }: props) => {
       localStorage.removeItem('referrer_account');
     }
 
-    const storedGame2 = localStorage.getItem(localStorageSavedGameKey);
-
     if (gameOverRefSent.current) {
       return;
     }
 
     gameOverRefSent.current = true;
+
+    const numericCoveredCells = coveredCells.map((cell) => Number(cell));
 
     const cheddarToEarn =
       cheddarFound <= pendingCheddarToMint
@@ -1129,11 +1115,11 @@ export const GameContextProvider = ({ children }: props) => {
       data: {
         cheddarEarned: won ? cheddarToEarn : 0,
         score,
-        path: [],
+        path: numericCoveredCells,
       },
       metadata: {
         blockchain,
-        accountId,
+        accountId: selectedBlockchainAddress,
         seedId,
         referralAccount,
       },
@@ -1152,12 +1138,11 @@ export const GameContextProvider = ({ children }: props) => {
     setCollapsableNavbarActivated(false);
 
     const endGameResponse = await callEndGame(endGameRequestData).catch(
-      (error) => setSaveResponse(error)
+      (error) => setEndGameResponseErrors(error.message.split('|||'))
     );
     await refetchEarnedButNotMintedCheddar();
     await refetchEarnedAndMintedCheddar();
     setEndGameResponse(endGameResponse);
-    if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
   }
 
   function calculateRemainingTime(
@@ -1550,11 +1535,11 @@ export const GameContextProvider = ({ children }: props) => {
         handleOnMouseUp,
         cheddarFound,
         setCheddarFound,
-        saveResponse,
+        endGameResponseErrors,
         hasWon,
         pendingCheddarToMint,
         endGameResponse,
-        nfts,
+        nfts: cheddarNFTsData,
         showMovementButtons,
         setShowMovementButtons,
         timestampStartStopTimerArray,
