@@ -8,7 +8,7 @@ import React, {
   useRef,
 } from 'react';
 
-import { callEndGame, getSeedId } from '@/queries/maze/api';
+import { callEndGame, EndGameRequest, getSeedId } from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
@@ -222,6 +222,7 @@ interface StoredGameInfo {
   timestampEndStopTimerArray: number[];
   blockchain: Blockchain;
   rngState: number;
+  playerPath: Coordinates[];
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -331,6 +332,7 @@ export const GameContextProvider = ({ children }: props) => {
     // getDefaultOrStoredValue('coveredCells', false)
     []
   );
+  const [playerPath, setPlayerPath] = useState<Coordinates[]>([]);
   const [cellsWithItemAmount, setCellsWithItemAmount] = useState<number>(
     // getDefaultOrStoredValue('cellsWithItemAmount', false)
     0
@@ -764,6 +766,7 @@ export const GameContextProvider = ({ children }: props) => {
     setRng(new RNG(savedGameParsed.rngState));
     setLastCellX(savedGameParsed.playerPosition.x);
     setLastCellY(savedGameParsed.playerPosition.y);
+    setPlayerPath(savedGameParsed.playerPath);
 
     setMazeData(savedGameParsed.mazeData);
 
@@ -821,6 +824,10 @@ export const GameContextProvider = ({ children }: props) => {
       setCoveredCells(newCoveredCells);
     }
 
+    const newPlayerPath = [...playerPath, newPlayerPosition];
+
+    setPlayerPath(newPlayerPath);
+
     // Set lastCellX and lastCellY to the new player position
     // Update last cell coordinates
     setLastCellX(playerPosition.x);
@@ -849,6 +856,7 @@ export const GameContextProvider = ({ children }: props) => {
       timestampEndStopTimerArray,
       blockchain,
       rngState: rng.state,
+      playerPath: newPlayerPath,
     };
 
     localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
@@ -1104,18 +1112,16 @@ export const GameContextProvider = ({ children }: props) => {
 
     gameOverRefSent.current = true;
 
-    const numericCoveredCells = coveredCells.map((cell) => Number(cell));
-
     const cheddarToEarn =
       cheddarFound <= pendingCheddarToMint
         ? cheddarFound
         : pendingCheddarToMint;
 
-    const endGameRequestData = {
+    const endGameRequestData: EndGameRequest = {
       data: {
         cheddarEarned: won ? cheddarToEarn : 0,
         score,
-        path: numericCoveredCells,
+        path: playerPath,
       },
       metadata: {
         blockchain,
@@ -1144,6 +1150,10 @@ export const GameContextProvider = ({ children }: props) => {
     await refetchEarnedAndMintedCheddar();
     setEndGameResponse(endGameResponse);
   }
+
+  useEffect(() => {
+    console.log('coveredCellsCoordenates: ', playerPath);
+  }, [playerPath]);
 
   function calculateRemainingTime(
     propsTimestampStartStopTimerArray?: number[],
