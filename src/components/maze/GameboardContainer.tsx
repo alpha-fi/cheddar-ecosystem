@@ -28,7 +28,7 @@ import {
 } from 'react';
 
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { ModalBuyNFT } from '../ModalBuyNFT';
+import { ModalBuy } from '../ModalBuy';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ModalContainer } from '../ModalContainer';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
@@ -133,9 +133,9 @@ export function GameboardContainer({
   } = useDisclosure();
 
   const {
-    isOpen: isOpenBuyNFTPanel,
-    onOpen: onOpenBuyNFTPanel,
-    onClose: onCloseBuyNFTPanel,
+    isOpen: isOpenBuyPanel,
+    onOpen: onOpenBuyPanel,
+    onClose: onCloseBuyPanel,
   } = useDisclosure();
 
   const { showSelectWalletModal } = useWalletSelector();
@@ -188,9 +188,7 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return addresses['near']
-      ? onOpenBuyNFTPanel()
-      : showSelectWalletModal(true); ///TODO: check if buy is only with near
+    return addresses['near'] ? onOpenBuyPanel() : showSelectWalletModal(true); ///TODO: check if buy is only with near
   }
 
   function focusMazeAndStartGame() {
@@ -480,7 +478,7 @@ export function GameboardContainer({
               <Button
                 px={{ base: 2, md: 3 }}
                 colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
-                onClick={handleBuyClick}
+                onClick={onOpenBuyPanel}
               >
                 {getPowerUpBtnText()}
               </Button>
@@ -578,7 +576,11 @@ export function GameboardContainer({
           </Show>
         )}
       </div>
-      <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
+      <ModalBuy
+        onClose={onCloseBuyPanel}
+        isOpen={isOpenBuyPanel}
+        handleBuyClick={handleBuyClick}
+      />
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer

@@ -1,47 +1,48 @@
+import { getConfig } from '@/configs/config';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { yton } from '@/contracts/contractUtils';
+import { useGetCheddarNFTPrice } from '@/hooks/cheddar';
 import {
   FormControl,
   FormLabel,
   Button,
-  useToast,
   Image,
   VStack,
   Text,
-  Stack,
   Switch,
+  useToast,
 } from '@chakra-ui/react';
-import { ModalContainer } from './ModalContainer';
-import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { RadioButtonBroup } from './maze/RadioButtonGroup';
 import { useEffect, useState } from 'react';
 import { RenderCheddarIcon } from './maze/RenderCheddarIcon';
 import { RenderNearIcon } from './maze/RenderNearIcon';
-import { buyNFT } from '@/contracts/cheddarCalls';
 
 import styles from '@/styles/BuyNFTSection.module.css';
-import { useGetCheddarNFTPrice } from '@/hooks/cheddar';
-import { yton } from '@/contracts/contractUtils';
+
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
+import { buyNFT } from '@/contracts/cheddarCalls';
 import { MintNFTLastResult } from '@/entities/interfaces';
-import { getConfig } from '@/configs/config';
 
 interface Props {
-  onClose: () => void;
   isOpen: boolean;
 }
 
-export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
+export const BuyNFTTab = ({ isOpen }: Props) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { selector } = useWalletSelector();
+
   const { nftImageBaseUrl } = getConfig().networkData;
   const [nftId, setNftId] = useState('');
   const [showNftImage, setShowNftImage] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const { selector } = useWalletSelector();
+
+  const toast = useToast();
+
   const {
     data: cheddarNftPriceInCheddar,
     isLoading: isNftPriceInCheddarLoading,
   } = useGetCheddarNFTPrice(true);
   const { data: cheddarNftPriceInNear, isLoading: isNftPriceInNearLoading } =
     useGetCheddarNFTPrice(false);
-  const toast = useToast();
 
   //The first option is the default one
   const payingOptions = [
@@ -64,8 +65,6 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
   const [tokenToPayWith, setTokenToPayWith] = useState(payingOptions[0].name);
   const [errorMsg, setErrorMsg] = useState(undefined as undefined | string);
 
-  const modalTitle = errorMsg ? 'Something went wrong' : 'Success';
-
   function handleTogglePayOption() {
     if (tokenToPayWith === payingOptions[0].name) {
       setTokenToPayWith(payingOptions[1].name);
@@ -74,10 +73,11 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
     }
   }
 
-  async function handleBuy() {
+  async function handleBuyNFT() {
     try {
       setIsLoading(true);
       const wallet = await selector.wallet();
+
       const withCheddar = tokenToPayWith === 'Cheddar';
       const amount = withCheddar
         ? cheddarNftPriceInCheddar
@@ -117,7 +117,7 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
   }, [isOpen]);
 
   return (
-    <ModalContainer title="Buy Cheddar NFT" onClose={onClose} isOpen={isOpen}>
+    <>
       {nftId ? (
         <VStack>
           <Text>NFT Minted Succesfully!</Text>
@@ -160,13 +160,13 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
           </FormLabel>
           <Button
             colorScheme="yellow"
-            onClick={handleBuy}
+            onClick={handleBuyNFT}
             isLoading={isLoading}
           >
             Purchase
           </Button>
         </form>
       )}
-    </ModalContainer>
+    </>
   );
 };
