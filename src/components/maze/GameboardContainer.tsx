@@ -377,7 +377,7 @@ export function GameboardContainer({
   function getGameInfoClases(subtitle: string) {
     return `${styles[subtitle]} ${styles.subtitle}`;
   }
-  
+
   function toggleViewNftModal() {
     setViewNFTModal(!isViewNFTModalOpen);
   }

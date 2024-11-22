@@ -18,7 +18,10 @@ import { RenderNearIcon } from './maze/RenderNearIcon';
 import { buyNFT } from '@/contracts/cheddarCalls';
 
 import styles from '@/styles/BuyNFTSection.module.css';
-import { useGetCheddarNFTPrice, useGetNFTCheddarBalance } from '@/hooks/cheddar';
+import {
+  useGetCheddarNFTPrice,
+  useGetNFTCheddarBalance,
+} from '@/hooks/cheddar';
 import { yton } from '@/contracts/contractUtils';
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
 import { MintNFTLastResult } from '@/entities/interfaces';
@@ -41,17 +44,20 @@ export const ModalBuyNFT = ({ isOpen, onClose }: Props) => {
   } = useGetCheddarNFTPrice(true);
   const { data: cheddarNftPriceInNear, isLoading: isNftPriceInNearLoading } =
     useGetCheddarNFTPrice(false);
-  const { data: nftCheddarBalance, isLoading: isLoadingNftCheddarBalance } = useGetNFTCheddarBalance()
+  const { data: nftCheddarBalance, isLoading: isLoadingNftCheddarBalance } =
+    useGetNFTCheddarBalance();
 
   const nftRemainingCheddarToPay = useMemo(() => {
-    if(cheddarNftPriceInCheddar && nftCheddarBalance){
-      if(BigInt(cheddarNftPriceInCheddar) > BigInt(nftCheddarBalance)){
-        return (BigInt(cheddarNftPriceInCheddar) - BigInt(nftCheddarBalance)).toString()
+    if (cheddarNftPriceInCheddar && nftCheddarBalance) {
+      if (BigInt(cheddarNftPriceInCheddar) > BigInt(nftCheddarBalance)) {
+        return (
+          BigInt(cheddarNftPriceInCheddar) - BigInt(nftCheddarBalance)
+        ).toString();
       }
-      return "0"
+      return '0';
     }
-  }, [cheddarNftPriceInCheddar,nftCheddarBalance])
-  
+  }, [cheddarNftPriceInCheddar, nftCheddarBalance]);
+
   const toast = useToast();
 
   //The first option is the default one

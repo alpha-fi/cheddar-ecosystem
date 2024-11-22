@@ -23,8 +23,10 @@ export const getCheddarBalance = async (accountId: string): Promise<bigint> => {
   }).then(BigInt);
 };
 
-export const getNFTCheddarBalance = async (accountId: string): Promise<NFT[]> => {
-  return view(cheddarNft, "balance_of", {
+export const getNFTCheddarBalance = async (
+  accountId: string
+): Promise<NFT[]> => {
+  return view(cheddarNft, 'balance_of', {
     account_id: accountId,
   });
 };
@@ -59,10 +61,10 @@ export const buyNFT = async (
   amount: string
 ): Promise<any> => {
   const tokenCheddarContractId = getConfig().contracts.near.cheddarToken;
-  const accounts = await wallet.getAccounts()
+  const accounts = await wallet.getAccounts();
   const signerId = accounts[0].accountId;
   if (withCheddar) {
-    const transactions: Transaction[] = []
+    const transactions: Transaction[] = [];
     if (BigInt(amount) > BigInt(0)) {
       // Push cheddar transfer transaction
       transactions.push({
@@ -83,7 +85,7 @@ export const buyNFT = async (
             },
           },
         ],
-      },)
+      });
     }
     // Push mint NFT transaction
     transactions.push({
@@ -100,26 +102,25 @@ export const buyNFT = async (
           },
         },
       ],
-    },
-    )
-    return wallet.signAndSendTransactions({
-      transactions
     });
-} else {
-  return wallet.signAndSendTransaction({
-    receiverId: cheddarNft,
-    actions: [
-      {
-        type: 'FunctionCall',
-        params: {
-          methodName: 'nft_mint_one',
-          args: { with_cheddar: false },
-          gas: '300' + '0'.repeat(12),
-          deposit: amount,
+    return wallet.signAndSendTransactions({
+      transactions,
+    });
+  } else {
+    return wallet.signAndSendTransaction({
+      receiverId: cheddarNft,
+      actions: [
+        {
+          type: 'FunctionCall',
+          params: {
+            methodName: 'nft_mint_one',
+            args: { with_cheddar: false },
+            gas: '300' + '0'.repeat(12),
+            deposit: amount,
+          },
         },
-      },
-    ],
-  });
+      ],
+    });
   }
 };
 
