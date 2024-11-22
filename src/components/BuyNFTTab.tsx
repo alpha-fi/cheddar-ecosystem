@@ -150,12 +150,12 @@ export const BuyNFTTab = ({ isOpen }: Props) => {
             {payingOptions.map((option, index) => {
               if (option.name === tokenToPayWith) {
                 return (
-                  <div key={index}>
+                  <div key={`payingOption-${index}`}>
                     {`Cost: ${option.price}`} {option.icon}
                   </div>
                 );
               }
-              return <></>;
+              return <div key={`payingOption-${index}`}></div>;
             })}
           </FormLabel>
           <Button

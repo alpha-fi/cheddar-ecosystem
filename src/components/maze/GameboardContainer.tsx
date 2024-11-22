@@ -474,15 +474,14 @@ export function GameboardContainer({
                 </MenuList>
               </Menu>
             )}
-            <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
-              <Button
-                px={{ base: 2, md: 3 }}
-                colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
-                onClick={onOpenBuyPanel}
-              >
-                {getPowerUpBtnText()}
-              </Button>
-            </Tooltip>
+
+            <Button
+              px={{ base: 2, md: 3 }}
+              colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
+              onClick={onOpenBuyPanel}
+            >
+              {getPowerUpBtnText()}
+            </Button>
           </div>
           <Show below="lg">
             <Button
