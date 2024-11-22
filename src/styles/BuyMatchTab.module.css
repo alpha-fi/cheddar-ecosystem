@@ -46,3 +46,8 @@
 .totalPrizeInput {
   margin-right: 1rem;
 }
+
+.purchaseButton {
+  margin-top: 1rem;
+  width: 100%;
+}

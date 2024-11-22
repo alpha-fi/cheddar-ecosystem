@@ -1,6 +1,7 @@
 import styles from '@/styles/BuyMatchTab.module.css';
 
 import {
+  Button,
   Flex,
   Input,
   NumberDecrementStepper,
@@ -27,6 +28,8 @@ export const BuyMatchTab = ({}: Props) => {
     Math.round((options[0].amount + options[1].amount) / 2)
   );
 
+  const [isLoading, setIsLoading] = useState(false);
+
   function getOptionStyles(index: number) {
     return `${styles.option} ${index !== 0 && styles.borderLeft}`;
   }
@@ -38,6 +41,10 @@ export const BuyMatchTab = ({}: Props) => {
       .find((o) => amountToBuy >= o.amount);
 
     return `Total prize: ${option ? amountToBuy * option.value : 0}`;
+  }
+
+  function handleBuyMatchs() {
+    setIsLoading(true);
   }
 
   return (
@@ -96,6 +103,14 @@ export const BuyMatchTab = ({}: Props) => {
         <Input value={getTotalPrize()} className={styles.totalPrizeInput} />
         <RenderCheddarIcon />
       </Flex>
+      <Button
+        className={styles.purchaseButton}
+        colorScheme="yellow"
+        onClick={handleBuyMatchs}
+        isLoading={isLoading}
+      >
+        Purchase
+      </Button>
     </div>
   );
 };
