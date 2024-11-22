@@ -62,14 +62,20 @@ export const BuyMatchTab = ({}: Props) => {
           <span className={styles.discountsTitle}>
             Discounts for buying more games!
           </span>
-          <span>
-            +10 games = 13.5{' '}
-            <RenderCheddarIcon className={styles.cheddarIcon} /> each
-          </span>
-          <span>
-            +25 games = 12 <RenderCheddarIcon className={styles.cheddarIcon} />{' '}
-            each
-          </span>
+          {options.map((option, index) => {
+            if (index > 0) {
+              return (
+                <>
+                  <span>
+                    + {option.amount} games = {option.value}{' '}
+                    <RenderCheddarIcon className={styles.cheddarIcon} /> each
+                  </span>
+                </>
+              );
+            } else {
+              return <></>;
+            }
+          })}
         </Flex>
       </Flex>
       <Flex className={styles.selectAmountContainer}>
