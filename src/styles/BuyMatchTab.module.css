@@ -1,0 +1,48 @@
+.generalContainer {
+  padding: 1rem;
+  background-color: #ffd262;
+  border-radius: 10px;
+}
+.discountsTitle {
+  font-weight: bolder;
+  margin-bottom: 1rem;
+}
+
+.cheddarIcon {
+  background-color: white;
+  border-radius: 100%;
+  padding: 1.5px;
+}
+
+.selectAmountContainer {
+  margin-top: 1rem;
+  justify-content: space-around;
+}
+
+.amountOptionsSelector {
+  border: 2px solid black;
+  border-radius: 10px;
+  width: 50%;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+}
+
+.option {
+  margin: 0 auto;
+  width: 100%;
+  text-align: center;
+}
+
+.borderLeft {
+    border-left: 1px solid black;
+}
+
+.totalPrizeContainer {
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.totalPrizeInput {
+  margin-right: 1rem;
+}

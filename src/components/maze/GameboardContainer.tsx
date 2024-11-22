@@ -101,7 +101,8 @@ export function GameboardContainer({
     selectedColorSet,
   } = useContext(GameContext);
 
-  const { addresses, isConnected, showConnectionModal } = useGlobalContext();
+  const { addresses, isConnected, showConnectionModal, blockchain } =
+    useGlobalContext();
 
   const gameboardRef = useRef<HTMLDivElement>(null);
   const {
@@ -475,13 +476,15 @@ export function GameboardContainer({
               </Menu>
             )}
 
-            <Button
-              px={{ base: 2, md: 3 }}
-              colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
-              onClick={onOpenBuyPanel}
-            >
-              {getPowerUpBtnText()}
-            </Button>
+            {blockchain === 'near' && (
+              <Button
+                px={{ base: 2, md: 3 }}
+                colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
+                onClick={onOpenBuyPanel}
+              >
+                {getPowerUpBtnText()}
+              </Button>
+            )}
           </div>
           <Show below="lg">
             <Button

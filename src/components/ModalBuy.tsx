@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { useGlobalContext } from '@/contexts/GlobalContext';
+import { BuyMatchTab } from './BuyMatchTab';
 
 interface Props {
   onClose: () => void;
@@ -59,7 +60,7 @@ export const ModalBuy = ({ isOpen, onClose, handleBuyClick }: Props) => {
     {
       tabName: 'buyMatch',
       title: 'Buy maze match',
-      JSX: <></>,
+      JSX: <BuyMatchTab />,
     },
     {
       tabName: 'buyNFT',
@@ -79,11 +80,6 @@ export const ModalBuy = ({ isOpen, onClose, handleBuyClick }: Props) => {
           _disabled: { color: 'black', backgroundColor: '#555' },
         }}
         key={`buy-tab-title-${index}`}
-        isDisabled={
-          blockchain !== 'near' &&
-          typeof addresses['near'] === 'string' &&
-          tab.tabName === 'buyNFT'
-        }
       >
         {tab.title}
       </Tab>
@@ -95,15 +91,8 @@ export const ModalBuy = ({ isOpen, onClose, handleBuyClick }: Props) => {
       <Tabs variant={v}>
         <TabList sx={{ borderColor: '#f9ba37' }}>
           {tabsData.map((tab, index) =>
-            typeof addresses['near'] === 'string' &&
             tab.tabName === 'buyNFT' ? (
-              <Tooltip
-                label={
-                  blockchain !== 'near'
-                    ? 'Must be in NEAR blockchain to buy'
-                    : 'Cheddy PowerUp boosts 🧀 and wins'
-                }
-              >
+              <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
                 {/* This div tag must exist so the tooltip get shown */}
                 <div>
                   <CustomTab tab={tab} index={index} />
@@ -115,7 +104,9 @@ export const ModalBuy = ({ isOpen, onClose, handleBuyClick }: Props) => {
           )}
         </TabList>
 
-        <TabPanels>
+        <TabPanels
+          sx={{ backgroundColor: '#9d67ef', borderRadius: '0px 0px 10px 10px' }}
+        >
           {tabsData.map((tab, index) => (
             <TabPanel key={`buy-tab-content-${index}`}>{tab.JSX}</TabPanel>
           ))}
