@@ -8,6 +8,7 @@ import {
   getScoreBoard,
   getEarnedButNotMinted,
   getEarnedAndMinted,
+  getMatchsLeft,
 } from '@/queries/maze/api';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
@@ -21,6 +22,14 @@ export interface ScoreboardResponse {
     daily: PlayerScoreData[];
     weekly: PlayerScoreData[];
     allTime: PlayerScoreData[];
+  };
+}
+
+export interface MatchAmountResponse {
+  ok: boolean;
+  total: {
+    freeMatches: number;
+    payedMatches: number;
   };
 }
 
@@ -88,5 +97,19 @@ export const useGetEarnedAndMintedCheddar = (): UseQueryResult<number> => {
         : null,
     refetchInterval: false,
     staleTime: Infinity,
+  });
+};
+
+export const useGetMatchsLeft = (): UseQueryResult<MatchAmountResponse> => {
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext();
+
+  return useQuery({
+    queryKey: ['useGetMatchsLeft', selectedBlockchainAddress],
+    queryFn: () =>
+      selectedBlockchainAddress
+        ? getMatchsLeft(selectedBlockchainAddress, blockchain)
+        : null,
+    refetchInterval: 10000,
+    staleTime: 10000,
   });
 };

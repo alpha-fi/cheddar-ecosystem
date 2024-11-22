@@ -12,9 +12,11 @@ import { callEndGame, getSeedId } from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
+  MatchAmountResponse,
   ScoreboardResponse,
   useGetEarnedAndMintedCheddar,
   useGetEarnedButNotMintedCheddar,
+  useGetMatchsLeft,
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
@@ -198,6 +200,8 @@ interface GameContextProps {
 
   isUserNadabotVerfied: boolean | undefined;
   isUserHolonymVerified: boolean | undefined;
+
+  matchsLeftAmount: MatchAmountResponse | undefined;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -355,6 +359,12 @@ export const GameContextProvider = ({ children }: props) => {
     refetch: refetchEarnedAndMintedCheddar,
     error: mintedCheddarError,
   } = useGetEarnedAndMintedCheddar();
+
+  const {
+    data: matchsLeftAmount,
+    refetch: refetchGetMatchsLeftAmount,
+    error: matchsLeftsError,
+  } = useGetMatchsLeft();
 
   useEffect(() => {
     if (mintedCheddarError) {
@@ -1347,6 +1357,7 @@ export const GameContextProvider = ({ children }: props) => {
         isUserHolonymVerified,
         earnedButNotMintedCheddar,
         totalMintedCheddarToDate,
+        matchsLeftAmount,
       }}
     >
       {children}
