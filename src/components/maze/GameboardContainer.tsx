@@ -99,6 +99,7 @@ export function GameboardContainer({
     isUserHolonymVerified,
     totalMintedCheddarToDate,
     selectedColorSet,
+    matchsLeftAmount,
   } = useContext(GameContext);
 
   const { addresses, isConnected, showConnectionModal, blockchain } =
@@ -193,9 +194,17 @@ export function GameboardContainer({
   }
 
   function focusMazeAndStartGame() {
-    setStartingGame(true);
-    gameboardRef.current?.focus();
-    restartGame();
+    if (
+      matchsLeftAmount &&
+      matchsLeftAmount.total.freeMatches + matchsLeftAmount.total.payedMatches >
+        0
+    ) {
+      setStartingGame(true);
+      gameboardRef.current?.focus();
+      restartGame();
+    } else {
+      onOpenBuyPanel();
+    }
   }
 
   function getStartGameButtonHandler() {

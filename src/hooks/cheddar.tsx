@@ -1,6 +1,7 @@
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import {
   getCheddarBalance,
+  getCheddarMazeMatchBuyPrice,
   getCheddarMetadata,
   getCheddarNFTBuyPrice,
   getNFTs,
@@ -60,6 +61,17 @@ export const useGetCheddarNFTPrice = (
   return useQuery<string | null>({
     queryKey: ['useGetCheddarNFTPrice', withCheddar],
     queryFn: () => getCheddarNFTBuyPrice(withCheddar),
+    refetchInterval: 10000,
+    staleTime: 10000,
+  });
+};
+
+export const useGetCheddarMazeMatchPrice = (
+  withCheddar: boolean
+): UseQueryResult<any | null> => {
+  return useQuery<any | null>({
+    queryKey: ['useGetCheddarMazeMatchPrice', withCheddar],
+    queryFn: () => getCheddarMazeMatchBuyPrice(withCheddar),
     refetchInterval: 10000,
     staleTime: 10000,
   });
