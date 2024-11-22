@@ -31,31 +31,6 @@ interface TabProps {
 }
 
 export const ModalBuy = ({ isOpen, onClose, handleBuyClick }: Props) => {
-  const variant = useRef([
-    'line',
-    'enclosed',
-    'enclosed-colored',
-    'soft-rounded',
-    'solid-rounded',
-  ]).current;
-
-  const { addresses, blockchain } = useGlobalContext();
-
-  const [vIndex, setVIndex] = useState(0);
-  const [v, setV] = useState(variant[vIndex]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (isOpen) {
-        const newVIndex = variant.length > vIndex + 1 ? vIndex + 1 : 0;
-        setVIndex(newVIndex);
-        console.log(variant[vIndex]);
-
-        setV(variant[vIndex]);
-      }
-    }, 4000);
-  }, [v, vIndex, isOpen]);
-
   const tabsData = useRef<TabData[]>([
     {
       tabName: 'buyMatch',
@@ -88,7 +63,7 @@ export const ModalBuy = ({ isOpen, onClose, handleBuyClick }: Props) => {
 
   return (
     <ModalContainer title={''} onClose={onClose} isOpen={isOpen}>
-      <Tabs variant={v}>
+      <Tabs variant={'line'}>
         <TabList sx={{ borderColor: '#f9ba37' }}>
           {tabsData.map((tab, index) =>
             tab.tabName === 'buyNFT' ? (
