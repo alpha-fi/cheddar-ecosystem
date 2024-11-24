@@ -79,6 +79,8 @@ html {
 }
 
 .playerBackgroundElementOnTop {
+  background-size: cover;
+  background-position: center;
   background-image: url('https://lh3.googleusercontent.com/d/114_RLl18MAzX035svMyvNJpE3ArfLNCF=w500');
 }
 

@@ -17,11 +17,16 @@ export interface PlayerScoreData {
 
 export const Scoreboard = () => {
   const { accountId } = useWalletSelector();
-
   const { data: scoreboardResponse, isLoading: isLoadingScoreboard } =
     useGetScoreboard();
 
   const firstLoggedUserOccurrence = useRef(-1);
+
+  const [rowAmounts, setRowAmounts] = useState({
+    daily: 4,
+    weekly: 4,
+    allTime: 4,
+  });
 
   function getRowStyles(index: number, playerScoreData: PlayerScoreData) {
     let rowStyles = `${styles.rowContainer} ${index === 0 ? '' : styles.borderTop} ${accountId === playerScoreData.accountId ? styles.userBackground : ''}`;
@@ -29,13 +34,15 @@ export const Scoreboard = () => {
     return rowStyles;
   }
 
-  const Table = ({ data }: { data: any[] | undefined }) => {
-    const [rowAmount, setRowAmount] = useState(4);
-
-    function handleIncreaseElementsToShow() {
-      setRowAmount(rowAmount + 5);
-    }
-
+  const Table = ({
+    data,
+    rowAmount,
+    onIncreaseElements,
+  }: {
+    data: any[] | undefined;
+    rowAmount: number;
+    onIncreaseElements: () => void;
+  }) => {
     return (
       <>
         <table className={styles.tableContainer}>
@@ -59,11 +66,7 @@ export const Scoreboard = () => {
                   firstLoggedUserOccurrence.current = index;
                 }
 
-                if (
-                  index > rowAmount &&
-                  firstLoggedUserOccurrence.current !== index
-                )
-                  return <></>;
+                if (index >= rowAmount) return null;
                 return (
                   <tr
                     key={`position-key-${index}`}
@@ -88,10 +91,7 @@ export const Scoreboard = () => {
         </table>
         {Array.isArray(data) && data.length > rowAmount && (
           <div className={styles.tFoot}>
-            <p
-              className={styles.showMore}
-              onClick={handleIncreaseElementsToShow}
-            >
+            <p className={styles.showMore} onClick={onIncreaseElements}>
               <PlusSquareIcon />
             </p>
           </div>
@@ -100,23 +100,17 @@ export const Scoreboard = () => {
     );
   };
 
-  interface CustomTabProps {
-    children: React.ReactNode;
-  }
-
-  const CustomTab: React.FC<CustomTabProps> = ({ children }) => {
-    return (
-      <Tab
-        _selected={{
-          color: '#ECC94B',
-          borderBottomColor: '#ECC94B',
-          fontWeight: 600,
-        }}
-      >
-        {children}
-      </Tab>
-    );
-  };
+  const CustomTab: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <Tab
+      _selected={{
+        color: '#ECC94B',
+        borderBottomColor: '#ECC94B',
+        fontWeight: 600,
+      }}
+    >
+      {children}
+    </Tab>
+  );
 
   return (
     <>
@@ -129,13 +123,34 @@ export const Scoreboard = () => {
 
         <TabPanels>
           <TabPanel>
-            <Table data={scoreboardResponse?.scoreboard.daily} />
+            <Table
+              data={scoreboardResponse?.scoreboard.daily}
+              rowAmount={rowAmounts.daily}
+              onIncreaseElements={() =>
+                setRowAmounts((prev) => ({ ...prev, daily: prev.daily + 5 }))
+              }
+            />
           </TabPanel>
           <TabPanel>
-            <Table data={scoreboardResponse?.scoreboard.weekly} />
+            <Table
+              data={scoreboardResponse?.scoreboard.weekly}
+              rowAmount={rowAmounts.weekly}
+              onIncreaseElements={() =>
+                setRowAmounts((prev) => ({ ...prev, weekly: prev.weekly + 5 }))
+              }
+            />
           </TabPanel>
           <TabPanel>
-            <Table data={scoreboardResponse?.scoreboard.allTime} />
+            <Table
+              data={scoreboardResponse?.scoreboard.allTime}
+              rowAmount={rowAmounts.allTime}
+              onIncreaseElements={() =>
+                setRowAmounts((prev) => ({
+                  ...prev,
+                  allTime: prev.allTime + 5,
+                }))
+              }
+            />
           </TabPanel>
         </TabPanels>
       </Tabs>
