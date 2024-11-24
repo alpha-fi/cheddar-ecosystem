@@ -203,7 +203,7 @@ interface GameContextProps {
     propsStartTimestamp?: number | null
   ) => number;
 
-  setDeleteSavedGameOnReload: React.Dispatch<React.SetStateAction<boolean>>
+  setDeleteSavedGameOnReload: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface StoredGameInfo {
@@ -302,19 +302,19 @@ export const GameContextProvider = ({ children }: props) => {
   const [lastCellY, setLastCellY] = useState(-1);
   const [hasPowerUp, setHasPowerUp] = useState(false);
   const [isPowerUpOn, setIsPowerUpOn] = useState(false);
-  
+
   const [remainingTime, setRemainingTime] = useState<number>(
     // getDefaultOrStoredValue('remainingTime', timeLimitInSeconds)
     timeLimitInSeconds
   );
-  
+
   const [
     loadingRemainingMinutesAndSeconds,
     setLoadingRemainingMinutesAndSeconds,
   ] = useState<boolean>(!!storedGameInfoParsed);
   const [remainingMinutes, setRemainingMinutes] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
-  
+
   const [cheeseCooldown, setCheeseCooldown] = useState<boolean>(
     // getDefaultOrStoredValue('cheeseCooldown', false)
     false
@@ -328,7 +328,7 @@ export const GameContextProvider = ({ children }: props) => {
     // getDefaultOrStoredValue('moves', 0)
     0
   );
-  
+
   const [won, setWon] = useState(false);
   const [touchStart, setTouchStart] = useState({ x: -1, y: -1 });
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
@@ -341,50 +341,50 @@ export const GameContextProvider = ({ children }: props) => {
     // getDefaultOrStoredValue('cellsWithItemAmount', false)
     0
   );
-  
+
   const [cheddarFound, setCheddarFound] = useState<number>(
     // getDefaultOrStoredValue('cheddarFound', 0)
     0
   );
-  
+
   const [seedId, setSeedId] = useState<number>(
     // getDefaultOrStoredValue('seedId', 0)
     0
   );
-  
+
   const [rng, setRng] = useState(new RNG(0));
-  
+
   const [endGameResponseErrors, setEndGameResponseErrors] = useState();
   const [endGameResponse, setEndGameResponse] = useState();
-  
+
   const [showMovementButtons, setShowMovementButtons] = useState(true);
   const [renderBoard, setRenderBoard] = useState(false); // to update board color on restart
-  
+
   const [hasFoundPlinko, setHasFoundPlinko] = useState<boolean>(
     // getDefaultOrStoredValue('seedId', false)
     false
   );
-  
+
   const [isMouseDown, setIsMouseDown] = useState(false);
-  
+
   const [lastDivId, setLastDivId] = useState('');
-  
+
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
-  
+
   const {
     isOpen: isVideoModalOpened,
     onOpen: onOpenVideoModal,
     onClose: onCloseVideoModal,
   } = useDisclosure();
-  
+
   const [mazeCols, setMazeCols] = useState(9);
   const [mazeRows, setMazeRows] = useState(10);
   const [totalCells, setTotalCells] = useState(0);
-  
+
   const [storedDataLoaded, setStoredDataLoaded] = useState(false);
   const [deleteSavedGameOnReload, setDeleteSavedGameOnReload] = useState(false);
-  
+
   function handleErrorToast(title: string) {
     toast({
       title,
@@ -400,7 +400,7 @@ export const GameContextProvider = ({ children }: props) => {
     let mdParced;
     if (stored) mdParced = JSON.parse(stored);
   }, [mazeData]);
-  
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
     const handleMediaChange = (e: any) => {

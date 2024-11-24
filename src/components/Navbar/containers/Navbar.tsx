@@ -212,7 +212,11 @@ export default function Navbar() {
           </Container>
         </Box>
       </Collapse>
-
+      {collapsableNavbar && (
+        <Hide breakpoint="(max-width: 450px)">
+          <div className={styles.publicityDecoration}></div>
+        </Hide>
+      )}
       {!isDesktop && collapsableNavbarActivated && (
         <Flex justify={'center'} h={6}>
           <Box
@@ -248,9 +252,6 @@ export default function Navbar() {
           ></video>
         </div>
       </ModalContainer>
-      <Hide breakpoint="(max-width: 450px)">
-        <div className={styles.publicityDecoration}></div>
-      </Hide>
     </>
   );
 }

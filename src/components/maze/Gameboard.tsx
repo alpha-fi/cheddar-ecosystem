@@ -13,6 +13,7 @@ import styles from '@/styles/Gameboard.module.css';
 import { IsAllowedResponse } from '@/hooks/maze';
 import { useAccount } from 'wagmi';
 import { useGlobalContext } from '@/contexts/GlobalContext';
+import clsx from 'clsx';
 
 interface Props {
   isUserLoggedIn: boolean;
@@ -89,13 +90,17 @@ export function Gameboard({
   }
 
   function getPlayerTileClasses(cell: MazeTileData) {
-    let backgroundImage;
-    if (cell.fight || cell.enemyWon || cell.hasCartel || cell.hasExit) {
-      backgroundImage = 'playerBackgroundEmpty';
-    } else {
-      backgroundImage = 'playerBackgroundElementOnTop';
-    }
-    return `${styles.mazeCell} ${styles.playerCell} ${getPlayerImgDirection()} ${backgroundImage}`;
+    const backgroundImage =
+      cell.fight || cell.enemyWon || cell.hasCartel || cell.hasExit
+        ? 'playerBackgroundEmpty'
+        : 'playerBackgroundElementOnTop';
+
+    return clsx(
+      styles.mazeCell,
+      styles.playerCell,
+      getPlayerImgDirection(),
+      backgroundImage
+    );
   }
 
   const toast = useToast();
@@ -222,8 +227,9 @@ export function Gameboard({
                 )}
 
                 {/* Player icon */}
-                {playerPosition!.x === colIndex &&
-                  playerPosition!.y === rowIndex && (
+                {playerPosition &&
+                  playerPosition.x === colIndex &&
+                  playerPosition.y === rowIndex && (
                     <div className={getPlayerTileClasses(cell)}></div>
                   )}
               </div>
