@@ -4,6 +4,9 @@ import {
   Button,
   Flex,
   Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -26,15 +29,6 @@ export const BuyMatchTab = ({}: Props) => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [firstLoad, setFirstLoad] = useState(true);
-
-  useEffect(() => {
-    if (options && firstLoad) {
-      setFirstLoad(false);
-      setAmountToBuy(Math.round((options[0].amount + options[1].amount) / 2));
-    }
-  }, [options]);
-
   function getOptionStyles(index: number) {
     return `${styles.option} ${index !== 0 && styles.borderLeft}`;
   }
@@ -49,7 +43,7 @@ export const BuyMatchTab = ({}: Props) => {
           (o: any /*Change type to propper one*/) => amountToBuy >= o.amount
         );
 
-    return `Total prize: ${option ? amountToBuy * option.value : 0}`;
+    return `${option ? (amountToBuy * option.value).toFixed(1) : 0}`;
   }
 
   function handleBuyMatchs() {
@@ -60,18 +54,9 @@ export const BuyMatchTab = ({}: Props) => {
   return (
     <div>
       <Flex className={styles.generalContainer} align={'center'}>
-        <InfoOutlineIcon
-          height={'30px'}
-          width={'30px'}
-          padding={'0.5rem'}
-          backgroundColor={'white'}
-          color={'black'}
-          borderRadius={'100%'}
-        />
-        <Flex direction={'column'} marginLeft={'1rem'} color={'black'}>
-          <span className={styles.discountsTitle}>
-            Discounts for buying more games!
-          </span>
+        <InfoOutlineIcon height={'20px'} width={'20px'} color={'white'} />
+        <Flex direction={'column'} marginLeft={'1rem'} color={'white'}>
+          <span className={styles.discountsTitle}>Game discounts!</span>
           {isOptionsLoading ? (
             <Spinner />
           ) : (
@@ -81,7 +66,7 @@ export const BuyMatchTab = ({}: Props) => {
                   <>
                     <span>
                       + {option.amount} games = {option.value}{' '}
-                      <RenderCheddarIcon className={styles.cheddarIcon} /> each
+                      <RenderCheddarIcon /> each
                     </span>
                   </>
                 );
@@ -124,8 +109,28 @@ export const BuyMatchTab = ({}: Props) => {
         </NumberInput>
       </Flex>
       <Flex className={styles.totalPrizeContainer}>
-        <Input value={getTotalPrize()} className={styles.totalPrizeInput} />
-        <RenderCheddarIcon />
+        <InputGroup className={styles.totalPrizeInput}>
+          <InputLeftElement
+            pointerEvents="none"
+            color="gray.300"
+            fontSize="1.2em"
+            width={'max-content'}
+            marginLeft={'1rem'}
+          >
+            Total price
+          </InputLeftElement>
+          <Input
+            textAlign={'end'}
+            disabled
+            _disabled={{
+              cursor: 'default',
+            }}
+            value={getTotalPrize()}
+          />
+          <InputRightElement>
+            <RenderCheddarIcon />
+          </InputRightElement>
+        </InputGroup>
       </Flex>
       <Button
         className={styles.purchaseButton}

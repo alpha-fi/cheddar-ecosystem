@@ -108,7 +108,13 @@ export const useGetMatchsLeft = (): UseQueryResult<MatchAmountResponse> => {
     queryFn: () =>
       selectedBlockchainAddress
         ? getMatchsLeft(selectedBlockchainAddress, blockchain)
-        : null,
+        : {
+            ok: true,
+            total: {
+              freeMatches: 0,
+              payedMatches: 0,
+            },
+          },
     refetchInterval: 10000,
     staleTime: 10000,
   });

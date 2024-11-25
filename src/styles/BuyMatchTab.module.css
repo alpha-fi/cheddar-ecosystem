@@ -1,6 +1,6 @@
 .generalContainer {
   padding: 1rem;
-  background-color: #ffd262;
+  background-color: #8542eb;
   border-radius: 10px;
 }
 .discountsTitle {
@@ -8,15 +8,9 @@
   margin-bottom: 1rem;
 }
 
-.cheddarIcon {
-  background-color: white;
-  border-radius: 100%;
-  padding: 1.5px;
-}
-
 .selectAmountContainer {
   margin-top: 1rem;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 
 .amountOptionsSelector {
@@ -44,7 +38,8 @@
 }
 
 .totalPrizeInput {
-  margin-right: 1rem;
+  cursor: default;
+  user-select: none;
 }
 
 .purchaseButton {

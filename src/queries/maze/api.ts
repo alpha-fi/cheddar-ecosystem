@@ -116,11 +116,13 @@ export async function getEarnedAndMinted(
 
 export function getMatchsLeft(accountId: string, blockchain: BlockchainType) {
   const matchesLeftResponse = {
+    ok: true,
     total: {
       freeMatches: 1,
       payedMatches: 1,
     },
   };
+
   return matchesLeftResponse;
 }
 

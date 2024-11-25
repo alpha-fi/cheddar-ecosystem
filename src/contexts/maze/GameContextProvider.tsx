@@ -201,7 +201,8 @@ interface GameContextProps {
   isUserNadabotVerfied: boolean | undefined;
   isUserHolonymVerified: boolean | undefined;
 
-  matchsLeftAmount: MatchAmountResponse | undefined;
+  matchesLeftAmount: MatchAmountResponse | undefined;
+  matchesLeftAmountLoading: boolean;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -361,9 +362,10 @@ export const GameContextProvider = ({ children }: props) => {
   } = useGetEarnedAndMintedCheddar();
 
   const {
-    data: matchsLeftAmount,
+    data: matchesLeftAmount,
     refetch: refetchGetMatchsLeftAmount,
-    error: matchsLeftsError,
+    error: matchesLeftsError,
+    isLoading: matchesLeftAmountLoading,
   } = useGetMatchsLeft();
 
   useEffect(() => {
@@ -1357,7 +1359,8 @@ export const GameContextProvider = ({ children }: props) => {
         isUserHolonymVerified,
         earnedButNotMintedCheddar,
         totalMintedCheddarToDate,
-        matchsLeftAmount,
+        matchesLeftAmount,
+        matchesLeftAmountLoading,
       }}
     >
       {children}

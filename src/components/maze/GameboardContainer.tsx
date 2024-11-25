@@ -7,6 +7,7 @@ import {
   Flex,
   Heading,
   Hide,
+  HStack,
   Link,
   Menu,
   MenuButton,
@@ -14,9 +15,11 @@ import {
   MenuList,
   Show,
   Spinner,
+  Text,
   Tooltip,
   useDisclosure,
   useToast,
+  VStack,
 } from '@chakra-ui/react';
 import {
   MouseEventHandler,
@@ -99,7 +102,8 @@ export function GameboardContainer({
     isUserHolonymVerified,
     totalMintedCheddarToDate,
     selectedColorSet,
-    matchsLeftAmount,
+    matchesLeftAmount,
+    matchesLeftAmountLoading,
   } = useContext(GameContext);
 
   const { addresses, isConnected, showConnectionModal, blockchain } =
@@ -195,8 +199,9 @@ export function GameboardContainer({
 
   function focusMazeAndStartGame() {
     if (
-      matchsLeftAmount &&
-      matchsLeftAmount.total.freeMatches + matchsLeftAmount.total.payedMatches >
+      matchesLeftAmount &&
+      matchesLeftAmount.total.freeMatches +
+        matchesLeftAmount.total.payedMatches >
         0
     ) {
       setStartingGame(true);
@@ -407,6 +412,24 @@ export function GameboardContainer({
       )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
       <div className={styles.gameInfo}>
+        {!matchesLeftAmountLoading &&
+        matchesLeftAmount &&
+        matchesLeftAmount.ok ? (
+          <Tooltip
+            label={
+              <VStack gap={0} alignItems={'start'}>
+                <Text>Free: {matchesLeftAmount.total.freeMatches}</Text>
+                <Text>Purchased: {matchesLeftAmount.total.payedMatches}</Text>
+              </VStack>
+            }
+          >
+            <div className={getGameInfoClases('games')}>
+              {`Games: ${matchesLeftAmount.total.freeMatches + matchesLeftAmount.total.payedMatches}`}
+            </div>
+          </Tooltip>
+        ) : (
+          <Spinner />
+        )}
         <div className={getGameInfoClases('score')}>Score: {score}</div>
         <div className={getGameInfoClases('time')}>
           Time:{' '}

@@ -1,5 +1,5 @@
 import { ModalContainer } from './ModalContainer';
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 
 import { BuyNFTTab } from './BuyNFTTab';
 import {
@@ -10,7 +10,6 @@ import {
   Tabs,
   Tooltip,
 } from '@chakra-ui/react';
-import { useGlobalContext } from '@/contexts/GlobalContext';
 import { BuyMatchTab } from './BuyMatchTab';
 
 interface Props {
@@ -34,15 +33,23 @@ export const ModalBuy = ({ isOpen, onClose, handleBuyClick }: Props) => {
   const tabsData = useRef<TabData[]>([
     {
       tabName: 'buyMatch',
-      title: 'Buy maze match',
+      title: 'Game',
       JSX: <BuyMatchTab />,
     },
     {
       tabName: 'buyNFT',
-      title: 'Buy Cheddar NFT',
+      title: 'NFT',
       JSX: <BuyNFTTab isOpen={isOpen} />,
     },
   ]).current;
+
+  const TabWithToolTip = ({ tab, index }: TabProps) => {
+    return (
+      <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
+        <CustomTab tab={tab} index={index}></CustomTab>
+      </Tooltip>
+    );
+  };
 
   const CustomTab = ({ tab, index }: TabProps) => {
     return (
@@ -53,6 +60,7 @@ export const ModalBuy = ({ isOpen, onClose, handleBuyClick }: Props) => {
           color: '#555',
           borderColor: '#f9ba37',
           _disabled: { color: 'black', backgroundColor: '#555' },
+          width: `${100 / tabsData.length}%`,
         }}
         key={`buy-tab-title-${index}`}
       >
@@ -67,12 +75,7 @@ export const ModalBuy = ({ isOpen, onClose, handleBuyClick }: Props) => {
         <TabList sx={{ borderColor: '#f9ba37' }}>
           {tabsData.map((tab, index) =>
             tab.tabName === 'buyNFT' ? (
-              <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
-                {/* This div tag must exist so the tooltip get shown */}
-                <div>
-                  <CustomTab tab={tab} index={index} />
-                </div>
-              </Tooltip>
+              <TabWithToolTip tab={tab} index={index} />
             ) : (
               <CustomTab tab={tab} index={index} />
             )
