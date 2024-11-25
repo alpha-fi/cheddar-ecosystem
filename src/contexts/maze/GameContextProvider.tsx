@@ -352,7 +352,7 @@ export const GameContextProvider = ({ children }: props) => {
     0
   );
 
-  const [rng, setRng] = useState(new RNG(0));
+  const [rng, setRng] = useState(new RNG(Date.now()));
 
   const [endGameResponseErrors, setEndGameResponseErrors] = useState();
   const [endGameResponse, setEndGameResponse] = useState();
@@ -584,7 +584,7 @@ export const GameContextProvider = ({ children }: props) => {
     gameOverRefSent.current = false;
 
     // Regenerate maze data
-    const rng = new RNG(newSeedIdResponse.seedId);
+    const rng = new RNG(Date.now());
     setRng(rng);
 
     const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
@@ -705,39 +705,68 @@ export const GameContextProvider = ({ children }: props) => {
 
     // Ensure all unreachable columns are connected
     function connectUnreachableColumns() {
-      let unreachableColumns: number[] = [];
-      for (let c = 0; c < cols; c++) {
-        let reachable = false;
-        for (let r = 0; r < rows; r++) {
-          if (maze[r][c].isPath) {
-            reachable = true;
+      const visited: boolean[][] = Array.from({ length: rows }, () =>
+        Array.from({ length: cols }, () => false)
+      );
+
+      // Helper function to perform a DFS to mark all reachable cells
+      function dfs(x: number, y: number) {
+        if (
+          x < 0 ||
+          x >= cols ||
+          y < 0 ||
+          y >= rows ||
+          visited[y][x] ||
+          !maze[y][x].isPath
+        ) {
+          return;
+        }
+        visited[y][x] = true;
+        dfs(x + 1, y);
+        dfs(x - 1, y);
+        dfs(x, y + 1);
+        dfs(x, y - 1);
+      }
+
+      // Start DFS from the starting position
+      dfs(x!, y!);
+
+      // Identify all unreachable columns
+      for (let col = 0; col < cols; col++) {
+        let columnReachable = false;
+        for (let row = 0; row < rows; row++) {
+          if (visited[row][col]) {
+            columnReachable = true;
             break;
           }
         }
-        if (!reachable) {
-          unreachableColumns.push(c);
-        }
-      }
 
-      // Actively connect unreachable columns
-      unreachableColumns.forEach((col) => {
-        const row = rng.nextRange(1, rows - 2);
-        maze[row][col].isPath = true;
+        // If the column is unreachable, connect it to a reachable cell
+        if (!columnReachable) {
+          let rowToConnect = rng.nextRange(1, rows - 2);
+          maze[rowToConnect][col].isPath = true;
 
-        // Now connect it to the nearest path
-        let connected = false;
-        for (let r = 0; r < rows; r++) {
+          // Connect this cell to the nearest path horizontally or vertically
+          let connected = false;
           for (let dx = -1; dx <= 1; dx++) {
             const nx = col + dx;
-            if (nx >= 0 && nx < cols && maze[r][nx].isPath) {
-              maze[r][col].isPath = true;
-              connected = true;
-              break;
+            if (nx >= 0 && nx < cols) {
+              for (
+                let ny = Math.max(rowToConnect - 1, 0);
+                ny <= Math.min(rowToConnect + 1, rows - 1);
+                ny++
+              ) {
+                if (maze[ny][nx].isPath) {
+                  maze[rowToConnect][nx].isPath = true;
+                  connected = true;
+                  break;
+                }
+              }
             }
+            if (connected) break;
           }
-          if (connected) break;
         }
-      });
+      }
     }
 
     connectUnreachableColumns();
@@ -747,7 +776,7 @@ export const GameContextProvider = ({ children }: props) => {
 
   function restartMaze() {
     // Generate maze data and set it to the state
-    const newMazeData = generateMazeData(mazeRows, mazeCols, new RNG(0));
+    const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
     setMazeData(newMazeData);
 
     const playerStartCell = getRandomPathCell(newMazeData);
