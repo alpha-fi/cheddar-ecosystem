@@ -198,6 +198,8 @@ interface GameContextProps {
 
   isUserNadabotVerfied: boolean | undefined;
   isUserHolonymVerified: boolean | undefined;
+
+  refetchEarnedButNotMintedCheddar: () => void;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -1379,6 +1381,7 @@ export const GameContextProvider = ({ children }: props) => {
         isUserHolonymVerified,
         earnedButNotMintedCheddar,
         totalMintedCheddarToDate,
+        refetchEarnedButNotMintedCheddar,
       }}
     >
       {children}
