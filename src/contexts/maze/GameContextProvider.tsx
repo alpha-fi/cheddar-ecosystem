@@ -227,6 +227,7 @@ export interface StoredGameInfo {
   rngState: number;
   playerPath: Coordinates[];
   selectedColorSet: number;
+  refetchEarnedButNotMintedCheddar: () => void;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -1654,6 +1655,7 @@ export const GameContextProvider = ({ children }: props) => {
         totalMintedCheddarToDate,
         calculateRemainingTime,
         setDeleteSavedGameOnReload,
+        refetchEarnedButNotMintedCheddar,
       }}
     >
       {children}

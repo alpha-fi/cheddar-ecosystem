@@ -308,7 +308,7 @@
 
 .startGameBg {
   position: absolute;
-  top: 21%;
+  top: 22.5%;
   left: 50%;
   transform: translateX(-50%);
   background-color: rgba(34, 34, 34, 0.95);
@@ -347,7 +347,7 @@
 }
 
 .notAllowedToPlayText {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   padding-inline: 10px;
 }

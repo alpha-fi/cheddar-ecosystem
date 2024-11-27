@@ -21,7 +21,7 @@ export default function ModalNotAllowedToMint({
 
   return (
     <ModalContainer
-      title={'Ups! You cannot claim'}
+      title={'Oops! You cannot claim'}
       isOpen={isOpen}
       onClose={onClose}
     >

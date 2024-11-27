@@ -33,6 +33,7 @@ export default function ModalRules({ isOpen, onClose }: Props) {
         <ListItem>Collect Cheddar🧀</ListItem>
         <ListItem>Battle Cartel to protect your Bag</ListItem>
         <ListItem>Find the Hidden Door🚪 to Win!</ListItem>
+        <ListItem>Claim every 100 Cheddar🧀 Farmed</ListItem>
       </OrderedList>
       <br />
       Next you'll need NEAR, 555 🧀
