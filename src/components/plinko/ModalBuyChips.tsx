@@ -39,7 +39,7 @@ export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
 
   const cheddarInfo = {
     name: 'Cheddar',
-    price: isChipPriceInCheddarLoading ? 'Loading' : yton(chipPriceInCheddar!),
+    price: isChipPriceInCheddarLoading ? 'Loading' : yton(chipPriceInCheddar||"0"),
     icon: <RenderCheddarIcon className={styles.tokenIcon} />,
     color: 'yellow',
   };

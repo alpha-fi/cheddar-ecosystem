@@ -2,7 +2,7 @@ import { getConfig } from '@/configs/config';
 import { view } from '../contractUtils';
 import { Wallet } from '@near-wallet-selector/core';
 
-const { plinkoMinter, cheddarToken } = getConfig().contracts;
+const { plinkoMinter, cheddarToken } = getConfig().contracts.near;
 
 const plinkoViewMethods = {
   getBallCost: 'get_ball_cost',

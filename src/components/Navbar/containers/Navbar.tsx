@@ -132,7 +132,7 @@ export default function Navbar() {
                     <Text fontSize={'16px'} fontWeight="600" color="white">
                       Checkers
                     </Text>
-                  </Link>
+                  </Link> */}
                   <Link
                     href={'/plinko'}
                     style={{ textDecorationColor: 'white' }}
@@ -141,8 +141,6 @@ export default function Navbar() {
                       Plinko
                     </Text>
                   </Link>
-                </HStack>
-                  </Link> */}
                   </HStack>
                 </Flex>
               </Flex>
