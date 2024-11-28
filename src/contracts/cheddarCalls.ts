@@ -118,19 +118,3 @@ export const getCheddarNFTBuyPrice = (
     with_cheddar: withCheddar,
   });
 };
-
-export const getCheddarMazeMatchBuyPrice = (
-  withCheddar: boolean
-): any /*Change type to propper one*/ => {
-  return [
-    { amount: 1, value: 1 },
-    { amount: 10, value: 0.8 },
-    { amount: 25, value: 0.5 },
-  ];
-  // return view(cheddarNft, 'total_cost', {
-  //   num: 1,
-  //   // If minter is contract owner, it's free. For every other account, it has the same cost, so it can be hardcoded
-  //   minter: 'b2a715c29af50e9cc789f92824bb5f76793acc0a12948644a498e8087e029010',
-  //   with_cheddar: withCheddar,
-  // });
-};

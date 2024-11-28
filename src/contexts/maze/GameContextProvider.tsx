@@ -12,13 +12,13 @@ import { callEndGame, getSeedId } from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
-  MatchAmountResponse,
   ScoreboardResponse,
   useGetEarnedAndMintedCheddar,
   useGetEarnedButNotMintedCheddar,
-  useGetMatchsLeft,
   useGetPendingCheddarToMint,
   useGetScoreboard,
+  useGetUserRemainingFreeGames,
+  useGetUserRemainingPaidGames,
 } from '@/hooks/maze';
 import { NFT } from '@/contracts/nftCheddarContract';
 import {
@@ -201,8 +201,11 @@ interface GameContextProps {
   isUserNadabotVerfied: boolean | undefined;
   isUserHolonymVerified: boolean | undefined;
 
-  matchesLeftAmount: MatchAmountResponse | undefined;
-  matchesLeftAmountLoading: boolean;
+  freeMatchesLeft: number | undefined;
+  payedMatchesLeft: number | undefined;
+
+  freeMatchesLeftLoading: boolean;
+  payedMatchesLeftLoading: boolean;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -210,6 +213,7 @@ export const GameContext = createContext<GameContextProps>(
 );
 
 export const GameContextProvider = ({ children }: props) => {
+  const { accountId, selector } = useWalletSelector();
   const gameOverRefSent = useRef(false);
   const isMobile = useRef(
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -362,11 +366,18 @@ export const GameContextProvider = ({ children }: props) => {
   } = useGetEarnedAndMintedCheddar();
 
   const {
-    data: matchesLeftAmount,
-    refetch: refetchGetMatchsLeftAmount,
-    error: matchesLeftsError,
-    isLoading: matchesLeftAmountLoading,
-  } = useGetMatchsLeft();
+    data: freeMatchesLeft,
+    refetch: refeshUseGetUserRemainingFreeGames,
+    error: freeMatchesLeftError,
+    isLoading: freeMatchesLeftLoading,
+  } = useGetUserRemainingFreeGames(accountId);
+
+  const {
+    data: payedMatchesLeft,
+    refetch: refeshUseGetUserRemainingPayedGames,
+    error: payedMatchesLeftError,
+    isLoading: payedMatchesLeftLoading,
+  } = useGetUserRemainingPaidGames(accountId);
 
   useEffect(() => {
     if (mintedCheddarError) {
@@ -406,7 +417,6 @@ export const GameContextProvider = ({ children }: props) => {
     };
   }, []);
 
-  const { accountId, selector } = useWalletSelector();
   const [nfts, setNFTs] = useState<NFT[]>([]);
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
     useGetCheddarNFTs();
@@ -1359,8 +1369,10 @@ export const GameContextProvider = ({ children }: props) => {
         isUserHolonymVerified,
         earnedButNotMintedCheddar,
         totalMintedCheddarToDate,
-        matchesLeftAmount,
-        matchesLeftAmountLoading,
+        freeMatchesLeft,
+        payedMatchesLeft,
+        freeMatchesLeftLoading,
+        payedMatchesLeftLoading,
       }}
     >
       {children}

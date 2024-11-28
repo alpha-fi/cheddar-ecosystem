@@ -102,8 +102,10 @@ export function GameboardContainer({
     isUserHolonymVerified,
     totalMintedCheddarToDate,
     selectedColorSet,
-    matchesLeftAmount,
-    matchesLeftAmountLoading,
+    freeMatchesLeft,
+    payedMatchesLeft,
+    freeMatchesLeftLoading,
+    payedMatchesLeftLoading,
   } = useContext(GameContext);
 
   const { addresses, isConnected, showConnectionModal, blockchain } =
@@ -199,10 +201,9 @@ export function GameboardContainer({
 
   function focusMazeAndStartGame() {
     if (
-      matchesLeftAmount &&
-      matchesLeftAmount.total.freeMatches +
-        matchesLeftAmount.total.payedMatches >
-        0
+      freeMatchesLeft &&
+      payedMatchesLeft &&
+      freeMatchesLeft + payedMatchesLeft > 0
     ) {
       setStartingGame(true);
       gameboardRef.current?.focus();
@@ -412,23 +413,28 @@ export function GameboardContainer({
       )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
       <div className={styles.gameInfo}>
-        {!matchesLeftAmountLoading &&
-        matchesLeftAmount &&
-        matchesLeftAmount.ok ? (
-          <Tooltip
-            label={
-              <VStack gap={0} alignItems={'start'}>
-                <Text>Free: {matchesLeftAmount.total.freeMatches}</Text>
-                <Text>Purchased: {matchesLeftAmount.total.payedMatches}</Text>
-              </VStack>
-            }
-          >
-            <div className={getGameInfoClases('games')}>
-              {`Games: ${matchesLeftAmount.total.freeMatches + matchesLeftAmount.total.payedMatches}`}
-            </div>
-          </Tooltip>
-        ) : (
-          <Spinner />
+        {blockchain === 'near' && (
+          <>
+            {!freeMatchesLeftLoading &&
+            !payedMatchesLeftLoading &&
+            typeof freeMatchesLeft === 'number' &&
+            typeof payedMatchesLeft === 'number' ? (
+              <Tooltip
+                label={
+                  <VStack gap={0} alignItems={'start'}>
+                    <Text>Free: {freeMatchesLeft}</Text>
+                    <Text>Purchased: {payedMatchesLeft}</Text>
+                  </VStack>
+                }
+              >
+                <div className={getGameInfoClases('games')}>
+                  {`Games: ${freeMatchesLeft + payedMatchesLeft}`}
+                </div>
+              </Tooltip>
+            ) : (
+              <Spinner />
+            )}
+          </>
         )}
         <div className={getGameInfoClases('score')}>Score: {score}</div>
         <div className={getGameInfoClases('time')}>

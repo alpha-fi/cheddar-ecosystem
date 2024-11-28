@@ -17,13 +17,20 @@ import {
 import { InfoOutlineIcon } from '@chakra-ui/icons';
 import { RenderCheddarIcon } from './maze/RenderCheddarIcon';
 import { useEffect, useState } from 'react';
-import { useGetCheddarMazeMatchPrice } from '@/hooks/cheddar';
+import { useGlobalContext } from '@/contexts/GlobalContext';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { useGetCheddarMazeMatchPrices } from '@/hooks/maze';
+import { yton } from '@/contracts/contractUtils';
 
 interface Props {}
 
 export const BuyMatchTab = ({}: Props) => {
   const { data: options, isLoading: isOptionsLoading } =
-    useGetCheddarMazeMatchPrice(true);
+    useGetCheddarMazeMatchPrices();
+
+  const { blockchain } = useGlobalContext();
+
+  const { selector } = useWalletSelector();
 
   const [amountToBuy, setAmountToBuy] = useState<number>(1);
 
@@ -39,16 +46,20 @@ export const BuyMatchTab = ({}: Props) => {
       options
         .slice()
         .reverse()
-        .find(
-          (o: any /*Change type to propper one*/) => amountToBuy >= o.amount
-        );
+        .find((o: any /*Change type to propper one*/) => amountToBuy >= o[0]);
 
-    return `${option ? (amountToBuy * option.value).toFixed(1) : 0}`;
+    return `${option ? (amountToBuy * yton(option[1])).toFixed(1) : 0}`;
   }
 
-  function handleBuyMatchs() {
-    //TODO add real functionallity
-    setIsLoading(true);
+  async function handleBuyMatchs() {
+    if (blockchain === 'near') {
+      try {
+        setIsLoading(true);
+        const wallet = await selector.wallet();
+        const amount = getTotalPrize();
+      } catch (err: any) {}
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -60,12 +71,13 @@ export const BuyMatchTab = ({}: Props) => {
           {isOptionsLoading ? (
             <Spinner />
           ) : (
+            options &&
             options.map((option: any, index: number) => {
               if (index > 0) {
                 return (
                   <>
                     <span>
-                      + {option.amount} games = {option.value}{' '}
+                      + {option[0]} games = {yton(option[1])}{' '}
                       <RenderCheddarIcon /> each
                     </span>
                   </>
@@ -82,14 +94,15 @@ export const BuyMatchTab = ({}: Props) => {
           {isOptionsLoading ? (
             <Spinner />
           ) : (
+            options &&
             options.map((option: any, index: number) => {
               return (
                 <span
                   key={`buy-match-option-selector-${index}`}
                   className={getOptionStyles(index)}
-                  onClick={() => setAmountToBuy(Number(option.amount))}
+                  onClick={() => setAmountToBuy(Number(option[0]))}
                 >
-                  {option.amount}
+                  {option[0]}
                 </span>
               );
             })

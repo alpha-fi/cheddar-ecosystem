@@ -2,13 +2,17 @@ import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { useGlobalContext } from '@/contexts/GlobalContext';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import {
+  getCheddarMazeMatchPrice,
+  getUserRemainingFreeGames,
+  getUserRemainingPaidGames,
+} from '@/contracts/maze/mazeCalls';
+import {
   isAllowed as isAllowedResponse,
   getSeedId,
   getPendingCheddarToMint,
   getScoreBoard,
   getEarnedButNotMinted,
   getEarnedAndMinted,
-  getMatchsLeft,
 } from '@/queries/maze/api';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
@@ -22,14 +26,6 @@ export interface ScoreboardResponse {
     daily: PlayerScoreData[];
     weekly: PlayerScoreData[];
     allTime: PlayerScoreData[];
-  };
-}
-
-export interface MatchAmountResponse {
-  ok: boolean;
-  total: {
-    freeMatches: number;
-    payedMatches: number;
   };
 }
 
@@ -100,22 +96,33 @@ export const useGetEarnedAndMintedCheddar = (): UseQueryResult<number> => {
   });
 };
 
-export const useGetMatchsLeft = (): UseQueryResult<MatchAmountResponse> => {
-  const { blockchain, selectedBlockchainAddress } = useGlobalContext();
-
+export const useGetCheddarMazeMatchPrices = (): UseQueryResult<string[][]> => {
   return useQuery({
-    queryKey: ['useGetMatchsLeft', selectedBlockchainAddress],
-    queryFn: () =>
-      selectedBlockchainAddress
-        ? getMatchsLeft(selectedBlockchainAddress, blockchain)
-        : {
-            ok: true,
-            total: {
-              freeMatches: 0,
-              payedMatches: 0,
-            },
-          },
-    refetchInterval: 10000,
-    staleTime: 10000,
+    queryKey: ['useGetCheddarMazeMatchPrice'],
+    queryFn: getCheddarMazeMatchPrice,
+    refetchInterval: 300000,
+    staleTime: 300000,
+  });
+};
+
+export const useGetUserRemainingFreeGames = (
+  accountId: string | null
+): UseQueryResult<number> => {
+  return useQuery({
+    queryKey: ['useGetUserRemainingFreeGames'],
+    queryFn: () => getUserRemainingFreeGames(accountId),
+    refetchInterval: 300000,
+    staleTime: 300000,
+  });
+};
+
+export const useGetUserRemainingPaidGames = (
+  accountId: string | null
+): UseQueryResult<number> => {
+  return useQuery({
+    queryKey: ['useGetUserRemainingPaidGames'],
+    queryFn: () => getUserRemainingPaidGames(accountId),
+    refetchInterval: 300000,
+    staleTime: 300000,
   });
 };
