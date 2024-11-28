@@ -6,8 +6,11 @@ import { PlinkoContextProvider } from '@/contexts/plinko/PlinkoContextProvider';
 
 export default function PlinkoGame() {
   return (
+    <PlinkoContextProvider>
+
     <div className={styles.gameContainer}>
       <PlinkoBoard isMinigame={false} />
     </div>
+    </PlinkoContextProvider>
   );
 }

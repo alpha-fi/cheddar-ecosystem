@@ -651,7 +651,6 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   };
 
   return (
-    <PlinkoContextProvider>
       <div className={styles.plinkoBoardContainer}>
         <div className={styles.headerContainer}>
           <div>
@@ -734,6 +733,5 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
           </ModalContainer>
         )}
       </div>
-    </PlinkoContextProvider>
   );
 }
