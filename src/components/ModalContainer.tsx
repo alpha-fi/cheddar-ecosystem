@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -11,7 +12,6 @@ import {
   HStack,
   Spacer,
   Button,
-  ModalProps,
   ModalContentProps,
 } from '@chakra-ui/react';
 

@@ -5,11 +5,10 @@ import React, {
   useEffect,
   useState,
   KeyboardEvent,
-  TouchEvent,
   useRef,
 } from 'react';
 
-import { callEndGame, getScoreBoard, getSeedId } from '@/queries/maze/api';
+import { callEndGame, getSeedId } from '@/queries/maze/api';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
@@ -19,8 +18,7 @@ import {
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
-import { PlayerScoreData } from '@/components/maze/Scoreboard';
-import { NFT, NFTCheddarContract } from '@/contracts/nftCheddarContract';
+import { NFT } from '@/contracts/nftCheddarContract';
 import {
   useGetCheddarNFTs,
   useIsNadabotVerfified,
@@ -28,6 +26,7 @@ import {
 } from '@/hooks/cheddar';
 import { useDisclosure, useToast } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
+import { useGlobalContext } from '../GlobalContext';
 
 interface props {
   children: ReactNode;
@@ -44,6 +43,9 @@ export interface MazeTileData {
   hasExit: boolean;
   hasCartel: boolean;
   hasPlinko: boolean;
+  hasNothing: boolean;
+
+  fight: boolean;
 }
 
 const amountOfCheddarInBag = 5;
@@ -147,6 +149,12 @@ interface GameContextProps {
 
   handleTouchMove: (event: React.TouchEvent<HTMLDivElement>) => void;
 
+  handleMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
+
+  handleOnMouseOver: (event: React.MouseEvent<HTMLDivElement>) => void;
+
+  handleOnMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void;
+
   cheddarFound: number;
   setCheddarFound: React.Dispatch<React.SetStateAction<number>>;
 
@@ -206,16 +214,12 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseScoreboard,
   } = useDisclosure();
 
-  function openScoreboard() {
-    console.log('open scoreboard');
-    onOpenScoreboard();
-  }
-
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
   const [score, setScore] = useState(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
+  const [fightingEnemyFlag, setFightingEnemyFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [hasWon, setHasWon] = useState<undefined | boolean>(undefined);
   const [timerStarted, setTimerStarted] = useState(false);
@@ -266,6 +270,10 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [hasFoundPlinko, setHasFoundPlinko] = useState(false);
 
+  const [isMouseDown, setIsMouseDown] = useState(false);
+
+  const [lastDivId, setLastDivId] = useState('');
+
   // const [backgroundImage, setBackgroundImage] = useState('');
   // const [rarity, setRarity] = useState('');
 
@@ -276,7 +284,7 @@ export const GameContextProvider = ({ children }: props) => {
   } = useDisclosure();
 
   const [mazeCols, setMazeCols] = useState(9);
-  const [mazeRows, setMazeRows] = useState(11);
+  const [mazeRows, setMazeRows] = useState(10);
   const [totalCells, setTotalCells] = useState(0);
 
   function handleErrorToast(title: string) {
@@ -373,6 +381,15 @@ export const GameContextProvider = ({ children }: props) => {
     setRemainingSeconds(seconds);
   }, [remainingTime]);
 
+  useEffect(() => {
+    // Asegura que el mouseUp se detecte fuera de los divs también
+    window.addEventListener('mouseup', handleOnMouseUp);
+
+    return () => {
+      window.removeEventListener('mouseup', handleOnMouseUp);
+    };
+  }, []);
+
   const { accountId, selector } = useWalletSelector();
   const [nfts, setNFTs] = useState<NFT[]>([]);
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
@@ -381,6 +398,12 @@ export const GameContextProvider = ({ children }: props) => {
   const { data: isUserNadabotVerfied } = useIsNadabotVerfified(accountId);
 
   const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
+
+  const {
+    blockchain,
+    selectedBlockchainAddress,
+    setCollapsableNavbarActivated,
+  } = useGlobalContext();
 
   useEffect(() => {
     if (accountId) {
@@ -420,11 +443,14 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to restart the game
   async function restartGame() {
-    if (!accountId) {
+    if (!selectedBlockchainAddress) {
       return;
     }
 
-    const newSeedIdResponse = await getSeedId(accountId);
+    const newSeedIdResponse = await getSeedId(
+      selectedBlockchainAddress,
+      blockchain
+    );
     if (!newSeedIdResponse.ok) {
       handleErrorToast(newSeedIdResponse.message);
 
@@ -438,6 +464,9 @@ export const GameContextProvider = ({ children }: props) => {
     setHasWon(undefined);
     setTimerStarted(true);
     setStartTimestamp(Date.now());
+    setTimestampStartStopTimerArray([]);
+    setTimestampEndStopTimerArray([]);
+
     // clearInterval(timerId);
     setScore(0);
     setTimeLimitInSeconds(120);
@@ -461,7 +490,6 @@ export const GameContextProvider = ({ children }: props) => {
 
     // Regenerate maze data
     const rng = new RNG(newSeedIdResponse.seedId);
-    console.log(1, newSeedIdResponse.seedId);
     setRng(rng);
 
     const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
@@ -473,6 +501,7 @@ export const GameContextProvider = ({ children }: props) => {
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
     setLastCellX(-1);
     setLastCellY(-1);
+    setCollapsableNavbarActivated(true);
   }
 
   // Function to generate maze data
@@ -488,6 +517,8 @@ export const GameContextProvider = ({ children }: props) => {
         enemyWon: false,
         hasCartel: false,
         hasPlinko: false,
+        fight: false,
+        hasNothing: false,
       }))
     );
 
@@ -657,8 +688,17 @@ export const GameContextProvider = ({ children }: props) => {
       mazeData[y][x].hasBag ||
       mazeData[y][x].hasEnemy ||
       mazeData[y][x].hasCartel ||
-      mazeData[y][x].hasExit
+      mazeData[y][x].hasExit ||
+      mazeData[y][x].hasNothing
     );
+  }
+
+  function showFighting(mazeData: MazeTileData[][], x: number, y: number) {
+    const clonedMazeData = mazeData;
+    clonedMazeData[y][x].fight = true;
+
+    setFightingEnemyFlag(true);
+    setMazeData(clonedMazeData);
   }
 
   function handleEnemyFound(
@@ -670,6 +710,8 @@ export const GameContextProvider = ({ children }: props) => {
     // Code for adding enemy artifact...
     setCellsWithItemAmount(cellsWithItemAmount + 1);
     // Add logic for the enemy defeating the player
+    clonedMazeData[y][x].fight = false;
+    setFightingEnemyFlag(false);
     if (rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
@@ -677,6 +719,7 @@ export const GameContextProvider = ({ children }: props) => {
 
       gameOver('Enemy won! Game Over!', false);
     } else {
+      setGameOverFlag(false);
       clonedMazeData[y][x].hasEnemy = true;
 
       setScore(score + pointsOfActions.enemyDefeated);
@@ -757,6 +800,15 @@ export const GameContextProvider = ({ children }: props) => {
     gameOver('You ran into the cartel! Game Over!', false);
   }
 
+  function handleNothingFound(
+    clonedMazeData: MazeTileData[][],
+    x: number,
+    y: number
+  ) {
+    clonedMazeData[y][x].hasNothing = true;
+    setCellsWithItemAmount(cellsWithItemAmount + 1);
+  }
+
   function handleExitFound(
     clonedMazeData: MazeTileData[][],
     x: number,
@@ -768,12 +820,13 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   const chancesOfFinding = {
-    exit: 0.0021,
-    enemy: 0.19,
+    exit: 0.0022,
+    enemy: 0.05,
     cheese: 0.055,
     bag: 0.027,
     cartel: 0.0002,
     plinko: 0.01,
+    safe: 0.2,
   };
 
   const NFTCheeseBuffMultiplier = 1.28;
@@ -821,7 +874,10 @@ export const GameContextProvider = ({ children }: props) => {
     ) {
       handlePlinkoGameFound(clonedMazeData, newX, newY);
     } else if (!enemyCooldown && rng.nextFloat() < chancesOfFinding.enemy) {
-      handleEnemyFound(clonedMazeData, newX, newY);
+      showFighting(clonedMazeData, newX, newY);
+      setTimeout(() => {
+        handleEnemyFound(clonedMazeData, newX, newY);
+      }, 500);
     } else if (
       !cheeseCooldown &&
       rng.nextFloat() < getChancesOfFindingCheese()
@@ -834,6 +890,9 @@ export const GameContextProvider = ({ children }: props) => {
       rng.nextFloat() < chancesOfFinding.cartel
     ) {
       handleCartelFound(clonedMazeData, newX, newY);
+    } else if (rng.nextFloat() < chancesOfFinding.safe) {
+      handleNothingFound(clonedMazeData, newX, newY);
+      setScore(score + pointsOfActions.moveWithoutDying);
     } else {
       setScore(score + pointsOfActions.moveWithoutDying);
     }
@@ -845,10 +904,21 @@ export const GameContextProvider = ({ children }: props) => {
     setTimerStarted(false);
   }
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const referrerAccount = urlParams.get('referralId') ?? undefined;
+    if (referrerAccount) {
+      localStorage.setItem('referrer_account', referrerAccount);
+    }
+  }, []);
+
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const referralAccount = urlParams.get('referralId') ?? undefined;
+    const referralAccount = localStorage.getItem('referrer_account');
+
+    if (referralAccount) {
+      localStorage.removeItem('referrer_account');
+    }
 
     if (gameOverRefSent.current) {
       return;
@@ -868,7 +938,8 @@ export const GameContextProvider = ({ children }: props) => {
         path: [],
       },
       metadata: {
-        accountId: accountId!,
+        blockchain,
+        accountId: selectedBlockchainAddress!,
         seedId,
         referralAccount: referralAccount,
       },
@@ -877,9 +948,14 @@ export const GameContextProvider = ({ children }: props) => {
     setHasWon(won);
     setCoveredCells([]);
     setGameOverFlag(true);
-    setGameOverMessage(message);
-    stopTimer();
-    setHasFoundPlinko(false);
+
+    setTimeout(() => {
+      stopTimer();
+      setGameOverMessage(message);
+      setHasFoundPlinko(false);
+    }, 800);
+
+    setCollapsableNavbarActivated(false);
 
     const endGameResponse = await callEndGame(endGameRequestData).catch(
       (error) => setSaveResponse(error)
@@ -952,7 +1028,7 @@ export const GameContextProvider = ({ children }: props) => {
   ]);
 
   function handleMoveByArrow(direction: string) {
-    if (gameOverFlag) return; // If game over, prevent further movement
+    if (gameOverFlag || fightingEnemyFlag) return; // If game over of fight animation is active, prevent further movement
 
     let newX = playerPosition.x;
     let newY = playerPosition.y;
@@ -1017,6 +1093,8 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   function getCoordinatesFromTileId(id: string) {
+    if (!id.includes('cell-')) return;
+
     const stringCoordinates = id.slice('cell-'.length);
 
     const splitStringCoordinates = stringCoordinates.split('-');
@@ -1046,10 +1124,11 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   function moveIfValid(id: string) {
+    if (fightingEnemyFlag) return;
     if (id) {
       const touchedCoordinate = getCoordinatesFromTileId(id);
 
-      if (isValidTileToMove(touchedCoordinate)) {
+      if (touchedCoordinate && isValidTileToMove(touchedCoordinate)) {
         let newX = playerPosition.x;
         let dX = playerPosition.x - touchedCoordinate.x;
 
@@ -1114,6 +1193,29 @@ export const GameContextProvider = ({ children }: props) => {
         }
       }
     }
+  };
+
+  const handleOnMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (isMouseDown) {
+      setLastDivId(event.currentTarget.id);
+    }
+  };
+
+  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (showMovementButtons) {
+      setIsMouseDown(true);
+      setLastDivId(event.currentTarget.id);
+    }
+  };
+
+  useEffect(() => {
+    if (!gameOverFlag && lastDivId) {
+      moveIfValid(lastDivId);
+    }
+  }, [lastDivId]);
+
+  const handleOnMouseUp = () => {
+    setIsMouseDown(false);
   };
 
   const getSquareIdFromTouch = (touch: Touch) => {
@@ -1216,6 +1318,9 @@ export const GameContextProvider = ({ children }: props) => {
         calculateBlurRadius,
         handleTouchStart,
         handleTouchMove,
+        handleMouseDown,
+        handleOnMouseOver,
+        handleOnMouseUp,
         cheddarFound,
         setCheddarFound,
         saveResponse,

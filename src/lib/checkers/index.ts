@@ -43,7 +43,7 @@ export const reverseArrayPlayer1 = (arr: any) => {
 
 export const getTokenName = (token_id: any) => {
   let tokenName = '';
-  const { cheddarToken, nekoToken } = getConfig().contracts;
+  const { cheddarToken, nekoToken } = getConfig().contracts.near;
   switch (token_id) {
     case cheddarToken:
       tokenName = 'CHEDDAR';

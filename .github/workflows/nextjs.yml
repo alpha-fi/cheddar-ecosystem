@@ -90,6 +90,7 @@ jobs:
           NEXT_PUBLIC_IS_TEST_WIN: ${{ env.IS_TEST_WIN }}
           NEXT_PUBLIC_IS_TEST_PLINKO: ${{ env.IS_TEST_PLINKO }}
           NEXT_PUBLIC_IS_TEST_CARTEL: ${{ env.IS_TEST_CARTEL }}
+          NEXT_PUBLIC_SHOW_LOGS_ON_MAINNET: ${{ env.NEXT_PUBLIC_SHOW_LOGS_ON_MAINNET }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

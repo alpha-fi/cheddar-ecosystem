@@ -1,3 +1,5 @@
+import { base, baseSepolia } from 'wagmi/chains';
+
 export interface Config {
   networkData: {
     networkId: string;
@@ -11,13 +13,22 @@ export interface Config {
     indexerUrl: string;
   };
   contracts: {
-    cheddarNft: string;
-    cheddarToken: string;
-    nearSocial: string;
-    checkers: string;
-    nekoToken: string;
-    nadaBot: string;
-    plinkoMinter: string;
+    near: {
+      cheddarNft: string;
+      cheddarToken: string;
+      nearSocial: string;
+      checkers: string;
+      nekoToken: string;
+      nadaBot: string;
+      plinkoMinter: string;
+    };
+    base: {
+      cheddarToken: string;
+      cheddarMinter: string;
+    };
+  };
+  chains: {
+    base: any;
   };
   socialKeys: {
     ecosystem: string;
@@ -56,16 +67,25 @@ export const getConfig = (): Config => {
             'https://app.ref.finance/#near|token.cheddar.near',
           nadaBotUrl: 'https://app.nada.bot/',
           nftImageBaseUrl:
-            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
+            'https://bafybeicoln5rvccttgypzo26irjlskslnfynkzig6bowpsj6ay45geeice.ipfs.nftstorage.link/',
         },
         contracts: {
-          cheddarNft: 'nft.cheddar.near',
-          cheddarToken: 'token.cheddar.near',
-          nearSocial: 'social.near',
-          checkers: 'checkers.cheddar.near',
-          nekoToken: 'ftv2.nekotoken.near',
-          nadaBot: 'v1.nadabot.near',
-          plinkoMinter: '',
+          near: {
+            cheddarNft: 'nft.cheddar.near',
+            cheddarToken: 'token.cheddar.near',
+            nearSocial: 'social.near',
+            checkers: 'checkers.cheddar.near',
+            nekoToken: 'ftv2.nekotoken.near',
+            nadaBot: 'v1.nadabot.near',
+            plinkoMinter: '',
+          },
+          base: {
+            cheddarToken: '0xE757c0263C1828a7380D66bef7Fd10b5d189Ee35',
+            cheddarMinter: '0xF693f6450fb51033D744Cc6b78371b7d0d9797E7',
+          },
+        },
+        chains: {
+          base: base,
         },
         socialKeys: {
           ecosystem: 'cheddarEcosystem',
@@ -87,16 +107,25 @@ export const getConfig = (): Config => {
             'https://testnet.ref.finance/#near|token.cheddar.testnet',
           nadaBotUrl: 'https://testnet.nada.bot/',
           nftImageBaseUrl:
-            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
+            'https://bafybeicoln5rvccttgypzo26irjlskslnfynkzig6bowpsj6ay45geeice.ipfs.nftstorage.link/',
         },
         contracts: {
-          cheddarNft: 'nft.cheddar.testnet',
-          cheddarToken: 'token-v3.cheddar.testnet',
-          nearSocial: 'v1.social08.testnet',
-          checkers: 'checkers.cheddar.testnet',
-          nekoToken: '',
-          nadaBot: 'v1.nadabot.testnet',
-          plinkoMinter: 'cheddar-plinko-minter.testnet',
+          near: {
+            cheddarNft: 'nft.cheddar.testnet',
+            cheddarToken: 'token-v3.cheddar.testnet',
+            nearSocial: 'v1.social08.testnet',
+            checkers: 'checkers.cheddar.testnet',
+            nekoToken: '',
+            nadaBot: 'v1.nadabot.testnet',
+            plinkoMinter: 'cheddar-plinko-minter.testnet',
+        },
+          base: {
+            cheddarToken: '0xE757c0263C1828a7380D66bef7Fd10b5d189Ee35',
+            cheddarMinter: '0xF693f6450fb51033D744Cc6b78371b7d0d9797E7',
+          },
+        },
+        chains: {
+          base: baseSepolia,
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',
@@ -118,16 +147,25 @@ export const getConfig = (): Config => {
             'https://testnet.ref.finance/#near|token.cheddar.testnet',
           nadaBotUrl: 'https://testnet.nada.bot/',
           nftImageBaseUrl:
-            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
+            'https://bafybeicoln5rvccttgypzo26irjlskslnfynkzig6bowpsj6ay45geeice.ipfs.nftstorage.link/',
         },
         contracts: {
-          cheddarNft: 'nft.cheddar.testnet',
-          cheddarToken: 'token-v3.cheddar.testnet',
-          nearSocial: 'v1.social08.testnet',
-          checkers: 'checkers.cheddar.testnet',
-          nekoToken: '',
-          nadaBot: 'v1.nadabot.testnet',
-          plinkoMinter: 'cheddar-plinko-minter.testnet',
+          near: {
+            cheddarNft: 'nft.cheddar.testnet',
+            cheddarToken: 'token-v3.cheddar.testnet',
+            nearSocial: 'v1.social08.testnet',
+            checkers: 'checkers.cheddar.testnet',
+            nekoToken: '',
+            nadaBot: 'v1.nadabot.testnet',
+            plinkoMinter: 'cheddar-plinko-minter.testnet',
+          },
+          base: {
+            cheddarToken: '0xd6DDB2F86cEc8fD31e7488e7F1874060b376eAfD',
+            cheddarMinter: '0x4D2e7A7dA2abB9d3A12538C645f5D7aB080EAa90',
+          },
+        },
+        chains: {
+          base: baseSepolia,
         },
         socialKeys: {
           ecosystem: 'test_cheddarEcosystem',

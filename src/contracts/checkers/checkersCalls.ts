@@ -7,7 +7,7 @@ import {
   Wallet,
 } from '@near-wallet-selector/core';
 
-const { cheddarNft, checkers } = getConfig().contracts;
+const { cheddarNft, checkers } = getConfig().contracts.near;
 
 const checkersViewMethods = {
   getAvailablePlayers: 'get_available_players',

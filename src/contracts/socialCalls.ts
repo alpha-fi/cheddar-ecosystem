@@ -2,7 +2,7 @@ import { getConfig } from '@/configs/config';
 import { change, view } from './contractUtils';
 import { FinalExecutionOutcome, Wallet } from '@near-wallet-selector/core';
 
-const { nearSocial } = getConfig().contracts;
+const { nearSocial } = getConfig().contracts.near;
 export interface KeysOptions {
   return_type: 'True' | 'BlockHeight' | 'NodeId';
   return_deleted: boolean;

@@ -3,12 +3,17 @@ import {
   getCheddarBalance,
   getCheddarMetadata,
   getCheddarNFTBuyPrice,
+  getNFTCheddarBalance,
   getNFTs,
   getTotalSupply,
   isNadabotVerfied,
 } from '@/contracts/cheddarCalls';
 import { isHolonymVerified } from '@/queries/maze/api';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
+import { useAccount } from 'wagmi';
+import { useReadContract } from 'wagmi';
+import contractAbi from '@/constants/contract/abi.json';
+import { getConfig } from '@/configs/config';
 
 export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
   const { accountId } = useWalletSelector();
@@ -16,6 +21,17 @@ export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
   return useQuery({
     queryKey: ['useGetCheddarBalance', accountId],
     queryFn: () => (accountId ? getCheddarBalance(accountId) : null),
+    refetchInterval: 10000,
+    staleTime: 10000,
+  });
+};
+
+export const useGetNFTCheddarBalance = (): UseQueryResult<string> => {
+  const { accountId } = useWalletSelector();
+
+  return useQuery({
+    queryKey: ['useGetNFTCheddarBalance', accountId],
+    queryFn: () => (accountId ? getNFTCheddarBalance(accountId) : null),
     refetchInterval: 10000,
     staleTime: 10000,
   });
@@ -41,9 +57,9 @@ export const useGetCheddarNFTs = (): UseQueryResult => {
   });
 };
 
-export const useGetCheddarTotalSupply = (): UseQueryResult<bigint> => {
+export const useGetCheddarNearTotalSupply = (): UseQueryResult<bigint> => {
   return useQuery({
-    queryKey: ['useGetCheddarTotalSupply'],
+    queryKey: ['useGetCheddarNearTotalSupply'],
     queryFn: () => getTotalSupply(),
     refetchInterval: 10000,
     staleTime: 10000,
@@ -80,5 +96,37 @@ export const useIsHolonymVerfified = (
     queryFn: () => (accountId ? isHolonymVerified(accountId) : false),
     refetchInterval: false,
     staleTime: Infinity,
+  });
+};
+
+export const useGetCheddarBaseBalance = (): UseQueryResult<
+  bigint | undefined
+> => {
+  const { address } = useAccount();
+  return useReadContract({
+    address: getConfig().contracts.base.cheddarToken as `0x${string}`,
+    abi: contractAbi,
+    functionName: 'balanceOf',
+    args: [address],
+    scopeKey: 'baseBalance',
+    blockTag: 'latest',
+    query: {
+      refetchInterval: 10000,
+      staleTime: 10000,
+    },
+  });
+};
+export const useGetCheddarBaseTotalSupply = (): UseQueryResult<
+  bigint | undefined
+> => {
+  return useReadContract({
+    address: getConfig().contracts.base.cheddarToken as `0x${string}`,
+    abi: contractAbi,
+    functionName: 'totalSupply',
+    scopeKey: 'baseTotalSupply',
+    query: {
+      refetchInterval: 10000,
+      staleTime: 10000,
+    },
   });
 };

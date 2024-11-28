@@ -10,16 +10,17 @@
 }
 
 .gameContainer {
+  font-family: 'Inter';
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 auto;
+  margin: 0.5rem auto 0 auto;
   padding: 0;
-  border: 1px solid gold;
-  font-family: Bubblegum Sans !important;
+  border: 1px solid rgb(133, 66, 235);
   background-size: cover;
   background-position: center;
+  background-color: rgba(255, 255, 255, 0.5);
 }
 .headerButtonsContainer {
   display: flex;
@@ -29,6 +30,9 @@
 }
 .gameName {
   font-weight: bolder;
+  color: rebeccapurple;
+  font-size: 1.25rem;
+  margin-top: -1rem !important;
 }
 
 .headerLeftPortionContainer {
@@ -110,6 +114,7 @@
   overflow: hidden;
   width: fit-content;
   border: 3px solid #8542eb;
+  border-radius: 7px;
 }
 .playerActive {
   z-index: 1;
@@ -142,7 +147,7 @@
   justify-content: center;
   width: 100%;
   margin: auto;
-  margin-bottom: 10px;
+  padding-top: 0.5rem;
 }
 .score {
   flex: 1;
@@ -151,7 +156,13 @@
 .toolbar {
   display: flex;
   justify-content: space-between;
-  background-color: #8542eb;
+  background-color: rgba(133, 66, 235, 0.9);
+  align-items: center;
+  gap: 0.5rem;
+}
+.toolbarbuttons {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
 }
@@ -188,6 +199,12 @@
   margin-left: -60px;
   opacity: 0;
   transition: opacity 0.3s;
+}
+.subtitle {
+  font-weight: bold;
+  color: rebeccapurple;
+  border: 1px dashed mediumpurple;
+  padding-top: 0;
 }
 .time {
   flex: 1;
@@ -291,12 +308,12 @@
 
 .startGameBg {
   position: absolute;
-  top: 37%;
+  top: 21%;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(34, 34, 34, 0.6);
-  height: 300px;
-  width: 300px;
+  background-color: rgba(34, 34, 34, 0.95);
+  height: 450px;
+  width: 360px;
   border: 10px solid rgba(255, 255, 255, 0.8);
   color: white;
   display: flex;
@@ -306,16 +323,27 @@
   gap: 15px;
 }
 
+.startGameBg li {
+  margin: 0.2rem 2rem;
+  list-style: circle;
+}
+
+.startGameBg li,
+.startGameBg span {
+  font-weight: bold;
+  font-size: medium;
+}
+
 .referralLink {
-    background-color: #ECC94B !important;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    padding: 10px;
-    border-radius: 5px;
-    color: white !important;
-    font-size: 16px;
-    font-weight: 500;
+  background-color: #ecc94b !important;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  color: white !important;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .notAllowedToPlayText {

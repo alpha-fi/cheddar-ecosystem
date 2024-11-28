@@ -57,15 +57,21 @@ export const GameOverModalContent = ({
   return (
     <div className={styles.gameOverModal}>
       <p className={getMessageStyles()}>{gameOverMessage}</p>
-      {hasWon && (
-        <p className={styles.earnings}>
-          You have earned{' '}
-          {cheddarFound <= pendingCheddarToMint
-            ? cheddarFound
-            : pendingCheddarToMint}{' '}
-          🧀
-        </p>
-      )}
+      {hasWon &&
+        (cheddarFound > pendingCheddarToMint ? (
+          <p className={styles.earnings}>
+            You rocked it today by reaching the daily 555 Cheddar limit. Let’s
+            go again tomorrow
+          </p>
+        ) : (
+          <p className={styles.earnings}>
+            You have earned{' '}
+            {cheddarFound <= pendingCheddarToMint
+              ? cheddarFound
+              : pendingCheddarToMint}{' '}
+            🧀
+          </p>
+        ))}
       {!hasWon && <p className={styles.loseEarnings}>Better luck next time!</p>}
     </div>
   );

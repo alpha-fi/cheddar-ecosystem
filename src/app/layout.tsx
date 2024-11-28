@@ -1,5 +1,5 @@
 'use client';
-
+import '@coinbase/onchainkit/styles.css';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import '../../public/assets/css/style.css';
@@ -10,8 +10,23 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletSelectorContextProvider } from '@/contexts/WalletSelectorContext';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PageContainer } from '@/components/PageContainer';
+import OnchainContextProvider from '@/contexts/OnchainContextProvider';
+import WagmiContextProvider from '@/contexts/WagmiContextProvider';
+import { GlobalContextProvider } from '@/contexts/GlobalContext';
+import { getConfig } from '@/configs/config';
 
 const inter = Inter({ subsets: ['latin'] });
+
+const networkId = getConfig().networkData.networkId;
+
+console.log = function (...args) {
+  if (
+    process.env.NEXT_PUBLIC_SHOW_LOGS_ON_MAINNET === 'true' ||
+    networkId !== 'mainnet'
+  ) {
+    console.debug(...args);
+  }
+};
 
 const queryClient = new QueryClient();
 
@@ -51,10 +66,16 @@ export default function RootLayout({
       <body className={inter.className + ' backgroundImg'}>
         <WalletSelectorContextProvider>
           <ChakraProvider>
-            <QueryClientProvider client={queryClient}>
-              <PageContainer>{children}</PageContainer>
-              <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
+            <WagmiContextProvider>
+              <QueryClientProvider client={queryClient}>
+                <OnchainContextProvider>
+                  <GlobalContextProvider>
+                    <PageContainer>{children}</PageContainer>
+                    <ReactQueryDevtools initialIsOpen={false} />
+                  </GlobalContextProvider>
+                </OnchainContextProvider>
+              </QueryClientProvider>
+            </WagmiContextProvider>
           </ChakraProvider>
         </WalletSelectorContextProvider>
       </body>

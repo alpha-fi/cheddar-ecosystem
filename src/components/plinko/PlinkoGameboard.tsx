@@ -46,6 +46,9 @@ import {
   PlinkoContextProvider,
 } from '@/contexts/plinko/PlinkoContextProvider';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import { useAccount } from 'wagmi';
+import { BlockchainType } from '@/queries/maze/api';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 interface CheddarEarnedData {
   name: 'giga' | 'mega' | 'micro' | 'nano' | 'splat';
@@ -117,6 +120,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
     onOpen: onOpenModalRules,
     onClose: onCloseModalRules,
   } = useDisclosure();
+  const { blockchain, selectedBlockchainAddress } = useGlobalContext();
 
   const {
     isOpen: isOpenModalBuyChips,
@@ -349,7 +353,8 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
           prizeEarned: prizeNames[0],
         },
         metadata: {
-          accountId: accountId!,
+          blockchain: blockchain,
+          accountId: selectedBlockchainAddress!,
           seedId,
         },
       };

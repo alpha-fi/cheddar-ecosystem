@@ -1,5 +1,5 @@
 import { ModalContainer } from '@/components/ModalContainer';
-import { ListItem, Text, UnorderedList } from '@chakra-ui/react';
+import { Flex, ListItem, Text, UnorderedList } from '@chakra-ui/react';
 
 interface Props {
   isOpen: boolean;
@@ -9,44 +9,37 @@ interface Props {
 export default function ValuesModalContent({ isOpen, onClose }: Props) {
   return (
     <ModalContainer title={'Our Values'} isOpen={isOpen} onClose={onClose}>
-      <UnorderedList fontSize="14px">
-        <ListItem>
-          <Text as="b" fontSize="md">
-            Every Human Welcome:
-          </Text>{' '}
-          We, the Cheddar community, celebrate the power of human interaction.
-          Our platform welcomes everyone to connect, create, and collaborate.
-        </ListItem>
-        <ListItem>
-          <Text as="b" fontSize="md">
-            Fun & Engaging:
-          </Text>{' '}
-          Together, we make Web3 enjoyable and accessible through gamified
-          experiences, playful interactions, and a vibrant community that values
-          kindness and collaboration.
-        </ListItem>
-        <ListItem>
-          <Text as="b" fontSize="md">
-            Enabling Creators:
-          </Text>{' '}
-          We provide tools and resources for creators to build and share their
-          unique visions, fostering a thriving and equitable creator ecosystem.
-        </ListItem>
-        <ListItem>
-          <Text as="b" fontSize="md">
-            Community-Driven:
-          </Text>{' '}
-          We believe in the power of collective action, giving our community a
-          voice in shaping a transparent platform that benefits all.
-        </ListItem>
-        <ListItem>
-          <Text as="b" fontSize="md">
-            Sustainable Growth:
-          </Text>{' '}
-          We are committed to building a sustainable Web3 ecosystem that
-          prioritizes long-term value creation for all human contributors.
-        </ListItem>
-      </UnorderedList>
+      <Flex direction={'column'} justifyContent={'space-between'} gap={3}>
+        <Text>
+          🟠 Kindness and Collaboration: We foster a friendly and supportive
+          community where everyone feels welcome, respected, and safe to
+          connect, create, and collaborate without fear of negativity or
+          harassment.
+        </Text>
+        <Text>
+          🟠Vibrant Community: We believe in the power of collective action,
+          empowering our community to shape the platform's future through
+          transparent governance and shared decision-making. We foster a
+          welcoming and collaborative environment where players connect, build
+          relationships, and contribute to a vibrant social platform.
+        </Text>
+        <Text>
+          🟠Engaging Experiences: We're passionate about creating a rewarding
+          and enjoyable experience that seamlessly integrates fun gameplay,
+          digital asset creation, and opportunities to shape the platform's
+          future.
+        </Text>
+        <Text>
+          🟠Creator Enablement: We envision a future where creators have the
+          tools and resources to bring their visions to life and contribute to
+          engaging gaming experiences within the Cheddar ecosystem.
+        </Text>
+        <Text>
+          🟠Sustainable Ecosystem: We're committed to building a sustainable
+          platform that prioritizes long-term value creation for all
+          participants, fostering a vibrant and thriving GameFi economy.
+        </Text>
+      </Flex>
     </ModalContainer>
   );
 }

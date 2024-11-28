@@ -1,15 +1,23 @@
-import { useContext, useEffect } from 'react';
-import styles from '@/styles/GameOverModalContent.module.css';
-import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { useToast, Link } from '@chakra-ui/react';
-import { Facebook, Telegram, Twitter } from '../icons';
 import { getConfig } from '@/configs/config';
+import { useGlobalContext } from '@/contexts/GlobalContext';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import styles from '@/styles/GameOverModalContent.module.css';
+import { Link, useToast } from '@chakra-ui/react';
+import { useContext, useEffect } from 'react';
+import { Facebook, Telegram, Twitter } from '../icons';
+import { RandomAd } from './RandomAd';
 
 interface Props {
   setHolonymModal: (v: boolean) => void;
   onClose: () => void;
+  handleBuyClick: () => void;
 }
-export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
+export const GameOverModalContent = ({
+  setHolonymModal,
+  onClose,
+  handleBuyClick,
+}: Props) => {
   const {
     remainingMinutes,
     remainingSeconds,
@@ -23,7 +31,8 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
     isUserHolonymVerified,
   } = useContext(GameContext);
   const toast = useToast();
-
+  const { blockchain } = useGlobalContext();
+  const { accountId } = useWalletSelector();
   const properSecondsFormat =
     remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
 
@@ -60,7 +69,9 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
 
   const shareText = `I just ${hasWon ? 'won' : 'lost'} ${cheddarFound} Cheddar playing the Cheddar Maze game. Check it out its fun and with more features coming.`;
   const encodedText = encodeURIComponent(shareText);
-  const encodedLink = encodeURIComponent('https://cheddar.farm/');
+  const encodedLink = encodeURIComponent(
+    `https://cheddar.farm/?referralId=${accountId}`
+  );
 
   function getTwitterUrl() {
     return `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedLink}`;
@@ -75,12 +86,15 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
   }
 
   const { networkData } = getConfig();
+
   return (
     <div className={styles.gameOverModal}>
       <p className={getMessageStyles()}>{gameOverMessage}</p>
       {hasWon && (
         <p className={styles.earnings}>
-          {isUserNadabotVerfied || isUserHolonymVerified ? (
+          {blockchain === 'base' ||
+          isUserNadabotVerfied ||
+          isUserHolonymVerified ? (
             <span>
               You have farmed{' '}
               {cheddarFound <= pendingCheddarToMint
@@ -152,6 +166,7 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
           <Telegram boxSize={7} />
         </a>
       </div>
+      <RandomAd handleBuyClick={handleBuyClick} />
     </div>
   );
 };

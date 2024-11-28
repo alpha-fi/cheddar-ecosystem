@@ -1,13 +1,15 @@
 'use client';
+import React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import { GameboardContainer } from './GameboardContainer';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { ntoy, yton } from '@/contracts/contractUtils';
-import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
+import { useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse } from '@/hooks/maze';
 import ModalWelcome from '../ModalWelcome';
 import { useToast } from '@chakra-ui/react';
+import { useGlobalContext } from '@/contexts/GlobalContext';
+import { WeHaveMusicModal } from '../ModalWeHaveMusic';
 
 export default function MazeContainer() {
   const {
@@ -24,12 +26,11 @@ export default function MazeContainer() {
     restartGame,
   } = useContext(GameContext);
 
-  const { selector, accountId } = useWalletSelector();
+  const { addresses, cheddarBalance, isCheddarBalanceLoading } =
+    useGlobalContext();
 
-  const { data: cheddarMetadata, isLoading: isLoadingCheddarMetadata } =
-    useGetCheddarMetadata();
-  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
-    useGetCheddarBalance();
+  const { isLoading: isLoadingCheddarMetadata } = useGetCheddarMetadata();
+
   const {
     data: isAllowedResponse,
     isLoading: isLoadingIsAllowed,
@@ -41,7 +42,7 @@ export default function MazeContainer() {
 
   if (!queriesLoaded) {
     if (
-      !isLoadingCheddarBalance &&
+      !isCheddarBalanceLoading &&
       !isLoadingCheddarMetadata &&
       !isLoadingIsAllowed
     ) {
@@ -50,28 +51,20 @@ export default function MazeContainer() {
   }
 
   const toast = useToast();
-  useEffect(() => {
-    if (userAllowedError) {
-      toast({
-        title: 'Error occured while verifying current user!',
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
-    }
-  }, [userAllowedError]);
 
   const minCheddarRequired = ntoy(555);
 
   useEffect(() => {
     function doesUserHaveEnoughBalance() {
-      if (!cheddarBalanceData) return false;
-
-      return minCheddarRequired <= cheddarBalanceData!;
+      if (addresses['base']) {
+        return true;
+      } else if (!cheddarBalance) {
+        return false;
+      }
+      return minCheddarRequired <= cheddarBalance;
     }
     setHasEnoughBalance(doesUserHaveEnoughBalance());
-  }, [cheddarBalanceData, accountId, selector, isAllowedResponse]);
+  }, [cheddarBalance, addresses, isAllowedResponse]);
 
   function handlePowerUpClick() {
     setIsPowerUpOn(!isPowerUpOn);
@@ -107,6 +100,7 @@ export default function MazeContainer() {
   return (
     <>
       <ModalWelcome />
+      <WeHaveMusicModal />
       {initialized() && ( // Replace `condition` with your actual condition
         <GameboardContainer
           remainingMinutes={Math.floor(remainingTime / 60)}
