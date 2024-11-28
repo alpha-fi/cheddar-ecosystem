@@ -27,7 +27,7 @@ import {
   useIsHolonymVerfified,
 } from '@/hooks/cheddar';
 import { useDisclosure, useToast } from '@chakra-ui/react';
-import { getNFTs } from '@/contracts/cheddarCalls';
+import { getNFTs } from '@/contracts/tokenCheddarCalls';
 import { useGlobalContext } from '../GlobalContext';
 
 interface props {
@@ -206,6 +206,11 @@ interface GameContextProps {
 
   freeMatchesLeftLoading: boolean;
   payedMatchesLeftLoading: boolean;
+
+  startingGame: boolean;
+  setStartingGame: React.Dispatch<React.SetStateAction<boolean>>;
+
+  gameboardRef: React.RefObject<HTMLDivElement>;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -262,6 +267,8 @@ export const GameContextProvider = ({ children }: props) => {
   const [coveredCells, setCoveredCells] = useState<string[]>([]);
   const [cellsWithItemAmount, setCellsWithItemAmount] = useState(0);
 
+  const [startingGame, setStartingGame] = useState(false);
+
   const [cheddarFound, setCheddarFound] = useState(0);
 
   const [seedId, setSeedId] = useState(0);
@@ -299,6 +306,8 @@ export const GameContextProvider = ({ children }: props) => {
   const [mazeCols, setMazeCols] = useState(9);
   const [mazeRows, setMazeRows] = useState(10);
   const [totalCells, setTotalCells] = useState(0);
+
+  const gameboardRef = useRef<HTMLDivElement>(null);
 
   function handleErrorToast(title: string) {
     toast({
@@ -473,10 +482,14 @@ export const GameContextProvider = ({ children }: props) => {
       return;
     }
 
+    setStartingGame(true);
+    gameboardRef.current?.focus();
+
     const newSeedIdResponse = await getSeedId(
       selectedBlockchainAddress,
       blockchain
     );
+
     if (!newSeedIdResponse.ok) {
       handleErrorToast(newSeedIdResponse.message);
 
@@ -524,6 +537,10 @@ export const GameContextProvider = ({ children }: props) => {
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
     setLastCellX(-1);
     setLastCellY(-1);
+
+    refeshUseGetUserRemainingPayedGames();
+    refeshUseGetUserRemainingFreeGames();
+
     setCollapsableNavbarActivated(true);
   }
 
@@ -1373,6 +1390,9 @@ export const GameContextProvider = ({ children }: props) => {
         payedMatchesLeft,
         freeMatchesLeftLoading,
         payedMatchesLeftLoading,
+        startingGame,
+        setStartingGame,
+        gameboardRef,
       }}
     >
       {children}

@@ -1,18 +1,16 @@
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { useGlobalContext } from '@/contexts/GlobalContext';
-import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import {
   getCheddarMazeMatchPrice,
   getUserRemainingFreeGames,
   getUserRemainingPaidGames,
 } from '@/contracts/maze/mazeCalls';
 import {
-  isAllowed as isAllowedResponse,
-  getSeedId,
+  getEarnedAndMinted,
+  getEarnedButNotMinted,
   getPendingCheddarToMint,
   getScoreBoard,
-  getEarnedButNotMinted,
-  getEarnedAndMinted,
+  isAllowed as isAllowedResponse
 } from '@/queries/maze/api';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 

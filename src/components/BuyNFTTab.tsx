@@ -19,7 +19,7 @@ import { RenderNearIcon } from './maze/RenderNearIcon';
 import styles from '@/styles/BuyNFTSection.module.css';
 
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
-import { buyNFT } from '@/contracts/cheddarCalls';
+import { buyNFT } from '@/contracts/tokenCheddarCalls';
 import { MintNFTLastResult } from '@/entities/interfaces';
 
 interface Props {

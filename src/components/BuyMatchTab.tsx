@@ -1,5 +1,12 @@
 import styles from '@/styles/BuyMatchTab.module.css';
 
+import { getConfig } from '@/configs/config';
+import { useGlobalContext } from '@/contexts/GlobalContext';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { yton } from '@/contracts/contractUtils';
+import { ftTransferCall } from '@/contracts/tokenCheddarCalls';
+import { useGetCheddarMazeMatchPrices } from '@/hooks/maze';
+import { InfoOutlineIcon } from '@chakra-ui/icons';
 import {
   Button,
   Flex,
@@ -13,20 +20,18 @@ import {
   NumberInputField,
   NumberInputStepper,
   Spinner,
+  useToast,
 } from '@chakra-ui/react';
-import { InfoOutlineIcon } from '@chakra-ui/icons';
+import { useState } from 'react';
 import { RenderCheddarIcon } from './maze/RenderCheddarIcon';
-import { useEffect, useState } from 'react';
-import { useGlobalContext } from '@/contexts/GlobalContext';
-import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { useGetCheddarMazeMatchPrices } from '@/hooks/maze';
-import { yton } from '@/contracts/contractUtils';
 
 interface Props {}
 
 export const BuyMatchTab = ({}: Props) => {
   const { data: options, isLoading: isOptionsLoading } =
     useGetCheddarMazeMatchPrices();
+
+  const toast = useToast();
 
   const { blockchain } = useGlobalContext();
 
@@ -40,7 +45,7 @@ export const BuyMatchTab = ({}: Props) => {
     return `${styles.option} ${index !== 0 && styles.borderLeft}`;
   }
 
-  function getTotalPrize() {
+  function getTotalPrice() {
     const option =
       options &&
       options
@@ -51,15 +56,43 @@ export const BuyMatchTab = ({}: Props) => {
     return `${option ? (amountToBuy * yton(option[1])).toFixed(1) : 0}`;
   }
 
-  async function handleBuyMatchs() {
-    if (blockchain === 'near') {
-      try {
-        setIsLoading(true);
-        const wallet = await selector.wallet();
-        const amount = getTotalPrize();
-      } catch (err: any) {}
-      setIsLoading(false);
+  async function handleBuyMatches() {
+    if (blockchain !== 'near') return;
+
+    try {
+      setIsLoading(true);
+      const wallet = await selector.wallet();
+      const amount = getTotalPrice();
+
+      const mazeBuyerContract = getConfig().contracts.near.mazeBuyer;
+      const cheddarContract = getConfig().contracts.near.cheddarToken;
+
+      const response = await ftTransferCall(
+        wallet,
+        cheddarContract,
+        mazeBuyerContract,
+        Number(amount)
+      );
+
+      if (yton(response) >= 0) {
+        toast({
+          title: 'Successful purchase',
+          status: 'success',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: err.message,
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
     }
+    setIsLoading(false);
   }
 
   return (
@@ -138,7 +171,7 @@ export const BuyMatchTab = ({}: Props) => {
             _disabled={{
               cursor: 'default',
             }}
-            value={getTotalPrize()}
+            value={getTotalPrice()}
           />
           <InputRightElement>
             <RenderCheddarIcon />
@@ -148,7 +181,7 @@ export const BuyMatchTab = ({}: Props) => {
       <Button
         className={styles.purchaseButton}
         colorScheme="yellow"
-        onClick={handleBuyMatchs}
+        onClick={handleBuyMatches}
         isLoading={isLoading}
       >
         Purchase

@@ -1,5 +1,5 @@
 import { getConfig } from '@/configs/config';
-import { view } from './contractUtils';
+import { ntoy, view } from './contractUtils';
 import { Metadata } from './CheddarToken';
 import { NFT } from './nftCheddarContract';
 import { Wallet } from '@near-wallet-selector/core';
@@ -15,6 +15,33 @@ const tokenViewMethods = {
 const nftViewMethods = {
   nftTokensForOwner: 'nft_tokens_for_owner',
   nftMintOne: 'nft_mint_one',
+};
+
+export const ftTransferCall = async (
+  wallet: Wallet,
+  tokenContractAddress: string,
+  receiverId: string,
+  amount: number,
+  msg: string = ''
+): Promise<any> => {
+  return wallet.signAndSendTransaction({
+    receiverId: tokenContractAddress,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: receiverId,
+            amount: ntoy(amount).toString(),
+            msg,
+          },
+          gas: '300' + '0'.repeat(12),
+          deposit: '1',
+        },
+      },
+    ],
+  });
 };
 
 export const getCheddarBalance = async (accountId: string): Promise<bigint> => {

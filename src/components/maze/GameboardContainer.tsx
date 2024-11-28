@@ -106,12 +106,14 @@ export function GameboardContainer({
     payedMatchesLeft,
     freeMatchesLeftLoading,
     payedMatchesLeftLoading,
+    startingGame,
+    setStartingGame,
+    gameboardRef,
   } = useContext(GameContext);
 
   const { addresses, isConnected, showConnectionModal, blockchain } =
     useGlobalContext();
 
-  const gameboardRef = useRef<HTMLDivElement>(null);
   const {
     isOpen: isOpenNotAlloWedModal,
     onOpen: onOpenNotAlloWedModal,
@@ -119,7 +121,6 @@ export function GameboardContainer({
   } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
-  const [startingGame, setStartingGame] = useState(false);
 
   useEffect(() => {
     if (timerStarted) {
@@ -181,13 +182,20 @@ export function GameboardContainer({
     }
   }, [cheddarMintResponse, toast]);
 
-  function getProperHandler(handler: any) {
-    //Uncomment the next line to ignore the isAllowedResponse.ok returning false
-    // return handler;
-    if (isAllowedResponse?.ok) {
-      return handler;
+  /**
+   * Expects freeMatchesLeft & payedMatchesLeft to be defined
+   * @returns
+   */
+  function getProperHandler() {
+    if (!isAllowedResponse?.ok) {
+      return onOpenNotAlloWedModal;
     }
-    return onOpenNotAlloWedModal;
+
+    if (freeMatchesLeft! + payedMatchesLeft! > 0) {
+      return restartGame;
+    } else {
+      return onOpenBuyPanel;
+    }
   }
 
   function getGameContainerClasses() {
@@ -199,27 +207,13 @@ export function GameboardContainer({
     return addresses['near'] ? onOpenBuyPanel() : showSelectWalletModal(true); ///TODO: check if buy is only with near
   }
 
-  function focusMazeAndStartGame() {
-    if (
-      freeMatchesLeft &&
-      payedMatchesLeft &&
-      freeMatchesLeft + payedMatchesLeft > 0
-    ) {
-      setStartingGame(true);
-      gameboardRef.current?.focus();
-      restartGame();
-    } else {
-      onOpenBuyPanel();
-    }
-  }
-
   function getStartGameButtonHandler() {
     if (startingGame) {
       return () => {}; //If the game is starting disable the button until game starts (When it get's hided)
     }
     return isConnected //If the accountId exists
-      ? getProperHandler(focusMazeAndStartGame)
-      : showConnectionModal(); //If accountId doesn't exist
+      ? getProperHandler()
+      : showConnectionModal; //If accountId doesn't exist
   }
 
   function getKeyDownMoveHandler() {
@@ -569,7 +563,15 @@ export function GameboardContainer({
               _hover={{ bg: 'yellowgreen' }}
               onClick={getStartGameButtonHandler()}
             >
-              {startingGame ? <Spinner /> : gameOverFlag ? 'Restart' : 'Start'}
+              {startingGame ||
+              (freeMatchesLeft !== undefined &&
+                payedMatchesLeft !== undefined) ? (
+                <Spinner />
+              ) : gameOverFlag ? (
+                'Restart'
+              ) : (
+                'Start'
+              )}
             </Button>
           </div>
         )}
