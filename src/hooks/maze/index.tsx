@@ -4,13 +4,13 @@ import {
   getCheddarMazeMatchPrice,
   getUserRemainingFreeGames,
   getUserRemainingPaidGames,
-} from '@/contracts/maze/mazeCalls';
+} from '@/contracts/maze/mazeBuyerCalls';
 import {
   getEarnedAndMinted,
   getEarnedButNotMinted,
   getPendingCheddarToMint,
   getScoreBoard,
-  isAllowed as isAllowedResponse
+  isAllowed as isAllowedResponse,
 } from '@/queries/maze/api';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 

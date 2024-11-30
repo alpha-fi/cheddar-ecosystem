@@ -564,8 +564,8 @@ export function GameboardContainer({
               onClick={getStartGameButtonHandler()}
             >
               {startingGame ||
-              (freeMatchesLeft !== undefined &&
-                payedMatchesLeft !== undefined) ? (
+              (freeMatchesLeft === undefined &&
+                payedMatchesLeft === undefined) ? (
                 <Spinner />
               ) : gameOverFlag ? (
                 'Restart'

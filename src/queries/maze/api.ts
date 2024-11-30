@@ -1,5 +1,8 @@
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { getConfig } from '@/configs/config';
+import { useGlobalContext } from '@/contexts/GlobalContext';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { keyStores } from 'near-api-js';
 
 const { backendBaseUrl, holonym } = getConfig();
 
@@ -114,31 +117,6 @@ export async function getEarnedAndMinted(
   }
 }
 
-export async function getSeedId(accountId: string, blockchain: BlockchainType) {
-  try {
-    const data = { accountId, blockchain };
-    const url = new URL(`api/maze/getSeedId`, backendBaseUrl).toString();
-    const response = await fetch(url, {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      const jsonResponse = await response.json();
-      throw new Error(
-        jsonResponse.errors || `Failed to get seed ID for account: ${accountId}`
-      );
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('Error in getSeedId:', error);
-    throw error;
-  }
-}
-
 export async function getScoreBoard() {
   try {
     const url = new URL(`/api/maze/scoreboard`, backendBaseUrl).toString();
@@ -152,6 +130,27 @@ export async function getScoreBoard() {
     console.error('Error in getScoreBoard:', error);
     throw error;
   }
+}
+
+export async function getSeedId(accountId: string) {
+  const data = { accountId, blockchain: 'base' };
+  const url = new URL(`api/maze/getSeedId`, backendBaseUrl).toString();
+  const response = await fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  const jsonResponse = await response.json();
+
+  if (!jsonResponse.ok) {
+    throw new Error(jsonResponse.errors[0]);
+  }
+
+  return jsonResponse.seedId;
 }
 
 export async function callEndGame(endGameData: EndGameRequest) {

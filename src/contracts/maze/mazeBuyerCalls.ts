@@ -1,6 +1,8 @@
 import { getConfig } from '@/configs/config';
-import { change, view } from '../contractUtils';
-import { FinalExecutionOutcome, Wallet } from '@near-wallet-selector/core';
+import { BlockchainType } from '@/queries/maze/api';
+import { Wallet } from '@near-wallet-selector/core';
+import { connect } from 'near-api-js';
+import { view } from '../contractUtils';
 import { getNearSocial, setNearSocial } from '../socialCalls';
 
 const config = getConfig();
@@ -101,3 +103,37 @@ export const getUserRemainingPaidGames = async (
     );
   }
 };
+
+function hasSuccessValue(status: any): status is { SuccessValue: string } {
+  return status && typeof status.SuccessValue === 'string';
+}
+
+export async function getSeedIdFromContract(wallet: Wallet) {
+  const mazeBuyerContractId = getConfig().contracts.near.mazeBuyer;
+
+  const finalExecutionOutcome = await wallet.signAndSendTransaction({
+    receiverId: mazeBuyerContractId,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName: 'get_seed_id',
+          args: {},
+          gas: '300' + '0'.repeat(12),
+          deposit: '1' + '0'.repeat(21),
+        },
+      },
+    ],
+  });
+
+  if (
+    !finalExecutionOutcome ||
+    !hasSuccessValue(finalExecutionOutcome.status)
+  ) {
+    throw new Error('Failed to retrive seedId from contract');
+  }
+
+  const b64SeedId = finalExecutionOutcome.status.SuccessValue;
+
+  return Number(Buffer.from(b64SeedId, 'base64').toString('utf-8'));
+}

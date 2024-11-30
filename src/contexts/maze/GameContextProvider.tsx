@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 
 import { callEndGame, getSeedId } from '@/queries/maze/api';
+import { getSeedIdFromContract } from '@/contracts/maze/mazeBuyerCalls';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { RNG } from '@/entities/maze/RNG';
 import {
@@ -478,70 +479,76 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to restart the game
   async function restartGame() {
-    if (!selectedBlockchainAddress) {
-      return;
+    try {
+      if (!selectedBlockchainAddress) {
+        return;
+      }
+
+      setStartingGame(true);
+      gameboardRef.current?.focus();
+
+      let seedId;
+      if (blockchain === 'near') {
+        const wallet = await selector.wallet();
+
+        seedId = await getSeedIdFromContract(wallet);
+      } else if (blockchain === 'base') {
+        seedId = await getSeedId(selectedBlockchainAddress);
+      } else {
+        throw new Error(`Invalid blockchain: ${blockchain}`);
+      }
+
+      await refetchPendingCheddarToMint();
+      await refetchEarnedButNotMintedCheddar();
+      setSeedId(seedId);
+
+      setHasWon(undefined);
+      setTimerStarted(true);
+      setStartTimestamp(Date.now());
+      // clearInterval(timerId);
+      setScore(0);
+      setTimeLimitInSeconds(120);
+      setRemainingTime(120);
+      setCheddarFound(0);
+      setCheeseCooldown(false);
+      setBagCooldown(false);
+      // setEnemyCooldown(false);
+      setMoves(0);
+      setGameOverFlag(false);
+      setWon(false);
+      setGameOverMessage('');
+      setDirection('right');
+      setCoveredCells([]);
+      setSaveResponse(undefined);
+      setEndGameResponse(undefined);
+      setCellsWithItemAmount(0);
+      setRenderBoard(!renderBoard);
+
+      gameOverRefSent.current = false;
+
+      // Regenerate maze data
+      console.log('seedId: ', typeof seedId, seedId);
+      const rng = new RNG(seedId);
+      setRng(rng);
+
+      const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
+
+      // Set the maze data with the new maze and player's starting position
+      setMazeData(newMazeData);
+
+      const playerStartCell = getRandomPathCell(newMazeData);
+
+      setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
+      setLastCellX(-1);
+      setLastCellY(-1);
+
+      refeshUseGetUserRemainingPayedGames();
+      refeshUseGetUserRemainingFreeGames();
+
+      setCollapsableNavbarActivated(true);
+    } catch (err: any) {
+      handleErrorToast(err.message);
     }
-
-    setStartingGame(true);
-    gameboardRef.current?.focus();
-
-    const newSeedIdResponse = await getSeedId(
-      selectedBlockchainAddress,
-      blockchain
-    );
-
-    if (!newSeedIdResponse.ok) {
-      handleErrorToast(newSeedIdResponse.message);
-
-      return;
-    }
-
-    await refetchPendingCheddarToMint();
-    await refetchEarnedButNotMintedCheddar();
-    setSeedId(newSeedIdResponse.seedId);
-
-    setHasWon(undefined);
-    setTimerStarted(true);
-    setStartTimestamp(Date.now());
-    // clearInterval(timerId);
-    setScore(0);
-    setTimeLimitInSeconds(120);
-    setRemainingTime(120);
-    setCheddarFound(0);
-    setCheeseCooldown(false);
-    setBagCooldown(false);
-    // setEnemyCooldown(false);
-    setMoves(0);
-    setGameOverFlag(false);
-    setWon(false);
-    setGameOverMessage('');
-    setDirection('right');
-    setCoveredCells([]);
-    setSaveResponse(undefined);
-    setEndGameResponse(undefined);
-    setCellsWithItemAmount(0);
-    setRenderBoard(!renderBoard);
-
-    gameOverRefSent.current = false;
-
-    // Regenerate maze data
-    const rng = new RNG(newSeedIdResponse.seedId);
-    setRng(rng);
-
-    const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
-
-    // Set the maze data with the new maze and player's starting position
-    setMazeData(newMazeData);
-
-    const playerStartCell = getRandomPathCell(newMazeData);
-    setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
-    setLastCellX(-1);
-    setLastCellY(-1);
-
-    refeshUseGetUserRemainingPayedGames();
-    refeshUseGetUserRemainingFreeGames();
-
-    setCollapsableNavbarActivated(true);
   }
 
   // Function to generate maze data
