@@ -587,6 +587,30 @@ export const GameContextProvider = ({ children }: props) => {
     setLastCellX(-1);
     setLastCellY(-1);
     setCollapsableNavbarActivated(true);
+
+    const gameInfo: StoredGameInfo = {
+      mazeData: newMazeData,
+      pathLength,
+      playerPosition: playerStartCell,
+      score,
+      startTimestamp,
+      cheeseCooldown,
+      bagCooldown,
+      cellsWithItemAmount,
+      coveredCells,
+      cheddarFound,
+      seedId,
+      hasFoundPlinko,
+      moves,
+      accountId: selectedBlockchainAddress,
+      timestampStartStopTimerArray,
+      timestampEndStopTimerArray,
+      blockchain,
+      rngState: rng.state,
+      playerPath: [],
+    };
+
+    localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
   }
 
   // Function to generate maze data

@@ -50,7 +50,9 @@ export function PlinkoBoard() {
   const [clientHeight, setClientHeight] = useState<number>(
     INITIAL_CLIENT_HEIGHT
   );
-  const [endGameResponseErrors, setEndGameResponseErrors] = useState<string[] | undefined>();
+  const [endGameResponseErrors, setEndGameResponseErrors] = useState<
+    string[] | undefined
+  >();
   const [endGameResponse, setEndGameResponse] = useState<undefined | any>();
   const [thrownBallsQuantity, setThrownBallsQuantity] = useState(0);
   const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
