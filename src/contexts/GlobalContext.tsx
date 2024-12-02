@@ -1,7 +1,3 @@
-import React, { useContext, useMemo, useState } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { useWalletSelector } from './WalletSelectorContext';
-import { coinbaseWallet } from 'wagmi/connectors';
 import {
   useGetCheddarBalance,
   useGetCheddarBaseBalance,
@@ -10,6 +6,11 @@ import {
   useIsHolonymVerfified,
   useIsNadabotVerfified,
 } from '@/hooks/cheddar';
+import { useToast } from '@chakra-ui/react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { coinbaseWallet } from 'wagmi/connectors';
+import { useWalletSelector } from './WalletSelectorContext';
 
 export type Blockchain = 'base' | 'near';
 
@@ -67,6 +68,8 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   } = useGetCheddarBaseTotalSupply();
   const { data: isUserNadabotVerified } = useIsNadabotVerfified(nearAddress);
   const { data: isUserHolonymVerified } = useIsHolonymVerfified(nearAddress);
+
+  const toast = useToast();
 
   const showConnectionModal = useMemo(() => {
     switch (blockchain) {
@@ -153,6 +156,43 @@ export const GlobalContextProvider: any = ({ children }: any) => {
         return true;
     }
   }, [blockchain, isUserNadabotVerified, isUserHolonymVerified]);
+
+  const clearUrlParams = () => {
+    const url = new URL(window.location.href);
+    url.search = '';
+    window.history.replaceState({}, document.title, url.toString());
+  };
+
+  const urlParams = useRef(new URLSearchParams(window.location.search)).current;
+  useEffect(() => {
+    const transactionHashes = urlParams.get('transactionHashes');
+    const errorCode = urlParams.get('errorCode');
+
+    if (transactionHashes || errorCode) setBlockchain('near');
+
+    if (transactionHashes) {
+      toast({
+        title: 'Successful purchase',
+        status: 'success',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+    }
+    if (errorCode) {
+      console.log('in errorCode');
+      toast({
+        title: 'Error on transaction',
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+        description: `Error code: ${errorCode}`,
+      });
+    }
+
+    clearUrlParams();
+  }, []);
 
   return (
     <GlobalContext.Provider

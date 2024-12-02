@@ -1,15 +1,13 @@
 'use client';
-import React from 'react';
-import { useContext, useEffect, useState } from 'react';
-import { GameboardContainer } from './GameboardContainer';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { ntoy, yton } from '@/contracts/contractUtils';
 import { useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse } from '@/hooks/maze';
-import ModalWelcome from '../ModalWelcome';
-import { useToast } from '@chakra-ui/react';
-import { useGlobalContext } from '@/contexts/GlobalContext';
+import { useContext, useEffect, useState } from 'react';
 import { WeHaveMusicModal } from '../ModalWeHaveMusic';
+import ModalWelcome from '../ModalWelcome';
+import { GameboardContainer } from './GameboardContainer';
 
 export default function MazeContainer() {
   const {
@@ -26,8 +24,11 @@ export default function MazeContainer() {
     restartGame,
   } = useContext(GameContext);
 
-  const { addresses, cheddarBalance, isCheddarBalanceLoading } =
-    useGlobalContext();
+  const {
+    addresses,
+    cheddarBalance,
+    isCheddarBalanceLoading,
+  } = useGlobalContext();
 
   const { isLoading: isLoadingCheddarMetadata } = useGetCheddarMetadata();
 
@@ -49,8 +50,6 @@ export default function MazeContainer() {
       setQueriesLoaded(true);
     }
   }
-
-  const toast = useToast();
 
   const minCheddarRequired = ntoy(555);
 
