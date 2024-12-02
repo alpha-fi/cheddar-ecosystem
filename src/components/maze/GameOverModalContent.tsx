@@ -7,6 +7,7 @@ import { Link, useToast } from '@chakra-ui/react';
 import { useContext, useEffect } from 'react';
 import { Facebook, Telegram, Twitter } from '../icons';
 import { RandomAd } from './RandomAd';
+import { ToastsContext } from '@/contexts/ToastsContext';
 
 interface Props {
   setHolonymModal: (v: boolean) => void;
@@ -33,6 +34,9 @@ export const GameOverModalContent = ({
   const toast = useToast();
   const { blockchain } = useGlobalContext();
   const { accountId } = useWalletSelector();
+
+  const { showToast } = useContext(ToastsContext);
+
   const properSecondsFormat =
     remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
 
@@ -47,25 +51,13 @@ export const GameOverModalContent = ({
       endGameResponse.cheddarMinted > 0 &&
       (isUserNadabotVerfied || isUserHolonymVerified)
     ) {
-      toast({
-        title: 'Cheddar Minted Successfully!',
-        status: 'success',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      showToast('Cheddar Minted Successfully!', 'success');
     }
 
     if (endGameResponse && !endGameResponse.ok) {
-      toast({
-        title: 'Error Minting Cheddar',
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      showToast('Error Minting Cheddar', 'error');
     }
-  }, [endGameResponse, toast]);
+  }, [endGameResponse]);
 
   const shareText = `I just ${hasWon ? 'won' : 'lost'} ${cheddarFound} Cheddar playing the Cheddar Maze game. Check it out its fun and with more features coming.`;
   const encodedText = encodeURIComponent(shareText);

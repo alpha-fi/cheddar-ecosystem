@@ -14,6 +14,7 @@ import OnchainContextProvider from '@/contexts/OnchainContextProvider';
 import WagmiContextProvider from '@/contexts/WagmiContextProvider';
 import { GlobalContextProvider } from '@/contexts/GlobalContext';
 import { getConfig } from '@/configs/config';
+import { ToastsContextProvider } from '@/contexts/ToastsContext';
 
 const inter = Inter({ subsets: ['latin'] });
 

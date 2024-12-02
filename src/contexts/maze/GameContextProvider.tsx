@@ -27,6 +27,7 @@ import {
 import { useDisclosure, useToast } from '@chakra-ui/react';
 import { getNFTs } from '@/contracts/cheddarCalls';
 import { useGlobalContext } from '../GlobalContext';
+import { ToastsContext } from '../ToastsContext';
 
 interface props {
   children: ReactNode;
@@ -214,6 +215,13 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseScoreboard,
   } = useDisclosure();
 
+  const { showToast } = React.useContext(ToastsContext);
+
+  function openScoreboard() {
+    console.log('open scoreboard');
+    onOpenScoreboard();
+  }
+
   const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
   const [pathLength, setPathLength] = useState(0);
   const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
@@ -288,13 +296,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [totalCells, setTotalCells] = useState(0);
 
   function handleErrorToast(title: string) {
-    toast({
-      title,
-      status: 'error',
-      duration: 9000,
-      position: 'bottom-right',
-      isClosable: true,
-    });
+    showToast(title, 'error');
   }
 
   useEffect(() => {
@@ -328,8 +330,9 @@ export const GameContextProvider = ({ children }: props) => {
 
   useEffect(() => {
     if (pendingCheddarError) {
-      handleErrorToast(
-        "Error occured while retrieving user's pending cheddar!"
+      showToast(
+        "Error occured while retrieving user's pending cheddar!",
+        'error'
       );
     }
   }, [pendingCheddarError]);
@@ -342,7 +345,10 @@ export const GameContextProvider = ({ children }: props) => {
 
   useEffect(() => {
     if (earnedButNotMintedError) {
-      handleErrorToast("Error occured while retrieving user's earned cheddar!");
+      showToast(
+        "Error occured while retrieving user's earned cheddar!",
+        'error'
+      );
     }
   }, [earnedButNotMintedError]);
 
@@ -354,7 +360,10 @@ export const GameContextProvider = ({ children }: props) => {
 
   useEffect(() => {
     if (mintedCheddarError) {
-      handleErrorToast("Error occured while retrieving user's minted cheddar!");
+      showToast(
+        "Error occured while retrieving user's minted cheddar!",
+        'error'
+      );
     }
   }, [mintedCheddarError]);
 
@@ -426,7 +435,6 @@ export const GameContextProvider = ({ children }: props) => {
 
     return randomizeColor;
   };
-  const toast = useToast();
 
   function getRandomPathCell(mazeData: MazeTileData[][]) {
     const pathCells: Coordinates[] = [];
@@ -452,7 +460,7 @@ export const GameContextProvider = ({ children }: props) => {
       blockchain
     );
     if (!newSeedIdResponse.ok) {
-      handleErrorToast(newSeedIdResponse.message);
+      showToast(newSeedIdResponse.message, 'error');
 
       return;
     }
@@ -1252,7 +1260,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
   useEffect(() => {
     if (scoreboardError) {
-      handleErrorToast('Error occured while fetching scoreboard!');
+      showToast('Error occured while fetching scoreboard!', 'error');
     }
   }, [scoreboardError, scoreboardResponse]);
 
