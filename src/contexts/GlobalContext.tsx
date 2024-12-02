@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { useWalletSelector } from './WalletSelectorContext';
 import { coinbaseWallet } from 'wagmi/connectors';
@@ -161,6 +161,10 @@ export const GlobalContextProvider: any = ({ children }: any) => {
         return true;
     }
   }, [blockchain, isUserNadabotVerified, isUserHolonymVerified]);
+
+  useEffect(() => {
+    if (!addresses.base && addresses.near) setBlockchain('near');
+  }, [addresses]);
 
   return (
     <GlobalContext.Provider
