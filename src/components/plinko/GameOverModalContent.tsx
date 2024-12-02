@@ -2,6 +2,7 @@ import { useContext, useEffect } from 'react';
 import styles from '@/styles/GameOverModalContent.module.css';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useToast } from '@chakra-ui/react';
+import { ToastsContext } from '@/contexts/ToastsContext';
 
 interface Props {
   prizeName: string;
@@ -17,11 +18,11 @@ export const GameOverModalContent = ({
   const { pendingCheddarToMint, isUserNadabotVerfied, isUserHolonymVerified } =
     useContext(GameContext);
 
+  const { showToast } = useContext(ToastsContext);
+
   const hasWon = prizeName !== 'splat';
 
   const gameOverMessage = hasWon ? 'So nice!' : `Splat!`;
-
-  const toast = useToast();
 
   function getMessageStyles() {
     return `${styles.gameOver} ${hasWon ? styles.win : styles.lost}`;
@@ -34,25 +35,13 @@ export const GameOverModalContent = ({
       endGameResponse.cheddarMinted > 0 &&
       (isUserNadabotVerfied || isUserHolonymVerified)
     ) {
-      toast({
-        title: 'Cheddar Minted Successfully!',
-        status: 'success',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      showToast('Cheddar Minted Successfully!', 'success');
     }
 
     if (endGameResponse && !endGameResponse.ok) {
-      toast({
-        title: 'Error Minting Cheddar',
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      showToast('Error Minting Cheddar', 'error');
     }
-  }, [endGameResponse, toast]);
+  }, [endGameResponse]);
 
   return (
     <div className={styles.gameOverModal}>

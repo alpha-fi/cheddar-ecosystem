@@ -4,6 +4,7 @@ import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useToast, Link } from '@chakra-ui/react';
 import { Facebook, Telegram, Twitter } from '../icons';
 import { getConfig } from '@/configs/config';
+import { ToastsContext } from '@/contexts/ToastsContext';
 
 interface Props {
   setHolonymModal: (v: boolean) => void;
@@ -22,7 +23,8 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
     isUserNadabotVerfied,
     isUserHolonymVerified,
   } = useContext(GameContext);
-  const toast = useToast();
+
+  const { showToast } = useContext(ToastsContext);
 
   const properSecondsFormat =
     remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
@@ -38,25 +40,13 @@ export const GameOverModalContent = ({ setHolonymModal, onClose }: Props) => {
       endGameResponse.cheddarMinted > 0 &&
       (isUserNadabotVerfied || isUserHolonymVerified)
     ) {
-      toast({
-        title: 'Cheddar Minted Successfully!',
-        status: 'success',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      showToast('Cheddar Minted Successfully!', 'success');
     }
 
     if (endGameResponse && !endGameResponse.ok) {
-      toast({
-        title: 'Error Minting Cheddar',
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      showToast('Error Minting Cheddar', 'error');
     }
-  }, [endGameResponse, toast]);
+  }, [endGameResponse]);
 
   const shareText = `I just ${hasWon ? 'won' : 'lost'} ${cheddarFound} Cheddar playing the Cheddar Maze game. Check it out its fun and with more features coming.`;
   const encodedText = encodeURIComponent(shareText);

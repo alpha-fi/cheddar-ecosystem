@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import { GameboardContainer } from './GameboardContainer';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
@@ -8,6 +9,7 @@ import { useGetCheddarBalance, useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse } from '@/hooks/maze';
 import ModalWelcome from '../ModalWelcome';
 import { useToast } from '@chakra-ui/react';
+import { ToastsContext } from '@/contexts/ToastsContext';
 
 export default function MazeContainer() {
   const {
@@ -23,6 +25,8 @@ export default function MazeContainer() {
     handleKeyPress,
     restartGame,
   } = useContext(GameContext);
+
+  const { showToast } = useContext(ToastsContext);
 
   const { selector, accountId } = useWalletSelector();
 
@@ -49,16 +53,9 @@ export default function MazeContainer() {
     }
   }
 
-  const toast = useToast();
   useEffect(() => {
     if (userAllowedError) {
-      toast({
-        title: 'Error occured while verifying current user!',
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      showToast('Error occured while verifying current user!', 'error');
     }
   }, [userAllowedError]);
 
