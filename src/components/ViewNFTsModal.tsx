@@ -19,7 +19,7 @@ export const ModalViewNFTs = ({ isOpen, onClose }: Props) => {
   return (
     <ModalContainer title="Your NFTs" onClose={onClose} isOpen={isOpen}>
       <Stack spacing={3}>
-        {nfts && isLoadingCheddarNFTs
+        {nfts && !isLoadingCheddarNFTs
           ? nfts.map((nft) => {
               return (
                 <div>
