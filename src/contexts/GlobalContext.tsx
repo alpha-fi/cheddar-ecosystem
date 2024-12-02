@@ -18,6 +18,10 @@ export type Blockchain = 'base' | 'near';
 interface GlobalContextProps {
   setBlockchain: React.Dispatch<React.SetStateAction<Blockchain>>;
   blockchain: Blockchain;
+  forcePlayMusic: boolean;
+  setForcePlayMusic: React.Dispatch<React.SetStateAction<boolean>>;
+  forcePauseMusic: boolean;
+  setForcePauseMusic: React.Dispatch<React.SetStateAction<boolean>>;
   addresses: {
     [key: string]: string | null;
     near: string | null;
@@ -48,6 +52,8 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
     useGetCheddarNFTs();
 
+  const [forcePlayMusic, setForcePlayMusic] = useState(false);
+  const [forcePauseMusic, setForcePauseMusic] = useState(false);
   const { accountId: nearAddress, selector, modal } = useWalletSelector();
   const { address: evmAddress, isConnected: isBaseConnected } = useAccount();
   const [collapsableNavbarActivated, setCollapsableNavbarActivated] =
@@ -161,6 +167,10 @@ export const GlobalContextProvider: any = ({ children }: any) => {
       value={{
         setBlockchain,
         blockchain,
+        forcePlayMusic,
+        setForcePlayMusic,
+        forcePauseMusic,
+        setForcePauseMusic,
         addresses,
         selectedBlockchainAddress,
         showConnectionModal,
