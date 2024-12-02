@@ -1,16 +1,17 @@
 import { Coordinates } from '@/entities/interfaces';
 import React, {
-  ReactNode,
   createContext,
-  useEffect,
-  useState,
   KeyboardEvent,
+  ReactNode,
+  useEffect,
   useRef,
+  useState,
 } from 'react';
 
-import { callEndGame, EndGameRequest, getSeedId } from '@/queries/maze/api';
-import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { localStorageSavedGameKey } from '@/constants/maze';
+import { NFT } from '@/contracts/nftCheddarContract';
 import { RNG } from '@/entities/maze/RNG';
+import { useIsHolonymVerfified, useIsNadabotVerfified } from '@/hooks/cheddar';
 import {
   ScoreboardResponse,
   useGetEarnedAndMintedCheddar,
@@ -18,16 +19,9 @@ import {
   useGetPendingCheddarToMint,
   useGetScoreboard,
 } from '@/hooks/maze';
-import { NFT } from '@/contracts/nftCheddarContract';
-import {
-  useGetCheddarNFTs,
-  useIsNadabotVerfified,
-  useIsHolonymVerfified,
-} from '@/hooks/cheddar';
+import { callEndGame, EndGameRequest, getSeedId } from '@/queries/maze/api';
 import { useDisclosure, useToast } from '@chakra-ui/react';
-import { getNFTs } from '@/contracts/cheddarCalls';
 import { Blockchain, useGlobalContext } from '../GlobalContext';
-import { localStorageSavedGameKey } from '@/constants/maze';
 
 interface props {
   children: ReactNode;
@@ -223,6 +217,7 @@ interface StoredGameInfo {
   blockchain: Blockchain;
   rngState: number;
   playerPath: Coordinates[];
+  selectedColorSet: number;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -492,10 +487,10 @@ export const GameContextProvider = ({ children }: props) => {
 
   const {
     blockchain,
+    setBlockchain,
     selectedBlockchainAddress,
     addresses,
     setCollapsableNavbarActivated,
-    setBlockchain,
     cheddarNFTsData,
   } = useGlobalContext();
 
@@ -596,13 +591,13 @@ export const GameContextProvider = ({ children }: props) => {
       pathLength,
       playerPosition: playerStartCell,
       score,
-      startTimestamp,
+      startTimestamp: Date.now(),
       cheeseCooldown,
       bagCooldown,
       cellsWithItemAmount,
       coveredCells,
       cheddarFound,
-      seedId,
+      seedId: newSeedIdResponse.seedId,
       hasFoundPlinko,
       moves,
       accountId: selectedBlockchainAddress,
@@ -611,6 +606,7 @@ export const GameContextProvider = ({ children }: props) => {
       blockchain,
       rngState: rng.state,
       playerPath: [],
+      selectedColorSet,
     };
 
     localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
@@ -752,53 +748,63 @@ export const GameContextProvider = ({ children }: props) => {
     setSelectedColorSet(randomColorSet);
     // setBackgroundImage(randomColorSet.backgroundImage);
     // setRarity(randomColorSet.rarity);
+
     const savedGame = localStorage.getItem(localStorageSavedGameKey);
     if (savedGame === null) {
       restartMaze();
       return;
     }
     const savedGameParsed = JSON.parse(savedGame) as StoredGameInfo;
+
     const remainingTimeWithStoredData = calculateRemainingTime(
       savedGameParsed.timestampStartStopTimerArray,
       savedGameParsed.timestampEndStopTimerArray,
       savedGameParsed.startTimestamp
     );
+
     if (
-      savedGameParsed.accountId !== selectedBlockchainAddress ||
-      remainingTimeWithStoredData <= 0
+      addresses[savedGameParsed.blockchain] === savedGameParsed.accountId &&
+      remainingTimeWithStoredData > 0
     ) {
+      setBlockchain(savedGameParsed.blockchain);
+    } else {
+      setTimerStarted(false);
+      setGameOverFlag(true);
+      setRemainingTime(timeLimitInSeconds);
       restartMaze();
       return;
     }
 
-    setBlockchain(savedGameParsed.blockchain);
-    setPathLength(savedGameParsed.pathLength);
-    setPlayerPosition(savedGameParsed.playerPosition);
-    setScore(savedGameParsed.score);
-    setStartTimestamp(savedGameParsed.startTimestamp);
-    setCheeseCooldown(savedGameParsed.cheeseCooldown);
-    setBagCooldown(savedGameParsed.bagCooldown);
-    setMoves(savedGameParsed.moves);
-    setCoveredCells(savedGameParsed.coveredCells);
-    setCellsWithItemAmount(savedGameParsed.cellsWithItemAmount);
-    setCheddarFound(savedGameParsed.cheddarFound);
-    setSeedId(savedGameParsed.seedId);
-    setHasFoundPlinko(savedGameParsed.hasFoundPlinko);
-    setTimestampStartStopTimerArray(
-      savedGameParsed.timestampStartStopTimerArray
-    );
-    setTimestampEndStopTimerArray(savedGameParsed.timestampEndStopTimerArray);
-    setRemainingTime(remainingTimeWithStoredData);
-    setTimerStarted(true);
-    setRng(new RNG(savedGameParsed.rngState));
-    setLastCellX(savedGameParsed.playerPosition.x);
-    setLastCellY(savedGameParsed.playerPosition.y);
-    setPlayerPath(savedGameParsed.playerPath);
+    if (blockchain === savedGameParsed.blockchain) {
+      setPathLength(savedGameParsed.pathLength);
+      setPlayerPosition(savedGameParsed.playerPosition);
+      setScore(savedGameParsed.score);
+      setStartTimestamp(savedGameParsed.startTimestamp);
+      setCheeseCooldown(savedGameParsed.cheeseCooldown);
+      setBagCooldown(savedGameParsed.bagCooldown);
+      setMoves(savedGameParsed.moves);
+      setCoveredCells(savedGameParsed.coveredCells);
+      setCellsWithItemAmount(savedGameParsed.cellsWithItemAmount);
+      setCheddarFound(savedGameParsed.cheddarFound);
+      setSeedId(savedGameParsed.seedId);
+      setHasFoundPlinko(savedGameParsed.hasFoundPlinko);
+      setTimestampStartStopTimerArray(
+        savedGameParsed.timestampStartStopTimerArray
+      );
+      setTimestampEndStopTimerArray(savedGameParsed.timestampEndStopTimerArray);
+      setRemainingTime(remainingTimeWithStoredData);
+      setTimerStarted(true);
+      setRng(new RNG(savedGameParsed.rngState));
+      setLastCellX(savedGameParsed.playerPosition.x);
+      setLastCellY(savedGameParsed.playerPosition.y);
+      setPlayerPath(savedGameParsed.playerPath);
+      setSelectedColorSet(savedGameParsed.selectedColorSet);
 
-    setMazeData(savedGameParsed.mazeData);
+      setMazeData(savedGameParsed.mazeData);
+    }
 
     setStoredDataLoaded(true);
-  }, [totalCells, renderBoard]); // Empty dependency array to run this effect only once on component mount
+  }, [totalCells, renderBoard, blockchain]); // Empty dependency array to run this effect only once on component mount
 
   useEffect(() => {
     if (storedDataLoaded) {
@@ -884,6 +890,7 @@ export const GameContextProvider = ({ children }: props) => {
       blockchain,
       rngState: rng.state,
       playerPath: newPlayerPath,
+      selectedColorSet,
     };
 
     localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
@@ -1177,10 +1184,6 @@ export const GameContextProvider = ({ children }: props) => {
     await refetchEarnedAndMintedCheddar();
     setEndGameResponse(endGameResponse);
   }
-
-  useEffect(() => {
-    console.log('coveredCellsCoordenates: ', playerPath);
-  }, [playerPath]);
 
   function calculateRemainingTime(
     propsTimestampStartStopTimerArray?: number[],
