@@ -10,9 +10,6 @@ export const PageContainer = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-
-  
-
   return (
     <GameContextProvider>
       <VStack minH="100%" minW="100%" justifyContent="space-between">

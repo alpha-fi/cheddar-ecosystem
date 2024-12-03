@@ -24,19 +24,16 @@ export default function MazeContainer() {
     restartGame,
   } = useContext(GameContext);
 
-  const {
-    addresses,
-    cheddarBalance,
-    isCheddarBalanceLoading,
-  } = useGlobalContext();
-
-  const { isLoading: isLoadingCheddarMetadata } = useGetCheddarMetadata();
+  const { addresses, cheddarBalance, isCheddarBalanceLoading } =
+    useGlobalContext();
 
   const {
     data: isAllowedResponse,
     isLoading: isLoadingIsAllowed,
     error: userAllowedError,
   } = useGetIsAllowedResponse();
+
+  const { isLoading: isLoadingCheddarMetadata } = useGetCheddarMetadata();
 
   const [queriesLoaded, setQueriesLoaded] = useState(false);
   const [hasEnoughBalance, setHasEnoughBalance] = useState(false);

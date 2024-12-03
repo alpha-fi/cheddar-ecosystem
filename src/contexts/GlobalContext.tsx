@@ -6,6 +6,7 @@ import {
   useIsHolonymVerfified,
   useIsNadabotVerfified,
 } from '@/hooks/cheddar';
+import { getDataFromURL } from '@/utilities/exportableFunctions';
 import { useToast } from '@chakra-ui/react';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
@@ -39,6 +40,17 @@ interface GlobalContextProps {
   toggleCollapsableNavbar: () => void;
   collapsableNavbarActivated: boolean;
   setCollapsableNavbarActivated: React.Dispatch<React.SetStateAction<boolean>>;
+  urlParams: URLSearchParams;
+}
+
+export type PersistedDataOnRedirectionMethodName =
+  | 'buyMazeMatch'
+  | 'endMazeMatch'
+  | 'startMazeMatch';
+
+export interface PersistedDataOnRedirection {
+  blockchain: Blockchain;
+  methodName: PersistedDataOnRedirectionMethodName;
 }
 
 const GlobalContext = React.createContext({} as GlobalContextProps);
@@ -165,33 +177,38 @@ export const GlobalContextProvider: any = ({ children }: any) => {
 
   const urlParams = useRef(new URLSearchParams(window.location.search)).current;
   useEffect(() => {
-    const transactionHashes = urlParams.get('transactionHashes');
-    const errorCode = urlParams.get('errorCode');
+    if (urlParams) {
+      const URLData = getDataFromURL(urlParams);
 
-    if (transactionHashes || errorCode) setBlockchain('near');
+      if (URLData.persistedData.blockchain) {
+        setBlockchain(URLData.persistedData.blockchain);
+      }
 
-    if (transactionHashes) {
-      toast({
-        title: 'Successful purchase',
-        status: 'success',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      if (
+        URLData.persistedData.methodName === 'buyMazeMatch' &&
+        URLData.transactionHashes
+      ) {
+        toast({
+          title: 'Successful purchase',
+          status: 'success',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      }
+      if (URLData.persistedData.methodName && URLData.errorCode) {
+        toast({
+          title: `Error calling ${URLData.persistedData.methodName}`,
+          status: 'error',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+          description: `Error code: ${URLData.errorCode}`,
+        });
+      }
+
+      clearUrlParams();
     }
-    if (errorCode) {
-      console.log('in errorCode');
-      toast({
-        title: 'Error on transaction',
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-        description: `Error code: ${errorCode}`,
-      });
-    }
-
-    clearUrlParams();
   }, []);
 
   return (
@@ -217,6 +234,7 @@ export const GlobalContextProvider: any = ({ children }: any) => {
         toggleCollapsableNavbar,
         collapsableNavbarActivated,
         setCollapsableNavbarActivated,
+        urlParams,
       }}
     >
       {children}

@@ -1,7 +1,10 @@
 import styles from '@/styles/BuyMatchTab.module.css';
 
 import { getConfig } from '@/configs/config';
-import { useGlobalContext } from '@/contexts/GlobalContext';
+import {
+  PersistedDataOnRedirection,
+  useGlobalContext,
+} from '@/contexts/GlobalContext';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { yton } from '@/contracts/contractUtils';
 import { ftTransferCall } from '@/contracts/tokenCheddarCalls';
@@ -24,6 +27,7 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { RenderCheddarIcon } from './maze/RenderCheddarIcon';
+import { addEncodedDataToURL } from '@/utilities/exportableFunctions';
 
 interface Props {}
 
@@ -58,6 +62,8 @@ export const BuyMatchTab = ({}: Props) => {
 
   async function handleBuyMatches() {
     if (blockchain !== 'near') return;
+
+    addEncodedDataToURL(blockchain, 'buyMazeMatch');
 
     try {
       setIsLoading(true);

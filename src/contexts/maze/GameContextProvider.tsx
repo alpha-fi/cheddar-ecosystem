@@ -1,17 +1,23 @@
 import { Coordinates } from '@/entities/interfaces';
 import React, {
+  KeyboardEvent,
   ReactNode,
   createContext,
   useEffect,
-  useState,
-  KeyboardEvent,
   useRef,
+  useState,
 } from 'react';
 
-import { callEndGame, getSeedId } from '@/queries/maze/api';
-import { getSeedIdFromContract } from '@/contracts/maze/mazeBuyerCalls';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { getSeedIdFromContract } from '@/contracts/maze/mazeBuyerCalls';
+import { NFT } from '@/contracts/nftCheddarContract';
+import { getNFTs } from '@/contracts/tokenCheddarCalls';
 import { RNG } from '@/entities/maze/RNG';
+import {
+  useGetCheddarNFTs,
+  useIsHolonymVerfified,
+  useIsNadabotVerfified,
+} from '@/hooks/cheddar';
 import {
   ScoreboardResponse,
   useGetEarnedAndMintedCheddar,
@@ -21,14 +27,9 @@ import {
   useGetUserRemainingFreeGames,
   useGetUserRemainingPaidGames,
 } from '@/hooks/maze';
-import { NFT } from '@/contracts/nftCheddarContract';
-import {
-  useGetCheddarNFTs,
-  useIsNadabotVerfified,
-  useIsHolonymVerfified,
-} from '@/hooks/cheddar';
+import { callEndGame, getSeedId } from '@/queries/maze/api';
+import { addEncodedDataToURL } from '@/utilities/exportableFunctions';
 import { useDisclosure, useToast } from '@chakra-ui/react';
-import { getNFTs } from '@/contracts/tokenCheddarCalls';
 import { useGlobalContext } from '../GlobalContext';
 
 interface props {
@@ -439,6 +440,7 @@ export const GameContextProvider = ({ children }: props) => {
     blockchain,
     selectedBlockchainAddress,
     setCollapsableNavbarActivated,
+    urlParams,
   } = useGlobalContext();
 
   useEffect(() => {
@@ -491,6 +493,8 @@ export const GameContextProvider = ({ children }: props) => {
       if (blockchain === 'near') {
         const wallet = await selector.wallet();
 
+        addEncodedDataToURL(blockchain, 'startMazeMatch');
+
         seedId = await getSeedIdFromContract(wallet);
       } else if (blockchain === 'base') {
         seedId = await getSeedId(selectedBlockchainAddress);
@@ -527,7 +531,6 @@ export const GameContextProvider = ({ children }: props) => {
       gameOverRefSent.current = false;
 
       // Regenerate maze data
-      console.log('seedId: ', typeof seedId, seedId);
       const rng = new RNG(seedId);
       setRng(rng);
 

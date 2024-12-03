@@ -1,13 +1,8 @@
-import React from 'react';
-import { Gameboard } from './Gameboard';
-import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import styles from '@/styles/GameboardContainer.module.css';
 import {
   Button,
   Flex,
   Heading,
-  Hide,
-  HStack,
   Link,
   Menu,
   MenuButton,
@@ -21,23 +16,17 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
-import {
-  MouseEventHandler,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { MouseEventHandler, useContext, useEffect, useState } from 'react';
+import { PlinkoBoard } from '../plinko/PlinkoGameboard';
+import { Gameboard } from './Gameboard';
 
+import { getConfig } from '@/configs/config';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { ModalBuy } from '../ModalBuy';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { ModalContainer } from '../ModalContainer';
-import { RenderCheddarIcon } from './RenderCheddarIcon';
-import ModalNotAllowedToMint from './ModalNotAllowedToMint';
-import ModalRules from './ModalRules';
-import { GameOverModalContent } from './GameOverModalContent';
+import { IsAllowedResponse } from '@/hooks/maze';
+import { callMintCheddar } from '@/queries/maze/api';
+import { getDataFromURL } from '@/utilities/exportableFunctions';
 import {
   ArrowBackIcon,
   ArrowDownIcon,
@@ -45,14 +34,14 @@ import {
   ArrowUpIcon,
   CopyIcon,
 } from '@chakra-ui/icons';
-import { Scoreboard } from './Scoreboard';
-import { callMintCheddar } from '@/queries/maze/api';
-import { getConfig } from '@/configs/config';
+import { ModalBuy } from '../ModalBuy';
+import { ModalContainer } from '../ModalContainer';
 import ModalHolonym from '../ModalHolonymSBT';
-import { useAccount } from 'wagmi';
-import { useGlobalContext } from '@/contexts/GlobalContext';
-import { IsAllowedResponse } from '@/hooks/maze';
-import { AutoPlayAudio } from '../Navbar/components/AutoPlayAudio';
+import { GameOverModalContent } from './GameOverModalContent';
+import ModalNotAllowedToMint from './ModalNotAllowedToMint';
+import ModalRules from './ModalRules';
+import { RenderCheddarIcon } from './RenderCheddarIcon';
+import { Scoreboard } from './Scoreboard';
 
 interface Props {
   remainingMinutes: number;
@@ -111,7 +100,7 @@ export function GameboardContainer({
     gameboardRef,
   } = useContext(GameContext);
 
-  const { addresses, isConnected, showConnectionModal, blockchain } =
+  const { addresses, isConnected, showConnectionModal, blockchain, urlParams } =
     useGlobalContext();
 
   const {
@@ -127,6 +116,21 @@ export function GameboardContainer({
       setStartingGame(false);
     }
   }, [timerStarted]);
+
+  useEffect(() => {
+    if (urlParams) {
+      const URLData = getDataFromURL(urlParams);
+
+      if (
+        isAllowedResponse?.ok &&
+        freeMatchesLeft! + payedMatchesLeft! > 0 &&
+        URLData.persistedData.methodName === 'startMazeMatch' &&
+        URLData.transactionHashes
+      ) {
+        restartGame();
+      }
+    }
+  }, []);
 
   const walletSelector = useWalletSelector();
 
