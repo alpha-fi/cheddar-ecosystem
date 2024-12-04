@@ -18,6 +18,8 @@ export type Blockchain = 'base' | 'near';
 interface GlobalContextProps {
   setBlockchain: React.Dispatch<React.SetStateAction<Blockchain>>;
   blockchain: Blockchain;
+  blockchainChangedOnLoad: boolean;
+  setBlockchainChangedOnLoad: React.Dispatch<React.SetStateAction<boolean>>;
   forcePlayMusic: boolean;
   setForcePlayMusic: React.Dispatch<React.SetStateAction<boolean>>;
   forcePauseMusic: boolean;
@@ -48,6 +50,7 @@ const GlobalContext = React.createContext({} as GlobalContextProps);
 
 export const GlobalContextProvider: any = ({ children }: any) => {
   const [blockchain, setBlockchain] = useState<Blockchain>('base');
+  const [blockchainChangedOnLoad, setBlockchainChangedOnLoad] = useState(false);
 
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
     useGetCheddarNFTs();
@@ -163,7 +166,10 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   }, [blockchain, isUserNadabotVerified, isUserHolonymVerified]);
 
   useEffect(() => {
-    if (!addresses.base && addresses.near) setBlockchain('near');
+    if (!addresses.base && addresses.near && !blockchainChangedOnLoad) {
+      setBlockchain('near');
+      setBlockchainChangedOnLoad(true);
+    }
   }, [addresses]);
 
   return (
@@ -191,6 +197,8 @@ export const GlobalContextProvider: any = ({ children }: any) => {
         setCollapsableNavbarActivated,
         cheddarNFTsData,
         isLoadingCheddarNFTs,
+        blockchainChangedOnLoad,
+        setBlockchainChangedOnLoad,
       }}
     >
       {children}

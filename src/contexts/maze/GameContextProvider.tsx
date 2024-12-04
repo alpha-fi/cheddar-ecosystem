@@ -492,6 +492,8 @@ export const GameContextProvider = ({ children }: props) => {
     addresses,
     setCollapsableNavbarActivated,
     cheddarNFTsData,
+    blockchainChangedOnLoad,
+    setBlockchainChangedOnLoad,
   } = useGlobalContext();
 
   const { data: isUserNadabotVerfied } = useIsNadabotVerfified(addresses.near);
@@ -766,7 +768,10 @@ export const GameContextProvider = ({ children }: props) => {
       addresses[savedGameParsed.blockchain] === savedGameParsed.accountId &&
       remainingTimeWithStoredData > 0
     ) {
-      setBlockchain(savedGameParsed.blockchain);
+      if (!blockchainChangedOnLoad) {
+        setBlockchain(savedGameParsed.blockchain);
+        setBlockchainChangedOnLoad(true);
+      }
     } else {
       setTimerStarted(false);
       setGameOverFlag(true);
@@ -801,6 +806,13 @@ export const GameContextProvider = ({ children }: props) => {
       setSelectedColorSet(savedGameParsed.selectedColorSet);
 
       setMazeData(savedGameParsed.mazeData);
+      setGameOverFlag(false);
+    } else {
+      setTimerStarted(false);
+      setGameOverFlag(true);
+      setRemainingTime(timeLimitInSeconds);
+      restartMaze();
+      return;
     }
 
     setStoredDataLoaded(true);
