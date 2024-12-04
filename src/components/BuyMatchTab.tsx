@@ -63,7 +63,7 @@ export const BuyMatchTab = ({}: Props) => {
   async function handleBuyMatches() {
     if (blockchain !== 'near') return;
 
-    addEncodedDataToURL(blockchain, 'buyMazeMatch');
+    addEncodedDataToURL(blockchain, 'buyMazeMatch', 'buying maze match');
 
     try {
       setIsLoading(true);

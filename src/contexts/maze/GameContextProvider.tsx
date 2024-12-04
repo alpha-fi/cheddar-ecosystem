@@ -493,7 +493,7 @@ export const GameContextProvider = ({ children }: props) => {
       if (blockchain === 'near') {
         const wallet = await selector.wallet();
 
-        addEncodedDataToURL(blockchain, 'startMazeMatch');
+        addEncodedDataToURL(blockchain, 'startMazeMatch', 'starting game');
 
         seedId = await getSeedIdFromContract(wallet);
       } else if (blockchain === 'base') {

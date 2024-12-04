@@ -1,5 +1,7 @@
 import { getConfig } from '@/configs/config';
+import { hasSuccessValue } from '@/contracts/maze/mazeBuyerCalls';
 import { providers } from 'near-api-js';
+import { FinalExecutionOutcome } from 'near-api-js/lib/providers';
 
 const provider = new providers.JsonRpcProvider({
   url: getConfig().networkData.nodeUrl,
@@ -18,3 +20,17 @@ export const getNearBalance = async (accountId: string) => {
 
   return response ? response.amount : response.error.data;
 };
+
+export async function getTransactionDetails(
+  transactionHash: string,
+  accountId: string
+) {
+  const finalExecutionOutcome = await provider.txStatus(
+    transactionHash,
+    accountId
+  );
+
+  if (!hasSuccessValue(finalExecutionOutcome.status)) {
+    throw new Error('Transaction failed');
+  }
+}

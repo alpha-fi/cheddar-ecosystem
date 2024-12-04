@@ -104,7 +104,9 @@ export const getUserRemainingPaidGames = async (
   }
 };
 
-function hasSuccessValue(status: any): status is { SuccessValue: string } {
+export function hasSuccessValue(
+  status: any
+): status is { SuccessValue: string } {
   return status && typeof status.SuccessValue === 'string';
 }
 

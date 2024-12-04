@@ -51,6 +51,7 @@ export type PersistedDataOnRedirectionMethodName =
 export interface PersistedDataOnRedirection {
   blockchain: Blockchain;
   methodName: PersistedDataOnRedirectionMethodName;
+  errorMsg: string;
 }
 
 const GlobalContext = React.createContext({} as GlobalContextProps);
@@ -175,19 +176,21 @@ export const GlobalContextProvider: any = ({ children }: any) => {
     window.history.replaceState({}, document.title, url.toString());
   };
 
-  const urlParams = useRef(new URLSearchParams(window.location.search)).current;
+  const urlParams = useMemo(
+    () => new URLSearchParams(window.location.search),
+    []
+  );
+  
   useEffect(() => {
     if (urlParams) {
-      const URLData = getDataFromURL(urlParams);
+      const { transactionHash, persistedData, errorCode } =
+        getDataFromURL(urlParams);
 
-      if (URLData.persistedData.blockchain) {
-        setBlockchain(URLData.persistedData.blockchain);
+      if (persistedData.blockchain) {
+        setBlockchain(persistedData.blockchain);
       }
 
-      if (
-        URLData.persistedData.methodName === 'buyMazeMatch' &&
-        URLData.transactionHashes
-      ) {
+      if (persistedData.methodName === 'buyMazeMatch' && transactionHash) {
         toast({
           title: 'Successful purchase',
           status: 'success',
@@ -196,14 +199,14 @@ export const GlobalContextProvider: any = ({ children }: any) => {
           isClosable: true,
         });
       }
-      if (URLData.persistedData.methodName && URLData.errorCode) {
+      if (persistedData.methodName && errorCode) {
         toast({
-          title: `Error calling ${URLData.persistedData.methodName}`,
+          title: `Error ${persistedData.errorMsg}`,
           status: 'error',
           duration: 9000,
           position: 'bottom-right',
           isClosable: true,
-          description: `Error code: ${URLData.errorCode}`,
+          description: `Error code: ${errorCode}`,
         });
       }
 

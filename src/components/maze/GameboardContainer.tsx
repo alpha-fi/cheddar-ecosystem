@@ -42,6 +42,7 @@ import ModalNotAllowedToMint from './ModalNotAllowedToMint';
 import ModalRules from './ModalRules';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { Scoreboard } from './Scoreboard';
+import { getTransactionDetails } from '@/lib/near';
 
 interface Props {
   remainingMinutes: number;
@@ -118,18 +119,31 @@ export function GameboardContainer({
   }, [timerStarted]);
 
   useEffect(() => {
-    if (urlParams) {
-      const URLData = getDataFromURL(urlParams);
+    async function validateStartGameResponse() {
+      try {
+        if (urlParams) {
+          const { transactionHash, errorCode, persistedData } =
+            getDataFromURL(urlParams);
 
-      if (
-        isAllowedResponse?.ok &&
-        freeMatchesLeft! + payedMatchesLeft! > 0 &&
-        URLData.persistedData.methodName === 'startMazeMatch' &&
-        URLData.transactionHashes
-      ) {
-        restartGame();
+          const accountId = addresses[persistedData.blockchain];
+
+          if (transactionHash && accountId) {
+            await getTransactionDetails(transactionHash, accountId);
+          }
+
+          if (
+            persistedData.methodName === 'startMazeMatch' &&
+            transactionHash
+          ) {
+            restartGame();
+          }
+        }
+      } catch (err) {
+        console.error('Error checking game from URL: ', err);
       }
     }
+
+    validateStartGameResponse();
   }, []);
 
   const walletSelector = useWalletSelector();

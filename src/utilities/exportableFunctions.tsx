@@ -23,11 +23,13 @@ export function smartTrim(string: string, maxLength: number) {
 
 export function addEncodedDataToURL(
   blockchain: Blockchain,
-  methodName: PersistedDataOnRedirectionMethodName
+  methodName: PersistedDataOnRedirectionMethodName,
+  errorMsg: string
 ) {
   const dataToPersist: PersistedDataOnRedirection = {
     blockchain,
     methodName,
+    errorMsg,
   };
   const encodedData = encodeURIComponent(JSON.stringify(dataToPersist));
 
@@ -38,11 +40,11 @@ export function addEncodedDataToURL(
 }
 
 export function getDataFromURL(urlParams: URLSearchParams) {
-  const transactionHashes = urlParams.get('transactionHashes');
+  const transactionHash = urlParams.get('transactionHashes');
   const errorCode = urlParams.get('errorCode');
   const persistedData = JSON.parse(
     decodeURIComponent(urlParams.get('data') || '{}')
   ) as PersistedDataOnRedirection;
 
-  return { transactionHashes, errorCode, persistedData };
+  return { transactionHash, errorCode, persistedData };
 }
