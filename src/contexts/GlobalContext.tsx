@@ -46,7 +46,8 @@ interface GlobalContextProps {
 export type PersistedDataOnRedirectionMethodName =
   | 'buyMazeMatch'
   | 'endMazeMatch'
-  | 'startMazeMatch';
+  | 'startMazeMatch'
+  | 'loseGame';
 
 export interface PersistedDataOnRedirection {
   blockchain: Blockchain;
@@ -180,7 +181,7 @@ export const GlobalContextProvider: any = ({ children }: any) => {
     () => new URLSearchParams(window.location.search),
     []
   );
-  
+
   useEffect(() => {
     if (urlParams) {
       const { transactionHash, persistedData, errorCode } =

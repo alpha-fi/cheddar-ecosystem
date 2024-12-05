@@ -139,3 +139,33 @@ export async function getSeedIdFromContract(wallet: Wallet) {
 
   return Number(Buffer.from(b64SeedId, 'base64').toString('utf-8'));
 }
+
+export async function callLoseGame(wallet: Wallet) {
+  const mazeBuyerContractId = getConfig().contracts.near.mazeBuyer;
+
+  const finalExecutionOutcome = await wallet.signAndSendTransaction({
+    receiverId: mazeBuyerContractId,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName: 'lose_game',
+          args: {},
+          gas: '300' + '0'.repeat(12),
+          deposit: '1' + '0'.repeat(21),
+        },
+      },
+    ],
+  });
+
+  if (
+    !finalExecutionOutcome ||
+    !hasSuccessValue(finalExecutionOutcome.status)
+  ) {
+    throw new Error('Failed to retrive seedId from contract');
+  }
+
+  const b64LoseGame = finalExecutionOutcome.status.SuccessValue;
+
+  return Buffer.from(b64LoseGame, 'base64').toString('utf-8');
+}

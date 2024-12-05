@@ -9,7 +9,10 @@ import React, {
 } from 'react';
 
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { getSeedIdFromContract } from '@/contracts/maze/mazeBuyerCalls';
+import {
+  callLoseGame,
+  getSeedIdFromContract,
+} from '@/contracts/maze/mazeBuyerCalls';
 import { NFT } from '@/contracts/nftCheddarContract';
 import { getNFTs } from '@/contracts/tokenCheddarCalls';
 import { RNG } from '@/entities/maze/RNG';
@@ -64,7 +67,7 @@ const pointsOfActions = {
 
 const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
 
 interface GameContextProps {
   isMobile: boolean;
@@ -973,24 +976,53 @@ export const GameContextProvider = ({ children }: props) => {
 
     gameOverRefSent.current = true;
 
-    const cheddarToEarn =
-      cheddarFound <= pendingCheddarToMint
-        ? cheddarFound
-        : pendingCheddarToMint;
+    if (won || blockchain !== 'near') {
+      const cheddarToEarn =
+        cheddarFound <= pendingCheddarToMint
+          ? cheddarFound
+          : pendingCheddarToMint;
 
-    const endGameRequestData = {
-      data: {
-        cheddarEarned: won ? cheddarToEarn : 0,
-        score,
-        path: [],
-      },
-      metadata: {
-        blockchain,
-        accountId: selectedBlockchainAddress!,
-        seedId,
-        referralAccount: referralAccount,
-      },
-    };
+      const endGameRequestData = {
+        data: {
+          cheddarEarned: won ? cheddarToEarn : 0,
+          score,
+          path: [],
+        },
+        metadata: {
+          blockchain,
+          accountId: selectedBlockchainAddress!,
+          seedId,
+          referralAccount: referralAccount,
+        },
+      };
+
+      const endGameResponse = await callEndGame(endGameRequestData).catch(
+        (error) => setSaveResponse(error)
+      );
+      await refetchEarnedButNotMintedCheddar();
+      await refetchEarnedAndMintedCheddar();
+      setEndGameResponse(endGameResponse);
+      if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+    } else if (!won && blockchain === 'near') {
+      try {
+        const wallet = await selector.wallet();
+
+        addEncodedDataToURL(blockchain, 'loseGame', 'prossesing lose');
+
+        const response = await callLoseGame(wallet);
+
+        toast({
+          title: 'Game lost call',
+          description: response,
+          status: 'success',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      } catch (err) {
+        console.error('Error in gameOverLoseGame', err);
+      }
+    }
 
     setHasWon(won);
     setCoveredCells([]);
@@ -1003,14 +1035,6 @@ export const GameContextProvider = ({ children }: props) => {
     }, 800);
 
     setCollapsableNavbarActivated(false);
-
-    const endGameResponse = await callEndGame(endGameRequestData).catch(
-      (error) => setSaveResponse(error)
-    );
-    await refetchEarnedButNotMintedCheddar();
-    await refetchEarnedAndMintedCheddar();
-    setEndGameResponse(endGameResponse);
-    if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
   }
 
   // Define a new useEffect hook to manage the timer
