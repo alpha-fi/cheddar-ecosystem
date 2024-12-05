@@ -214,7 +214,6 @@ export function Gameboard({
                     <span
                       role="img"
                       aria-label={cellContent}
-                      // className="static-icon"
                       className={getCellClasses(cell)}
                     >
                       {cellContent}
@@ -225,10 +224,7 @@ export function Gameboard({
                 {/* Player icon */}
                 {playerPosition!.x === colIndex &&
                   playerPosition!.y === rowIndex && (
-                    <div
-                      className={getPlayerTileClasses(cell)}
-                      // ${/*styles[direction]*/}
-                    ></div>
+                    <div className={getPlayerTileClasses(cell)}></div>
                   )}
               </div>
             );

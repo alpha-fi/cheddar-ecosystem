@@ -166,11 +166,22 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   }, [blockchain, isUserNadabotVerified, isUserHolonymVerified]);
 
   useEffect(() => {
-    if (!addresses.base && addresses.near && !blockchainChangedOnLoad) {
-      setBlockchain('near');
-      setBlockchainChangedOnLoad(true);
+    if (!blockchainChangedOnLoad) {
+      // For some reason when you enter the site you get addresses.near but not addresses.base
+      // That's the reason of why i use the setTimeout
+      if (!addresses.base && addresses.near) {
+        setBlockchain('near');
+        setTimeout(() => {
+          setBlockchainChangedOnLoad(true);
+        }, 500);
+      } else {
+        setBlockchain('base');
+        setTimeout(() => {
+          setBlockchainChangedOnLoad(true);
+        }, 500);
+      }
     }
-  }, [addresses]);
+  }, [addresses, addresses.base, addresses.near]);
 
   return (
     <GlobalContext.Provider

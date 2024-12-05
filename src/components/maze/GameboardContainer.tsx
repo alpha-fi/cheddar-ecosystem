@@ -112,6 +112,7 @@ export function GameboardContainer({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
   const [startingGame, setStartingGame] = useState(false);
+  const [hasStartedOnce, setHasStartedOnce] = useState(false);
 
   useEffect(() => {
     if (timerStarted) {
@@ -195,6 +196,7 @@ export function GameboardContainer({
   }
 
   function focusMazeAndStartGame() {
+    setHasStartedOnce(true);
     setStartingGame(true);
     gameboardRef.current?.focus();
     restartGame();
@@ -560,7 +562,13 @@ export function GameboardContainer({
               _hover={{ bg: 'yellowgreen' }}
               onClick={getStartGameButtonHandler()}
             >
-              {startingGame ? <Spinner /> : gameOverFlag ? 'Restart' : 'Start'}
+              {startingGame ? (
+                <Spinner />
+              ) : gameOverFlag && hasStartedOnce ? (
+                'Restart'
+              ) : (
+                'Start'
+              )}
             </Button>
           </div>
         )}

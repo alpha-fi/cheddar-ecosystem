@@ -195,9 +195,15 @@ interface GameContextProps {
 
   isUserNadabotVerfied: boolean | undefined;
   isUserHolonymVerified: boolean | undefined;
+
+  calculateRemainingTime: (
+    propsTimestampStartStopTimerArray?: number[],
+    propsTimestampEndStopTimerArray?: number[],
+    propsStartTimestamp?: number | null
+  ) => number;
 }
 
-interface StoredGameInfo {
+export interface StoredGameInfo {
   mazeData: MazeTileData[][];
   pathLength: number;
   playerPosition: Coordinates;
@@ -1613,6 +1619,7 @@ export const GameContextProvider = ({ children }: props) => {
         isUserHolonymVerified,
         earnedButNotMintedCheddar,
         totalMintedCheddarToDate,
+        calculateRemainingTime,
       }}
     >
       {children}
