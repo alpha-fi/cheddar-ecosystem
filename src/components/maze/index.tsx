@@ -103,8 +103,6 @@ export default function MazeContainer() {
       <WeHaveMusicModal />
       {initialized() && ( // Replace `condition` with your actual condition
         <GameboardContainer
-          remainingMinutes={Math.floor(remainingTime / 60)}
-          remainingSeconds={remainingTime % 60}
           handlePowerUpClick={handlePowerUpClick}
           cellSize={cellSize}
           hasEnoughBalance={hasEnoughBalance}

@@ -53,8 +53,6 @@ import { AutoPlayAudio } from '../Navbar/components/AutoPlayAudio';
 import { ModalViewNFTs } from '../ViewNFTsModal';
 
 interface Props {
-  remainingMinutes: number;
-  remainingSeconds: number;
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
   cellSize: number;
   hasEnoughBalance: boolean | null;
@@ -67,8 +65,6 @@ interface CheddarMintResponse {
   cheddarMinted?: number;
 }
 export function GameboardContainer({
-  remainingMinutes,
-  remainingSeconds,
   handlePowerUpClick,
   cellSize,
   hasEnoughBalance,
@@ -84,7 +80,7 @@ export function GameboardContainer({
     restartGame,
     timerStarted,
     setGameOverMessage,
-    saveResponse,
+    endGameResponseErrors,
     plinkoModalOpened,
     closePlinkoModal,
     nfts,
@@ -100,6 +96,8 @@ export function GameboardContainer({
     isUserHolonymVerified,
     totalMintedCheddarToDate,
     selectedColorSet,
+    loadingRemainingMinutesAndSeconds,
+    remainingTime,
   } = useContext(GameContext);
 
   const { addresses, isConnected, showConnectionModal, blockchain } =
@@ -114,6 +112,7 @@ export function GameboardContainer({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
   const [startingGame, setStartingGame] = useState(false);
+  const [hasStartedOnce, setHasStartedOnce] = useState(false);
 
   useEffect(() => {
     if (timerStarted) {
@@ -197,6 +196,7 @@ export function GameboardContainer({
   }
 
   function focusMazeAndStartGame() {
+    setHasStartedOnce(true);
     setStartingGame(true);
     gameboardRef.current?.focus();
     restartGame();
@@ -227,6 +227,14 @@ export function GameboardContainer({
 
   function handleToggleShowMovementButtons() {
     setShowMovementButtons(!showMovementButtons);
+  }
+
+  function getRemainingMinutes() {
+    return Math.floor(remainingTime / 60);
+  }
+
+  function getRemainingSeconds() {
+    return remainingTime % 60;
   }
 
   const renderSwipeIcon = () => {
@@ -272,8 +280,12 @@ export function GameboardContainer({
   };
 
   function getPowerUpBtnText() {
-    if (addresses['near'] && nfts?.length) {
-      return '⚡';
+    if (addresses['near']) {
+      if (nfts && nfts?.length) {
+        return '⚡';
+      } else return 'Buy ⚡';
+    } else {
+      return 'Buy ⚡';
     }
     return 'Buy ⚡';
   }
@@ -406,8 +418,19 @@ export function GameboardContainer({
         <div className={getGameInfoClases('score')}>Score: {score}</div>
         <div className={getGameInfoClases('time')}>
           Time:{' '}
-          {remainingMinutes < 10 ? '0' + remainingMinutes : remainingMinutes}:
-          {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
+          {loadingRemainingMinutesAndSeconds ? (
+            <Spinner />
+          ) : (
+            <>
+              {getRemainingMinutes() < 10
+                ? '0' + getRemainingMinutes()
+                : getRemainingMinutes()}
+              :
+              {getRemainingSeconds() < 10
+                ? '0' + getRemainingSeconds()
+                : getRemainingSeconds()}
+            </>
+          )}
         </div>
       </div>
       <div className={styles.mazeContainer} ref={gameboardRef} tabIndex={0}>
@@ -539,7 +562,13 @@ export function GameboardContainer({
               _hover={{ bg: 'yellowgreen' }}
               onClick={getStartGameButtonHandler()}
             >
-              {startingGame ? <Spinner /> : gameOverFlag ? 'Restart' : 'Start'}
+              {startingGame ? (
+                <Spinner />
+              ) : gameOverFlag && hasStartedOnce ? (
+                'Restart'
+              ) : (
+                'Start'
+              )}
             </Button>
           </div>
         )}
@@ -604,14 +633,14 @@ export function GameboardContainer({
           />
         </ModalContainer>
       )}
-      {saveResponse && (
+      {endGameResponseErrors && (
         <ModalContainer
           title={'Error saving game'}
           isOpen={isOpen}
           onClose={onClose}
         >
           <div>
-            {saveResponse.map((error, index) => {
+            {endGameResponseErrors.map((error, index) => {
               return <div key={index}>{error}</div>;
             })}
           </div>
