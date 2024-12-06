@@ -1149,9 +1149,6 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
-    const storedGame = localStorage.getItem(localStorageSavedGameKey);
-
-    if (storedGame) localStorage.removeItem(localStorageSavedGameKey);
     const referralAccount = localStorage.getItem('referrer_account');
 
     if (referralAccount) {
@@ -1191,6 +1188,8 @@ export const GameContextProvider = ({ children }: props) => {
       stopTimer();
       setGameOverMessage(message);
       setHasFoundPlinko(false);
+
+      localStorage.removeItem(localStorageSavedGameKey);
     }, 800);
 
     setCollapsableNavbarActivated(false);

@@ -34,13 +34,13 @@ export function BlockchainSelector() {
     onClose: onCloseModalConfirmCloseOnGoingGameAndChangeBlockchain,
   } = useDisclosure();
 
-  function handleClickMenuItem(item: Blockchain) {
+  function handleClickMenuItem(blockchainProp: Blockchain) {
     return () => {
       const savedGame = localStorage.getItem(localStorageSavedGameKey);
 
       if (savedGame === null) {
-        setBlockchain(item);
-      } else {
+        setBlockchain(blockchainProp);
+      } else if (blockchainProp !== blockchain) {
         const savedGameParsed = JSON.parse(savedGame) as StoredGameInfo;
 
         const remainingTimeWithStoredData = calculateRemainingTime(
@@ -50,7 +50,7 @@ export function BlockchainSelector() {
         );
 
         if (remainingTimeWithStoredData <= 0) {
-          setBlockchain(item);
+          setBlockchain(blockchainProp);
         } else {
           onOpenModalConfirmCloseOnGoingGameAndChangeBlockchain();
         }
