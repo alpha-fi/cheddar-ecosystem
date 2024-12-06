@@ -1188,8 +1188,6 @@ export const GameContextProvider = ({ children }: props) => {
       stopTimer();
       setGameOverMessage(message);
       setHasFoundPlinko(false);
-
-      localStorage.removeItem(localStorageSavedGameKey);
     }, 800);
 
     setCollapsableNavbarActivated(false);
@@ -1199,6 +1197,9 @@ export const GameContextProvider = ({ children }: props) => {
     );
     await refetchEarnedButNotMintedCheddar();
     await refetchEarnedAndMintedCheddar();
+
+    localStorage.removeItem(localStorageSavedGameKey);
+
     setEndGameResponse(endGameResponse);
   }
 
