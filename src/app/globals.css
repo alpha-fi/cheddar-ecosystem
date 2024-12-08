@@ -79,7 +79,9 @@ html {
 }
 
 .playerBackgroundElementOnTop {
-  background-image: url('https://lh3.googleusercontent.com/d/114_RLl18MAzX035svMyvNJpE3ArfLNCF=w500');
+  background-size: cover;
+  background-position: center;
+  background-image: url('https://github.com/user-attachments/assets/5223c770-f8e7-4126-9f3f-31198540ea1a');
 }
 
 :root {
