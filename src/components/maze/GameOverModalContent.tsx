@@ -58,14 +58,15 @@ export const GameOverModalContent = ({
 
     if (endGameResponse && !endGameResponse.ok) {
       toast({
-        title: 'Failed to add Cheddar to Farmed Balance.',
+        title: 'Error farming',
+        description: 'Failed to add Cheddar to Farmed Balance',
         status: 'error',
         duration: 9000,
         position: 'bottom-right',
         isClosable: true,
       });
     }
-  }, [endGameResponse]);
+  }, [endGameResponse, toast]);
 
   const shareText = `I just ${hasWon ? 'won' : 'lost'} ${cheddarFound} Cheddar playing the Cheddar Maze game. Check it out its fun and with more features coming.`;
   const encodedText = encodeURIComponent(shareText);

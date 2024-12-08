@@ -45,14 +45,15 @@ export const GameOverModalContent = ({
 
     if (endGameResponse && !endGameResponse.ok) {
       toast({
-        title: 'Failed to add Cheddar to Farmed Balance',
+        title: 'Error farming',
+        description: 'Failed to add Cheddar to Farmed Balance',
         status: 'error',
         duration: 9000,
         position: 'bottom-right',
         isClosable: true,
       });
     }
-  }, [endGameResponse]);
+  }, [endGameResponse, toast]);
 
   return (
     <div className={styles.gameOverModal}>
