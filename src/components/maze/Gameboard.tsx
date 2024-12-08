@@ -95,11 +95,12 @@ export function Gameboard({
         ? 'playerBackgroundEmpty'
         : 'playerBackgroundElementOnTop';
 
+    // Combine multiple CSS classes using the 'clsx' utility function to handle conditional styling
     return clsx(
-      styles.mazeCell,
-      styles.playerCell,
-      getPlayerImgDirection(),
-      backgroundImage
+      styles.mazeCell, // Add base style for the maze cell
+      styles.playerCell, // Add style for the player cell
+      getPlayerImgDirection(), // Add style based on the player's image direction
+      backgroundImage // Add the computed background image based on the cell's state
     );
   }
 
