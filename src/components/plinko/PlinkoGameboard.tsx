@@ -206,13 +206,13 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
       }
     });
 
-    showAsyncToast(
-      getPrize,
-      'Processing your prize',
-      'Enjoy your prize!',
-      'Please wait',
-      'Cheddar minted succesfully'
-    );
+    // showAsyncToast(
+    //   getPrize,
+    //   'Processing your prize',
+    //   'Enjoy your prize!',
+    //   'Please wait',
+    //   'Cheddar minted succesfully'
+    // );
   }
 
   useEffect(() => {

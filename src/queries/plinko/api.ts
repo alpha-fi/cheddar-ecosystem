@@ -53,9 +53,9 @@ export async function callBallsPlayed(
 ) {
   const data = {
     accountId,
-    prizesNames,
+    prizeNameArray: prizesNames,
   };
-  const url = new URL(`/api/plinko/ballPlayed`, backendBaseUrl).toString();
+  const url = new URL(`/api/plinko/ballsPlayed`, backendBaseUrl).toString();
 
   const response = await fetch(url, {
     method: 'POST',

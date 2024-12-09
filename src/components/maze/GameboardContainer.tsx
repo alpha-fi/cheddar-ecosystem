@@ -117,6 +117,7 @@ export function GameboardContainer({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
   const [startingGame, setStartingGame] = useState(false);
+  const [isViewNFTModalOpen, setViewNFTModal] = useState(false);
 
   useEffect(() => {
     if (timerStarted) {
@@ -570,7 +571,7 @@ export function GameboardContainer({
         )}
       </div>
       <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
-      {/* <ModalViewNFTs onClose={toggleViewNftModal} isOpen={isViewNFTModalOpen} /> */} {/* TODO: FIX THIS */}
+      <ModalViewNFTs onClose={toggleViewNftModal} isOpen={isViewNFTModalOpen} />
 
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
