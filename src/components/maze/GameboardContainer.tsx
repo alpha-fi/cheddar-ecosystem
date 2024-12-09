@@ -25,6 +25,7 @@ import { useGlobalContext } from '@/contexts/GlobalContext';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { IsAllowedResponse } from '@/hooks/maze';
+import { getTransactionDetails } from '@/lib/near';
 import { callMintCheddar } from '@/queries/maze/api';
 import { getDataFromURL } from '@/utilities/exportableFunctions';
 import {
@@ -34,6 +35,7 @@ import {
   ArrowUpIcon,
   CopyIcon,
 } from '@chakra-ui/icons';
+import { getTransactionLastResult } from 'near-api-js/lib/providers';
 import { ModalBuy } from '../ModalBuy';
 import { ModalContainer } from '../ModalContainer';
 import ModalHolonym from '../ModalHolonymSBT';
@@ -42,7 +44,6 @@ import ModalNotAllowedToMint from './ModalNotAllowedToMint';
 import ModalRules from './ModalRules';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { Scoreboard } from './Scoreboard';
-import { getTransactionDetails } from '@/lib/near';
 
 interface Props {
   remainingMinutes: number;
@@ -127,15 +128,20 @@ export function GameboardContainer({
 
           const accountId = addresses[persistedData.blockchain];
 
+          let urlSeedId;
           if (transactionHash && accountId) {
-            await getTransactionDetails(transactionHash, accountId);
+            const transactionDetails = await getTransactionDetails(
+              transactionHash,
+              accountId
+            );
+            urlSeedId = await getTransactionLastResult(transactionDetails);
           }
 
           if (
             persistedData.methodName === 'startMazeMatch' &&
             transactionHash
           ) {
-            restartGame();
+            restartGame(urlSeedId);
           }
         }
       } catch (err) {
@@ -210,7 +216,7 @@ export function GameboardContainer({
     }
 
     if (freeMatchesLeft! + payedMatchesLeft! > 0) {
-      return restartGame;
+      return () => restartGame();
     } else {
       return onOpenBuyPanel;
     }

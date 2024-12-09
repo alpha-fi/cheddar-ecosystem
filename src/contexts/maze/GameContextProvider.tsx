@@ -152,7 +152,7 @@ interface GameContextProps {
     direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
   ): void;
 
-  restartGame(): void;
+  restartGame(urlSeedId?: number): void;
 
   calculateBlurRadius(cellX: number, cellY: number): number;
 
@@ -483,7 +483,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   // Function to restart the game
-  async function restartGame() {
+  async function restartGame(urlSeedId?: any) {
     try {
       if (!selectedBlockchainAddress) {
         return;
@@ -494,11 +494,15 @@ export const GameContextProvider = ({ children }: props) => {
 
       let seedId;
       if (blockchain === 'near') {
-        const wallet = await selector.wallet();
+        if (urlSeedId) {
+          seedId = urlSeedId;
+        } else {
+          const wallet = await selector.wallet();
 
-        addEncodedDataToURL(blockchain, 'startMazeMatch', 'starting game');
+          addEncodedDataToURL(blockchain, 'startMazeMatch', 'starting game');
 
-        seedId = await getSeedIdFromContract(wallet);
+          seedId = await getSeedIdFromContract(wallet);
+        }
       } else if (blockchain === 'base') {
         seedId = await getSeedId(selectedBlockchainAddress);
       } else {
@@ -1003,26 +1007,27 @@ export const GameContextProvider = ({ children }: props) => {
       await refetchEarnedAndMintedCheddar();
       setEndGameResponse(endGameResponse);
       if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
-    } else if (!won && blockchain === 'near') {
-      try {
-        const wallet = await selector.wallet();
-
-        addEncodedDataToURL(blockchain, 'loseGame', 'prossesing lose');
-
-        const response = await callLoseGame(wallet);
-
-        toast({
-          title: 'Game lost call',
-          description: response,
-          status: 'success',
-          duration: 9000,
-          position: 'bottom-right',
-          isClosable: true,
-        });
-      } catch (err) {
-        console.error('Error in gameOverLoseGame', err);
-      }
     }
+    // else if (!won && blockchain === 'near') {
+    //   try {
+    //     const wallet = await selector.wallet();
+
+    //     addEncodedDataToURL(blockchain, 'loseGame', 'prossesing lose');
+
+    //     const response = await callLoseGame(wallet);
+
+    //     toast({
+    //       title: 'Game lost call',
+    //       description: response,
+    //       status: 'success',
+    //       duration: 9000,
+    //       position: 'bottom-right',
+    //       isClosable: true,
+    //     });
+    //   } catch (err) {
+    //     console.error('Error in gameOverLoseGame', err);
+    //   }
+    // }
 
     setHasWon(won);
     setCoveredCells([]);

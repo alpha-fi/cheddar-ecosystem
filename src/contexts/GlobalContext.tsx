@@ -58,7 +58,17 @@ export interface PersistedDataOnRedirection {
 const GlobalContext = React.createContext({} as GlobalContextProps);
 
 export const GlobalContextProvider: any = ({ children }: any) => {
-  const [blockchain, setBlockchain] = useState<Blockchain>('base');
+  const urlParams = useMemo(
+    () => new URLSearchParams(window.location.search),
+    []
+  );
+
+  const { transactionHash, persistedData, errorCode } =
+    getDataFromURL(urlParams);
+
+  const [blockchain, setBlockchain] = useState<Blockchain>(
+    persistedData.blockchain ?? 'base'
+  );
   const [forcePlayMusic, setForcePlayMusic] = useState(false);
   const [forcePauseMusic, setForcePauseMusic] = useState(false);
   const { accountId: nearAddress, selector, modal } = useWalletSelector();
@@ -177,20 +187,8 @@ export const GlobalContextProvider: any = ({ children }: any) => {
     window.history.replaceState({}, document.title, url.toString());
   };
 
-  const urlParams = useMemo(
-    () => new URLSearchParams(window.location.search),
-    []
-  );
-
   useEffect(() => {
     if (urlParams) {
-      const { transactionHash, persistedData, errorCode } =
-        getDataFromURL(urlParams);
-
-      if (persistedData.blockchain) {
-        setBlockchain(persistedData.blockchain);
-      }
-
       if (persistedData.methodName === 'buyMazeMatch' && transactionHash) {
         toast({
           title: 'Successful purchase',
