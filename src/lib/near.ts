@@ -33,5 +33,5 @@ export async function getTransactionDetails(
     throw new Error('Transaction failed');
   }
 
-  return finalExecutionOutcome
+  return finalExecutionOutcome;
 }
