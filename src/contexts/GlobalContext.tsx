@@ -30,6 +30,7 @@ interface GlobalContextProps {
   disconnectWallet: () => void;
   cheddarBalance: any;
   isCheddarBalanceLoading: boolean;
+  refreshCheddarBalance: () => void;
   cheddarTotalSupply: any;
   isCheddarTotalSupplyLoading: boolean;
   isConnected: boolean;
@@ -55,8 +56,11 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   const { disconnect } = useDisconnect();
   const { data: cheddarNearBalance, isLoading: isLoadingCheddarNearBalance } =
     useGetCheddarBalance();
-  const { data: cheddarBaseBalance, isLoading: isLoadingCheddarBaseBalance } =
-    useGetCheddarBaseBalance();
+  const {
+    data: cheddarBaseBalance,
+    isLoading: isLoadingCheddarBaseBalance,
+    refetch: refreshCheddarBalance,
+  } = useGetCheddarBaseBalance();
   const {
     data: cheddarNearTotalSupply,
     isLoading: isLoadingCheddarNearTotalSupply,
@@ -177,6 +181,7 @@ export const GlobalContextProvider: any = ({ children }: any) => {
         toggleCollapsableNavbar,
         collapsableNavbarActivated,
         setCollapsableNavbarActivated,
+        refreshCheddarBalance,
       }}
     >
       {children}

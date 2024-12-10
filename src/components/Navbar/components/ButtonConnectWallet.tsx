@@ -15,13 +15,13 @@ import { yton } from '@/contracts/contractUtils';
 import Link from 'next/link';
 import { RenderCheddarIcon } from '@/components/maze/RenderCheddarIcon';
 import { smartTrim } from '@/utilities/exportableFunctions';
-import { useGetCheddarBalance } from '@/hooks/cheddar';
 import { useContext, useEffect, useState } from 'react';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useAccount } from 'wagmi';
 import { useConnect } from 'wagmi';
 import { useDisconnect } from 'wagmi';
 import { coinbaseWallet } from 'wagmi/connectors';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 type Props = {
   handleButtonCLick?: () => void;
@@ -30,12 +30,10 @@ type Props = {
 
 export function ButtonConnectWallet({ handleButtonCLick, text }: Props) {
   const walletSelector = useWalletSelector();
+  const { cheddarBalance, isCheddarBalanceLoading } = useGlobalContext();
   const { connect: connectBase } = useConnect();
   const { address } = useAccount();
   const { disconnect: disconnectBase } = useDisconnect();
-
-  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
-    useGetCheddarBalance();
 
   const { isUserNadabotVerfied, isUserHolonymVerified } =
     useContext(GameContext);
@@ -79,10 +77,10 @@ export function ButtonConnectWallet({ handleButtonCLick, text }: Props) {
             rightIcon={<ChevronDownIcon />}
           >
             <Text mr="5px" display="inline-block">
-              {isLoadingCheddarBalance ? (
+              {isCheddarBalanceLoading ? (
                 <Spinner size="sm" />
               ) : (
-                yton(`${cheddarBalanceData}`)
+                yton(`${cheddarBalance}`)
               )}
             </Text>
             <RenderCheddarIcon />
