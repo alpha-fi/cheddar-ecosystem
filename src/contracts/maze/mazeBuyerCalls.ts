@@ -152,7 +152,8 @@ export async function callLoseGame(wallet: Wallet) {
           methodName: 'lose_game',
           args: {},
           gas: '300' + '0'.repeat(12),
-          deposit: '1' + '0'.repeat(21),
+          // deposit: '1' + '0'.repeat(21),
+          deposit: '0',
         },
       },
     ],
@@ -162,7 +163,7 @@ export async function callLoseGame(wallet: Wallet) {
     !finalExecutionOutcome ||
     !hasSuccessValue(finalExecutionOutcome.status)
   ) {
-    throw new Error('Failed to retrive seedId from contract');
+    throw new Error('Failed to call lose game from contract');
   }
 
   const b64LoseGame = finalExecutionOutcome.status.SuccessValue;

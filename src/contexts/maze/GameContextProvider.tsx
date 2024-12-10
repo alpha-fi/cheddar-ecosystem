@@ -65,9 +65,18 @@ const pointsOfActions = {
   plinkoGameFound: 2,
 };
 
-const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && true;
+const isTestPlinko =
+  (process.env.NEXT_PUBLIC_NETWORK === 'local' ||
+    process.env.NEXT_PUBLIC_NETWORK === 'testnet') &&
+  false;
+const isTestWin =
+  (process.env.NEXT_PUBLIC_NETWORK === 'local' ||
+    process.env.NEXT_PUBLIC_NETWORK === 'testnet') &&
+  false;
+const isTestCartel =
+  (process.env.NEXT_PUBLIC_NETWORK === 'local' ||
+    process.env.NEXT_PUBLIC_NETWORK === 'testnet') &&
+  false;
 
 interface GameContextProps {
   isMobile: boolean;
@@ -1007,27 +1016,26 @@ export const GameContextProvider = ({ children }: props) => {
       await refetchEarnedAndMintedCheddar();
       setEndGameResponse(endGameResponse);
       if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+    } else if (!won && blockchain === 'near') {
+      try {
+        const wallet = await selector.wallet();
+
+        addEncodedDataToURL(blockchain, 'loseGame', 'prossesing lose');
+
+        const response = await callLoseGame(wallet);
+
+        toast({
+          title: 'Game lost call',
+          description: response,
+          status: 'success',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      } catch (err) {
+        console.error('Error in gameOverLoseGame', err);
+      }
     }
-    // else if (!won && blockchain === 'near') {
-    //   try {
-    //     const wallet = await selector.wallet();
-
-    //     addEncodedDataToURL(blockchain, 'loseGame', 'prossesing lose');
-
-    //     const response = await callLoseGame(wallet);
-
-    //     toast({
-    //       title: 'Game lost call',
-    //       description: response,
-    //       status: 'success',
-    //       duration: 9000,
-    //       position: 'bottom-right',
-    //       isClosable: true,
-    //     });
-    //   } catch (err) {
-    //     console.error('Error in gameOverLoseGame', err);
-    //   }
-    // }
 
     setHasWon(won);
     setCoveredCells([]);
