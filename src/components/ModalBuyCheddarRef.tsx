@@ -176,9 +176,9 @@ const SwapComponent = () => {
           />
         </InputGroup>
         {isInsufficientBalance && (
-          <Text color="red.500" mt="2" fontSize="sm">
+          <Text color="red.400" mt="2" fontSize="sm">
             Insufficient balance. You cannot swap more than your available NEAR
-            balance ({nearBalance} NEAR).
+            balance.
           </Text>
         )}
       </FormControl>
