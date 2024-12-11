@@ -22,6 +22,7 @@ import { useAccount } from 'wagmi';
 import { useConnect } from 'wagmi';
 import { useDisconnect } from 'wagmi';
 import { coinbaseWallet } from 'wagmi/connectors';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 type Props = {
   handleButtonCLick?: () => void;
@@ -34,8 +35,7 @@ export function ButtonConnectWallet({ handleButtonCLick, text }: Props) {
   const { address } = useAccount();
   const { disconnect: disconnectBase } = useDisconnect();
 
-  const { data: cheddarBalanceData, isLoading: isLoadingCheddarBalance } =
-    useGetCheddarBalance();
+  const { cheddarBalance, isCheddarBalanceLoading } = useGlobalContext();
 
   const { isUserNadabotVerfied, isUserHolonymVerified } =
     useContext(GameContext);
@@ -79,10 +79,10 @@ export function ButtonConnectWallet({ handleButtonCLick, text }: Props) {
             rightIcon={<ChevronDownIcon />}
           >
             <Text mr="5px" display="inline-block">
-              {isLoadingCheddarBalance ? (
+              {isCheddarBalanceLoading ? (
                 <Spinner size="sm" />
               ) : (
-                yton(`${cheddarBalanceData}`)
+                yton(`${cheddarBalance}`)
               )}
             </Text>
             <RenderCheddarIcon />

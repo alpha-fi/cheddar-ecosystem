@@ -35,7 +35,7 @@ export const GameOverModalContent = ({
       (isUserNadabotVerfied || isUserHolonymVerified)
     ) {
       toast({
-        title: 'Cheddar Minted Successfully!',
+        title: 'Cheddar added to Farmed Balance!',
         status: 'success',
         duration: 9000,
         position: 'bottom-right',
@@ -45,7 +45,8 @@ export const GameOverModalContent = ({
 
     if (endGameResponse && !endGameResponse.ok) {
       toast({
-        title: 'Error Minting Cheddar',
+        title: 'Error farming',
+        description: 'Failed to add Cheddar to Farmed Balance',
         status: 'error',
         duration: 9000,
         position: 'bottom-right',
@@ -58,7 +59,7 @@ export const GameOverModalContent = ({
     <div className={styles.gameOverModal}>
       <p className={getMessageStyles()}>{gameOverMessage}</p>
       {hasWon &&
-        (cheddarFound > pendingCheddarToMint ? (
+        (pendingCheddarToMint === 0 || cheddarFound > pendingCheddarToMint ? (
           <p className={styles.earnings}>
             You rocked it today by reaching the daily 555 Cheddar limit. Let’s
             go again tomorrow

@@ -198,6 +198,8 @@ interface GameContextProps {
 
   isUserNadabotVerfied: boolean | undefined;
   isUserHolonymVerified: boolean | undefined;
+
+  refetchEarnedButNotMintedCheddar: () => void;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -587,52 +589,13 @@ export const GameContextProvider = ({ children }: props) => {
       }
     }
 
-    // Ensure all unreachable columns are connected
-    function connectUnreachableColumns() {
-      let unreachableColumns: number[] = [];
-      for (let c = 0; c < cols; c++) {
-        let reachable = false;
-        for (let r = 0; r < rows; r++) {
-          if (maze[r][c].isPath) {
-            reachable = true;
-            break;
-          }
-        }
-        if (!reachable) {
-          unreachableColumns.push(c);
-        }
-      }
-
-      // Actively connect unreachable columns
-      unreachableColumns.forEach((col) => {
-        const row = rng.nextRange(1, rows - 2);
-        maze[row][col].isPath = true;
-
-        // Now connect it to the nearest path
-        let connected = false;
-        for (let r = 0; r < rows; r++) {
-          for (let dx = -1; dx <= 1; dx++) {
-            const nx = col + dx;
-            if (nx >= 0 && nx < cols && maze[r][nx].isPath) {
-              maze[r][col].isPath = true;
-              connected = true;
-              break;
-            }
-          }
-          if (connected) break;
-        }
-      });
-    }
-
-    connectUnreachableColumns();
-
     return maze;
   }
 
   // Inside the component where you're using the Maze component
   useEffect(() => {
     // Generate maze data and set it to the state
-    const newMazeData = generateMazeData(mazeRows, mazeCols, new RNG(0));
+    const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
     setMazeData(newMazeData);
 
     const randomColorSet = selectRandomColorSet();
@@ -1350,6 +1313,7 @@ export const GameContextProvider = ({ children }: props) => {
         isUserHolonymVerified,
         earnedButNotMintedCheddar,
         totalMintedCheddarToDate,
+        refetchEarnedButNotMintedCheddar,
       }}
     >
       {children}
