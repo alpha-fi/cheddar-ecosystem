@@ -3,8 +3,10 @@ import { Gameboard } from './Gameboard';
 import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import styles from '@/styles/GameboardContainer.module.css';
 import {
+  Box,
   Button,
   Flex,
+  HStack,
   Heading,
   Hide,
   Link,
@@ -51,6 +53,7 @@ import { useGlobalContext } from '@/contexts/GlobalContext';
 import { IsAllowedResponse } from '@/hooks/maze';
 import { AutoPlayAudio } from '../Navbar/components/AutoPlayAudio';
 import { ModalViewNFTs } from '../ViewNFTsModal';
+import { ModalBuyCheddar } from '../ModalBuyCheddarRef';
 
 interface Props {
   remainingMinutes: number;
@@ -147,6 +150,8 @@ export function GameboardContainer({
     useState<CheddarMintResponse | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
   const [isViewNFTModalOpen, setViewNFTModal] = useState(false);
+  const [isBuyCheddarModalOpen, setBuyCheddarModal] = useState(false);
+
   const toast = useToast();
 
   useEffect(() => {
@@ -277,6 +282,7 @@ export function GameboardContainer({
     }
     return 'Buy ⚡';
   }
+
   const shareReferralLink =
     'https://' +
     new URL(window.location.href).host +
@@ -383,6 +389,10 @@ export function GameboardContainer({
     setViewNFTModal(!isViewNFTModalOpen);
   }
 
+  function toggleBuyCheddarModal() {
+    setBuyCheddarModal((prev) => !prev);
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -481,17 +491,35 @@ export function GameboardContainer({
               </Menu>
             )}
             {blockchain === 'near' && (
-              <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
-                <Button
-                  px={{ base: 2, md: 3 }}
-                  colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
-                  onClick={() =>
-                    nfts?.length ? toggleViewNftModal() : handleBuyClick()
-                  }
-                >
-                  {getPowerUpBtnText()}
-                </Button>
-              </Tooltip>
+              <div>
+                <HStack spacing={2}>
+                  <Tooltip
+                    label="Cheddy PowerUp boosts 🧀 and wins"
+                    fontSize="sm"
+                  >
+                    <Button
+                      fontSize="sm"
+                      px={{ base: 2, md: 3 }}
+                      colorScheme={nfts?.length > 0 ? 'green' : 'yellow'}
+                      onClick={
+                        nfts?.length ? toggleViewNftModal : handleBuyClick
+                      }
+                    >
+                      {getPowerUpBtnText()}
+                    </Button>
+                  </Tooltip>
+                  <Button
+                    fontSize="sm"
+                    px={{ base: 2, md: 3 }}
+                    onClick={toggleBuyCheddarModal}
+                  >
+                    Buy
+                    <Box as="span" ml={1}>
+                      <RenderCheddarIcon />
+                    </Box>
+                  </Button>
+                </HStack>
+              </div>
             )}
           </div>
           <Show below="lg">
@@ -516,6 +544,13 @@ export function GameboardContainer({
             isAllowedResponse={isAllowedResponse!}
           />
         </div>
+        {!isConnected && (
+          <div className={styles.startGameBg}>
+            <Heading as="h6" size="lg" textAlign="center">
+              Login to play
+            </Heading>
+          </div>
+        )}
         {!notAllowedToPlay && !timerStarted && isConnected && (
           <div className={styles.startGameBg}>
             <Heading as="h6" size="lg">
@@ -588,6 +623,10 @@ export function GameboardContainer({
       </div>
       <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
       <ModalViewNFTs onClose={toggleViewNftModal} isOpen={isViewNFTModalOpen} />
+      <ModalBuyCheddar
+        onClose={toggleBuyCheddarModal}
+        isOpen={isBuyCheddarModalOpen}
+      />
 
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
