@@ -65,13 +65,17 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   const [collapsableNavbar, setCollapsableNavbar] = useState(false);
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
-  const { data: cheddarNearBalance, isLoading: isLoadingCheddarNearBalance } =
-    useGetCheddarBalance();
   const {
     data: cheddarBaseBalance,
     isLoading: isLoadingCheddarBaseBalance,
     refetch: refreshCheddarBalance,
   } = useGetCheddarBaseBalance();
+  const {
+    data: cheddarNearBalance,
+    isLoading: isLoadingCheddarNearBalance,
+    refetch: refreshCheddarBalance,
+  } = useGetCheddarBalance();
+
   const {
     data: cheddarNearTotalSupply,
     isLoading: isLoadingCheddarNearTotalSupply,

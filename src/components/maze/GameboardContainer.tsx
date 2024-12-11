@@ -105,8 +105,13 @@ export function GameboardContainer({
     pendingCheddarToMint,
   } = useContext(GameContext);
 
-  const { addresses, isConnected, showConnectionModal, blockchain } =
-    useGlobalContext();
+  const {
+    addresses,
+    isConnected,
+    showConnectionModal,
+    blockchain,
+    refreshCheddarBalance,
+  } = useGlobalContext();
 
   const gameboardRef = useRef<HTMLDivElement>(null);
   const {
@@ -448,11 +453,12 @@ export function GameboardContainer({
       </div>
       <div className={styles.mazeContainer} ref={gameboardRef} tabIndex={0}>
         <div className={styles.toolbar}>
-          {earnedButNotMintedCheddar > 100 && (
+          {earnedButNotMintedCheddar > 0 && (
             <Button
               px={{ base: 2, md: 3 }}
               _hover={{ bg: 'yellowgreen' }}
               isLoading={isClaiming}
+              isDisabled={earnedButNotMintedCheddar < 100}
               onClick={async () => {
                 if (
                   blockchain === 'near' &&
@@ -470,6 +476,7 @@ export function GameboardContainer({
                   setIsClaiming(false);
                   setCheddarMintResponse(response);
                   refetchEarnedButNotMintedCheddar();
+                  refreshCheddarBalance();
                 }
               }}
             >
