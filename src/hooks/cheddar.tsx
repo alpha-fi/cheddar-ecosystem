@@ -14,6 +14,7 @@ import { useAccount } from 'wagmi';
 import { useReadContract } from 'wagmi';
 import contractAbi from '@/constants/contract/abi.json';
 import { getConfig } from '@/configs/config';
+import { NFT } from '@/contracts/nftCheddarContract';
 
 export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
   const { accountId } = useWalletSelector();
@@ -46,7 +47,7 @@ export const useGetCheddarMetadata = (): UseQueryResult => {
   });
 };
 
-export const useGetCheddarNFTs = (): UseQueryResult => {
+export const useGetCheddarNFTs = (): UseQueryResult<NFT[] | null> => {
   const { accountId } = useWalletSelector();
 
   return useQuery({
