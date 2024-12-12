@@ -3,8 +3,8 @@ import {
   Box,
   Button,
   Flex,
-  HStack,
   Heading,
+  HStack,
   Link,
   Menu,
   MenuButton,
@@ -23,8 +23,10 @@ import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import { Gameboard } from './Gameboard';
 
 import { getConfig } from '@/configs/config';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { IsAllowedResponse } from '@/hooks/maze';
 import { getTransactionDetails } from '@/lib/near';
 import { callMintCheddar } from '@/queries/maze/api';
 import { getDataFromURL } from '@/utilities/exportableFunctions';
@@ -37,25 +39,19 @@ import {
 } from '@chakra-ui/icons';
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
 import { ModalBuy } from '../ModalBuy';
+import { ModalBuyCheddar } from '../ModalBuyCheddarRef';
 import { ModalContainer } from '../ModalContainer';
 import ModalHolonym from '../ModalHolonymSBT';
+import { ModalViewNFTs } from '../ViewNFTsModal';
 import { GameOverModalContent } from './GameOverModalContent';
 import ModalNotAllowedToMint from './ModalNotAllowedToMint';
 import ModalRules from './ModalRules';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { Scoreboard } from './Scoreboard';
-import { ModalViewNFTs } from '../ViewNFTsModal';
-import { IsAllowedResponse } from '@/hooks/maze';
-import { useGlobalContext } from '@/contexts/GlobalContext';
-import { ModalBuyCheddar } from '../ModalBuyCheddarRef';
 
-interface Props {  
-  remainingMinutes: number;
-  remainingSeconds: number;
-  handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
+interface Props {
   cellSize: number;
   hasEnoughBalance: boolean | null;
-  minCheddarRequired: number;
   isAllowedResponse: IsAllowedResponse | null | undefined;
 }
 
@@ -64,12 +60,8 @@ interface CheddarMintResponse {
   cheddarMinted?: number;
 }
 export function GameboardContainer({
-  remainingMinutes,
-  remainingSeconds,
-  handlePowerUpClick,
   cellSize,
   hasEnoughBalance,
-  minCheddarRequired,
   isAllowedResponse,
 }: Props) {
   const {

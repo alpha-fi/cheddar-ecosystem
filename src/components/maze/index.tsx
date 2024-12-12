@@ -99,10 +99,8 @@ export default function MazeContainer() {
       <WeHaveMusicModal />
       {initialized() && ( // Replace `condition` with your actual condition
         <GameboardContainer
-          handlePowerUpClick={handlePowerUpClick}
           cellSize={cellSize}
           hasEnoughBalance={hasEnoughBalance}
-          minCheddarRequired={yton(minCheddarRequired.toString())}
           isAllowedResponse={isAllowedResponse}
         />
       )}
