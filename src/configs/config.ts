@@ -20,6 +20,7 @@ export interface Config {
       checkers: string;
       nekoToken: string;
       nadaBot: string;
+      wrapNear: string;
       mazeBuyer: string;
     };
     base: {
@@ -77,6 +78,7 @@ export const getConfig = (): Config => {
             checkers: 'checkers.cheddar.near',
             nekoToken: 'ftv2.nekotoken.near',
             nadaBot: 'v1.nadabot.near',
+            wrapNear: 'wrap.near',
             mazeBuyer: '',
           },
           base: {
@@ -117,6 +119,7 @@ export const getConfig = (): Config => {
             checkers: 'checkers.cheddar.testnet',
             nekoToken: '',
             nadaBot: 'v1.nadabot.testnet',
+            wrapNear: 'wrap.testnet',
             mazeBuyer: 'maze-buyer.testnet',
           },
           base: {
@@ -157,6 +160,7 @@ export const getConfig = (): Config => {
             checkers: 'checkers.cheddar.testnet',
             nekoToken: '',
             nadaBot: 'v1.nadabot.testnet',
+            wrapNear: 'wrap.testnet',
             mazeBuyer: 'maze-buyer.testnet',
           },
           base: {
