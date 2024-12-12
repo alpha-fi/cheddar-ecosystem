@@ -3,6 +3,7 @@ import {
   getCheddarBalance,
   getCheddarMetadata,
   getCheddarNFTBuyPrice,
+  getNFTCheddarBalance,
   getNFTs,
   getTotalSupply,
   isNadabotVerfied,
@@ -13,6 +14,7 @@ import { useAccount } from 'wagmi';
 import { useReadContract } from 'wagmi';
 import contractAbi from '@/constants/contract/abi.json';
 import { getConfig } from '@/configs/config';
+import { NFT } from '@/contracts/nftCheddarContract';
 
 export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
   const { accountId } = useWalletSelector();
@@ -20,6 +22,17 @@ export const useGetCheddarBalance = (): UseQueryResult<null | bigint> => {
   return useQuery({
     queryKey: ['useGetCheddarBalance', accountId],
     queryFn: () => (accountId ? getCheddarBalance(accountId) : null),
+    refetchInterval: 10000,
+    staleTime: 10000,
+  });
+};
+
+export const useGetNFTCheddarBalance = (): UseQueryResult<string> => {
+  const { accountId } = useWalletSelector();
+
+  return useQuery({
+    queryKey: ['useGetNFTCheddarBalance', accountId],
+    queryFn: () => (accountId ? getNFTCheddarBalance(accountId) : null),
     refetchInterval: 10000,
     staleTime: 10000,
   });
@@ -34,7 +47,7 @@ export const useGetCheddarMetadata = (): UseQueryResult => {
   });
 };
 
-export const useGetCheddarNFTs = (): UseQueryResult => {
+export const useGetCheddarNFTs = (): UseQueryResult<NFT[] | null> => {
   const { accountId } = useWalletSelector();
 
   return useQuery({

@@ -21,10 +21,8 @@ import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import { Gameboard } from './Gameboard';
 
 import { getConfig } from '@/configs/config';
-import { useGlobalContext } from '@/contexts/GlobalContext';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { IsAllowedResponse } from '@/hooks/maze';
 import { getTransactionDetails } from '@/lib/near';
 import { callMintCheddar } from '@/queries/maze/api';
 import { getDataFromURL } from '@/utilities/exportableFunctions';
@@ -44,8 +42,11 @@ import ModalNotAllowedToMint from './ModalNotAllowedToMint';
 import ModalRules from './ModalRules';
 import { RenderCheddarIcon } from './RenderCheddarIcon';
 import { Scoreboard } from './Scoreboard';
+import { ModalViewNFTs } from '../ViewNFTsModal';
+import { IsAllowedResponse } from '@/hooks/maze';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
-interface Props {
+interface Props {  
   remainingMinutes: number;
   remainingSeconds: number;
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
@@ -77,7 +78,7 @@ export function GameboardContainer({
     restartGame,
     timerStarted,
     setGameOverMessage,
-    saveResponse,
+    endGameResponseErrors,
     plinkoModalOpened,
     closePlinkoModal,
     nfts,
@@ -97,13 +98,12 @@ export function GameboardContainer({
     payedMatchesLeft,
     freeMatchesLeftLoading,
     payedMatchesLeftLoading,
-    startingGame,
-    setStartingGame,
     gameboardRef,
+    loadingRemainingMinutesAndSeconds,
+    remainingTime,
   } = useContext(GameContext);
 
-  const { addresses, isConnected, showConnectionModal, blockchain, urlParams } =
-    useGlobalContext();
+  const { addresses, isConnected, showConnectionModal, blockchain, urlParams } = useGlobalContext();
 
   const {
     isOpen: isOpenNotAlloWedModal,
@@ -112,6 +112,8 @@ export function GameboardContainer({
   } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
+  const [startingGame, setStartingGame] = useState(false);  
+  const [hasStartedOnce, setHasStartedOnce] = useState(false);
 
   useEffect(() => {
     if (timerStarted) {
@@ -177,6 +179,7 @@ export function GameboardContainer({
   const [cheddarMintResponse, setCheddarMintResponse] =
     useState<CheddarMintResponse | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [isViewNFTModalOpen, setViewNFTModal] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -228,7 +231,16 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return addresses['near'] ? onOpenBuyPanel() : showSelectWalletModal(true); ///TODO: check if buy is only with near
+    return addresses['near']
+      ? onOpenBuyPanel()
+      : showSelectWalletModal(true); ///TODO: check if buy is only with near
+  }
+
+  function focusMazeAndStartGame() {
+    setHasStartedOnce(true);
+    setStartingGame(true);
+    gameboardRef.current?.focus();
+    restartGame();
   }
 
   function getStartGameButtonHandler() {
@@ -256,6 +268,14 @@ export function GameboardContainer({
 
   function handleToggleShowMovementButtons() {
     setShowMovementButtons(!showMovementButtons);
+  }
+
+  function getRemainingMinutes() {
+    return Math.floor(remainingTime / 60);
+  }
+
+  function getRemainingSeconds() {
+    return remainingTime % 60;
   }
 
   const renderSwipeIcon = () => {
@@ -302,7 +322,7 @@ export function GameboardContainer({
 
   function getPowerUpBtnText() {
     if (addresses['near']) {
-      if (nfts?.length) {
+      if (nfts && nfts?.length) {
         return '⚡';
       } else return 'Buy ⚡';
     } else {
@@ -411,6 +431,10 @@ export function GameboardContainer({
     return `${styles[subtitle]} ${styles.subtitle}`;
   }
 
+  function toggleViewNftModal() {
+    setViewNFTModal(!isViewNFTModalOpen);
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -457,8 +481,19 @@ export function GameboardContainer({
         <div className={getGameInfoClases('score')}>Score: {score}</div>
         <div className={getGameInfoClases('time')}>
           Time:{' '}
-          {remainingMinutes < 10 ? '0' + remainingMinutes : remainingMinutes}:
-          {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
+          {loadingRemainingMinutesAndSeconds ? (
+            <Spinner />
+          ) : (
+            <>
+              {getRemainingMinutes() < 10
+                ? '0' + getRemainingMinutes()
+                : getRemainingMinutes()}
+              :
+              {getRemainingSeconds() < 10
+                ? '0' + getRemainingSeconds()
+                : getRemainingSeconds()}
+            </>
+          )}
         </div>
       </div>
       <div className={styles.mazeContainer} ref={gameboardRef} tabIndex={0}>
@@ -531,15 +566,18 @@ export function GameboardContainer({
                 </MenuList>
               </Menu>
             )}
-
             {blockchain === 'near' && (
-              <Button
-                px={{ base: 2, md: 3 }}
-                colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
-                onClick={onOpenBuyPanel}
-              >
-                {getPowerUpBtnText()}
-              </Button>
+              <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
+                <Button
+                  px={{ base: 2, md: 3 }}
+                  colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
+                  onClick={() =>
+                    nfts?.length ? toggleViewNftModal() : handleBuyClick()
+                  }
+                >
+                  {getPowerUpBtnText()}
+                </Button>
+              </Tooltip>
             )}
           </div>
           <Show below="lg">
@@ -647,6 +685,7 @@ export function GameboardContainer({
         isOpen={isOpenBuyPanel}
         handleBuyClick={handleBuyClick}
       />
+      <ModalViewNFTs onClose={toggleViewNftModal} isOpen={isViewNFTModalOpen} />
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer
@@ -662,14 +701,14 @@ export function GameboardContainer({
           />
         </ModalContainer>
       )}
-      {saveResponse && (
+      {endGameResponseErrors && (
         <ModalContainer
           title={'Error saving game'}
           isOpen={isOpen}
           onClose={onClose}
         >
           <div>
-            {saveResponse.map((error, index) => {
+            {endGameResponseErrors.map((error, index) => {
               return <div key={index}>{error}</div>;
             })}
           </div>

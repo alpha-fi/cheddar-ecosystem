@@ -1,5 +1,5 @@
 export class RNG {
-  state: number;
+  public state: number;
   m: number = 0x80000000;
   a: number = 1103515245;
   c: number = 12345;

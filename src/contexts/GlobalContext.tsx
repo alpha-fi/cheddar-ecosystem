@@ -1,23 +1,27 @@
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useWalletSelector } from './WalletSelectorContext';
+import { coinbaseWallet } from 'wagmi/connectors';
 import {
   useGetCheddarBalance,
   useGetCheddarBaseBalance,
   useGetCheddarBaseTotalSupply,
   useGetCheddarNearTotalSupply,
+  useGetCheddarNFTs,
   useIsHolonymVerfified,
   useIsNadabotVerfified,
 } from '@/hooks/cheddar';
 import { getDataFromURL } from '@/utilities/exportableFunctions';
 import { useToast } from '@chakra-ui/react';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { coinbaseWallet } from 'wagmi/connectors';
-import { useWalletSelector } from './WalletSelectorContext';
+import { NFT } from '@/contracts/nftCheddarContract';
 
 export type Blockchain = 'base' | 'near';
 
 interface GlobalContextProps {
   setBlockchain: React.Dispatch<React.SetStateAction<Blockchain>>;
   blockchain: Blockchain;
+  blockchainChangedOnLoad: boolean;
+  setBlockchainChangedOnLoad: React.Dispatch<React.SetStateAction<boolean>>;
   forcePlayMusic: boolean;
   setForcePlayMusic: React.Dispatch<React.SetStateAction<boolean>>;
   forcePauseMusic: boolean;
@@ -40,6 +44,8 @@ interface GlobalContextProps {
   toggleCollapsableNavbar: () => void;
   collapsableNavbarActivated: boolean;
   setCollapsableNavbarActivated: React.Dispatch<React.SetStateAction<boolean>>;
+  cheddarNFTsData: NFT[] | null | undefined;
+  isLoadingCheddarNFTs: boolean;
   urlParams: URLSearchParams;
 }
 
@@ -69,6 +75,16 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   const [blockchain, setBlockchain] = useState<Blockchain>(
     persistedData.blockchain ?? 'base'
   );
+
+  useEffect(() => {
+    if (persistedData.blockchain) setBlockchainChangedOnLoad(true);
+  }, []);
+
+  const [blockchainChangedOnLoad, setBlockchainChangedOnLoad] = useState(false);
+
+  const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
+    useGetCheddarNFTs();
+
   const [forcePlayMusic, setForcePlayMusic] = useState(false);
   const [forcePauseMusic, setForcePauseMusic] = useState(false);
   const { accountId: nearAddress, selector, modal } = useWalletSelector();
@@ -213,6 +229,21 @@ export const GlobalContextProvider: any = ({ children }: any) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!blockchainChangedOnLoad) {
+      // For some reason when you enter the site you get addresses.near but not addresses.base
+      // That's the reason of why i use the setTimeout
+      if (!addresses.base && addresses.near) {
+        setBlockchain('near');
+      } else {
+        setBlockchain('base');
+      }
+      setTimeout(() => {
+        setBlockchainChangedOnLoad(true);
+      }, 500);
+    }
+  }, [addresses, addresses.base, addresses.near]);
+
   return (
     <GlobalContext.Provider
       value={{
@@ -237,6 +268,10 @@ export const GlobalContextProvider: any = ({ children }: any) => {
         collapsableNavbarActivated,
         setCollapsableNavbarActivated,
         urlParams,
+        cheddarNFTsData,
+        isLoadingCheddarNFTs,
+        blockchainChangedOnLoad,
+        setBlockchainChangedOnLoad,
       }}
     >
       {children}

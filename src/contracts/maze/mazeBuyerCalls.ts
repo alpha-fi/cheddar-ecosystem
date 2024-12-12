@@ -141,6 +141,7 @@ export async function getSeedIdFromContract(wallet: Wallet) {
 }
 
 export async function callLoseGame(wallet: Wallet) {
+  console.log("calling lose game")
   const mazeBuyerContractId = getConfig().contracts.near.mazeBuyer;
 
   const finalExecutionOutcome = await wallet.signAndSendTransaction({
@@ -152,7 +153,6 @@ export async function callLoseGame(wallet: Wallet) {
           methodName: 'lose_game',
           args: {},
           gas: '300' + '0'.repeat(12),
-          // deposit: '1' + '0'.repeat(21),
           deposit: '0',
         },
       },

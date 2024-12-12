@@ -67,7 +67,7 @@ export const getConfig = (): Config => {
             'https://app.ref.finance/#near|token.cheddar.near',
           nadaBotUrl: 'https://app.nada.bot/',
           nftImageBaseUrl:
-            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
+            'https://bafybeicoln5rvccttgypzo26irjlskslnfynkzig6bowpsj6ay45geeice.ipfs.nftstorage.link/',
         },
         contracts: {
           near: {
@@ -80,8 +80,8 @@ export const getConfig = (): Config => {
             mazeBuyer: '',
           },
           base: {
-            cheddarToken: '0x0000000000000000000000000000000000000000',
-            cheddarMinter: '0x0000000000000000000000000000000000000000',
+            cheddarToken: '0xE757c0263C1828a7380D66bef7Fd10b5d189Ee35',
+            cheddarMinter: '0xF693f6450fb51033D744Cc6b78371b7d0d9797E7',
           },
         },
         chains: {
@@ -107,7 +107,7 @@ export const getConfig = (): Config => {
             'https://testnet.ref.finance/#near|token.cheddar.testnet',
           nadaBotUrl: 'https://testnet.nada.bot/',
           nftImageBaseUrl:
-            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
+            'https://bafybeicoln5rvccttgypzo26irjlskslnfynkzig6bowpsj6ay45geeice.ipfs.nftstorage.link/',
         },
         contracts: {
           near: {
@@ -147,7 +147,7 @@ export const getConfig = (): Config => {
             'https://testnet.ref.finance/#near|token.cheddar.testnet',
           nadaBotUrl: 'https://testnet.nada.bot/',
           nftImageBaseUrl:
-            'https://bafybeibghcllcmurku7lxyg4wgxn2zsu5qqk7h4r6bmyhpztmyd564cx54.ipfs.dweb.link/',
+            'https://bafybeicoln5rvccttgypzo26irjlskslnfynkzig6bowpsj6ay45geeice.ipfs.nftstorage.link/',
         },
         contracts: {
           near: {

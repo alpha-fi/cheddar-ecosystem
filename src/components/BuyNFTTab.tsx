@@ -1,7 +1,4 @@
 import { getConfig } from '@/configs/config';
-import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { yton } from '@/contracts/contractUtils';
-import { useGetCheddarNFTPrice } from '@/hooks/cheddar';
 import {
   FormControl,
   FormLabel,
@@ -12,12 +9,16 @@ import {
   Switch,
   useToast,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { ModalContainer } from './ModalContainer';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { RadioButtonBroup } from './maze/RadioButtonGroup';
+import { useEffect, useMemo, useState } from 'react';
 import { RenderCheddarIcon } from './maze/RenderCheddarIcon';
 import { RenderNearIcon } from './maze/RenderNearIcon';
 
 import styles from '@/styles/BuyNFTSection.module.css';
-
+import { useGetCheddarNFTPrice, useGetNFTCheddarBalance } from '@/hooks/cheddar';
+import { yton } from '@/contracts/contractUtils';
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
 import { buyNFT } from '@/contracts/tokenCheddarCalls';
 import { MintNFTLastResult } from '@/entities/interfaces';
@@ -43,14 +44,28 @@ export const BuyNFTTab = ({ isOpen }: Props) => {
   } = useGetCheddarNFTPrice(true);
   const { data: cheddarNftPriceInNear, isLoading: isNftPriceInNearLoading } =
     useGetCheddarNFTPrice(false);
+  const { data: nftCheddarBalance, isLoading: isLoadingNftCheddarBalance } =
+    useGetNFTCheddarBalance();
+
+  const nftRemainingCheddarToPay = useMemo(() => {
+    if (cheddarNftPriceInCheddar && nftCheddarBalance) {
+      if (BigInt(cheddarNftPriceInCheddar) > BigInt(nftCheddarBalance)) {
+        return (
+          BigInt(cheddarNftPriceInCheddar) - BigInt(nftCheddarBalance)
+        ).toString();
+      }
+      return '0';
+    }
+  }, [cheddarNftPriceInCheddar, nftCheddarBalance]);
+
 
   //The first option is the default one
   const payingOptions = [
     {
       name: 'Cheddar',
-      price: isNftPriceInCheddarLoading
+      price: !nftRemainingCheddarToPay
         ? 'Loading'
-        : yton(cheddarNftPriceInCheddar!),
+        : yton(nftRemainingCheddarToPay),
       icon: <RenderCheddarIcon className={styles.tokenIcon} />,
       color: 'yellow',
     },
@@ -64,6 +79,8 @@ export const BuyNFTTab = ({ isOpen }: Props) => {
 
   const [tokenToPayWith, setTokenToPayWith] = useState(payingOptions[0].name);
   const [errorMsg, setErrorMsg] = useState(undefined as undefined | string);
+
+  const modalTitle = errorMsg ? 'Something went wrong' : 'Success';
 
   function handleTogglePayOption() {
     if (tokenToPayWith === payingOptions[0].name) {
@@ -80,7 +97,7 @@ export const BuyNFTTab = ({ isOpen }: Props) => {
 
       const withCheddar = tokenToPayWith === 'Cheddar';
       const amount = withCheddar
-        ? cheddarNftPriceInCheddar
+        ? nftRemainingCheddarToPay
         : cheddarNftPriceInNear;
       const resp = await buyNFT(wallet, withCheddar, amount!);
       const genericLastResult = await getTransactionLastResult(resp);

@@ -1,26 +1,22 @@
 import { Coordinates } from '@/entities/interfaces';
 import React, {
-  KeyboardEvent,
-  ReactNode,
   createContext,
   useEffect,
+  KeyboardEvent,
   useRef,
   useState,
+  ReactNode,
 } from 'react';
 
+import { localStorageSavedGameKey } from '@/constants/maze';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import {
   callLoseGame,
   getSeedIdFromContract,
 } from '@/contracts/maze/mazeBuyerCalls';
-import { NFT } from '@/contracts/nftCheddarContract';
 import { getNFTs } from '@/contracts/tokenCheddarCalls';
 import { RNG } from '@/entities/maze/RNG';
-import {
-  useGetCheddarNFTs,
-  useIsHolonymVerfified,
-  useIsNadabotVerfified,
-} from '@/hooks/cheddar';
+
 import {
   ScoreboardResponse,
   useGetEarnedAndMintedCheddar,
@@ -30,10 +26,12 @@ import {
   useGetUserRemainingFreeGames,
   useGetUserRemainingPaidGames,
 } from '@/hooks/maze';
-import { callEndGame, getSeedId } from '@/queries/maze/api';
+import { callEndGame, EndGameRequest, getSeedId } from '@/queries/maze/api';
 import { addEncodedDataToURL } from '@/utilities/exportableFunctions';
 import { useDisclosure, useToast } from '@chakra-ui/react';
-import { useGlobalContext } from '../GlobalContext';
+import { Blockchain, useGlobalContext } from '../GlobalContext';
+import { NFT } from '@/contracts/nftCheddarContract';
+import { useGetCheddarNFTs, useIsHolonymVerfified, useIsNadabotVerfified } from '@/hooks/cheddar';
 
 interface props {
   children: ReactNode;
@@ -124,6 +122,8 @@ interface GameContextProps {
   timeLimitInSeconds: number;
   setTimeLimitInSeconds: React.Dispatch<React.SetStateAction<number>>;
 
+  loadingRemainingMinutesAndSeconds: boolean;
+
   remainingMinutes: number;
   setRemainingMinutes: React.Dispatch<React.SetStateAction<number>>;
 
@@ -178,14 +178,14 @@ interface GameContextProps {
   cheddarFound: number;
   setCheddarFound: React.Dispatch<React.SetStateAction<number>>;
 
-  saveResponse: string[] | undefined;
+  endGameResponseErrors: string[] | undefined;
   hasWon: undefined | boolean;
   pendingCheddarToMint: number;
   earnedButNotMintedCheddar: number;
   endGameResponse: any;
   totalMintedCheddarToDate: number;
 
-  nfts: NFT[];
+  nfts: NFT[] | null | undefined;
 
   showMovementButtons: boolean;
   setShowMovementButtons: React.Dispatch<React.SetStateAction<boolean>>;
@@ -225,6 +225,37 @@ interface GameContextProps {
   setStartingGame: React.Dispatch<React.SetStateAction<boolean>>;
 
   gameboardRef: React.RefObject<HTMLDivElement>;
+
+  calculateRemainingTime: (
+    propsTimestampStartStopTimerArray?: number[],
+    propsTimestampEndStopTimerArray?: number[],
+    propsStartTimestamp?: number | null
+  ) => number;
+
+  setDeleteSavedGameOnReload: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export interface StoredGameInfo {
+  mazeData: MazeTileData[][];
+  pathLength: number;
+  playerPosition: Coordinates;
+  score: number;
+  startTimestamp: number | null;
+  cheeseCooldown: boolean;
+  bagCooldown: boolean;
+  cellsWithItemAmount: number;
+  coveredCells: string[];
+  cheddarFound: number;
+  seedId: number;
+  hasFoundPlinko: boolean;
+  moves: number;
+  accountId: string | null;
+  timestampStartStopTimerArray: number[];
+  timestampEndStopTimerArray: number[];
+  blockchain: Blockchain;
+  rngState: number;
+  playerPath: Coordinates[];
+  selectedColorSet: number;
 }
 
 export const GameContext = createContext<GameContextProps>(
@@ -246,16 +277,29 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseScoreboard,
   } = useDisclosure();
 
-  const [mazeData, setMazeData] = useState([[]] as MazeTileData[][]);
-  const [pathLength, setPathLength] = useState(0);
-  const [playerPosition, setPlayerPosition] = useState({ x: 1, y: 1 });
-  const [score, setScore] = useState(0);
+  const storedGameInfo = useRef(localStorage.getItem(localStorageSavedGameKey));
+  const storedGameInfoParsed =
+    storedGameInfo.current &&
+    (JSON.parse(storedGameInfo.current) as StoredGameInfo | null);
+
+  const [timeLimitInSeconds, setTimeLimitInSeconds] = useState(120);
+  const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
+  const [timestampStartStopTimerArray, setTimestampStartStopTimerArray] =
+    useState<number[]>([]);
+
+  const [timestampEndStopTimerArray, setTimestampEndStopTimerArray] = useState<
+    number[]
+  >([]);
+
+  const [mazeData, setMazeData] = useState<MazeTileData[][]>([]);
+  const [pathLength, setPathLength] = useState<number>(0);
+  const [playerPosition, setPlayerPosition] = useState<Coordinates>({ x: 1, y: 1 });
+  const [score, setScore] = useState<number>(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [fightingEnemyFlag, setFightingEnemyFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [hasWon, setHasWon] = useState<undefined | boolean>(undefined);
-  const [timerStarted, setTimerStarted] = useState(false);
-  const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
+  const [timerStarted, setTimerStarted] = useState<boolean>(false);
   const [direction, setDirection] = useState(
     'right' as 'right' | 'left' | 'down' | 'up'
   );
@@ -264,63 +308,69 @@ export const GameContextProvider = ({ children }: props) => {
   const [lastCellY, setLastCellY] = useState(-1);
   const [hasPowerUp, setHasPowerUp] = useState(false);
   const [isPowerUpOn, setIsPowerUpOn] = useState(false);
-
-  const [timeLimitInSeconds, setTimeLimitInSeconds] = useState(120);
-  const [remainingTime, setRemainingTime] = useState(timeLimitInSeconds);
+  
+  const [remainingTime, setRemainingTime] = useState<number>(timeLimitInSeconds);
+  
+  const [
+    loadingRemainingMinutesAndSeconds,
+    setLoadingRemainingMinutesAndSeconds,
+  ] = useState<boolean>(!!storedGameInfoParsed);
   const [remainingMinutes, setRemainingMinutes] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
-
-  const [cheeseCooldown, setCheeseCooldown] = useState(false);
-  const [bagCooldown, setBagCooldown] = useState(false);
+  
+  const [cheeseCooldown, setCheeseCooldown] = useState<boolean>(
+    false
+  );
+  const [bagCooldown, setBagCooldown] = useState<boolean>(
+    false
+  );
   const [enemyCooldown, setEnemyCooldown] = useState(false);
-  const [moves, setMoves] = useState(0);
-
+  const [moves, setMoves] = useState<number>(
+    0
+  );
+  
   const [won, setWon] = useState(false);
   const [touchStart, setTouchStart] = useState({ x: -1, y: -1 });
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
   const [coveredCells, setCoveredCells] = useState<string[]>([]);
-  const [cellsWithItemAmount, setCellsWithItemAmount] = useState(0);
+  const [playerPath, setPlayerPath] = useState<Coordinates[]>([]);
+  const [cellsWithItemAmount, setCellsWithItemAmount] = useState<number>(0);
 
   const [startingGame, setStartingGame] = useState(false);
-
-  const [cheddarFound, setCheddarFound] = useState(0);
-
-  const [seedId, setSeedId] = useState(0);
-
+  
+  const [cheddarFound, setCheddarFound] = useState<number>(0);
+  
+  const [seedId, setSeedId] = useState<number>(0);
+  
   const [rng, setRng] = useState(new RNG(0));
-
-  const [saveResponse, setSaveResponse] = useState();
+  
+  const [endGameResponseErrors, setEndGameResponseErrors] = useState();
   const [endGameResponse, setEndGameResponse] = useState();
-
+  
   const [showMovementButtons, setShowMovementButtons] = useState(true);
   const [renderBoard, setRenderBoard] = useState(false); // to update board color on restart
-
-  const [timestampStartStopTimerArray, setTimestampStartStopTimerArray] =
-    useState<number[]>([]);
-
-  const [timestampEndStopTimerArray, setTimestampEndStopTimerArray] = useState<
-    number[]
-  >([]);
-
-  const [hasFoundPlinko, setHasFoundPlinko] = useState(false);
-
+  
+  const [hasFoundPlinko, setHasFoundPlinko] = useState<boolean>(
+    false
+  );
+  
   const [isMouseDown, setIsMouseDown] = useState(false);
-
+  
   const [lastDivId, setLastDivId] = useState('');
-
-  // const [backgroundImage, setBackgroundImage] = useState('');
-  // const [rarity, setRarity] = useState('');
-
+  
   const {
     isOpen: isVideoModalOpened,
     onOpen: onOpenVideoModal,
     onClose: onCloseVideoModal,
   } = useDisclosure();
-
+  
   const [mazeCols, setMazeCols] = useState(9);
   const [mazeRows, setMazeRows] = useState(10);
   const [totalCells, setTotalCells] = useState(0);
-
+  
+  const [storedDataLoaded, setStoredDataLoaded] = useState(false);
+  const [deleteSavedGameOnReload, setDeleteSavedGameOnReload] = useState(false);
+  
   const gameboardRef = useRef<HTMLDivElement>(null);
 
   function handleErrorToast(title: string) {
@@ -333,6 +383,12 @@ export const GameContextProvider = ({ children }: props) => {
     });
   }
 
+  useEffect(() => {
+    const stored = localStorage.getItem(localStorageSavedGameKey);
+    let mdParced;
+    if (stored) mdParced = JSON.parse(stored);
+  }, [mazeData]);
+  
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
     const handleMediaChange = (e: any) => {
@@ -427,6 +483,7 @@ export const GameContextProvider = ({ children }: props) => {
   useEffect(() => {
     const minutes = Math.floor(remainingTime / 60);
     const seconds = remainingTime % 60;
+    setLoadingRemainingMinutesAndSeconds(false);
     setRemainingMinutes(minutes);
     setRemainingSeconds(seconds);
   }, [remainingTime]);
@@ -441,17 +498,20 @@ export const GameContextProvider = ({ children }: props) => {
   }, []);
 
   const [nfts, setNFTs] = useState<NFT[]>([]);
-  const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
-    useGetCheddarNFTs();
 
-  const { data: isUserNadabotVerfied } = useIsNadabotVerfified(accountId);
+  // const { data: isUserNadabotVerfied } = useIsNadabotVerfified(accountId);
 
-  const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
+  // const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
 
   const {
     blockchain,
+    setBlockchain,
     selectedBlockchainAddress,
+    addresses,
     setCollapsableNavbarActivated,
+    cheddarNFTsData,
+    blockchainChangedOnLoad,
+    setBlockchainChangedOnLoad,
     urlParams,
   } = useGlobalContext();
 
@@ -464,6 +524,10 @@ export const GameContextProvider = ({ children }: props) => {
       setNFTs([]);
     }
   }, [accountId]);
+
+  const { data: isUserNadabotVerfied } = useIsNadabotVerfified(addresses.near);
+
+  const { data: isUserHolonymVerified } = useIsHolonymVerfified(addresses.near);
 
   // Function to select a random color set, background image, and rarity
   const selectRandomColorSet = () => {
@@ -522,27 +586,30 @@ export const GameContextProvider = ({ children }: props) => {
       await refetchEarnedButNotMintedCheddar();
       setSeedId(seedId);
 
-      setHasWon(undefined);
-      setTimerStarted(true);
-      setStartTimestamp(Date.now());
-      // clearInterval(timerId);
-      setScore(0);
-      setTimeLimitInSeconds(120);
-      setRemainingTime(120);
-      setCheddarFound(0);
-      setCheeseCooldown(false);
-      setBagCooldown(false);
-      // setEnemyCooldown(false);
-      setMoves(0);
-      setGameOverFlag(false);
-      setWon(false);
-      setGameOverMessage('');
-      setDirection('right');
-      setCoveredCells([]);
-      setSaveResponse(undefined);
-      setEndGameResponse(undefined);
-      setCellsWithItemAmount(0);
-      setRenderBoard(!renderBoard);
+    setHasWon(undefined);
+    setTimerStarted(true);
+    setStartTimestamp(Date.now());
+    setTimestampStartStopTimerArray([]);
+    setTimestampEndStopTimerArray([]);
+
+    // clearInterval(timerId);
+    setScore(0);
+    setTimeLimitInSeconds(120);
+    setRemainingTime(120);
+    setCheddarFound(0);
+    setCheeseCooldown(false);
+    setBagCooldown(false);
+    // setEnemyCooldown(false);
+    setMoves(0);
+    setGameOverFlag(false);
+    setWon(false);
+    setGameOverMessage('');
+    setDirection('right');
+    setCoveredCells([]);
+    setEndGameResponseErrors(undefined);
+    setEndGameResponse(undefined);
+    setCellsWithItemAmount(0);
+    setRenderBoard(!renderBoard);
 
       gameOverRefSent.current = false;
 
@@ -555,20 +622,42 @@ export const GameContextProvider = ({ children }: props) => {
       // Set the maze data with the new maze and player's starting position
       setMazeData(newMazeData);
 
-      const playerStartCell = getRandomPathCell(newMazeData);
+    const playerStartCell = getRandomPathCell(newMazeData);
+    setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
+    setLastCellX(-1);
+    setLastCellY(-1);
 
-      setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
-      setLastCellX(-1);
-      setLastCellY(-1);
+    refeshUseGetUserRemainingPayedGames();
+    refeshUseGetUserRemainingFreeGames();
+    setCollapsableNavbarActivated(true);
 
-      refeshUseGetUserRemainingPayedGames();
-      refeshUseGetUserRemainingFreeGames();
+    const gameInfo: StoredGameInfo = {
+      mazeData: newMazeData,
+      pathLength,
+      playerPosition: playerStartCell,
+      score,
+      startTimestamp: Date.now(),
+      cheeseCooldown,
+      bagCooldown,
+      cellsWithItemAmount,
+      coveredCells,
+      cheddarFound,
+      seedId: seedId,
+      hasFoundPlinko,
+      moves,
+      accountId: selectedBlockchainAddress,
+      timestampStartStopTimerArray,
+      timestampEndStopTimerArray,
+      blockchain,
+      rngState: rng.state,
+      playerPath: [],
+      selectedColorSet,
+    };
 
-      setCollapsableNavbarActivated(true);
-    } catch (err: any) {
-      handleErrorToast(err.message);
-    }
-  }
+    localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
+  } catch (err: any) {
+    handleErrorToast(err.message);
+  }}
 
   // Function to generate maze data
   function generateMazeData(rows: number, cols: number, rng: RNG) {
@@ -691,20 +780,105 @@ export const GameContextProvider = ({ children }: props) => {
     return maze;
   }
 
-  // Inside the component where you're using the Maze component
-  useEffect(() => {
+  function restartMaze() {
     // Generate maze data and set it to the state
     const newMazeData = generateMazeData(mazeRows, mazeCols, new RNG(0));
     setMazeData(newMazeData);
 
+    const playerStartCell = getRandomPathCell(newMazeData);
+    setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
+  }
+
+  // Inside the component where you're using the Maze component
+  useEffect(() => {
     const randomColorSet = selectRandomColorSet();
     setSelectedColorSet(randomColorSet);
     // setBackgroundImage(randomColorSet.backgroundImage);
     // setRarity(randomColorSet.rarity);
 
-    const playerStartCell = getRandomPathCell(newMazeData);
-    setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
-  }, [totalCells, renderBoard]); // Empty dependency array to run this effect only once on component mount
+    const savedGame = localStorage.getItem(localStorageSavedGameKey);
+    if (savedGame === null) {
+      restartMaze();
+      return;
+    }
+    const savedGameParsed = JSON.parse(savedGame) as StoredGameInfo;
+
+    const remainingTimeWithStoredData = calculateRemainingTime(
+      savedGameParsed.timestampStartStopTimerArray,
+      savedGameParsed.timestampEndStopTimerArray,
+      savedGameParsed.startTimestamp
+    );
+
+    if (
+      addresses[savedGameParsed.blockchain] === savedGameParsed.accountId &&
+      remainingTimeWithStoredData > 0
+    ) {
+      if (!blockchainChangedOnLoad) {
+        setBlockchain(savedGameParsed.blockchain);
+        setBlockchainChangedOnLoad(true);
+      }
+    } else {
+      setTimerStarted(false);
+      // setGameOverFlag(true);
+      setRemainingTime(timeLimitInSeconds);
+      restartMaze();
+      return;
+    }
+
+    if (blockchain === savedGameParsed.blockchain) {
+      setPathLength(savedGameParsed.pathLength);
+      setPlayerPosition(savedGameParsed.playerPosition);
+      setScore(savedGameParsed.score);
+      setStartTimestamp(savedGameParsed.startTimestamp);
+      setCheeseCooldown(savedGameParsed.cheeseCooldown);
+      setBagCooldown(savedGameParsed.bagCooldown);
+      setMoves(savedGameParsed.moves);
+      setCoveredCells(savedGameParsed.coveredCells);
+      setCellsWithItemAmount(savedGameParsed.cellsWithItemAmount);
+      setCheddarFound(savedGameParsed.cheddarFound);
+      setSeedId(savedGameParsed.seedId);
+      setHasFoundPlinko(savedGameParsed.hasFoundPlinko);
+      setTimestampStartStopTimerArray(
+        savedGameParsed.timestampStartStopTimerArray
+      );
+      setTimestampEndStopTimerArray(savedGameParsed.timestampEndStopTimerArray);
+      setRemainingTime(remainingTimeWithStoredData);
+      setTimerStarted(true);
+      setRng(new RNG(savedGameParsed.rngState));
+      setLastCellX(savedGameParsed.playerPosition.x);
+      setLastCellY(savedGameParsed.playerPosition.y);
+      setPlayerPath(savedGameParsed.playerPath);
+      setSelectedColorSet(savedGameParsed.selectedColorSet);
+
+      setMazeData(savedGameParsed.mazeData);
+      setGameOverFlag(false);
+    } else {
+      setTimerStarted(false);
+      // setGameOverFlag(true);
+      setRemainingTime(timeLimitInSeconds);
+      restartMaze();
+      return;
+    }
+
+    setStoredDataLoaded(true);
+  }, [totalCells, renderBoard, blockchain]);
+
+  useEffect(() => {
+    if (storedDataLoaded) {
+      mazeData.forEach((row, rowIndex) => {
+        row.forEach((col, colIndex) => {
+          if (col.fight) {
+            setFightingEnemyFlag(true);
+            setTimeout(() => {
+              handleEnemyFound(mazeData, colIndex, rowIndex, true);
+            }, 500);
+          }
+        });
+      });
+
+      setStoredDataLoaded(false);
+    }
+  }, [storedDataLoaded]);
 
   function movePlayer(newX: number, newY: number) {
     if (
@@ -726,7 +900,8 @@ export const GameContextProvider = ({ children }: props) => {
     newMazeData[playerPosition.y][playerPosition.x].isActive = false;
 
     // Update player position state
-    setPlayerPosition({ x: newX, y: newY });
+    const newPlayerPosition = { x: newX, y: newY };
+    setPlayerPosition(newPlayerPosition);
 
     // Update mazeData state
     setMazeData(newMazeData);
@@ -739,13 +914,43 @@ export const GameContextProvider = ({ children }: props) => {
       setCoveredCells(newCoveredCells);
     }
 
-    // Periodically add artifacts to the board based on cooldowns and randomness
-    addArtifacts(newX, newY, newMazeData, moves);
+    const newPlayerPath = [...playerPath, newPlayerPosition];
+
+    setPlayerPath(newPlayerPath);
 
     // Set lastCellX and lastCellY to the new player position
     // Update last cell coordinates
     setLastCellX(playerPosition.x);
     setLastCellY(playerPosition.y);
+
+    // Periodically add artifacts to the board based on cooldowns and randomness
+    addArtifacts(newX, newY, newMazeData, moves);
+
+    //Store match info in local storage
+    const gameInfo: StoredGameInfo = {
+      mazeData: newMazeData,
+      pathLength,
+      playerPosition: newPlayerPosition,
+      score,
+      startTimestamp,
+      cheeseCooldown,
+      bagCooldown,
+      cellsWithItemAmount,
+      coveredCells,
+      cheddarFound,
+      seedId,
+      hasFoundPlinko,
+      moves,
+      accountId: selectedBlockchainAddress,
+      timestampStartStopTimerArray,
+      timestampEndStopTimerArray,
+      blockchain,
+      rngState: rng.state,
+      playerPath: newPlayerPath,
+      selectedColorSet,
+    };
+
+    localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
   }
 
   function doesCellHasArtifact(x: number, y: number) {
@@ -763,14 +968,15 @@ export const GameContextProvider = ({ children }: props) => {
     const clonedMazeData = mazeData;
     clonedMazeData[y][x].fight = true;
 
-    setFightingEnemyFlag(true);
     setMazeData(clonedMazeData);
+    setFightingEnemyFlag(true);
   }
 
   function handleEnemyFound(
     clonedMazeData: MazeTileData[][],
     x: number,
-    y: number
+    y: number,
+    forceRefreshMazeData?: boolean
   ) {
     // 30% chance of encountering an enemy
     // Code for adding enemy artifact...
@@ -778,6 +984,7 @@ export const GameContextProvider = ({ children }: props) => {
     // Add logic for the enemy defeating the player
     clonedMazeData[y][x].fight = false;
     setFightingEnemyFlag(false);
+
     if (rng.nextFloat() < 0.02) {
       // 2% chance of the enemy winning
       clonedMazeData[y][x].enemyWon = true;
@@ -796,6 +1003,10 @@ export const GameContextProvider = ({ children }: props) => {
         },
         rng.nextRange(1000, 6000)
       );
+    }
+
+    if (forceRefreshMazeData) {
+      setMazeData(clonedMazeData);
     }
   }
 
@@ -899,14 +1110,14 @@ export const GameContextProvider = ({ children }: props) => {
   const NFTExitBuffMultiplier = 10;
 
   function getChancesOfFindingCheese() {
-    if (nfts.length > 0) {
+    if (cheddarNFTsData && cheddarNFTsData.length > 0) {
       return chancesOfFinding.cheese * NFTCheeseBuffMultiplier;
     }
     return chancesOfFinding.cheese;
   }
 
   function getChancesOfFindingExit() {
-    if (nfts.length > 0) {
+    if (cheddarNFTsData && cheddarNFTsData.length > 0) {
       return chancesOfFinding.exit * NFTExitBuffMultiplier;
     }
     return chancesOfFinding.exit;
@@ -989,33 +1200,34 @@ export const GameContextProvider = ({ children }: props) => {
 
     gameOverRefSent.current = true;
 
+    
     if (won || blockchain !== 'near') {
       const cheddarToEarn =
         cheddarFound <= pendingCheddarToMint
           ? cheddarFound
           : pendingCheddarToMint;
-
-      const endGameRequestData = {
+  
+      const endGameRequestData: EndGameRequest = {
         data: {
           cheddarEarned: won ? cheddarToEarn : 0,
           score,
-          path: [],
+          path: playerPath,
         },
         metadata: {
           blockchain,
-          accountId: selectedBlockchainAddress!,
+          accountId: selectedBlockchainAddress,
           seedId,
-          referralAccount: referralAccount,
+          referralAccount,
         },
       };
 
       const endGameResponse = await callEndGame(endGameRequestData).catch(
-        (error) => setSaveResponse(error)
+        (error) => setEndGameResponseErrors(error)
       );
       await refetchEarnedButNotMintedCheddar();
       await refetchEarnedAndMintedCheddar();
       setEndGameResponse(endGameResponse);
-      if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+      if (!endGameResponse.ok) setEndGameResponseErrors(endGameResponse.errors);
     } else if (!won && blockchain === 'near') {
       try {
         const wallet = await selector.wallet();
@@ -1048,6 +1260,60 @@ export const GameContextProvider = ({ children }: props) => {
     }, 800);
 
     setCollapsableNavbarActivated(false);
+
+    localStorage.removeItem(localStorageSavedGameKey);
+  }
+
+  function calculateRemainingTime(
+    propsTimestampStartStopTimerArray?: number[],
+    propsTimestampEndStopTimerArray?: number[],
+    propsStartTimestamp?: number | null
+  ) {
+    return Math.min(
+      calculateRemainingTimeInTimeStamp(
+        propsTimestampStartStopTimerArray,
+        propsTimestampEndStopTimerArray,
+        propsStartTimestamp
+      ),
+      timeLimitInSeconds
+    );
+  }
+
+  function calculateRemainingTimeInTimeStamp(
+    propsTimestampStartStopTimerArray?: number[],
+    propsTimestampEndStopTimerArray?: number[],
+    propsStartTimestamp?: number | null
+  ) {
+    let secondsWithTimerStopped = 0;
+
+    const validTimestampStartStopTimerArray =
+      propsTimestampStartStopTimerArray ?? timestampStartStopTimerArray;
+
+    const validTimestampEndStopTimerArray =
+      propsTimestampEndStopTimerArray ?? timestampEndStopTimerArray;
+
+    const validStartTimestamp = propsStartTimestamp ?? startTimestamp;
+
+    if (
+      validTimestampStartStopTimerArray.length > 0 &&
+      validTimestampEndStopTimerArray &&
+      validTimestampEndStopTimerArray.length > 0
+    ) {
+      validTimestampStartStopTimerArray.forEach((startTimestamp, index) => {
+        secondsWithTimerStopped +=
+          (validTimestampEndStopTimerArray[index] - startTimestamp) / 1000;
+      });
+    }
+
+    // Calculate the remaining time
+    const calculatedRemainingTime = Math.floor(
+      validStartTimestamp! / 1000 +
+        timeLimitInSeconds +
+        secondsWithTimerStopped -
+        Date.now() / 1000
+    );
+
+    return calculatedRemainingTime;
   }
 
   // Define a new useEffect hook to manage the timer
@@ -1070,28 +1336,8 @@ export const GameContextProvider = ({ children }: props) => {
               return 0; // Time's up, return 0
             }
 
-            let secondsWithTimerStopped = 0;
-
-            if (
-              timestampStartStopTimerArray.length > 0 &&
-              timestampEndStopTimerArray.length > 0
-            ) {
-              timestampStartStopTimerArray.forEach((startTimestamp, index) => {
-                secondsWithTimerStopped +=
-                  (timestampEndStopTimerArray[index] - startTimestamp) / 1000;
-              });
-            }
-
-            // Calculate the remaining time
-            const calculatedRemainingTime = Math.floor(
-              startTimestamp / 1000 +
-                timeLimitInSeconds +
-                secondsWithTimerStopped -
-                Date.now() / 1000
-            );
-
             // Ensure that remainingTime doesn't exceed the timeLimitInSeconds
-            return Math.min(calculatedRemainingTime, timeLimitInSeconds);
+            return calculateRemainingTime();
           });
         }
       }, 500);
@@ -1372,6 +1618,7 @@ export const GameContextProvider = ({ children }: props) => {
         setTimeLimitInSeconds,
         remainingTime,
         setRemainingTime,
+        loadingRemainingMinutesAndSeconds,
         remainingMinutes,
         setRemainingMinutes,
         remainingSeconds,
@@ -1407,11 +1654,11 @@ export const GameContextProvider = ({ children }: props) => {
         handleOnMouseUp,
         cheddarFound,
         setCheddarFound,
-        saveResponse,
+        endGameResponseErrors,
         hasWon,
         pendingCheddarToMint,
         endGameResponse,
-        nfts,
+        nfts: cheddarNFTsData,
         showMovementButtons,
         setShowMovementButtons,
         timestampStartStopTimerArray,
@@ -1440,6 +1687,8 @@ export const GameContextProvider = ({ children }: props) => {
         startingGame,
         setStartingGame,
         gameboardRef,
+        calculateRemainingTime,
+        setDeleteSavedGameOnReload,
       }}
     >
       {children}
