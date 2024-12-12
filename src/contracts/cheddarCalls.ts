@@ -3,6 +3,7 @@ import { view } from './contractUtils';
 import { Metadata } from './CheddarToken';
 import { NFT } from './nftCheddarContract';
 import { Transaction, Wallet } from '@near-wallet-selector/core';
+import Big from 'big.js';
 
 const { cheddarToken, cheddarNft, nadaBot } = getConfig().contracts.near;
 
@@ -132,5 +133,125 @@ export const getCheddarNFTBuyPrice = (
     // If minter is contract owner, it's free. For every other account, it has the same cost, so it can be hardcoded
     minter: 'b2a715c29af50e9cc789f92824bb5f76793acc0a12948644a498e8087e029010',
     with_cheddar: withCheddar,
+  });
+};
+
+interface TokenMetadata {
+  id: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  icon: string;
+}
+
+interface IServerPool {
+  amount_in?: string;
+  min_amount_out: string;
+  pool_id: string | number;
+  token_in: string;
+  token_out: string;
+}
+
+interface Route {
+  amount_in: string;
+  min_amount_out: string;
+  pools: IServerPool[];
+  tokens?: TokenMetadata[];
+}
+
+const STORAGE_TO_REGISTER_WITH_MFT = '0.1';
+const ONE_YOCTO_NEAR = '1';
+
+const toNonDivisibleNumber = (decimals: number, number: string): string => {
+  return new Big(number).times(new Big(10).pow(decimals)).toFixed();
+};
+
+export const swapNearToCheddar = async (
+  wallet: Wallet,
+  routes: Route[],
+  amountIn: string
+): Promise<any> => {
+  const accounts = await wallet.getAccounts();
+  const signerId = accounts[0].accountId;
+  const { wrapNear } = getConfig().contracts.near;
+  const transactions: Transaction[] = [];
+
+  // swap to wrap.near and register if user is not registered
+  const tokenRegistered = await view(wrapNear, 'storage_balance_of', {
+    account_id: signerId,
+  });
+  if (tokenRegistered === null) {
+    transactions.push({
+      signerId,
+      receiverId: wrapNear,
+      actions: [
+        {
+          type: 'FunctionCall',
+          params: {
+            methodName: 'storage_deposit',
+            args: {
+              registration_only: true,
+              account_id: signerId,
+            },
+            gas: '30000000000000',
+            deposit: toNonDivisibleNumber(24, STORAGE_TO_REGISTER_WITH_MFT),
+          },
+        },
+      ],
+    });
+  }
+
+  transactions.push({
+    signerId,
+    receiverId: wrapNear,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName: 'near_deposit',
+          args: {},
+          gas: '50000000000000',
+          deposit: toNonDivisibleNumber(24, amountIn),
+        },
+      },
+    ],
+  });
+
+  const actionsList: any[] = [];
+  routes.forEach((route) => {
+    route.pools.forEach((pool) => {
+      if (pool.amount_in !== undefined && +pool.amount_in == 0) {
+        delete pool.amount_in;
+      }
+      pool.pool_id = Number(pool.pool_id);
+      actionsList.push(pool);
+    });
+  });
+  transactions.push({
+    signerId,
+    receiverId: wrapNear,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: 'v2.ref-finance.near',
+            amount: toNonDivisibleNumber(24, amountIn),
+            msg: JSON.stringify({
+              force: 0,
+              actions: actionsList,
+              referral_id: 'maze_minter_auth.cheddar.near',
+            }),
+          },
+          gas: '180000000000000',
+          deposit: ONE_YOCTO_NEAR,
+        },
+      },
+    ],
+  });
+
+  return wallet.signAndSendTransactions({
+    transactions,
   });
 };
