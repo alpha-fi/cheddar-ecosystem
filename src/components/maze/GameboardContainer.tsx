@@ -523,7 +523,9 @@ export function GameboardContainer({
                     <Button
                       fontSize="sm"
                       px={{ base: 2, md: 3 }}
-                      colorScheme={nfts?.length > 0 ? 'green' : 'yellow'}
+                      colorScheme={
+                        nfts && nfts?.length > 0 ? 'green' : 'yellow'
+                      }
                       onClick={
                         nfts?.length ? toggleViewNftModal : handleBuyClick
                       }
