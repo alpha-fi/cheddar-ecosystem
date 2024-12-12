@@ -20,7 +20,7 @@ import { ntoy, yton } from '@/contracts/contractUtils';
 import _debounce from 'lodash/debounce';
 import { ModalContainer } from './ModalContainer';
 import Big from 'big.js';
-import { swapNearToCheddar } from '@/contracts/cheddarCalls';
+import { swapNearToCheddar } from '@/contracts/tokenCheddarCalls';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 
 interface Props {
