@@ -7,7 +7,7 @@ import {
   getNFTs,
   getTotalSupply,
   isNadabotVerfied,
-} from '@/contracts/cheddarCalls';
+} from '@/contracts/tokenCheddarCalls';
 import { isHolonymVerified } from '@/queries/maze/api';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';

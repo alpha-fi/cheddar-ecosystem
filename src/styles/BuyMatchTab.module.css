@@ -1,0 +1,48 @@
+.generalContainer {
+  padding: 1rem;
+  background-color: #8542eb;
+  border-radius: 10px;
+}
+.discountsTitle {
+  font-weight: bolder;
+  margin-bottom: 1rem;
+}
+
+.selectAmountContainer {
+  margin-top: 1rem;
+  justify-content: space-between;
+}
+
+.amountOptionsSelector {
+  border: 2px solid black;
+  border-radius: 10px;
+  width: 50%;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+}
+
+.option {
+  margin: 0 auto;
+  width: 100%;
+  text-align: center;
+}
+
+.borderLeft {
+    border-left: 1px solid black;
+}
+
+.totalPrizeContainer {
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.totalPrizeInput {
+  cursor: default;
+  user-select: none;
+}
+
+.purchaseButton {
+  margin-top: 1rem;
+  width: 100%;
+}

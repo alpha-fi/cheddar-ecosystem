@@ -1,28 +1,37 @@
 import { Coordinates } from '@/entities/interfaces';
 import React, {
   createContext,
-  KeyboardEvent,
-  ReactNode,
   useEffect,
+  KeyboardEvent,
   useRef,
   useState,
+  ReactNode,
 } from 'react';
 
 import { localStorageSavedGameKey } from '@/constants/maze';
-import { NFT } from '@/contracts/nftCheddarContract';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import {
+  callLoseGame,
+  getSeedIdFromContract,
+} from '@/contracts/maze/mazeBuyerCalls';
+import { getNFTs } from '@/contracts/tokenCheddarCalls';
 import { RNG } from '@/entities/maze/RNG';
-import { useIsHolonymVerfified, useIsNadabotVerfified } from '@/hooks/cheddar';
+
 import {
   ScoreboardResponse,
   useGetEarnedAndMintedCheddar,
   useGetEarnedButNotMintedCheddar,
   useGetPendingCheddarToMint,
   useGetScoreboard,
+  useGetUserRemainingFreeGames,
+  useGetUserRemainingPaidGames,
 } from '@/hooks/maze';
 import { callEndGame, EndGameRequest, getSeedId } from '@/queries/maze/api';
+import { addEncodedDataToURL } from '@/utilities/exportableFunctions';
 import { useDisclosure, useToast } from '@chakra-ui/react';
 import { Blockchain, useGlobalContext } from '../GlobalContext';
-import { useFeeData } from 'wagmi';
+import { NFT } from '@/contracts/nftCheddarContract';
+import { useGetCheddarNFTs, useIsHolonymVerfified, useIsNadabotVerfified } from '@/hooks/cheddar';
 
 interface props {
   children: ReactNode;
@@ -54,9 +63,18 @@ const pointsOfActions = {
   plinkoGameFound: 2,
 };
 
-const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestPlinko =
+  (process.env.NEXT_PUBLIC_NETWORK === 'local' ||
+    process.env.NEXT_PUBLIC_NETWORK === 'testnet') &&
+  false;
+const isTestWin =
+  (process.env.NEXT_PUBLIC_NETWORK === 'local' ||
+    process.env.NEXT_PUBLIC_NETWORK === 'testnet') &&
+  false;
+const isTestCartel =
+  (process.env.NEXT_PUBLIC_NETWORK === 'local' ||
+    process.env.NEXT_PUBLIC_NETWORK === 'testnet') &&
+  false;
 
 interface GameContextProps {
   isMobile: boolean;
@@ -143,7 +161,7 @@ interface GameContextProps {
     direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
   ): void;
 
-  restartGame(): void;
+  restartGame(urlSeedId?: number): void;
 
   calculateBlurRadius(cellX: number, cellY: number): number;
 
@@ -197,6 +215,17 @@ interface GameContextProps {
   isUserNadabotVerfied: boolean | undefined;
   isUserHolonymVerified: boolean | undefined;
 
+  freeMatchesLeft: number | undefined;
+  payedMatchesLeft: number | undefined;
+
+  freeMatchesLeftLoading: boolean;
+  payedMatchesLeftLoading: boolean;
+
+  startingGame: boolean;
+  setStartingGame: React.Dispatch<React.SetStateAction<boolean>>;
+
+  gameboardRef: React.RefObject<HTMLDivElement>;
+
   calculateRemainingTime: (
     propsTimestampStartStopTimerArray?: number[],
     propsTimestampEndStopTimerArray?: number[],
@@ -234,6 +263,7 @@ export const GameContext = createContext<GameContextProps>(
 );
 
 export const GameContextProvider = ({ children }: props) => {
+  const { accountId, selector } = useWalletSelector();
   const gameOverRefSent = useRef(false);
   const isMobile = useRef(
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -253,47 +283,23 @@ export const GameContextProvider = ({ children }: props) => {
     (JSON.parse(storedGameInfo.current) as StoredGameInfo | null);
 
   const [timeLimitInSeconds, setTimeLimitInSeconds] = useState(120);
-  const [startTimestamp, setStartTimestamp] = useState<number | null>(
-    // getDefaultOrStoredValue('startTimestamp', null)
-    null
-  );
+  const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
   const [timestampStartStopTimerArray, setTimestampStartStopTimerArray] =
-    useState<number[]>(
-      // getDefaultOrStoredValue('timestampStartStopTimerArray', [])
-      []
-    );
+    useState<number[]>([]);
 
   const [timestampEndStopTimerArray, setTimestampEndStopTimerArray] = useState<
     number[]
-  >(
-    // getDefaultOrStoredValue('timestampEndStopTimerArray', [])
-    []
-  );
+  >([]);
 
-  const [mazeData, setMazeData] = useState<MazeTileData[][]>(
-    // getDefaultOrStoredValue('mazeData', [[]])
-    []
-  );
-  const [pathLength, setPathLength] = useState<number>(
-    // getDefaultOrStoredValue('pathLength', 0)
-    0
-  );
-  const [playerPosition, setPlayerPosition] = useState<Coordinates>(
-    // getDefaultOrStoredValue('playerPosition', { x: 1, y: 1 })
-    { x: 1, y: 1 }
-  );
-  const [score, setScore] = useState<number>(
-    // getDefaultOrStoredValue('score', 0)
-    0
-  );
+  const [mazeData, setMazeData] = useState<MazeTileData[][]>([]);
+  const [pathLength, setPathLength] = useState<number>(0);
+  const [playerPosition, setPlayerPosition] = useState<Coordinates>({ x: 1, y: 1 });
+  const [score, setScore] = useState<number>(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [fightingEnemyFlag, setFightingEnemyFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [hasWon, setHasWon] = useState<undefined | boolean>(undefined);
-  const [timerStarted, setTimerStarted] = useState<boolean>(
-    // getDefaultOrStoredValue('timerStarted', false)
-    false
-  );
+  const [timerStarted, setTimerStarted] = useState<boolean>(false);
   const [direction, setDirection] = useState(
     'right' as 'right' | 'left' | 'down' | 'up'
   );
@@ -303,10 +309,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [hasPowerUp, setHasPowerUp] = useState(false);
   const [isPowerUpOn, setIsPowerUpOn] = useState(false);
   
-  const [remainingTime, setRemainingTime] = useState<number>(
-    // getDefaultOrStoredValue('remainingTime', timeLimitInSeconds)
-    timeLimitInSeconds
-  );
+  const [remainingTime, setRemainingTime] = useState<number>(timeLimitInSeconds);
   
   const [
     loadingRemainingMinutesAndSeconds,
@@ -316,41 +319,28 @@ export const GameContextProvider = ({ children }: props) => {
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   
   const [cheeseCooldown, setCheeseCooldown] = useState<boolean>(
-    // getDefaultOrStoredValue('cheeseCooldown', false)
     false
   );
   const [bagCooldown, setBagCooldown] = useState<boolean>(
-    // getDefaultOrStoredValue('bagCooldown', false)
     false
   );
   const [enemyCooldown, setEnemyCooldown] = useState(false);
   const [moves, setMoves] = useState<number>(
-    // getDefaultOrStoredValue('moves', 0)
     0
   );
   
   const [won, setWon] = useState(false);
   const [touchStart, setTouchStart] = useState({ x: -1, y: -1 });
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
-  const [coveredCells, setCoveredCells] = useState<string[]>(
-    // getDefaultOrStoredValue('coveredCells', false)
-    []
-  );
+  const [coveredCells, setCoveredCells] = useState<string[]>([]);
   const [playerPath, setPlayerPath] = useState<Coordinates[]>([]);
-  const [cellsWithItemAmount, setCellsWithItemAmount] = useState<number>(
-    // getDefaultOrStoredValue('cellsWithItemAmount', false)
-    0
-  );
+  const [cellsWithItemAmount, setCellsWithItemAmount] = useState<number>(0);
+
+  const [startingGame, setStartingGame] = useState(false);
   
-  const [cheddarFound, setCheddarFound] = useState<number>(
-    // getDefaultOrStoredValue('cheddarFound', 0)
-    0
-  );
+  const [cheddarFound, setCheddarFound] = useState<number>(0);
   
-  const [seedId, setSeedId] = useState<number>(
-    // getDefaultOrStoredValue('seedId', 0)
-    0
-  );
+  const [seedId, setSeedId] = useState<number>(0);
   
   const [rng, setRng] = useState(new RNG(0));
   
@@ -361,16 +351,12 @@ export const GameContextProvider = ({ children }: props) => {
   const [renderBoard, setRenderBoard] = useState(false); // to update board color on restart
   
   const [hasFoundPlinko, setHasFoundPlinko] = useState<boolean>(
-    // getDefaultOrStoredValue('seedId', false)
     false
   );
   
   const [isMouseDown, setIsMouseDown] = useState(false);
   
   const [lastDivId, setLastDivId] = useState('');
-  
-  // const [backgroundImage, setBackgroundImage] = useState('');
-  // const [rarity, setRarity] = useState('');
   
   const {
     isOpen: isVideoModalOpened,
@@ -385,6 +371,8 @@ export const GameContextProvider = ({ children }: props) => {
   const [storedDataLoaded, setStoredDataLoaded] = useState(false);
   const [deleteSavedGameOnReload, setDeleteSavedGameOnReload] = useState(false);
   
+  const gameboardRef = useRef<HTMLDivElement>(null);
+
   function handleErrorToast(title: string) {
     toast({
       title,
@@ -456,6 +444,20 @@ export const GameContextProvider = ({ children }: props) => {
     error: mintedCheddarError,
   } = useGetEarnedAndMintedCheddar();
 
+  const {
+    data: freeMatchesLeft,
+    refetch: refeshUseGetUserRemainingFreeGames,
+    error: freeMatchesLeftError,
+    isLoading: freeMatchesLeftLoading,
+  } = useGetUserRemainingFreeGames(accountId);
+
+  const {
+    data: payedMatchesLeft,
+    refetch: refeshUseGetUserRemainingPayedGames,
+    error: payedMatchesLeftError,
+    isLoading: payedMatchesLeftLoading,
+  } = useGetUserRemainingPaidGames(accountId);
+
   useEffect(() => {
     if (mintedCheddarError) {
       handleErrorToast("Error occured while retrieving user's minted cheddar!");
@@ -495,6 +497,12 @@ export const GameContextProvider = ({ children }: props) => {
     };
   }, []);
 
+  const [nfts, setNFTs] = useState<NFT[]>([]);
+
+  // const { data: isUserNadabotVerfied } = useIsNadabotVerfified(accountId);
+
+  // const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
+
   const {
     blockchain,
     setBlockchain,
@@ -504,7 +512,18 @@ export const GameContextProvider = ({ children }: props) => {
     cheddarNFTsData,
     blockchainChangedOnLoad,
     setBlockchainChangedOnLoad,
+    urlParams,
   } = useGlobalContext();
+
+  useEffect(() => {
+    if (accountId) {
+      getNFTs(accountId).then((nfts) => {
+        setNFTs(nfts);
+      });
+    } else {
+      setNFTs([]);
+    }
+  }, [accountId]);
 
   const { data: isUserNadabotVerfied } = useIsNadabotVerfified(addresses.near);
 
@@ -537,24 +556,35 @@ export const GameContextProvider = ({ children }: props) => {
   }
 
   // Function to restart the game
-  async function restartGame() {
-    if (!selectedBlockchainAddress) {
-      return;
-    }
+  async function restartGame(urlSeedId?: any) {
+    try {
+      if (!selectedBlockchainAddress) {
+        return;
+      }
 
-    const newSeedIdResponse = await getSeedId(
-      selectedBlockchainAddress,
-      blockchain
-    );
-    if (!newSeedIdResponse.ok) {
-      handleErrorToast(newSeedIdResponse.message);
+      setStartingGame(true);
+      gameboardRef.current?.focus();
 
-      return;
-    }
+      let seedId;
+      if (blockchain === 'near') {
+        if (urlSeedId) {
+          seedId = urlSeedId;
+        } else {
+          const wallet = await selector.wallet();
 
-    await refetchPendingCheddarToMint();
-    await refetchEarnedButNotMintedCheddar();
-    setSeedId(newSeedIdResponse.seedId);
+          addEncodedDataToURL(blockchain, 'startMazeMatch', 'starting game');
+
+          seedId = await getSeedIdFromContract(wallet);
+        }
+      } else if (blockchain === 'base') {
+        seedId = await getSeedId(selectedBlockchainAddress);
+      } else {
+        throw new Error(`Invalid blockchain: ${blockchain}`);
+      }
+
+      await refetchPendingCheddarToMint();
+      await refetchEarnedButNotMintedCheddar();
+      setSeedId(seedId);
 
     setHasWon(undefined);
     setTimerStarted(true);
@@ -581,21 +611,24 @@ export const GameContextProvider = ({ children }: props) => {
     setCellsWithItemAmount(0);
     setRenderBoard(!renderBoard);
 
-    gameOverRefSent.current = false;
+      gameOverRefSent.current = false;
 
-    // Regenerate maze data
-    const rng = new RNG(newSeedIdResponse.seedId);
-    setRng(rng);
+      // Regenerate maze data
+      const rng = new RNG(seedId);
+      setRng(rng);
 
-    const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
+      const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
 
-    // Set the maze data with the new maze and player's starting position
-    setMazeData(newMazeData);
+      // Set the maze data with the new maze and player's starting position
+      setMazeData(newMazeData);
 
     const playerStartCell = getRandomPathCell(newMazeData);
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
     setLastCellX(-1);
     setLastCellY(-1);
+
+    refeshUseGetUserRemainingPayedGames();
+    refeshUseGetUserRemainingFreeGames();
     setCollapsableNavbarActivated(true);
 
     const gameInfo: StoredGameInfo = {
@@ -609,7 +642,7 @@ export const GameContextProvider = ({ children }: props) => {
       cellsWithItemAmount,
       coveredCells,
       cheddarFound,
-      seedId: newSeedIdResponse.seedId,
+      seedId: seedId,
       hasFoundPlinko,
       moves,
       accountId: selectedBlockchainAddress,
@@ -622,7 +655,9 @@ export const GameContextProvider = ({ children }: props) => {
     };
 
     localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
-  }
+  } catch (err: any) {
+    handleErrorToast(err.message);
+  }}
 
   // Function to generate maze data
   function generateMazeData(rows: number, cols: number, rng: RNG) {
@@ -784,7 +819,7 @@ export const GameContextProvider = ({ children }: props) => {
       }
     } else {
       setTimerStarted(false);
-      setGameOverFlag(true);
+      // setGameOverFlag(true);
       setRemainingTime(timeLimitInSeconds);
       restartMaze();
       return;
@@ -819,14 +854,14 @@ export const GameContextProvider = ({ children }: props) => {
       setGameOverFlag(false);
     } else {
       setTimerStarted(false);
-      setGameOverFlag(true);
+      // setGameOverFlag(true);
       setRemainingTime(timeLimitInSeconds);
       restartMaze();
       return;
     }
 
     setStoredDataLoaded(true);
-  }, [totalCells, renderBoard, blockchain]); // Empty dependency array to run this effect only once on component mount
+  }, [totalCells, renderBoard, blockchain]);
 
   useEffect(() => {
     if (storedDataLoaded) {
@@ -1165,24 +1200,54 @@ export const GameContextProvider = ({ children }: props) => {
 
     gameOverRefSent.current = true;
 
-    const cheddarToEarn =
-      cheddarFound <= pendingCheddarToMint
-        ? cheddarFound
-        : pendingCheddarToMint;
+    
+    if (won || blockchain !== 'near') {
+      const cheddarToEarn =
+        cheddarFound <= pendingCheddarToMint
+          ? cheddarFound
+          : pendingCheddarToMint;
+  
+      const endGameRequestData: EndGameRequest = {
+        data: {
+          cheddarEarned: won ? cheddarToEarn : 0,
+          score,
+          path: playerPath,
+        },
+        metadata: {
+          blockchain,
+          accountId: selectedBlockchainAddress,
+          seedId,
+          referralAccount,
+        },
+      };
 
-    const endGameRequestData: EndGameRequest = {
-      data: {
-        cheddarEarned: won ? cheddarToEarn : 0,
-        score,
-        path: playerPath,
-      },
-      metadata: {
-        blockchain,
-        accountId: selectedBlockchainAddress,
-        seedId,
-        referralAccount,
-      },
-    };
+      const endGameResponse = await callEndGame(endGameRequestData).catch(
+        (error) => setEndGameResponseErrors(error)
+      );
+      await refetchEarnedButNotMintedCheddar();
+      await refetchEarnedAndMintedCheddar();
+      setEndGameResponse(endGameResponse);
+      if (!endGameResponse.ok) setEndGameResponseErrors(endGameResponse.errors);
+    } else if (!won && blockchain === 'near') {
+      try {
+        const wallet = await selector.wallet();
+
+        addEncodedDataToURL(blockchain, 'loseGame', 'prossesing lose');
+
+        const response = await callLoseGame(wallet);
+
+        toast({
+          title: 'Game lost call',
+          description: response,
+          status: 'success',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      } catch (err) {
+        console.error('Error in gameOverLoseGame', err);
+      }
+    }
 
     setHasWon(won);
     setCoveredCells([]);
@@ -1196,15 +1261,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     setCollapsableNavbarActivated(false);
 
-    const endGameResponse = await callEndGame(endGameRequestData).catch(
-      (error) => setEndGameResponseErrors(error.message.split('|||'))
-    );
-    await refetchEarnedButNotMintedCheddar();
-    await refetchEarnedAndMintedCheddar();
-
     localStorage.removeItem(localStorageSavedGameKey);
-
-    setEndGameResponse(endGameResponse);
   }
 
   function calculateRemainingTime(
@@ -1623,6 +1680,13 @@ export const GameContextProvider = ({ children }: props) => {
         isUserHolonymVerified,
         earnedButNotMintedCheddar,
         totalMintedCheddarToDate,
+        freeMatchesLeft,
+        payedMatchesLeft,
+        freeMatchesLeftLoading,
+        payedMatchesLeftLoading,
+        startingGame,
+        setStartingGame,
+        gameboardRef,
         calculateRemainingTime,
         setDeleteSavedGameOnReload,
       }}

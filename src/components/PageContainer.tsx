@@ -1,8 +1,9 @@
-import { Box, Container, VStack } from '@chakra-ui/react';
-import React from 'react';
+import { Box, Container, useToast, VStack } from '@chakra-ui/react';
+import React, { useEffect } from 'react';
 import Navbar from './Navbar/containers/Navbar';
 import { SocialMedia } from './SocialMediaContainer';
 import { GameContextProvider } from '@/contexts/maze/GameContextProvider';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 
 export const PageContainer = ({
   children,

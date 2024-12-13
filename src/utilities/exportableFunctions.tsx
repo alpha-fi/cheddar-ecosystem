@@ -1,3 +1,9 @@
+import {
+  Blockchain,
+  PersistedDataOnRedirection,
+  PersistedDataOnRedirectionMethodName,
+} from '@/contexts/GlobalContext';
+
 export function smartTrim(string: string, maxLength: number) {
   if (!string) return string;
   if (maxLength < 1) return string;
@@ -13,4 +19,32 @@ export function smartTrim(string: string, maxLength: number) {
     '...' +
     string.substring(midpoint + rstrip)
   );
+}
+
+export function addEncodedDataToURL(
+  blockchain: Blockchain,
+  methodName: PersistedDataOnRedirectionMethodName,
+  errorMsg: string
+) {
+  const dataToPersist: PersistedDataOnRedirection = {
+    blockchain,
+    methodName,
+    errorMsg,
+  };
+  const encodedData = encodeURIComponent(JSON.stringify(dataToPersist));
+
+  const url = new URL(window.location.href);
+  url.searchParams.set('data', encodedData);
+
+  window.history.replaceState({}, document.title, url.toString());
+}
+
+export function getDataFromURL(urlParams: URLSearchParams) {
+  const transactionHash = urlParams.get('transactionHashes');
+  const errorCode = urlParams.get('errorCode');
+  const persistedData = JSON.parse(
+    decodeURIComponent(urlParams.get('data') || '{}')
+  ) as PersistedDataOnRedirection;
+
+  return { transactionHash, errorCode, persistedData };
 }

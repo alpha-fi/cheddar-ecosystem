@@ -21,6 +21,7 @@ export interface Config {
       nekoToken: string;
       nadaBot: string;
       wrapNear: string;
+      mazeBuyer: string;
     };
     base: {
       cheddarToken: string;
@@ -78,6 +79,7 @@ export const getConfig = (): Config => {
             nekoToken: 'ftv2.nekotoken.near',
             nadaBot: 'v1.nadabot.near',
             wrapNear: 'wrap.near',
+            mazeBuyer: '',
           },
           base: {
             cheddarToken: '0xE757c0263C1828a7380D66bef7Fd10b5d189Ee35',
@@ -118,6 +120,7 @@ export const getConfig = (): Config => {
             nekoToken: '',
             nadaBot: 'v1.nadabot.testnet',
             wrapNear: 'wrap.testnet',
+            mazeBuyer: 'maze-buyer.testnet',
           },
           base: {
             cheddarToken: '0xE757c0263C1828a7380D66bef7Fd10b5d189Ee35',
@@ -158,6 +161,7 @@ export const getConfig = (): Config => {
             nekoToken: '',
             nadaBot: 'v1.nadabot.testnet',
             wrapNear: 'wrap.testnet',
+            mazeBuyer: 'maze-buyer.testnet',
           },
           base: {
             cheddarToken: '0xd6DDB2F86cEc8fD31e7488e7F1874060b376eAfD',

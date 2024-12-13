@@ -129,31 +129,31 @@ export const makeUnavailable = async (
   );
 };
 
-export const ftTransferCall = async (
-  wallet: Wallet,
-  accountId: string,
-  amount: string,
-  tokenContractAddress: string
-): Promise<any> => {
-  return wallet.signAndSendTransaction({
-    receiverId: tokenContractAddress,
-    actions: [
-      {
-        type: 'FunctionCall',
-        params: {
-          methodName: 'ft_transfer_call',
-          args: {
-            receiver_id: checkers,
-            amount,
-            msg: '',
-          },
-          gas: '300' + '0'.repeat(12),
-          deposit: '1',
-        },
-      },
-    ],
-  });
-};
+// export const ftTransferCall = async (
+//   wallet: Wallet,
+//   accountId: string,
+//   amount: string,
+//   tokenContractAddress: string
+// ): Promise<any> => {
+//   return wallet.signAndSendTransaction({
+//     receiverId: tokenContractAddress,
+//     actions: [
+//       {
+//         type: 'FunctionCall',
+//         params: {
+//           methodName: 'ft_transfer_call',
+//           args: {
+//             receiver_id: checkers,
+//             amount,
+//             msg: '',
+//           },
+//           gas: '300' + '0'.repeat(12),
+//           deposit: '1',
+//         },
+//       },
+//     ],
+//   });
+// };
 
 export const getAvailablePlayers = async (): Promise<any[]> => {
   return view(checkers, checkersViewMethods.getAvailablePlayers, {

@@ -1,7 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { useWalletSelector } from './WalletSelectorContext';
-import { coinbaseWallet } from 'wagmi/connectors';
+import { NFT } from '@/contracts/nftCheddarContract';
 import {
   useGetCheddarBalance,
   useGetCheddarBaseBalance,
@@ -11,7 +8,12 @@ import {
   useIsHolonymVerfified,
   useIsNadabotVerfified,
 } from '@/hooks/cheddar';
-import { NFT } from '@/contracts/nftCheddarContract';
+import { getDataFromURL } from '@/utilities/exportableFunctions';
+import { useToast } from '@chakra-ui/react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { coinbaseWallet } from 'wagmi/connectors';
+import { useWalletSelector } from './WalletSelectorContext';
 
 export type Blockchain = 'base' | 'near';
 
@@ -45,12 +47,37 @@ interface GlobalContextProps {
   setCollapsableNavbarActivated: React.Dispatch<React.SetStateAction<boolean>>;
   cheddarNFTsData: NFT[] | null | undefined;
   isLoadingCheddarNFTs: boolean;
+  urlParams: URLSearchParams;
+}
+
+export type PersistedDataOnRedirectionMethodName =
+  | 'buyMazeMatch'
+  | 'endMazeMatch'
+  | 'startMazeMatch'
+  | 'loseGame'
+  | 'swapNearForCheddar';
+
+export interface PersistedDataOnRedirection {
+  blockchain: Blockchain;
+  methodName: PersistedDataOnRedirectionMethodName;
+  errorMsg: string;
 }
 
 const GlobalContext = React.createContext({} as GlobalContextProps);
 
 export const GlobalContextProvider: any = ({ children }: any) => {
-  const [blockchain, setBlockchain] = useState<Blockchain>('base');
+  const urlParams = useMemo(
+    () => new URLSearchParams(window.location.search),
+    []
+  );
+
+  const { transactionHash, persistedData, errorCode } =
+    getDataFromURL(urlParams);
+
+  const [blockchain, setBlockchain] = useState<Blockchain>(
+    persistedData.blockchain ?? 'base'
+  );
+
   const [blockchainChangedOnLoad, setBlockchainChangedOnLoad] = useState(false);
 
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
@@ -82,6 +109,8 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   } = useGetCheddarBaseTotalSupply();
   const { data: isUserNadabotVerified } = useIsNadabotVerfified(nearAddress);
   const { data: isUserHolonymVerified } = useIsHolonymVerfified(nearAddress);
+
+  const toast = useToast();
 
   const showConnectionModal = useMemo(() => {
     switch (blockchain) {
@@ -169,21 +198,65 @@ export const GlobalContextProvider: any = ({ children }: any) => {
     }
   }, [blockchain, isUserNadabotVerified, isUserHolonymVerified]);
 
+  function clearUrlParams() {
+    const url = new URL(window.location.href);
+    url.search = '';
+    window.history.replaceState({}, document.title, url.toString());
+  }
+
+  useEffect(() => {
+    if (persistedData.blockchain) setBlockchainChangedOnLoad(true);
+  }, []);
+
+  useEffect(() => {
+    if (urlParams) {
+      if (persistedData.methodName === 'buyMazeMatch' && transactionHash) {
+        toast({
+          title: 'Successful purchase',
+          status: 'success',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      }
+      
+      if (persistedData.methodName === 'swapNearForCheddar' && transactionHash) {
+        toast({
+          title: 'Successful purchase',
+          status: 'success',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      }
+
+      if (persistedData.methodName && errorCode) {
+        toast({
+          title: `Error ${persistedData.errorMsg}`,
+          status: 'error',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+          description: `Error code: ${errorCode}`,
+        });
+      }
+
+      clearUrlParams();
+    }
+  }, []);
+
   useEffect(() => {
     if (!blockchainChangedOnLoad) {
       // For some reason when you enter the site you get addresses.near but not addresses.base
       // That's the reason of why i use the setTimeout
       if (!addresses.base && addresses.near) {
         setBlockchain('near');
-        setTimeout(() => {
-          setBlockchainChangedOnLoad(true);
-        }, 500);
       } else {
         setBlockchain('base');
-        setTimeout(() => {
-          setBlockchainChangedOnLoad(true);
-        }, 500);
       }
+      setTimeout(() => {
+        setBlockchainChangedOnLoad(true);
+      }, 500);
     }
   }, [addresses, addresses.base, addresses.near]);
 
@@ -210,6 +283,7 @@ export const GlobalContextProvider: any = ({ children }: any) => {
         toggleCollapsableNavbar,
         collapsableNavbarActivated,
         setCollapsableNavbarActivated,
+        urlParams,
         refreshCheddarBalance,
         cheddarNFTsData,
         isLoadingCheddarNFTs,
