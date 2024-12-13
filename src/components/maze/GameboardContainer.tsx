@@ -98,7 +98,8 @@ export function GameboardContainer({
     remainingTime,
   } = useContext(GameContext);
 
-  const { addresses, isConnected, showConnectionModal, blockchain, urlParams } = useGlobalContext();
+  const { addresses, isConnected, showConnectionModal, blockchain, urlParams } =
+    useGlobalContext();
 
   const {
     isOpen: isOpenNotAlloWedModal,
@@ -107,7 +108,7 @@ export function GameboardContainer({
   } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
-  const [startingGame, setStartingGame] = useState(false);  
+  const [startingGame, setStartingGame] = useState(false);
   const [hasStartedOnce, setHasStartedOnce] = useState(false);
 
   useEffect(() => {
@@ -227,9 +228,7 @@ export function GameboardContainer({
   }
 
   function handleBuyClick() {
-    return addresses['near']
-      ? onOpenBuyPanel()
-      : showSelectWalletModal(true);
+    return addresses['near'] ? onOpenBuyPanel() : showSelectWalletModal(true);
   }
 
   function focusMazeAndStartGame() {
@@ -718,7 +717,7 @@ export function GameboardContainer({
         onClose={toggleBuyCheddarModal}
         isOpen={isBuyCheddarModalOpen}
       />
-      
+
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
         <ModalContainer

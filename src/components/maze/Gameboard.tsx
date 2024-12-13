@@ -30,14 +30,11 @@ export function Gameboard({
     handleMouseDown,
     handleOnMouseUp,
     handleOnMouseOver,
-    restartGame,
-    freeMatchesLeft,
-    payedMatchesLeft,
   } = useContext(GameContext);
 
   const isDesktop = useBreakpointValue({ base: false, lg: true });
 
-  const { blockchain, urlParams } = useGlobalContext();
+  const { blockchain } = useGlobalContext();
 
   const touchContainerRef = useRef<HTMLDivElement>(null);
 

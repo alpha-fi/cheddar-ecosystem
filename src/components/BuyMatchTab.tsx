@@ -2,13 +2,13 @@ import styles from '@/styles/BuyMatchTab.module.css';
 
 import { getConfig } from '@/configs/config';
 import {
-  PersistedDataOnRedirection,
-  useGlobalContext,
+  useGlobalContext
 } from '@/contexts/GlobalContext';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import { yton } from '@/contracts/contractUtils';
 import { ftTransferCall } from '@/contracts/tokenCheddarCalls';
 import { useGetCheddarMazeMatchPrices } from '@/hooks/maze';
+import { addEncodedDataToURL } from '@/utilities/exportableFunctions';
 import { InfoOutlineIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -27,7 +27,6 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { RenderCheddarIcon } from './maze/RenderCheddarIcon';
-import { addEncodedDataToURL } from '@/utilities/exportableFunctions';
 
 interface Props {}
 

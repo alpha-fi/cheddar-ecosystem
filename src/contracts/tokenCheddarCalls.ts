@@ -4,6 +4,7 @@ import { Metadata } from './CheddarToken';
 import { NFT } from './nftCheddarContract';
 import { Transaction, Wallet } from '@near-wallet-selector/core';
 import Big from 'big.js';
+import { hasSuccessValue } from './maze/mazeBuyerCalls';
 
 const { cheddarToken, cheddarNft, nadaBot } = getConfig().contracts.near;
 
@@ -278,7 +279,19 @@ export const swapNearToCheddar = async (
     ],
   });
 
-  return wallet.signAndSendTransactions({
+  const finalExecutionOutcomes = await wallet.signAndSendTransactions({
     transactions,
   });
+
+  let allSucceed = true;
+  finalExecutionOutcomes &&
+    finalExecutionOutcomes.forEach((finalExecutionOutcome) => {
+      if (!hasSuccessValue(finalExecutionOutcome.status)) {
+        throw new Error('Failed to acomplish swap from contract');
+      }
+
+      allSucceed = !!finalExecutionOutcome.status.SuccessValue;
+    });
+
+  return allSucceed;
 };

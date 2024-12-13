@@ -1,7 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { useWalletSelector } from './WalletSelectorContext';
-import { coinbaseWallet } from 'wagmi/connectors';
+import { NFT } from '@/contracts/nftCheddarContract';
 import {
   useGetCheddarBalance,
   useGetCheddarBaseBalance,
@@ -13,7 +10,10 @@ import {
 } from '@/hooks/cheddar';
 import { getDataFromURL } from '@/utilities/exportableFunctions';
 import { useToast } from '@chakra-ui/react';
-import { NFT } from '@/contracts/nftCheddarContract';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { coinbaseWallet } from 'wagmi/connectors';
+import { useWalletSelector } from './WalletSelectorContext';
 
 export type Blockchain = 'base' | 'near';
 
@@ -54,7 +54,8 @@ export type PersistedDataOnRedirectionMethodName =
   | 'buyMazeMatch'
   | 'endMazeMatch'
   | 'startMazeMatch'
-  | 'loseGame';
+  | 'loseGame'
+  | 'swapNearForCheddar';
 
 export interface PersistedDataOnRedirection {
   blockchain: Blockchain;
@@ -76,10 +77,6 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   const [blockchain, setBlockchain] = useState<Blockchain>(
     persistedData.blockchain ?? 'base'
   );
-
-  useEffect(() => {
-    if (persistedData.blockchain) setBlockchainChangedOnLoad(true);
-  }, []);
 
   const [blockchainChangedOnLoad, setBlockchainChangedOnLoad] = useState(false);
 
@@ -201,11 +198,15 @@ export const GlobalContextProvider: any = ({ children }: any) => {
     }
   }, [blockchain, isUserNadabotVerified, isUserHolonymVerified]);
 
-  const clearUrlParams = () => {
+  function clearUrlParams() {
     const url = new URL(window.location.href);
     url.search = '';
     window.history.replaceState({}, document.title, url.toString());
-  };
+  }
+
+  useEffect(() => {
+    if (persistedData.blockchain) setBlockchainChangedOnLoad(true);
+  }, []);
 
   useEffect(() => {
     if (urlParams) {
@@ -218,6 +219,17 @@ export const GlobalContextProvider: any = ({ children }: any) => {
           isClosable: true,
         });
       }
+      
+      if (persistedData.methodName === 'swapNearForCheddar' && transactionHash) {
+        toast({
+          title: 'Successful purchase',
+          status: 'success',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      }
+
       if (persistedData.methodName && errorCode) {
         toast({
           title: `Error ${persistedData.errorMsg}`,
