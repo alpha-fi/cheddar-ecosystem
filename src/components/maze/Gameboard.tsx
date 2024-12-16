@@ -222,8 +222,9 @@ export function Gameboard({
                 )}
 
                 {/* Player icon */}
-                {playerPosition!.x === colIndex &&
-                  playerPosition!.y === rowIndex && (
+                {playerPosition &&
+                  playerPosition.x === colIndex &&
+                  playerPosition.y === rowIndex && (
                     <div className={getPlayerTileClasses(cell)}></div>
                   )}
               </div>

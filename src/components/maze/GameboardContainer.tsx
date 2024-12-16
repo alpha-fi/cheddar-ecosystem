@@ -101,10 +101,18 @@ export function GameboardContainer({
     selectedColorSet,
     loadingRemainingMinutesAndSeconds,
     remainingTime,
+    refetchEarnedButNotMintedCheddar,
+    pendingCheddarToMint,
   } = useContext(GameContext);
 
-  const { addresses, isConnected, showConnectionModal, blockchain } =
-    useGlobalContext();
+  const {
+    addresses,
+    isConnected,
+    showConnectionModal,
+    blockchain,
+    refreshCheddarBaseBalance,
+    refreshCheddarNearBalance,
+  } = useGlobalContext();
 
   const gameboardRef = useRef<HTMLDivElement>(null);
   const {
@@ -298,15 +306,16 @@ export function GameboardContainer({
   const shareReferralLink =
     'https://' +
     new URL(window.location.href).host +
-    `?referralId=${addresses['near']}`;
+    `?referralId=${addresses[blockchain]}`;
 
-  const notAllowedToPlay = addresses['base']
-    ? false
-    : (!isUserNadabotVerfied &&
-        !isUserHolonymVerified &&
-        earnedButNotMintedCheddar >= 100) ||
-      (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
-      (!hasEnoughBalance && totalMintedCheddarToDate >= 100);
+  const notAllowedToPlay =
+    blockchain === 'base'
+      ? false
+      : (!isUserNadabotVerfied &&
+          !isUserHolonymVerified &&
+          earnedButNotMintedCheddar >= 100) ||
+        (!hasEnoughBalance && earnedButNotMintedCheddar >= 100) ||
+        (!hasEnoughBalance && totalMintedCheddarToDate >= 100);
 
   const [showHolonymModal, setHolonymModal] = useState(false);
 
@@ -450,18 +459,29 @@ export function GameboardContainer({
               px={{ base: 2, md: 3 }}
               _hover={{ bg: 'yellowgreen' }}
               isLoading={isClaiming}
+              isDisabled={earnedButNotMintedCheddar < 100}
               onClick={async () => {
-                if (!isUserNadabotVerfied && !isUserHolonymVerified) {
+                if (
+                  blockchain === 'near' &&
+                  !isUserNadabotVerfied &&
+                  !isUserHolonymVerified
+                ) {
                   setMintErrorModal(true);
                   return;
                 } else {
                   setIsClaiming(true);
                   const response = await callMintCheddar({
-                    accountId: addresses['near'] as string,
-                    blockchain: 'near', ///TODO: check backend
+                    accountId: addresses[blockchain] as string,
+                    blockchain: blockchain,
                   });
                   setIsClaiming(false);
                   setCheddarMintResponse(response);
+                  refetchEarnedButNotMintedCheddar();
+                  if (blockchain === 'base') {
+                    refreshCheddarBaseBalance();
+                  } else {
+                    refreshCheddarNearBalance();
+                  }
                 }
               }}
             >
@@ -576,39 +596,58 @@ export function GameboardContainer({
             </Heading>
           </div>
         )}
-        {!notAllowedToPlay && !timerStarted && isConnected && (
-          <div className={styles.startGameBg}>
-            <Heading as="h6" size="lg">
-              Play Cheddar Maze
-            </Heading>
-            <ul>
-              <li>Fill all Cells in Maze</li>
-              <li>Find door🚪 in 2min ⏰</li>
-              <li>Encounter Enemies ⚔️</li>
-              <li>Find PopUp🎰 Plinko🟠</li>
-              <li>PowerUps Boosts Winnings🏆 🧀 ⚔️</li>
-            </ul>
-            <Flex wrap={'wrap'} m={'0 0.7rem'}>
-              <span>✅: filled cell |</span>
-              <span>🧀: Cheddar |</span>
-              <span>💰: 🧀 Bag |</span>
-              <span>⚔️: Won Dustup |</span>
-              <span>🎰 Plinko</span>
-            </Flex>
-            <Button
-              _hover={{ bg: 'yellowgreen' }}
-              onClick={getStartGameButtonHandler()}
-            >
-              {startingGame ? (
-                <Spinner />
-              ) : gameOverFlag && hasStartedOnce ? (
-                'Restart'
-              ) : (
-                'Start'
-              )}
-            </Button>
-          </div>
-        )}
+        {!notAllowedToPlay &&
+          !timerStarted &&
+          isConnected &&
+          (pendingCheddarToMint == 0 ? (
+            <div className={styles.startGameBg}>
+              <Heading
+                as="h6"
+                size="md"
+                style={{ marginInline: 20, textAlign: 'center' }}
+              >
+                Congrats!!
+                <br />
+                <br />
+                You rocked it today by reaching the daily 555 Cheddar limit.
+                <br />
+                <br />
+                Let’s go again tomorrow!!
+              </Heading>
+            </div>
+          ) : (
+            <div className={styles.startGameBg}>
+              <Heading as="h6" size="lg">
+                Play Cheddar Maze
+              </Heading>
+              <ul>
+                <li>Fill all Cells in Maze</li>
+                <li>Find door🚪 in 2min ⏰</li>
+                <li>Encounter Enemies ⚔️</li>
+                <li>Find PopUp🎰 Plinko🟠</li>
+                <li>PowerUps Boosts Winnings🏆 🧀 ⚔️</li>
+              </ul>
+              <Flex wrap={'wrap'} m={'0 0.7rem'}>
+                <span>✅: filled cell |</span>
+                <span>🧀: Cheddar |</span>
+                <span>💰: 🧀 Bag |</span>
+                <span>⚔️: Won Dustup |</span>
+                <span>🎰 Plinko</span>
+              </Flex>
+              <Button
+                _hover={{ bg: 'yellowgreen' }}
+                onClick={getStartGameButtonHandler()}
+              >
+                {startingGame ? (
+                  <Spinner />
+                ) : gameOverFlag ? (
+                  'Restart'
+                ) : (
+                  'Start'
+                )}
+              </Button>
+            </div>
+          ))}
         {showMovementButtons && (
           <Show below="lg">
             <div className={styles.arrowButtonsContainer}>

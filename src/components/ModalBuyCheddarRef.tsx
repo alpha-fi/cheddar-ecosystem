@@ -57,7 +57,8 @@ const SwapComponent = () => {
   const [isCalculatingCheddar, setIsCalculatingCheddar] =
     useState<boolean>(false);
   const toast = useToast();
-  const { addresses, blockchain, refreshCheddarBalance } = useGlobalContext();
+  const { addresses, blockchain, refreshCheddarNearBalance } =
+    useGlobalContext();
   const { selector } = useWalletSelector();
 
   const fetchBalance = async () => {
@@ -131,7 +132,7 @@ const SwapComponent = () => {
       });
       // refresh near and cheddar balance across website
       fetchBalance();
-      refreshCheddarBalance();
+      refreshCheddarNearBalance();
     } catch (error) {
       toast({
         title: 'Swap failed',
