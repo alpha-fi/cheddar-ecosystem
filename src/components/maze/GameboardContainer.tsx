@@ -578,9 +578,17 @@ export function GameboardContainer({
         )}
         {!notAllowedToPlay && !timerStarted && isConnected && (
           <div className={styles.startGameBg}>
-            <Heading as="h6" size="lg">
-              Play Cheddar Maze
+            <Heading as="h6" size="md">
+              📣 Free Farming on NEAR Ended
             </Heading>
+            <div style={{ textAlign: 'center', fontSize: 12 }}>
+              <p>Free Games 🎈& Pay to Play🕹 Coming Soon </p>
+              <p>
+                During the transition to continue minting farmed Cheddar on NEAR
+                send NEAR to the minter address to cover the transactions fees:
+                maze_minter_auth.cheddar.near
+              </p>
+            </div>
             <ul>
               <li>Fill all Cells in Maze</li>
               <li>Find door🚪 in 2min ⏰</li>
