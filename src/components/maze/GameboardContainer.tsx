@@ -110,7 +110,8 @@ export function GameboardContainer({
     isConnected,
     showConnectionModal,
     blockchain,
-    refreshCheddarBalance,
+    refreshCheddarBaseBalance,
+    refreshCheddarNearBalance,
   } = useGlobalContext();
 
   const gameboardRef = useRef<HTMLDivElement>(null);
@@ -476,7 +477,11 @@ export function GameboardContainer({
                   setIsClaiming(false);
                   setCheddarMintResponse(response);
                   refetchEarnedButNotMintedCheddar();
-                  refreshCheddarBalance();
+                  if (blockchain === 'base') {
+                    refreshCheddarBaseBalance();
+                  } else {
+                    refreshCheddarNearBalance();
+                  }
                 }
               }}
             >

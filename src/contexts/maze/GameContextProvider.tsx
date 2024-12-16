@@ -204,6 +204,7 @@ interface GameContextProps {
   ) => number;
 
   setDeleteSavedGameOnReload: React.Dispatch<React.SetStateAction<boolean>>;
+  refetchEarnedButNotMintedCheddar: () => void;
 }
 
 export interface StoredGameInfo {
@@ -227,7 +228,6 @@ export interface StoredGameInfo {
   rngState: number;
   playerPath: Coordinates[];
   selectedColorSet: number;
-  refetchEarnedButNotMintedCheddar: () => void;
 }
 
 export const GameContext = createContext<GameContextProps>(
