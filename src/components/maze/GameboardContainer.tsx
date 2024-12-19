@@ -377,7 +377,7 @@ export function GameboardContainer({
   function getGameInfoClases(subtitle: string) {
     return `${styles[subtitle]} ${styles.subtitle}`;
   }
-  
+
   function toggleViewNftModal() {
     setViewNFTModal(!isViewNFTModalOpen);
   }
@@ -515,23 +515,17 @@ export function GameboardContainer({
         </div>
         {!notAllowedToPlay && !timerStarted && isConnected && (
           <div className={styles.startGameBg}>
-            <Heading as="h6" size="lg">
-              Play Cheddar Maze
+            <Heading as="h6" size="md">
+              📣 Free Farming on NEAR Ended
             </Heading>
-            <ul>
-              <li>Fill all Cells in Maze</li>
-              <li>Find door🚪 in 2min ⏰</li>
-              <li>Encounter Enemies ⚔️</li>
-              <li>Find PopUp🎰 Plinko🟠</li>
-              <li>PowerUps Boosts Winnings🏆 🧀 ⚔️</li>
-            </ul>
-            <Flex wrap={'wrap'} m={'0 0.7rem'}>
-              <span>✅: filled cell |</span>
-              <span>🧀: Cheddar |</span>
-              <span>💰: 🧀 Bag |</span>
-              <span>⚔️: Won Dustup |</span>
-              <span>🎰 Plinko</span>
-            </Flex>
+            <div style={{ textAlign: 'center', fontSize: 12 }}>
+              <p>Free Games 🎈& Pay to Play🕹 Coming Soon </p>
+              <p>
+                During the transition to continue minting farmed Cheddar on NEAR
+                send NEAR to the minter address to cover the transactions fees:
+                maze_minter_auth.cheddar.near
+              </p>
+            </div>
             <Button
               _hover={{ bg: 'yellowgreen' }}
               onClick={getStartGameButtonHandler()}
