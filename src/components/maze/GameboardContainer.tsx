@@ -526,6 +526,20 @@ export function GameboardContainer({
                 maze_minter_auth.cheddar.near
               </p>
             </div>
+            <ul>
+              <li>Fill all Cells in Maze</li>
+              <li>Find door🚪 in 2min ⏰</li>
+              <li>Encounter Enemies ⚔️</li>
+              <li>Find PopUp🎰 Plinko🟠</li>
+              <li>PowerUps Boosts Winnings🏆 🧀 ⚔️</li>
+            </ul>
+            <Flex wrap={'wrap'} m={'0 0.7rem'}>
+              <span>✅: filled cell |</span>
+              <span>🧀: Cheddar |</span>
+              <span>💰: 🧀 Bag |</span>
+              <span>⚔️: Won Dustup |</span>
+              <span>🎰 Plinko</span>
+            </Flex>
             <Button
               _hover={{ bg: 'yellowgreen' }}
               onClick={getStartGameButtonHandler()}
