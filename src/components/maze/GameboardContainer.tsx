@@ -1,14 +1,10 @@
-import React from 'react';
-import { Gameboard } from './Gameboard';
-import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import styles from '@/styles/GameboardContainer.module.css';
 import {
   Box,
   Button,
   Flex,
-  HStack,
   Heading,
-  Hide,
+  HStack,
   Link,
   Menu,
   MenuButton,
@@ -16,27 +12,24 @@ import {
   MenuList,
   Show,
   Spinner,
+  Text,
   Tooltip,
   useDisclosure,
   useToast,
+  VStack,
 } from '@chakra-ui/react';
-import {
-  MouseEventHandler,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { MouseEventHandler, useContext, useEffect, useState } from 'react';
+import { PlinkoBoard } from '../plinko/PlinkoGameboard';
+import { Gameboard } from './Gameboard';
 
+import { getConfig } from '@/configs/config';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { ModalBuyNFT } from '../ModalBuyNFT';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { ModalContainer } from '../ModalContainer';
-import { RenderCheddarIcon } from './RenderCheddarIcon';
-import ModalNotAllowedToMint from './ModalNotAllowedToMint';
-import ModalRules from './ModalRules';
-import { GameOverModalContent } from './GameOverModalContent';
+import { IsAllowedResponse } from '@/hooks/maze';
+import { getTransactionDetails } from '@/lib/near';
+import { callMintCheddar } from '@/queries/maze/api';
+import { getDataFromURL } from '@/utilities/exportableFunctions';
 import {
   ArrowBackIcon,
   ArrowDownIcon,
@@ -44,22 +37,21 @@ import {
   ArrowUpIcon,
   CopyIcon,
 } from '@chakra-ui/icons';
-import { Scoreboard } from './Scoreboard';
-import { callMintCheddar } from '@/queries/maze/api';
-import { getConfig } from '@/configs/config';
-import ModalHolonym from '../ModalHolonymSBT';
-import { useAccount } from 'wagmi';
-import { useGlobalContext } from '@/contexts/GlobalContext';
-import { IsAllowedResponse } from '@/hooks/maze';
-import { AutoPlayAudio } from '../Navbar/components/AutoPlayAudio';
-import { ModalViewNFTs } from '../ViewNFTsModal';
+import { getTransactionLastResult } from 'near-api-js/lib/providers';
+import { ModalBuy } from '../ModalBuy';
 import { ModalBuyCheddar } from '../ModalBuyCheddarRef';
+import { ModalContainer } from '../ModalContainer';
+import ModalHolonym from '../ModalHolonymSBT';
+import { ModalViewNFTs } from '../ViewNFTsModal';
+import { GameOverModalContent } from './GameOverModalContent';
+import ModalNotAllowedToMint from './ModalNotAllowedToMint';
+import ModalRules from './ModalRules';
+import { RenderCheddarIcon } from './RenderCheddarIcon';
+import { Scoreboard } from './Scoreboard';
 
 interface Props {
-  handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
   cellSize: number;
   hasEnoughBalance: boolean | null;
-  minCheddarRequired: number;
   isAllowedResponse: IsAllowedResponse | null | undefined;
 }
 
@@ -68,10 +60,8 @@ interface CheddarMintResponse {
   cheddarMinted?: number;
 }
 export function GameboardContainer({
-  handlePowerUpClick,
   cellSize,
   hasEnoughBalance,
-  minCheddarRequired,
   isAllowedResponse,
 }: Props) {
   const {
@@ -99,14 +89,18 @@ export function GameboardContainer({
     isUserHolonymVerified,
     totalMintedCheddarToDate,
     selectedColorSet,
+    freeMatchesLeft,
+    payedMatchesLeft,
+    freeMatchesLeftLoading,
+    payedMatchesLeftLoading,
+    gameboardRef,
     loadingRemainingMinutesAndSeconds,
     remainingTime,
   } = useContext(GameContext);
 
-  const { addresses, isConnected, showConnectionModal, blockchain } =
+  const { addresses, isConnected, showConnectionModal, blockchain, urlParams } =
     useGlobalContext();
 
-  const gameboardRef = useRef<HTMLDivElement>(null);
   const {
     isOpen: isOpenNotAlloWedModal,
     onOpen: onOpenNotAlloWedModal,
@@ -123,6 +117,39 @@ export function GameboardContainer({
     }
   }, [timerStarted]);
 
+  useEffect(() => {
+    async function validateStartGameResponse() {
+      try {
+        if (urlParams) {
+          const { transactionHash, errorCode, persistedData } =
+            getDataFromURL(urlParams);
+
+          const accountId = addresses[persistedData.blockchain];
+
+          let urlSeedId;
+          if (transactionHash && accountId) {
+            const transactionDetails = await getTransactionDetails(
+              transactionHash,
+              accountId
+            );
+            urlSeedId = await getTransactionLastResult(transactionDetails);
+          }
+
+          if (
+            persistedData.methodName === 'startMazeMatch' &&
+            transactionHash
+          ) {
+            restartGame(urlSeedId);
+          }
+        }
+      } catch (err) {
+        console.error('Error checking game from URL: ', err);
+      }
+    }
+
+    validateStartGameResponse();
+  }, []);
+
   const walletSelector = useWalletSelector();
 
   if (gameOverFlag && gameOverMessage.length > 0 && !allowOpenGameOverModal) {
@@ -137,9 +164,9 @@ export function GameboardContainer({
   } = useDisclosure();
 
   const {
-    isOpen: isOpenBuyNFTPanel,
-    onOpen: onOpenBuyNFTPanel,
-    onClose: onCloseBuyNFTPanel,
+    isOpen: isOpenBuyPanel,
+    onOpen: onOpenBuyPanel,
+    onClose: onCloseBuyPanel,
   } = useDisclosure();
 
   const { showSelectWalletModal } = useWalletSelector();
@@ -180,24 +207,28 @@ export function GameboardContainer({
     }
   }, [cheddarMintResponse, toast]);
 
-  function getProperHandler(handler: any) {
-    //Uncomment the next line to ignore the isAllowedResponse.ok returning false
-    // return handler;
-    if (isAllowedResponse?.ok) {
-      return handler;
+  /**
+   * Expects freeMatchesLeft & payedMatchesLeft to be defined
+   * @returns
+   */
+  function getProperHandler() {
+    if (!isAllowedResponse?.ok) {
+      return onOpenNotAlloWedModal;
     }
-    return onOpenNotAlloWedModal;
+
+    if (freeMatchesLeft! + payedMatchesLeft! > 0) {
+      return () => restartGame();
+    } else {
+      return onOpenBuyPanel;
+    }
   }
 
   function getGameContainerClasses() {
     return `${styles.gameContainer}`;
-    // return `${styles.gameContainer} backgroundImg${selectedColorSet}`;
   }
 
   function handleBuyClick() {
-    return addresses['near']
-      ? onOpenBuyNFTPanel()
-      : showSelectWalletModal(true); ///TODO: check if buy is only with near
+    return addresses['near'] ? onOpenBuyPanel() : showSelectWalletModal(true);
   }
 
   function focusMazeAndStartGame() {
@@ -212,8 +243,8 @@ export function GameboardContainer({
       return () => {}; //If the game is starting disable the button until game starts (When it get's hided)
     }
     return isConnected //If the accountId exists
-      ? getProperHandler(focusMazeAndStartGame)
-      : showConnectionModal(); //If accountId doesn't exist
+      ? getProperHandler()
+      : showConnectionModal; //If accountId doesn't exist
   }
 
   function getKeyDownMoveHandler() {
@@ -292,7 +323,6 @@ export function GameboardContainer({
     } else {
       return 'Buy ⚡';
     }
-    return 'Buy ⚡';
   }
 
   const shareReferralLink =
@@ -425,6 +455,29 @@ export function GameboardContainer({
       )}
       <h1 className={styles.gameName}>Cheddar Maze</h1>
       <div className={styles.gameInfo}>
+        {blockchain === 'near' && (
+          <>
+            {!freeMatchesLeftLoading &&
+            !payedMatchesLeftLoading &&
+            typeof freeMatchesLeft === 'number' &&
+            typeof payedMatchesLeft === 'number' ? (
+              <Tooltip
+                label={
+                  <VStack gap={0} alignItems={'start'}>
+                    <Text>Free: {freeMatchesLeft}</Text>
+                    <Text>Purchased: {payedMatchesLeft}</Text>
+                  </VStack>
+                }
+              >
+                <div className={getGameInfoClases('games')}>
+                  {`Games: ${freeMatchesLeft + payedMatchesLeft}`}
+                </div>
+              </Tooltip>
+            ) : (
+              <Spinner />
+            )}
+          </>
+        )}
         <div className={getGameInfoClases('score')}>Score: {score}</div>
         <div className={getGameInfoClases('time')}>
           Time:{' '}
@@ -607,9 +660,11 @@ export function GameboardContainer({
               _hover={{ bg: 'yellowgreen' }}
               onClick={getStartGameButtonHandler()}
             >
-              {startingGame ? (
+              {startingGame ||
+              (freeMatchesLeft === undefined &&
+                payedMatchesLeft === undefined) ? (
                 <Spinner />
-              ) : gameOverFlag && hasStartedOnce ? (
+              ) : gameOverFlag ? (
                 'Restart'
               ) : (
                 'Start'
@@ -660,7 +715,11 @@ export function GameboardContainer({
           </Show>
         )}
       </div>
-      <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
+      <ModalBuy
+        onClose={onCloseBuyPanel}
+        isOpen={isOpenBuyPanel}
+        handleBuyClick={handleBuyClick}
+      />
       <ModalViewNFTs onClose={toggleViewNftModal} isOpen={isViewNFTModalOpen} />
       <ModalBuyCheddar
         onClose={toggleBuyCheddarModal}

@@ -29,20 +29,13 @@ export function BlockchainSelector() {
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   const {
-    isOpen: isModalConfirmCloseOnGoingGameAndChangeBlockchainToBaseOpen,
-    onOpen: onOpenModalConfirmCloseOnGoingGameAndChangeBlockchainToBase,
-    onClose: onCloseModalConfirmCloseOnGoingGameAndChangeBlockchainToBase,
-  } = useDisclosure();
-
-  const {
-    isOpen: isModalConfirmCloseOnGoingGameAndChangeBlockchainToNearOpen,
-    onOpen: onOpenModalConfirmCloseOnGoingGameAndChangeBlockchainToNear,
-    onClose: onCloseModalConfirmCloseOnGoingGameAndChangeBlockchainToNear,
+    isOpen: isModalConfirmCloseOnGoingGameAndChangeBlockchainOpen,
+    onOpen: onOpenModalConfirmCloseOnGoingGameAndChangeBlockchain,
+    onClose: onCloseModalConfirmCloseOnGoingGameAndChangeBlockchain,
   } = useDisclosure();
 
   function handleClickMenuItem(blockchainProp: Blockchain) {
     return () => {
-      console.log('blockchainProp: ', blockchainProp);
       const savedGame = localStorage.getItem(localStorageSavedGameKey);
 
       if (savedGame === null) {
@@ -59,11 +52,7 @@ export function BlockchainSelector() {
         if (remainingTimeWithStoredData <= 0) {
           setBlockchain(blockchainProp);
         } else {
-          if (blockchainProp === 'near') {
-            onOpenModalConfirmCloseOnGoingGameAndChangeBlockchainToBase();
-          } else {
-            onOpenModalConfirmCloseOnGoingGameAndChangeBlockchainToNear();
-          }
+          onOpenModalConfirmCloseOnGoingGameAndChangeBlockchain();
         }
       }
     };
@@ -99,20 +88,6 @@ export function BlockchainSelector() {
                     style={{ height: 20 }}
                     src={`/assets/${item[0]}-logo.svg`}
                   />
-                  <ModalConfirmCloseOnGoingGameAndChangeBlockchain
-                    key={`modal-confirm-close-on-going-game-${item[0]}`}
-                    blockchain={item[0] as Blockchain}
-                    isOpen={
-                      item[0] === 'near'
-                        ? isModalConfirmCloseOnGoingGameAndChangeBlockchainToBaseOpen
-                        : isModalConfirmCloseOnGoingGameAndChangeBlockchainToNearOpen
-                    }
-                    onClose={
-                      item[0] === 'near'
-                        ? onCloseModalConfirmCloseOnGoingGameAndChangeBlockchainToBase
-                        : onCloseModalConfirmCloseOnGoingGameAndChangeBlockchainToNear
-                    }
-                  />
                   <Text>{item[0].toUpperCase()}</Text>
                   <Circle
                     size={'9px'}
@@ -123,6 +98,10 @@ export function BlockchainSelector() {
             );
           })}
       </MenuList>
+      <ModalConfirmCloseOnGoingGameAndChangeBlockchain
+        isOpen={isModalConfirmCloseOnGoingGameAndChangeBlockchainOpen}
+        onClose={onCloseModalConfirmCloseOnGoingGameAndChangeBlockchain}
+      />
     </Menu>
   );
 }

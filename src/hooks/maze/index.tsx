@@ -1,13 +1,16 @@
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { useGlobalContext } from '@/contexts/GlobalContext';
-import { useWalletSelector } from '@/contexts/WalletSelectorContext';
 import {
-  isAllowed as isAllowedResponse,
-  getSeedId,
+  getCheddarMazeMatchPrice,
+  getUserRemainingFreeGames,
+  getUserRemainingPaidGames,
+} from '@/contracts/maze/mazeBuyerCalls';
+import {
+  getEarnedAndMinted,
+  getEarnedButNotMinted,
   getPendingCheddarToMint,
   getScoreBoard,
-  getEarnedButNotMinted,
-  getEarnedAndMinted,
+  isAllowed as isAllowedResponse,
 } from '@/queries/maze/api';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
@@ -88,5 +91,36 @@ export const useGetEarnedAndMintedCheddar = (): UseQueryResult<number> => {
         : null,
     refetchInterval: false,
     staleTime: Infinity,
+  });
+};
+
+export const useGetCheddarMazeMatchPrices = (): UseQueryResult<string[][]> => {
+  return useQuery({
+    queryKey: ['useGetCheddarMazeMatchPrice'],
+    queryFn: getCheddarMazeMatchPrice,
+    refetchInterval: 300000,
+    staleTime: 300000,
+  });
+};
+
+export const useGetUserRemainingFreeGames = (
+  accountId: string | null
+): UseQueryResult<number> => {
+  return useQuery({
+    queryKey: ['useGetUserRemainingFreeGames'],
+    queryFn: () => getUserRemainingFreeGames(accountId),
+    refetchInterval: 300000,
+    staleTime: 300000,
+  });
+};
+
+export const useGetUserRemainingPaidGames = (
+  accountId: string | null
+): UseQueryResult<number> => {
+  return useQuery({
+    queryKey: ['useGetUserRemainingPaidGames'],
+    queryFn: () => getUserRemainingPaidGames(accountId),
+    refetchInterval: 300000,
+    staleTime: 300000,
   });
 };

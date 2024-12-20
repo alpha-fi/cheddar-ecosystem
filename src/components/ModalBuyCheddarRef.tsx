@@ -20,15 +20,16 @@ import { ntoy, yton } from '@/contracts/contractUtils';
 import _debounce from 'lodash/debounce';
 import { ModalContainer } from './ModalContainer';
 import Big from 'big.js';
-import { swapNearToCheddar } from '@/contracts/cheddarCalls';
+import { swapNearToCheddar } from '@/contracts/tokenCheddarCalls';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { addEncodedDataToURL } from '@/utilities/exportableFunctions';
 
 interface Props {
   onClose: () => void;
   isOpen: boolean;
 }
 
-const calculateCheddarAmount = async (nearAmount: number) => {
+async function calculateCheddarAmount(nearAmount: number) {
   const sendAmount = ntoy(nearAmount, 24);
   const tokenIn = 'wrap.near';
   const tokenOut = 'token.cheddar.near';
@@ -44,7 +45,7 @@ const calculateCheddarAmount = async (nearAmount: number) => {
       .toString(),
     routes: swapRes.result_data.routes,
   };
-};
+}
 
 const SwapComponent = () => {
   const [nearAmount, setNearAmount] = useState<number | string>('');
@@ -108,6 +109,8 @@ const SwapComponent = () => {
   };
 
   const handleSwap = async () => {
+    if (blockchain !== 'near') return;
+
     if (Number(nearAmount) > nearBalance) {
       setIsInsufficientBalance(true);
       return;
@@ -115,20 +118,33 @@ const SwapComponent = () => {
 
     setLoading(true);
 
+    addEncodedDataToURL(
+      'near',
+      'swapNearForCheddar',
+      'swaping NEAR for CHEDDAR'
+    );
+
     try {
       const wallet = await selector.wallet();
       // Perform swap logic here
       console.log('Swapping NEAR for Cheddar...');
 
-      await swapNearToCheddar(wallet, routes, nearAmount.toString());
+      const successfulResult = await swapNearToCheddar(
+        wallet,
+        routes,
+        nearAmount.toString()
+      );
 
-      toast({
-        title: 'Swap Successful',
-        description: `You swapped ${nearAmount} NEAR for ${cheddarAmount} Cheddar.`,
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
+      if (successfulResult) {
+        toast({
+          title: 'Swap Successful',
+          description: `You swapped ${nearAmount} NEAR for ${cheddarAmount} Cheddar.`,
+          status: 'success',
+          duration: 9000,
+          isClosable: true,
+        });
+      }
+
       // refresh near and cheddar balance across website
       fetchBalance();
       refreshCheddarBalance();
@@ -137,7 +153,7 @@ const SwapComponent = () => {
         title: 'Swap failed',
         description: 'There was an error while processing the swap.',
         status: 'error',
-        duration: 3000,
+        duration: 9000,
         isClosable: true,
       });
     }
