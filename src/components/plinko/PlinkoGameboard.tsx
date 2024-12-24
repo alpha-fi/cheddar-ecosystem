@@ -143,7 +143,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [value] = useDebounce(ballFinishLines, 1000);
+  const [value] = useDebounce(ballFinishLines, 2000);
 
   useEffect(() => {
     if (value.length > 0) {

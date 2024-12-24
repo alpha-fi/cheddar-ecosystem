@@ -96,7 +96,7 @@ export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
             onChange={changeSelectedAmountOfChips}
             size="md"
             maxW={24}
-            defaultValue={3}
+            defaultValue={selectAmountOfChips}
             min={1}
           >
             <NumberInputField />
