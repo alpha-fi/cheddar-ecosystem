@@ -2,8 +2,10 @@ import React from 'react';
 import { Gameboard } from './Gameboard';
 import styles from '@/styles/GameboardContainer.module.css';
 import {
+  Box,
   Button,
   Flex,
+  HStack,
   Heading,
   Hide,
   Link,
@@ -50,13 +52,12 @@ import { useGlobalContext } from '@/contexts/GlobalContext';
 import { IsAllowedResponse } from '@/hooks/maze';
 import { AutoPlayAudio } from '../Navbar/components/AutoPlayAudio';
 import { ModalViewNFTs } from '../ViewNFTsModal';
+import { ModalBuyCheddar } from '../ModalBuyCheddarRef';
 
 import Plinko from '@/app/plinko/page';
 import { PlinkoGame } from '../plinko/PlinkoGame';
 import { ToastsContext } from '@/contexts/ToastsContext';
 interface Props {
-  remainingMinutes: number;
-  remainingSeconds: number;
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
   cellSize: number;
   hasEnoughBalance: boolean | null;
@@ -69,8 +70,6 @@ interface CheddarMintResponse {
   cheddarMinted?: number;
 }
 export function GameboardContainer({
-  remainingMinutes,
-  remainingSeconds,
   handlePowerUpClick,
   cellSize,
   hasEnoughBalance,
@@ -86,7 +85,7 @@ export function GameboardContainer({
     restartGame,
     timerStarted,
     setGameOverMessage,
-    saveResponse,
+    endGameResponseErrors,
     plinkoModalOpened,
     closePlinkoModal,
     nfts,
@@ -102,6 +101,8 @@ export function GameboardContainer({
     isUserHolonymVerified,
     totalMintedCheddarToDate,
     selectedColorSet,
+    loadingRemainingMinutesAndSeconds,
+    remainingTime,
   } = useContext(GameContext);
 
   const { addresses, isConnected, showConnectionModal, blockchain } =
@@ -118,6 +119,7 @@ export function GameboardContainer({
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
   const [startingGame, setStartingGame] = useState(false);
   const [isViewNFTModalOpen, setViewNFTModal] = useState(false);
+  const [hasStartedOnce, setHasStartedOnce] = useState(false);
 
   useEffect(() => {
     if (timerStarted) {
@@ -150,6 +152,9 @@ export function GameboardContainer({
   const [cheddarMintResponse, setCheddarMintResponse] =
     useState<CheddarMintResponse | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [isBuyCheddarModalOpen, setBuyCheddarModal] = useState(false);
+
+  const toast = useToast();
 
   useEffect(() => {
     if (
@@ -187,6 +192,7 @@ export function GameboardContainer({
   }
 
   function focusMazeAndStartGame() {
+    setHasStartedOnce(true);
     setStartingGame(true);
     gameboardRef.current?.focus();
     restartGame();
@@ -217,6 +223,14 @@ export function GameboardContainer({
 
   function handleToggleShowMovementButtons() {
     setShowMovementButtons(!showMovementButtons);
+  }
+
+  function getRemainingMinutes() {
+    return Math.floor(remainingTime / 60);
+  }
+
+  function getRemainingSeconds() {
+    return remainingTime % 60;
   }
 
   const renderSwipeIcon = () => {
@@ -262,11 +276,16 @@ export function GameboardContainer({
   };
 
   function getPowerUpBtnText() {
-    if (addresses['near'] && nfts?.length) {
-      return '⚡';
+    if (addresses['near']) {
+      if (nfts && nfts?.length) {
+        return '⚡';
+      } else return 'Buy ⚡';
+    } else {
+      return 'Buy ⚡';
     }
     return 'Buy ⚡';
   }
+
   const shareReferralLink =
     'https://' +
     new URL(window.location.href).host +
@@ -367,6 +386,10 @@ export function GameboardContainer({
     //setViewNFTModal(!isViewNFTModalOpen);
   }
 
+  function toggleBuyCheddarModal() {
+    setBuyCheddarModal((prev) => !prev);
+  }
+
   return (
     <div
       className={getGameContainerClasses()}
@@ -390,8 +413,19 @@ export function GameboardContainer({
         <div className={getGameInfoClases('score')}>Score: {score}</div>
         <div className={getGameInfoClases('time')}>
           Time:{' '}
-          {remainingMinutes < 10 ? '0' + remainingMinutes : remainingMinutes}:
-          {remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}
+          {loadingRemainingMinutesAndSeconds ? (
+            <Spinner />
+          ) : (
+            <>
+              {getRemainingMinutes() < 10
+                ? '0' + getRemainingMinutes()
+                : getRemainingMinutes()}
+              :
+              {getRemainingSeconds() < 10
+                ? '0' + getRemainingSeconds()
+                : getRemainingSeconds()}
+            </>
+          )}
         </div>
       </div>
       <div className={styles.mazeContainer} ref={gameboardRef} tabIndex={0}>
@@ -465,17 +499,37 @@ export function GameboardContainer({
               </Menu>
             )}
             {blockchain === 'near' && (
-              <Tooltip label={'Cheddy PowerUp boosts 🧀 and wins'}>
-                <Button
-                  px={{ base: 2, md: 3 }}
-                  colorScheme={nfts && nfts.length > 0 ? 'green' : 'yellow'}
-                  onClick={() =>
-                    nfts?.length ? toggleViewNftModal() : handleBuyClick()
-                  }
-                >
-                  {getPowerUpBtnText()}
-                </Button>
-              </Tooltip>
+              <div>
+                <HStack spacing={2}>
+                  <Tooltip
+                    label="Cheddy PowerUp boosts 🧀 and wins"
+                    fontSize="sm"
+                  >
+                    <Button
+                      fontSize="sm"
+                      px={{ base: 2, md: 3 }}
+                      colorScheme={
+                        nfts && nfts?.length > 0 ? 'green' : 'yellow'
+                      }
+                      onClick={
+                        nfts?.length ? toggleViewNftModal : handleBuyClick
+                      }
+                    >
+                      {getPowerUpBtnText()}
+                    </Button>
+                  </Tooltip>
+                  <Button
+                    fontSize="sm"
+                    px={{ base: 2, md: 3 }}
+                    onClick={toggleBuyCheddarModal}
+                  >
+                    Buy
+                    <Box as="span" ml={1}>
+                      <RenderCheddarIcon />
+                    </Box>
+                  </Button>
+                </HStack>
+              </div>
             )}
           </div>
           <Show below="lg">
@@ -500,11 +554,26 @@ export function GameboardContainer({
             isAllowedResponse={isAllowedResponse!}
           />
         </div>
+        {!isConnected && (
+          <div className={styles.startGameBg}>
+            <Heading as="h6" size="lg" textAlign="center">
+              Login to play
+            </Heading>
+          </div>
+        )}
         {!notAllowedToPlay && !timerStarted && isConnected && (
           <div className={styles.startGameBg}>
-            <Heading as="h6" size="lg">
-              Play Cheddar Maze
+            <Heading as="h6" size="md">
+              📣 Free Farming on NEAR Ended
             </Heading>
+            <div style={{ textAlign: 'center', fontSize: 12 }}>
+              <p>Free Games 🎈& Pay to Play🕹 Coming Soon </p>
+              <p>
+                During the transition to continue minting farmed Cheddar on NEAR
+                send NEAR to the minter address to cover the transactions fees:
+                maze_minter_auth.cheddar.near
+              </p>
+            </div>
             <ul>
               <li>Fill all Cells in Maze</li>
               <li>Find door🚪 in 2min ⏰</li>
@@ -523,7 +592,13 @@ export function GameboardContainer({
               _hover={{ bg: 'yellowgreen' }}
               onClick={getStartGameButtonHandler()}
             >
-              {startingGame ? <Spinner /> : gameOverFlag ? 'Restart' : 'Start'}
+              {startingGame ? (
+                <Spinner />
+              ) : gameOverFlag && hasStartedOnce ? (
+                'Restart'
+              ) : (
+                'Start'
+              )}
             </Button>
           </div>
         )}
@@ -572,6 +647,10 @@ export function GameboardContainer({
       </div>
       <ModalBuyNFT onClose={onCloseBuyNFTPanel} isOpen={isOpenBuyNFTPanel} />
       <ModalViewNFTs onClose={toggleViewNftModal} isOpen={isViewNFTModalOpen} />
+      <ModalBuyCheddar
+        onClose={toggleBuyCheddarModal}
+        isOpen={isBuyCheddarModalOpen}
+      />
 
       <ModalRules isOpen={isOpenModalRules} onClose={onCloseModalRules} />
       {gameOverFlag && gameOverMessage.length > 0 && (
@@ -588,14 +667,14 @@ export function GameboardContainer({
           />
         </ModalContainer>
       )}
-      {saveResponse && (
+      {endGameResponseErrors && (
         <ModalContainer
           title={'Error saving game'}
           isOpen={isOpen}
           onClose={onClose}
         >
           <div>
-            {saveResponse.map((error, index) => {
+            {endGameResponseErrors.map((error, index) => {
               return <div key={index}>{error}</div>;
             })}
           </div>

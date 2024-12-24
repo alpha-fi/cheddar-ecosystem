@@ -1,5 +1,6 @@
 import { PlayerScoreData } from '@/components/maze/Scoreboard';
 import { getConfig } from '@/configs/config';
+import { Coordinates } from '@/entities/interfaces';
 
 const { backendBaseUrl, holonym } = getConfig();
 
@@ -8,7 +9,7 @@ export interface EndGameRequest {
   data: {
     cheddarEarned: number;
     score: number;
-    path: number[];
+    path: Coordinates[];
   };
   metadata: {
     blockchain: BlockchainType;
@@ -167,7 +168,7 @@ export async function callEndGame(endGameData: EndGameRequest) {
     });
     const jsonResponse = await response.json();
     if (!response.ok) {
-      throw new Error(jsonResponse.errors || 'Failed to end game');
+      throw new Error(jsonResponse.errors.join('|||'));
     }
     return jsonResponse;
   } catch (error) {

@@ -67,16 +67,18 @@ export default function RootLayout({
       <body className={inter.className + ' backgroundImg'}>
         <WalletSelectorContextProvider>
           <ChakraProvider>
-            <WagmiContextProvider>
-              <QueryClientProvider client={queryClient}>
-                <OnchainContextProvider>
-                  <GlobalContextProvider>
-                    <PageContainer>{children}</PageContainer>
-                    <ReactQueryDevtools initialIsOpen={false} />
-                  </GlobalContextProvider>
-                </OnchainContextProvider>
-              </QueryClientProvider>
-            </WagmiContextProvider>
+            <ToastsContextProvider>
+              <WagmiContextProvider>
+                <QueryClientProvider client={queryClient}>
+                  <OnchainContextProvider>
+                    <GlobalContextProvider>
+                      <PageContainer>{children}</PageContainer>
+                      <ReactQueryDevtools initialIsOpen={false} />
+                    </GlobalContextProvider>
+                  </OnchainContextProvider>
+                </QueryClientProvider>
+              </WagmiContextProvider>
+            </ToastsContextProvider>
           </ChakraProvider>
         </WalletSelectorContextProvider>
       </body>

@@ -88,7 +88,9 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   const [clientHeight, setClientHeight] = useState<number>(
     INITIAL_CLIENT_HEIGHT
   );
-  const [saveResponse, setSaveResponse] = useState<string[] | undefined>();
+  const [endGameResponseErrors, setEndGameResponseErrors] = useState<
+    string[] | undefined
+  >();
   const [endGameResponse, setEndGameResponse] = useState<undefined | any>();
   const [ballFinishLines, setBallFinishLines] = useState<number[]>([]);
   const [currentXPreview, setCurrentXPreview] = useState<undefined | number>();
@@ -363,7 +365,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
       endGameResponse = await callEndGame(endGameRequestData);
       setGameOverMessage(`Your ball fell in ${prizeNames[0]} goal`);
       setEndGameResponse(endGameResponse);
-      if (!endGameResponse.ok) setSaveResponse(endGameResponse.errors);
+      if (!endGameResponse.ok) setEndGameResponseErrors(endGameResponse.errors);
       setBallFinishLines([]);
     }
   }
@@ -712,14 +714,14 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
           </span>
         </div>
       </div>
-      {saveResponse && (
+      {endGameResponseErrors && (
         <ModalContainer
           title={'Error saving plinko game'}
           isOpen={isOpen}
           onClose={onClose}
         >
           <div>
-            {saveResponse.map((error, index) => {
+            {endGameResponseErrors.map((error, index) => {
               return <div key={index}>{error}</div>;
             })}
           </div>

@@ -61,8 +61,8 @@ export const ModalBuyChips = ({ isOpen, onClose }: Props) => {
 
       if (amount) {
         // const resp =
-        const buyPromise = await buyBalls(wallet, amount.toString()!);
-        showAsyncToast(buyPromise, 'Prossesing purchase', "Let's play!");
+        await buyBalls(wallet, amount.toString()!);
+        showToast("Let's play!",'success')
         // const genericLastResult = await getTransactionLastResult(resp);
         // const lastResult: MintNFTLastResult = genericLastResult[1];
 

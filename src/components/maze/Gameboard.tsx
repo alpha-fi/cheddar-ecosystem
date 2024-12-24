@@ -66,7 +66,10 @@ export function Gameboard({
   const handleConditionalFunction =
     (onTrue: (event: any) => void, onFalse: () => void) => (event: any) => {
       if (isUserLoggedIn) {
-        if (blockchain === 'base' || isAllowedResponse.ok) {
+        if (
+          blockchain === 'base' ||
+          (isAllowedResponse && isAllowedResponse.ok)
+        ) {
           onTrue(event);
         }
       } else {
@@ -84,6 +87,7 @@ export function Gameboard({
     // return `${styles.mazeCell} nonPathColorSet${selectedColorSet} ${backgroundColor}${selectedColorSet}`;
     return `${styles.mazeCell} ${backgroundColor}${selectedColorSet}`;
   }
+
   function getPlayerTileClasses(cell: MazeTileData) {
     let backgroundImage;
     if (cell.fight || cell.enemyWon || cell.hasCartel || cell.hasExit) {
@@ -210,7 +214,6 @@ export function Gameboard({
                     <span
                       role="img"
                       aria-label={cellContent}
-                      // className="static-icon"
                       className={getCellClasses(cell)}
                     >
                       {cellContent}
@@ -221,10 +224,7 @@ export function Gameboard({
                 {/* Player icon */}
                 {playerPosition!.x === colIndex &&
                   playerPosition!.y === rowIndex && (
-                    <div
-                      className={getPlayerTileClasses(cell)}
-                      // ${/*styles[direction]*/}
-                    ></div>
+                    <div className={getPlayerTileClasses(cell)}></div>
                   )}
               </div>
             );

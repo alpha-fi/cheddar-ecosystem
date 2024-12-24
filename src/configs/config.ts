@@ -21,6 +21,7 @@ export interface Config {
       nekoToken: string;
       nadaBot: string;
       plinkoMinter: string;
+      wrapNear: string;
     };
     base: {
       cheddarToken: string;
@@ -78,6 +79,7 @@ export const getConfig = (): Config => {
             nekoToken: 'ftv2.nekotoken.near',
             nadaBot: 'v1.nadabot.near',
             plinkoMinter: '',
+            wrapNear: 'wrap.near',
           },
           base: {
             cheddarToken: '0xE757c0263C1828a7380D66bef7Fd10b5d189Ee35',
@@ -118,7 +120,8 @@ export const getConfig = (): Config => {
             nekoToken: '',
             nadaBot: 'v1.nadabot.testnet',
             plinkoMinter: 'cheddar-plinko-minter.testnet',
-        },
+            wrapNear: 'wrap.testnet',
+          },
           base: {
             cheddarToken: '0xE757c0263C1828a7380D66bef7Fd10b5d189Ee35',
             cheddarMinter: '0xF693f6450fb51033D744Cc6b78371b7d0d9797E7',
@@ -158,6 +161,7 @@ export const getConfig = (): Config => {
             nekoToken: '',
             nadaBot: 'v1.nadabot.testnet',
             plinkoMinter: 'cheddar-plinko-minter.testnet',
+            wrapNear: 'wrap.testnet',
           },
           base: {
             cheddarToken: '0xd6DDB2F86cEc8fD31e7488e7F1874060b376eAfD',
