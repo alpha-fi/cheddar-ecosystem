@@ -4,22 +4,24 @@ import { useGlobalContext } from '@/contexts/GlobalContext';
 import { PlinkoContextProvider } from '@/contexts/plinko/PlinkoContextProvider';
 import { ToastsContext } from '@/contexts/ToastsContext';
 import styles from '@/styles/plinko-page.module.css';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 export default function Plinko() {
   const { blockchain, setBlockchain } = useGlobalContext();
   const { showToast } = useContext(ToastsContext);
+  const [firstRender, setFirstRender] = useState(true);
 
   useEffect(() => {
-    if (blockchain === 'base') {
+    setBlockchain('near');
+
+    if (!firstRender && blockchain === 'base') {
       showToast(
         "Can't change nerwork",
         'error',
         'Plinko game can only be played in NEAR'
       );
     }
-
-    setBlockchain('near');
+    setFirstRender(false);
   }, [blockchain]);
 
   return (
