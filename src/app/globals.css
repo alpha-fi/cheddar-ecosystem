@@ -79,7 +79,7 @@ html {
 }
 
 .playerBackgroundElementOnTop {
-  background-image: url('https://lh3.googleusercontent.com/d/114_RLl18MAzX035svMyvNJpE3ArfLNCF=w500');
+  background-image: url(/assets/img/cheddy-with-cheese.png); /* Starting with "/" points to public */
 }
 
 :root {
