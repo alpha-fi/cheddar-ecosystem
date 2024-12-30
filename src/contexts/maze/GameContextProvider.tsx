@@ -503,13 +503,10 @@ export const GameContextProvider = ({ children }: props) => {
 
   const {
     blockchain,
-    setBlockchain,
     selectedBlockchainAddress,
     addresses,
     setCollapsableNavbarActivated,
     cheddarNFTsData,
-    blockchainChangedOnLoad,
-    setBlockchainChangedOnLoad,
   } = useGlobalContext();
 
   const { data: isUserNadabotVerfied } = useIsNadabotVerfified(addresses.near);
@@ -783,10 +780,6 @@ export const GameContextProvider = ({ children }: props) => {
       addresses[savedGameParsed.blockchain] === savedGameParsed.accountId &&
       remainingTimeWithStoredData > 0
     ) {
-      if (!blockchainChangedOnLoad) {
-        setBlockchain(savedGameParsed.blockchain);
-        setBlockchainChangedOnLoad(true);
-      }
     } else {
       setTimerStarted(false);
       setGameOverFlag(true);

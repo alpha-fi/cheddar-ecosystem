@@ -66,7 +66,7 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
   const { setIsMinigame, ballsYPosition, setBallsYPosition } =
     React.useContext(PlinkoContext);
 
-  const { showAsyncToast } = React.useContext(ToastsContext);
+  const { showToast } = React.useContext(ToastsContext);
 
   const queryClient = useQueryClient();
 
@@ -205,6 +205,8 @@ export function PlinkoBoard({ isMinigame = true }: Props) {
           if (prevState) return prevState - cheddarTotalAmmount!;
           return 0;
         });
+
+        showToast('ERROR','error','The prizes could not be processed')
       }
     });
 
