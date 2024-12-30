@@ -18,8 +18,6 @@ export type Blockchain = 'base' | 'near';
 interface GlobalContextProps {
   setBlockchain: React.Dispatch<React.SetStateAction<Blockchain>>;
   blockchain: Blockchain;
-  blockchainChangedOnLoad: boolean;
-  setBlockchainChangedOnLoad: React.Dispatch<React.SetStateAction<boolean>>;
   forcePlayMusic: boolean;
   setForcePlayMusic: React.Dispatch<React.SetStateAction<boolean>>;
   forcePauseMusic: boolean;
@@ -51,7 +49,6 @@ const GlobalContext = React.createContext({} as GlobalContextProps);
 
 export const GlobalContextProvider: any = ({ children }: any) => {
   const [blockchain, setBlockchain] = useState<Blockchain>('base');
-  const [blockchainChangedOnLoad, setBlockchainChangedOnLoad] = useState(false);
 
   const { data: cheddarNFTsData, isLoading: isLoadingCheddarNFTs } =
     useGetCheddarNFTs();
@@ -170,22 +167,13 @@ export const GlobalContextProvider: any = ({ children }: any) => {
   }, [blockchain, isUserNadabotVerified, isUserHolonymVerified]);
 
   useEffect(() => {
-    if (!blockchainChangedOnLoad) {
-      // For some reason when you enter the site you get addresses.near but not addresses.base
-      // That's the reason of why i use the setTimeout
-      if (!addresses.base && addresses.near) {
-        setBlockchain('near');
-        setTimeout(() => {
-          setBlockchainChangedOnLoad(true);
-        }, 500);
-      } else {
-        setBlockchain('base');
-        setTimeout(() => {
-          setBlockchainChangedOnLoad(true);
-        }, 500);
-      }
+    if (!evmAddress && nearAddress) {
+      setBlockchain('near');        
+    } else {
+      setBlockchain('base');
+      
     }
-  }, [addresses, addresses.base, addresses.near]);
+  }, [nearAddress,evmAddress]);
 
   return (
     <GlobalContext.Provider
@@ -213,8 +201,6 @@ export const GlobalContextProvider: any = ({ children }: any) => {
         refreshCheddarBalance,
         cheddarNFTsData,
         isLoadingCheddarNFTs,
-        blockchainChangedOnLoad,
-        setBlockchainChangedOnLoad,
       }}
     >
       {children}

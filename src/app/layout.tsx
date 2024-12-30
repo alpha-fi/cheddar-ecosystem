@@ -14,6 +14,7 @@ import OnchainContextProvider from '@/contexts/OnchainContextProvider';
 import WagmiContextProvider from '@/contexts/WagmiContextProvider';
 import { GlobalContextProvider } from '@/contexts/GlobalContext';
 import { getConfig } from '@/configs/config';
+import { ToastsContextProvider } from '@/contexts/ToastsContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -66,16 +67,18 @@ export default function RootLayout({
       <body className={inter.className + ' backgroundImg'}>
         <WalletSelectorContextProvider>
           <ChakraProvider>
-            <WagmiContextProvider>
-              <QueryClientProvider client={queryClient}>
-                <OnchainContextProvider>
-                  <GlobalContextProvider>
-                    <PageContainer>{children}</PageContainer>
-                    <ReactQueryDevtools initialIsOpen={false} />
-                  </GlobalContextProvider>
-                </OnchainContextProvider>
-              </QueryClientProvider>
-            </WagmiContextProvider>
+            <ToastsContextProvider>
+              <WagmiContextProvider>
+                <QueryClientProvider client={queryClient}>
+                  <OnchainContextProvider>
+                    <GlobalContextProvider>
+                      <PageContainer>{children}</PageContainer>
+                      <ReactQueryDevtools initialIsOpen={false} />
+                    </GlobalContextProvider>
+                  </OnchainContextProvider>
+                </QueryClientProvider>
+              </WagmiContextProvider>
+            </ToastsContextProvider>
           </ChakraProvider>
         </WalletSelectorContextProvider>
       </body>

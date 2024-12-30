@@ -8,8 +8,14 @@
 .headerContainer {
   width: 100%;
   display: flex;
-  justify-content: left;
+  justify-content: space-between;
   /* gap: 1rem; */
+}
+
+.chipsSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .plinkoGame {
@@ -30,6 +36,11 @@
 }
 
 .displayablePrize {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
   color: #ecc94b;
   font-size: 2rem;
   font-weight: bold;
@@ -48,6 +59,7 @@
 }
 
 .hide {
+  display: none;
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
 }

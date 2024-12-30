@@ -20,6 +20,7 @@ export interface Config {
       checkers: string;
       nekoToken: string;
       nadaBot: string;
+      plinkoMinter: string;
       wrapNear: string;
     };
     base: {
@@ -77,6 +78,7 @@ export const getConfig = (): Config => {
             checkers: 'checkers.cheddar.near',
             nekoToken: 'ftv2.nekotoken.near',
             nadaBot: 'v1.nadabot.near',
+            plinkoMinter: '',
             wrapNear: 'wrap.near',
           },
           base: {
@@ -117,6 +119,7 @@ export const getConfig = (): Config => {
             checkers: 'checkers.cheddar.testnet',
             nekoToken: '',
             nadaBot: 'v1.nadabot.testnet',
+            plinkoMinter: 'cheddar-plinko-minter.testnet',
             wrapNear: 'wrap.testnet',
           },
           base: {
@@ -157,6 +160,7 @@ export const getConfig = (): Config => {
             checkers: 'checkers.cheddar.testnet',
             nekoToken: '',
             nadaBot: 'v1.nadabot.testnet',
+            plinkoMinter: 'cheddar-plinko-minter.testnet',
             wrapNear: 'wrap.testnet',
           },
           base: {

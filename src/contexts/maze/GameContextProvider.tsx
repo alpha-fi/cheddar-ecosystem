@@ -21,6 +21,8 @@ import {
 } from '@/hooks/maze';
 import { callEndGame, EndGameRequest, getSeedId } from '@/queries/maze/api';
 import { useDisclosure, useToast } from '@chakra-ui/react';
+import { getNFTs } from '@/contracts/cheddarCalls';
+import { ToastsContext } from '../ToastsContext';
 import { Blockchain, useGlobalContext } from '../GlobalContext';
 import { useFeeData } from 'wagmi';
 
@@ -53,10 +55,6 @@ const pointsOfActions = {
   moveWithoutDying: 0,
   plinkoGameFound: 2,
 };
-
-const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
 
 interface GameContextProps {
   isMobile: boolean;
@@ -247,6 +245,13 @@ export const GameContextProvider = ({ children }: props) => {
     onClose: onCloseScoreboard,
   } = useDisclosure();
 
+  const { showToast } = React.useContext(ToastsContext);
+
+  function openScoreboard() {
+    console.log('open scoreboard');
+    onOpenScoreboard();
+  }
+
   const storedGameInfo = useRef(localStorage.getItem(localStorageSavedGameKey));
   const storedGameInfoParsed =
     storedGameInfo.current &&
@@ -386,13 +391,7 @@ export const GameContextProvider = ({ children }: props) => {
   const [deleteSavedGameOnReload, setDeleteSavedGameOnReload] = useState(false);
   
   function handleErrorToast(title: string) {
-    toast({
-      title,
-      status: 'error',
-      duration: 9000,
-      position: 'bottom-right',
-      isClosable: true,
-    });
+    showToast(title, 'error');
   }
 
   useEffect(() => {
@@ -432,8 +431,9 @@ export const GameContextProvider = ({ children }: props) => {
 
   useEffect(() => {
     if (pendingCheddarError) {
-      handleErrorToast(
-        "Error occured while retrieving user's pending cheddar!"
+      showToast(
+        "Error occured while retrieving user's pending cheddar!",
+        'error'
       );
     }
   }, [pendingCheddarError]);
@@ -446,7 +446,10 @@ export const GameContextProvider = ({ children }: props) => {
 
   useEffect(() => {
     if (earnedButNotMintedError) {
-      handleErrorToast("Error occured while retrieving user's earned cheddar!");
+      showToast(
+        "Error occured while retrieving user's earned cheddar!",
+        'error'
+      );
     }
   }, [earnedButNotMintedError]);
 
@@ -458,7 +461,10 @@ export const GameContextProvider = ({ children }: props) => {
 
   useEffect(() => {
     if (mintedCheddarError) {
-      handleErrorToast("Error occured while retrieving user's minted cheddar!");
+      showToast(
+        "Error occured while retrieving user's minted cheddar!",
+        'error'
+      );
     }
   }, [mintedCheddarError]);
 
@@ -497,13 +503,10 @@ export const GameContextProvider = ({ children }: props) => {
 
   const {
     blockchain,
-    setBlockchain,
     selectedBlockchainAddress,
     addresses,
     setCollapsableNavbarActivated,
     cheddarNFTsData,
-    blockchainChangedOnLoad,
-    setBlockchainChangedOnLoad,
   } = useGlobalContext();
 
   const { data: isUserNadabotVerfied } = useIsNadabotVerfified(addresses.near);
@@ -521,7 +524,6 @@ export const GameContextProvider = ({ children }: props) => {
 
     return randomizeColor;
   };
-  const toast = useToast();
 
   function getRandomPathCell(mazeData: MazeTileData[][]) {
     const pathCells: Coordinates[] = [];
@@ -547,7 +549,7 @@ export const GameContextProvider = ({ children }: props) => {
       blockchain
     );
     if (!newSeedIdResponse.ok) {
-      handleErrorToast(newSeedIdResponse.message);
+      showToast(newSeedIdResponse.message, 'error');
 
       return;
     }
@@ -778,10 +780,6 @@ export const GameContextProvider = ({ children }: props) => {
       addresses[savedGameParsed.blockchain] === savedGameParsed.accountId &&
       remainingTimeWithStoredData > 0
     ) {
-      if (!blockchainChangedOnLoad) {
-        setBlockchain(savedGameParsed.blockchain);
-        setBlockchainChangedOnLoad(true);
-      }
     } else {
       setTimerStarted(false);
       setGameOverFlag(true);
@@ -1102,14 +1100,14 @@ export const GameContextProvider = ({ children }: props) => {
     }
     let clonedMazeData = [...newMazeData];
     if (
-      isTestWin ||
+      process.env.NEXT_PUBLIC_IS_TEST_WIN === 'true' ||
       (rng.nextFloat() < getChancesOfFindingExit() &&
         coveredCells.length >= 0.75 * pathLength) ||
       pathLength - cellsWithItemAmount === 1
     ) {
       handleExitFound(clonedMazeData, newX, newY);
     } else if (
-      isTestPlinko ||
+      process.env.NEXT_PUBLIC_IS_TEST_PLINKO === 'true' ||
       (rng.nextFloat() < chancesOfFinding.plinko &&
         !hasFoundPlinko &&
         remainingTime < 60)
@@ -1127,7 +1125,10 @@ export const GameContextProvider = ({ children }: props) => {
       handleCheeseFound(clonedMazeData, newX, newY);
     } else if (!bagCooldown && rng.nextFloat() < chancesOfFinding.bag) {
       handleBagFound(clonedMazeData, newX, newY);
-    } else if (isTestCartel || rng.nextFloat() < chancesOfFinding.cartel) {
+    } else if (
+      process.env.NEXT_PUBLIC_IS_TEST_CARTEL === 'true' ||
+      rng.nextFloat() < chancesOfFinding.cartel
+    ) {
       handleCartelFound(clonedMazeData, newX, newY);
     } else if (rng.nextFloat() < chancesOfFinding.safe) {
       handleNothingFound(clonedMazeData, newX, newY);
@@ -1525,7 +1526,7 @@ export const GameContextProvider = ({ children }: props) => {
   }
   useEffect(() => {
     if (scoreboardError) {
-      handleErrorToast('Error occured while fetching scoreboard!');
+      showToast('Error occured while fetching scoreboard!', 'error');
     }
   }, [scoreboardError, scoreboardResponse]);
 

@@ -106,7 +106,12 @@ export function DrawerMenu({ onOpenVideoModal, setHolonymModal }: Props) {
                 <Text fontSize={'16px'} fontWeight="600" color="purple">
                 Checkers
                 </Text>
-                </Link> */}
+              </Link> */}
+              <Link href={'/plinko'} style={{ textDecorationColor: 'purple' }}>
+                <Text fontSize={'16px'} fontWeight="600" color="purple">
+                  Plinko
+                </Text>
+              </Link>
             </VStack>
           </DrawerBody>
 

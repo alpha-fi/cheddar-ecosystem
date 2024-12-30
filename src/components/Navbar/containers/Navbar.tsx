@@ -133,6 +133,14 @@ export default function Navbar() {
                       Checkers
                     </Text>
                   </Link> */}
+                  <Link
+                    href={'/plinko'}
+                    style={{ textDecorationColor: 'white' }}
+                  >
+                    <Text fontSize={'16px'} fontWeight="600" color="white">
+                      Plinko
+                    </Text>
+                  </Link>
                   </HStack>
                 </Flex>
               </Flex>

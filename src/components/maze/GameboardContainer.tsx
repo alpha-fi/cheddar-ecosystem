@@ -1,6 +1,5 @@
 import React from 'react';
 import { Gameboard } from './Gameboard';
-import { PlinkoBoard } from '../plinko/PlinkoGameboard';
 import styles from '@/styles/GameboardContainer.module.css';
 import {
   Box,
@@ -55,6 +54,9 @@ import { AutoPlayAudio } from '../Navbar/components/AutoPlayAudio';
 import { ModalViewNFTs } from '../ViewNFTsModal';
 import { ModalBuyCheddar } from '../ModalBuyCheddarRef';
 
+import Plinko from '@/app/plinko/page';
+import { PlinkoGame } from '../plinko/PlinkoGame';
+import { ToastsContext } from '@/contexts/ToastsContext';
 interface Props {
   handlePowerUpClick: MouseEventHandler<HTMLButtonElement>;
   cellSize: number;
@@ -105,6 +107,7 @@ export function GameboardContainer({
 
   const { addresses, isConnected, showConnectionModal, blockchain } =
     useGlobalContext();
+  const { showToast } = useContext(ToastsContext);
 
   const gameboardRef = useRef<HTMLDivElement>(null);
   const {
@@ -115,6 +118,7 @@ export function GameboardContainer({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [allowOpenGameOverModal, setAllowOpenGameOverModal] = useState(false);
   const [startingGame, setStartingGame] = useState(false);
+  const [isViewNFTModalOpen, setViewNFTModal] = useState(false);
   const [hasStartedOnce, setHasStartedOnce] = useState(false);
 
   useEffect(() => {
@@ -148,7 +152,6 @@ export function GameboardContainer({
   const [cheddarMintResponse, setCheddarMintResponse] =
     useState<CheddarMintResponse | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
-  const [isViewNFTModalOpen, setViewNFTModal] = useState(false);
   const [isBuyCheddarModalOpen, setBuyCheddarModal] = useState(false);
 
   const toast = useToast();
@@ -160,25 +163,13 @@ export function GameboardContainer({
       cheddarMintResponse.cheddarMinted &&
       cheddarMintResponse.cheddarMinted > 0
     ) {
-      toast({
-        title: 'Cheddar Minted Successfully!',
-        status: 'success',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      showToast('Cheddar Minted Successfully!', 'success');
     }
 
     if (cheddarMintResponse && !cheddarMintResponse?.ok) {
-      toast({
-        title: 'Error Minting Cheddar',
-        status: 'error',
-        duration: 9000,
-        position: 'bottom-right',
-        isClosable: true,
-      });
+      showToast('Error Minting Cheddar', 'error');
     }
-  }, [cheddarMintResponse, toast]);
+  }, [cheddarMintResponse]);
 
   function getProperHandler(handler: any) {
     //Uncomment the next line to ignore the isAllowedResponse.ok returning false
@@ -312,13 +303,7 @@ export function GameboardContainer({
 
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
-    toast({
-      title: 'Link copied successfully!',
-      status: 'success',
-      duration: 9000,
-      position: 'bottom-right',
-      isClosable: true,
-    });
+    showToast('Link copied successfully!', 'success');
   }
 
   const { nadaBotUrl, buyCheddarInRefUrl } = getConfig().networkData;
@@ -360,19 +345,19 @@ export function GameboardContainer({
 
     if (!isUserNadabotVerfied && !isUserHolonymVerified && !hasEnoughBalance) {
       message = (
-        <>
+        <span>
           Verify on {nadabotLink} or {holonymLink} and buy/hold 555{' '}
           {cheddarIcon} from {refLink}.
-        </>
+        </span>
       );
     } else if (
       (isUserNadabotVerfied || isUserHolonymVerified) &&
       !hasEnoughBalance
     ) {
       message = (
-        <>
+        <span>
           Buy/hold 555 {cheddarIcon} from {refLink}.
-        </>
+        </span>
       );
     } else if (
       !isUserNadabotVerfied &&
@@ -380,9 +365,9 @@ export function GameboardContainer({
       hasEnoughBalance
     ) {
       message = (
-        <>
+        <span>
           Verify on {nadabotLink} or {holonymLink}.
-        </>
+        </span>
       );
     }
 
@@ -398,7 +383,7 @@ export function GameboardContainer({
   }
 
   function toggleViewNftModal() {
-    setViewNFTModal(!isViewNFTModalOpen);
+    //setViewNFTModal(!isViewNFTModalOpen);
   }
 
   function toggleBuyCheddarModal() {
@@ -704,7 +689,7 @@ export function GameboardContainer({
         hideButtons={true}
         showCloseBtn={false}
       >
-        <PlinkoBoard />
+        <PlinkoGame />
       </ModalContainer>
       <ModalContainer
         title={'Maze scoreboard'}

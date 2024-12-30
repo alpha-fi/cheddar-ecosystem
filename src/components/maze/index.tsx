@@ -10,6 +10,7 @@ import ModalWelcome from '../ModalWelcome';
 import { useToast } from '@chakra-ui/react';
 import { useGlobalContext } from '@/contexts/GlobalContext';
 import { WeHaveMusicModal } from '../ModalWeHaveMusic';
+import { ToastsContext } from '@/contexts/ToastsContext';
 
 export default function MazeContainer() {
   const {
@@ -30,6 +31,7 @@ export default function MazeContainer() {
     useGlobalContext();
 
   const { isLoading: isLoadingCheddarMetadata } = useGetCheddarMetadata();
+  const { showToast } = useContext(ToastsContext);
 
   const {
     data: isAllowedResponse,
@@ -51,6 +53,11 @@ export default function MazeContainer() {
   }
 
   const toast = useToast();
+  useEffect(() => {
+    if (userAllowedError) {
+      showToast('Error occured while verifying current user!', 'error');
+    }
+  }, [userAllowedError]);
 
   const minCheddarRequired = ntoy(555);
 
