@@ -31,7 +31,11 @@ import { addEncodedDataToURL } from '@/utilities/exportableFunctions';
 import { useDisclosure, useToast } from '@chakra-ui/react';
 import { Blockchain, useGlobalContext } from '../GlobalContext';
 import { NFT } from '@/contracts/nftCheddarContract';
-import { useGetCheddarNFTs, useIsHolonymVerfified, useIsNadabotVerfified } from '@/hooks/cheddar';
+import {
+  useGetCheddarNFTs,
+  useIsHolonymVerfified,
+  useIsNadabotVerfified,
+} from '@/hooks/cheddar';
 
 interface props {
   children: ReactNode;
@@ -232,7 +236,7 @@ interface GameContextProps {
     propsStartTimestamp?: number | null
   ) => number;
 
-  setDeleteSavedGameOnReload: React.Dispatch<React.SetStateAction<boolean>>
+  setDeleteSavedGameOnReload: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface StoredGameInfo {
@@ -293,7 +297,10 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [mazeData, setMazeData] = useState<MazeTileData[][]>([]);
   const [pathLength, setPathLength] = useState<number>(0);
-  const [playerPosition, setPlayerPosition] = useState<Coordinates>({ x: 1, y: 1 });
+  const [playerPosition, setPlayerPosition] = useState<Coordinates>({
+    x: 1,
+    y: 1,
+  });
   const [score, setScore] = useState<number>(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [fightingEnemyFlag, setFightingEnemyFlag] = useState(false);
@@ -309,7 +316,8 @@ export const GameContextProvider = ({ children }: props) => {
   const [hasPowerUp, setHasPowerUp] = useState(false);
   const [isPowerUpOn, setIsPowerUpOn] = useState(false);
 
-  const [remainingTime, setRemainingTime] = useState<number>(timeLimitInSeconds);
+  const [remainingTime, setRemainingTime] =
+    useState<number>(timeLimitInSeconds);
 
   const [
     loadingRemainingMinutesAndSeconds,
@@ -318,16 +326,10 @@ export const GameContextProvider = ({ children }: props) => {
   const [remainingMinutes, setRemainingMinutes] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
 
-  const [cheeseCooldown, setCheeseCooldown] = useState<boolean>(
-    false
-  );
-  const [bagCooldown, setBagCooldown] = useState<boolean>(
-    false
-  );
+  const [cheeseCooldown, setCheeseCooldown] = useState<boolean>(false);
+  const [bagCooldown, setBagCooldown] = useState<boolean>(false);
   const [enemyCooldown, setEnemyCooldown] = useState(false);
-  const [moves, setMoves] = useState<number>(
-    0
-  );
+  const [moves, setMoves] = useState<number>(0);
 
   const [won, setWon] = useState(false);
   const [touchStart, setTouchStart] = useState({ x: -1, y: -1 });
@@ -344,15 +346,14 @@ export const GameContextProvider = ({ children }: props) => {
 
   const [rng, setRng] = useState(new RNG(0));
 
-  const [endGameResponseErrors, setEndGameResponseErrors] = useState<string[]>();
+  const [endGameResponseErrors, setEndGameResponseErrors] =
+    useState<string[]>();
   const [endGameResponse, setEndGameResponse] = useState();
 
   const [showMovementButtons, setShowMovementButtons] = useState(true);
   const [renderBoard, setRenderBoard] = useState(false); // to update board color on restart
 
-  const [hasFoundPlinko, setHasFoundPlinko] = useState<boolean>(
-    false
-  );
+  const [hasFoundPlinko, setHasFoundPlinko] = useState<boolean>(false);
 
   const [isMouseDown, setIsMouseDown] = useState(false);
 
@@ -881,7 +882,7 @@ export const GameContextProvider = ({ children }: props) => {
     }
   }, [storedDataLoaded]);
 
-  function movePlayer(newX: number, newY: number) {
+  async function movePlayer(newX: number, newY: number) {
     if (
       !mazeData[newY] ||
       !mazeData[newY][newX] ||
@@ -925,7 +926,7 @@ export const GameContextProvider = ({ children }: props) => {
     setLastCellY(playerPosition.y);
 
     // Periodically add artifacts to the board based on cooldowns and randomness
-    addArtifacts(newX, newY, newMazeData, moves);
+    await addArtifacts(newX, newY, newMazeData, moves);
 
     // TODO encapsulate in a function
     //Store match info in local storage
@@ -1088,14 +1089,14 @@ export const GameContextProvider = ({ children }: props) => {
     setCellsWithItemAmount(cellsWithItemAmount + 1);
   }
 
-  function handleExitFound(
+  async function handleExitFound(
     clonedMazeData: MazeTileData[][],
     x: number,
     y: number
   ) {
     clonedMazeData[y][x].hasExit = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
-    gameOver('Congrats! You found the Hidden Door.', true);
+    await gameOver('Congrats! You found the Hidden Door.', true);
   }
 
   const chancesOfFinding = {
@@ -1125,7 +1126,7 @@ export const GameContextProvider = ({ children }: props) => {
     return chancesOfFinding.exit;
   }
 
-  function addArtifacts(
+  async function addArtifacts(
     newX: number,
     newY: number,
     newMazeData: MazeTileData[][],
@@ -1144,7 +1145,7 @@ export const GameContextProvider = ({ children }: props) => {
         coveredCells.length >= 0.75 * pathLength) ||
       pathLength - cellsWithItemAmount === 1
     ) {
-      handleExitFound(clonedMazeData, newX, newY);
+      await handleExitFound(clonedMazeData, newX, newY);
     } else if (
       isTestPlinko ||
       (rng.nextFloat() < chancesOfFinding.plinko &&
@@ -1190,7 +1191,6 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
-
     const referralAccount = localStorage.getItem('referrer_account');
 
     if (referralAccount) {
@@ -1202,7 +1202,6 @@ export const GameContextProvider = ({ children }: props) => {
     }
 
     gameOverRefSent.current = true;
-
 
     if (won || blockchain !== 'near') {
       const cheddarToEarn =
@@ -1225,17 +1224,10 @@ export const GameContextProvider = ({ children }: props) => {
       };
 
       // Beware, catch returns an object unless you throw
-      const endGameResponse = await callEndGame(endGameRequestData).catch(
-        (error) => {
-          console.log(1, error)
-          setEndGameResponseErrors([error.message])
-          throw error
-        }
-      );
+      const endGameResponse = await callEndGame(endGameRequestData);
       await refetchEarnedButNotMintedCheddar();
       await refetchEarnedAndMintedCheddar();
       setEndGameResponse(endGameResponse);
-      console.log(2, endGameResponse)
       if (!endGameResponse.ok) setEndGameResponseErrors(endGameResponse.errors);
     } else if (!won && blockchain === 'near') {
       try {
@@ -1317,9 +1309,9 @@ export const GameContextProvider = ({ children }: props) => {
     // Calculate the remaining time
     const calculatedRemainingTime = Math.floor(
       validStartTimestamp! / 1000 +
-      timeLimitInSeconds +
-      secondsWithTimerStopped -
-      Date.now() / 1000
+        timeLimitInSeconds +
+        secondsWithTimerStopped -
+        Date.now() / 1000
     );
 
     return calculatedRemainingTime;
@@ -1366,7 +1358,7 @@ export const GameContextProvider = ({ children }: props) => {
     timeLimitInSeconds,
   ]);
 
-  function handleMoveByArrow(direction: string) {
+  async function handleMoveByArrow(direction: string) {
     if (gameOverFlag || fightingEnemyFlag) return; // If game over of fight animation is active, prevent further movement
 
     let newX = playerPosition.x;
@@ -1392,32 +1384,47 @@ export const GameContextProvider = ({ children }: props) => {
       default:
         return;
     }
-
-    movePlayer(newX, newY);
+    await movePlayer(newX, newY);
     // Update last cell coordinates
     setLastCellX(playerPosition.x);
     setLastCellY(playerPosition.y);
   }
 
   // Function to handle key press events
-  function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
+  async function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
     try {
       const key = event.key;
-      handleMoveByArrow(key);
-    } catch (err) {
-      console.error("Error when handling key press", err)
-      // Check if feedback should be provided to user
+      await handleMoveByArrow(key);
+    } catch (err: any) {
+      toast({
+        title: 'Error when handling key press',
+        description: Array.isArray(err)
+          ? err.join(', ')
+          : err,
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
     }
   }
 
-  function handleArrowPress(
+  async function handleArrowPress(
     direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
   ) {
     try {
-      handleMoveByArrow(direction);
-    } catch (err) {
-      console.error("Error when handling arrow press", err)
-      // Check if feedback should be provided to user
+      await handleMoveByArrow(direction);
+    } catch (err: any) {
+      toast({
+        title: 'Error when handling key press',
+        description: Array.isArray(err)
+          ? err.join(', ')
+          : err,
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
     }
   }
 
@@ -1472,7 +1479,7 @@ export const GameContextProvider = ({ children }: props) => {
     return isPath && isNextToPlayer;
   }
 
-  function moveIfValid(id: string) {
+  async function moveIfValid(id: string) {
     if (fightingEnemyFlag) return;
     if (id) {
       const touchedCoordinate = getCoordinatesFromTileId(id);
@@ -1504,7 +1511,7 @@ export const GameContextProvider = ({ children }: props) => {
 
         setDirection(newDirection);
 
-        movePlayer(newX, newY);
+        await movePlayer(newX, newY);
         // Update last cell coordinates
         setLastCellX(playerPosition.x);
         setLastCellY(playerPosition.y);
@@ -1514,7 +1521,7 @@ export const GameContextProvider = ({ children }: props) => {
     }
   }
 
-  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+  const handleTouchStart = async (event: React.TouchEvent<HTMLDivElement>) => {
     if (!showMovementButtons) {
       // event.preventDefault(); // Prevent screen scroll
       const touches = event.touches;
@@ -1522,11 +1529,11 @@ export const GameContextProvider = ({ children }: props) => {
 
       const initialSquareId = getSquareIdFromTouch(initialTouch);
 
-      if (!gameOverFlag) moveIfValid(initialSquareId!);
+      if (!gameOverFlag) await moveIfValid(initialSquareId!);
     }
   };
 
-  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+  const handleTouchMove = async (event: React.TouchEvent<HTMLDivElement>) => {
     if (!showMovementButtons) {
       event.preventDefault(); // Prevent screen scroll
       const touches = event.touches;
@@ -1538,7 +1545,7 @@ export const GameContextProvider = ({ children }: props) => {
         const tileId = getSquareIdFromTouch(currentTouch);
 
         if (!gameOverFlag && tileId) {
-          moveIfValid(tileId);
+          await moveIfValid(tileId);
         }
       }
     }
@@ -1558,9 +1565,24 @@ export const GameContextProvider = ({ children }: props) => {
   };
 
   useEffect(() => {
-    if (!gameOverFlag && lastDivId) {
-      moveIfValid(lastDivId);
+    async function validateMove() {
+      try {
+        if (!gameOverFlag && lastDivId) {
+          await moveIfValid(lastDivId);
+        }
+      } catch (err: any) {
+        toast({
+          title: 'Error in validateMove',
+          description: err.message,
+          status: 'error',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      }
     }
+
+    validateMove();
   }, [lastDivId]);
 
   const handleOnMouseUp = () => {
