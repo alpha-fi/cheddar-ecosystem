@@ -891,9 +891,10 @@ export const GameContextProvider = ({ children }: props) => {
     if (
       !mazeData[newY] ||
       !mazeData[newY][newX] ||
-      !mazeData[newY][newX].isPath
+      !mazeData[newY][newX].isPath ||
+      gameOverFlag
     ) {
-      return; // Player cannot move to non-path cells
+      return; // Player cannot move if game is over or to non-path cells
     }
 
     const newMazeData = mazeData.map((row: MazeTileData[], rowIndex: number) =>
@@ -1144,11 +1145,6 @@ export const GameContextProvider = ({ children }: props) => {
       return;
     }
     let clonedMazeData = [...newMazeData];
-    console.log(
-      pathLength,
-      cellsWithItemAmount,
-      pathLength - cellsWithItemAmount
-    );
     if (
       isTestWin ||
       (rng.nextFloat() < getChancesOfFindingExit() &&
@@ -1251,7 +1247,8 @@ export const GameContextProvider = ({ children }: props) => {
           await refetchEarnedButNotMintedCheddar();
           await refetchEarnedAndMintedCheddar();
           setEndGameResponse(endGameResponse);
-          if (!endGameResponse.ok) setEndGameResponseErrors(endGameResponse.errors);
+          if (!endGameResponse.ok)
+            setEndGameResponseErrors(endGameResponse.errors);
           return endGameResponse;
         }),
         {
@@ -1267,7 +1264,7 @@ export const GameContextProvider = ({ children }: props) => {
             title: 'Error',
             description: error.message || 'Unexpected error processing the win',
           }),
-        },
+        }
       );
     } else if (!won && blockchain === 'near') {
       try {
@@ -1385,7 +1382,7 @@ export const GameContextProvider = ({ children }: props) => {
   ]);
 
   async function handleMoveByArrow(direction: string) {
-    if (gameOverFlag || fightingEnemyFlag) return; // If game over of fight animation is active, prevent further movement
+    if (gameOverFlag || fightingEnemyFlag) return; // If game over or fight animation is active, prevent further movement
 
     let newX = playerPosition.x;
     let newY = playerPosition.y;
