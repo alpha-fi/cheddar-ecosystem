@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
   ReactNode,
+  useCallback,
 } from 'react';
 
 import { localStorageSavedGameKey } from '@/constants/maze';
@@ -266,6 +267,19 @@ export const GameContext = createContext<GameContextProps>(
   {} as GameContextProps
 );
 
+function getRandomPathCell(mazeData: MazeTileData[][], rng: RNG) {
+  const pathCells: Coordinates[] = [];
+  mazeData.map((row: MazeTileData[], rowIndex: number) => {
+    row.map((cell: MazeTileData, colIndex: number) => {
+      if (cell.isPath) {
+        pathCells.push({ x: colIndex, y: rowIndex });
+      }
+    });
+  });
+
+  return pathCells[rng.nextRange(0, pathCells.length)];
+}
+
 export const GameContextProvider = ({ children }: props) => {
   const { accountId, selector } = useWalletSelector();
   const gameOverRefSent = useRef(false);
@@ -475,6 +489,7 @@ export const GameContextProvider = ({ children }: props) => {
           });
         });
       }
+      console.log("Count path", countPath)
       return countPath;
     }
 
@@ -543,18 +558,7 @@ export const GameContextProvider = ({ children }: props) => {
   };
   const toast = useToast();
 
-  function getRandomPathCell(mazeData: MazeTileData[][]) {
-    const pathCells: Coordinates[] = [];
-    mazeData.map((row: MazeTileData[], rowIndex: number) => {
-      row.map((cell: MazeTileData, colIndex: number) => {
-        if (cell.isPath) {
-          pathCells.push({ x: colIndex, y: rowIndex });
-        }
-      });
-    });
-
-    return pathCells[rng.nextRange(0, pathCells.length)];
-  }
+  
 
   // Function to restart the game
   async function restartGame(urlSeedId?: any) {
@@ -609,7 +613,9 @@ export const GameContextProvider = ({ children }: props) => {
       setCoveredCells([]);
       setEndGameResponseErrors(undefined);
       setEndGameResponse(undefined);
+      console.log(1)
       setCellsWithItemAmount(0);
+      console.log(2)
       setRenderBoard(!renderBoard);
 
       gameOverRefSent.current = false;
@@ -623,7 +629,7 @@ export const GameContextProvider = ({ children }: props) => {
       // Set the maze data with the new maze and player's starting position
       setMazeData(newMazeData);
 
-      const playerStartCell = getRandomPathCell(newMazeData);
+      const playerStartCell = getRandomPathCell(newMazeData, rng);
       setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
       setLastCellX(-1);
       setLastCellY(-1);
@@ -636,16 +642,16 @@ export const GameContextProvider = ({ children }: props) => {
         mazeData: newMazeData,
         pathLength,
         playerPosition: playerStartCell,
-        score,
+        score: 0,
         startTimestamp: Date.now(),
-        cheeseCooldown,
-        bagCooldown,
-        cellsWithItemAmount,
-        coveredCells,
-        cheddarFound,
+        cheeseCooldown: false,
+        bagCooldown: false,
+        cellsWithItemAmount: 0,
+        coveredCells: [],
+        cheddarFound: 0,
         seedId: seedId,
-        hasFoundPlinko,
-        moves,
+        hasFoundPlinko: false,
+        moves: 0,
         accountId: selectedBlockchainAddress,
         timestampStartStopTimerArray,
         timestampEndStopTimerArray,
@@ -787,7 +793,7 @@ export const GameContextProvider = ({ children }: props) => {
     const newMazeData = generateMazeData(mazeRows, mazeCols, new RNG(0));
     setMazeData(newMazeData);
 
-    const playerStartCell = getRandomPathCell(newMazeData);
+    const playerStartCell = getRandomPathCell(newMazeData, rng);
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
   }
 
@@ -836,6 +842,7 @@ export const GameContextProvider = ({ children }: props) => {
       setBagCooldown(savedGameParsed.bagCooldown);
       setMoves(savedGameParsed.moves);
       setCoveredCells(savedGameParsed.coveredCells);
+      console.log(3, savedGameParsed.cellsWithItemAmount)
       setCellsWithItemAmount(savedGameParsed.cellsWithItemAmount);
       setCheddarFound(savedGameParsed.cheddarFound);
       setSeedId(savedGameParsed.seedId);
@@ -1139,6 +1146,7 @@ export const GameContextProvider = ({ children }: props) => {
       return;
     }
     let clonedMazeData = [...newMazeData];
+    console.log(pathLength, cellsWithItemAmount, pathLength - cellsWithItemAmount)
     if (
       isTestWin ||
       (rng.nextFloat() < getChancesOfFindingExit() &&
@@ -1191,6 +1199,19 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
+    localStorage.removeItem(localStorageSavedGameKey);
+    setHasWon(won);
+    setCoveredCells([]);
+    setGameOverFlag(true);
+
+    setTimeout(() => {
+      stopTimer();
+      setGameOverMessage(message);
+      setHasFoundPlinko(false);
+    }, 800);
+
+    setCollapsableNavbarActivated(false);
+
     const referralAccount = localStorage.getItem('referrer_account');
 
     if (referralAccount) {
@@ -1203,7 +1224,7 @@ export const GameContextProvider = ({ children }: props) => {
 
     gameOverRefSent.current = true;
 
-    if (won || blockchain !== 'near') {
+    if (won || blockchain === 'base') {
       const cheddarToEarn =
         cheddarFound <= pendingCheddarToMint
           ? cheddarFound
@@ -1249,20 +1270,6 @@ export const GameContextProvider = ({ children }: props) => {
         console.error('Error in gameOverLoseGame', err);
       }
     }
-
-    setHasWon(won);
-    setCoveredCells([]);
-    setGameOverFlag(true);
-
-    setTimeout(() => {
-      stopTimer();
-      setGameOverMessage(message);
-      setHasFoundPlinko(false);
-    }, 800);
-
-    setCollapsableNavbarActivated(false);
-
-    localStorage.removeItem(localStorageSavedGameKey);
   }
 
   function calculateRemainingTime(
@@ -1396,11 +1403,13 @@ export const GameContextProvider = ({ children }: props) => {
       const key = event.key;
       await handleMoveByArrow(key);
     } catch (err: any) {
+      console.error(err)
+      // handleErrorToast(err.message)
       toast({
         title: 'Error when handling key press',
         description: Array.isArray(err)
           ? err.join(', ')
-          : err,
+          : err.message,
         status: 'error',
         duration: 9000,
         position: 'bottom-right',
