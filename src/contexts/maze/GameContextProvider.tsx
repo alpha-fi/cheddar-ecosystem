@@ -1,23 +1,21 @@
 import { Coordinates } from '@/entities/interfaces';
 import React, {
   createContext,
-  useEffect,
   KeyboardEvent,
+  ReactNode,
+  useEffect,
   useRef,
   useState,
-  ReactNode,
-  useCallback,
 } from 'react';
 
 import { localStorageSavedGameKey } from '@/constants/maze';
 import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import {
-  callLoseGame,
-  getSeedIdFromContract,
-} from '@/contracts/maze/mazeBuyerCalls';
+import { getSeedIdFromContract } from '@/contracts/maze/mazeBuyerCalls';
 import { getNFTs } from '@/contracts/tokenCheddarCalls';
 import { RNG } from '@/entities/maze/RNG';
 
+import { NFT } from '@/contracts/nftCheddarContract';
+import { useIsHolonymVerfified, useIsNadabotVerfified } from '@/hooks/cheddar';
 import {
   ScoreboardResponse,
   useGetEarnedAndMintedCheddar,
@@ -31,12 +29,6 @@ import { callEndGame, EndGameRequest, getSeedId } from '@/queries/maze/api';
 import { addEncodedDataToURL } from '@/utilities/exportableFunctions';
 import { useDisclosure, useToast } from '@chakra-ui/react';
 import { Blockchain, useGlobalContext } from '../GlobalContext';
-import { NFT } from '@/contracts/nftCheddarContract';
-import {
-  useGetCheddarNFTs,
-  useIsHolonymVerfified,
-  useIsNadabotVerfified,
-} from '@/hooks/cheddar';
 
 interface props {
   children: ReactNode;
@@ -1222,70 +1214,49 @@ export const GameContextProvider = ({ children }: props) => {
 
     gameOverRefSent.current = true;
 
-    if (won || blockchain === 'base') {
-      const cheddarToEarn =
-        cheddarFound <= pendingCheddarToMint
-          ? cheddarFound
-          : pendingCheddarToMint;
+    const cheddarToEarn =
+      cheddarFound <= pendingCheddarToMint
+        ? cheddarFound
+        : pendingCheddarToMint;
 
-      const endGameRequestData: EndGameRequest = {
-        data: {
-          cheddarEarned: won ? cheddarToEarn : 0,
-          score,
-          path: playerPath,
-        },
-        metadata: {
-          blockchain,
-          accountId: selectedBlockchainAddress,
-          seedId,
-          referralAccount,
-        },
-      };
+    const endGameRequestData: EndGameRequest = {
+      data: {
+        cheddarEarned: won ? cheddarToEarn : 0,
+        score,
+        path: playerPath,
+      },
+      metadata: {
+        blockchain,
+        accountId: selectedBlockchainAddress,
+        seedId,
+        referralAccount,
+      },
+    };
 
-      toast.promise(
-        callEndGame(endGameRequestData).then(async (endGameResponse) => {
-          await refetchEarnedButNotMintedCheddar();
-          await refetchEarnedAndMintedCheddar();
-          setEndGameResponse(endGameResponse);
-          if (!endGameResponse.ok)
-            setEndGameResponseErrors(endGameResponse.errors);
-          return endGameResponse;
+    toast.promise(
+      callEndGame(endGameRequestData).then(async (endGameResponse) => {
+        await refetchEarnedButNotMintedCheddar();
+        await refetchEarnedAndMintedCheddar();
+        setEndGameResponse(endGameResponse);
+        if (!endGameResponse.ok)
+          setEndGameResponseErrors(endGameResponse.errors);
+        return endGameResponse;
+      }),
+      {
+        loading: {
+          title: 'Processing',
+          description: 'We are processing your game',
+        },
+        success: {
+          title: 'Success',
+          description: 'Your game has been processed succesfully',
+        },
+        error: (error) => ({
+          title: 'Error',
+          description: error.message || 'Unexpected error processing the game',
         }),
-        {
-          loading: {
-            title: 'Processing',
-            description: 'We are processing your win',
-          },
-          success: {
-            title: 'Success',
-            description: 'Your win has been processed succesfully',
-          },
-          error: (error) => ({
-            title: 'Error',
-            description: error.message || 'Unexpected error processing the win',
-          }),
-        }
-      );
-    } else if (!won && blockchain === 'near') {
-      try {
-        const wallet = await selector.wallet();
-
-        addEncodedDataToURL(blockchain, 'loseGame', 'prossesing lose');
-
-        const response = await callLoseGame(wallet);
-
-        toast({
-          title: 'Game lost call',
-          description: response,
-          status: 'success',
-          duration: 9000,
-          position: 'bottom-right',
-          isClosable: true,
-        });
-      } catch (err) {
-        console.error('Error in gameOverLoseGame', err);
       }
-    }
+    );
   }
 
   function calculateRemainingTime(

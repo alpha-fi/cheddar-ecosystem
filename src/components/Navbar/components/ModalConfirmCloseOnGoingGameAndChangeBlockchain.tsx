@@ -1,10 +1,8 @@
 import { ModalContainer } from '@/components/ModalContainer';
 import { localStorageSavedGameKey } from '@/constants/maze';
-import { Blockchain, useGlobalContext } from '@/contexts/GlobalContext';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
-import { useWalletSelector } from '@/contexts/WalletSelectorContext';
-import { callLoseGame } from '@/contracts/maze/mazeBuyerCalls';
-import { Button, Text, useToast, VStack } from '@chakra-ui/react';
+import { Button, Text, VStack } from '@chakra-ui/react';
 import { useContext } from 'react';
 
 interface Props {
@@ -24,34 +22,7 @@ export const ModalConfirmCloseOnGoingGameAndChangeBlockchain = ({
     timeLimitInSeconds,
   } = useContext(GameContext);
 
-  const { selector } = useWalletSelector();
-
-  const toast = useToast();
-
-  async function callLoseGameIfNeeded() {
-    if (blockchain === 'near') {
-      try {
-        const wallet = await selector.wallet();
-
-        const response = await callLoseGame(wallet);
-
-        toast({
-          title: 'Game lost call',
-          description: response,
-          status: 'success',
-          duration: 9000,
-          position: 'bottom-right',
-          isClosable: true,
-        });
-      } catch (err) {
-        console.error('Error in gameOverLoseGame', err);
-      }
-    }
-  }
-
   async function handleConfirmButton() {
-    await callLoseGameIfNeeded();
-
     localStorage.removeItem(localStorageSavedGameKey);
 
     setTimerStarted(false);
