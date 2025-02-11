@@ -489,7 +489,7 @@ export const GameContextProvider = ({ children }: props) => {
           });
         });
       }
-      console.log("Count path", countPath)
+      console.log('Count path', countPath);
       return countPath;
     }
 
@@ -558,8 +558,6 @@ export const GameContextProvider = ({ children }: props) => {
   };
   const toast = useToast();
 
-  
-
   // Function to restart the game
   async function restartGame(urlSeedId?: any) {
     try {
@@ -613,9 +611,9 @@ export const GameContextProvider = ({ children }: props) => {
       setCoveredCells([]);
       setEndGameResponseErrors(undefined);
       setEndGameResponse(undefined);
-      console.log(1)
+      console.log(1);
       setCellsWithItemAmount(0);
-      console.log(2)
+      console.log(2);
       setRenderBoard(!renderBoard);
 
       gameOverRefSent.current = false;
@@ -842,7 +840,7 @@ export const GameContextProvider = ({ children }: props) => {
       setBagCooldown(savedGameParsed.bagCooldown);
       setMoves(savedGameParsed.moves);
       setCoveredCells(savedGameParsed.coveredCells);
-      console.log(3, savedGameParsed.cellsWithItemAmount)
+      console.log(3, savedGameParsed.cellsWithItemAmount);
       setCellsWithItemAmount(savedGameParsed.cellsWithItemAmount);
       setCheddarFound(savedGameParsed.cheddarFound);
       setSeedId(savedGameParsed.seedId);
@@ -1146,7 +1144,11 @@ export const GameContextProvider = ({ children }: props) => {
       return;
     }
     let clonedMazeData = [...newMazeData];
-    console.log(pathLength, cellsWithItemAmount, pathLength - cellsWithItemAmount)
+    console.log(
+      pathLength,
+      cellsWithItemAmount,
+      pathLength - cellsWithItemAmount
+    );
     if (
       isTestWin ||
       (rng.nextFloat() < getChancesOfFindingExit() &&
@@ -1244,12 +1246,29 @@ export const GameContextProvider = ({ children }: props) => {
         },
       };
 
-      // Beware, catch returns an object unless you throw
-      const endGameResponse = await callEndGame(endGameRequestData);
-      await refetchEarnedButNotMintedCheddar();
-      await refetchEarnedAndMintedCheddar();
-      setEndGameResponse(endGameResponse);
-      if (!endGameResponse.ok) setEndGameResponseErrors(endGameResponse.errors);
+      toast.promise(
+        callEndGame(endGameRequestData).then(async (endGameResponse) => {
+          await refetchEarnedButNotMintedCheddar();
+          await refetchEarnedAndMintedCheddar();
+          setEndGameResponse(endGameResponse);
+          if (!endGameResponse.ok) setEndGameResponseErrors(endGameResponse.errors);
+          return endGameResponse;
+        }),
+        {
+          loading: {
+            title: 'Processing',
+            description: 'We are processing your win',
+          },
+          success: {
+            title: 'Success',
+            description: 'Your win has been processed succesfully',
+          },
+          error: (error) => ({
+            title: 'Error',
+            description: error.message || 'Unexpected error processing the win',
+          }),
+        }
+      );
     } else if (!won && blockchain === 'near') {
       try {
         const wallet = await selector.wallet();
@@ -1403,13 +1422,11 @@ export const GameContextProvider = ({ children }: props) => {
       const key = event.key;
       await handleMoveByArrow(key);
     } catch (err: any) {
-      console.error(err)
+      console.error(err);
       // handleErrorToast(err.message)
       toast({
         title: 'Error when handling key press',
-        description: Array.isArray(err)
-          ? err.join(', ')
-          : err.message,
+        description: Array.isArray(err) ? err.join(', ') : err.message,
         status: 'error',
         duration: 9000,
         position: 'bottom-right',
@@ -1426,9 +1443,7 @@ export const GameContextProvider = ({ children }: props) => {
     } catch (err: any) {
       toast({
         title: 'Error when handling key press',
-        description: Array.isArray(err)
-          ? err.join(', ')
-          : err,
+        description: Array.isArray(err) ? err.join(', ') : err,
         status: 'error',
         duration: 9000,
         position: 'bottom-right',
