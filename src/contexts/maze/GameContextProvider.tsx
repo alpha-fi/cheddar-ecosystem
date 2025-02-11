@@ -1267,7 +1267,7 @@ export const GameContextProvider = ({ children }: props) => {
             title: 'Error',
             description: error.message || 'Unexpected error processing the win',
           }),
-        }
+        },
       );
     } else if (!won && blockchain === 'near') {
       try {
