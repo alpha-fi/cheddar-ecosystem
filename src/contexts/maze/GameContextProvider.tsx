@@ -230,6 +230,8 @@ interface GameContextProps {
   ) => number;
 
   setDeleteSavedGameOnReload: React.Dispatch<React.SetStateAction<boolean>>;
+
+  refreshAvailableGames: () => void;
 }
 
 export interface StoredGameInfo {
@@ -464,6 +466,11 @@ export const GameContextProvider = ({ children }: props) => {
     error: payedMatchesLeftError,
     isLoading: payedMatchesLeftLoading,
   } = useGetUserRemainingPaidGames(accountId);
+
+  const refreshAvailableGames = useCallback(() => {
+    refeshUseGetUserRemainingFreeGames()
+    refeshUseGetUserRemainingPayedGames()
+  }, [])
 
   useEffect(() => {
     if (mintedCheddarError) {
@@ -1722,6 +1729,7 @@ export const GameContextProvider = ({ children }: props) => {
         gameboardRef,
         calculateRemainingTime,
         setDeleteSavedGameOnReload,
+        refreshAvailableGames,
       }}
     >
       {children}

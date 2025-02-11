@@ -25,12 +25,18 @@ import {
   Spinner,
   useToast,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { RenderCheddarIcon } from './maze/RenderCheddarIcon';
+import { GameContext } from '@/contexts/maze/GameContextProvider';
 
 interface Props {}
 
 export const BuyMatchTab = ({}: Props) => {
+
+  const {
+    refreshAvailableGames
+  } = useContext(GameContext);
+
   const { data: options, isLoading: isOptionsLoading } =
     useGetCheddarMazeMatchPrices();
 
@@ -88,6 +94,7 @@ export const BuyMatchTab = ({}: Props) => {
           isClosable: true,
         });
       }
+      refreshAvailableGames()
     } catch (err: any) {
       toast({
         title: err.message,
