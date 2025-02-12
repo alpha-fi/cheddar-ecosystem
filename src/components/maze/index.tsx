@@ -1,15 +1,13 @@
 'use client';
-import React from 'react';
-import { useContext, useEffect, useState } from 'react';
-import { GameboardContainer } from './GameboardContainer';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { ntoy, yton } from '@/contracts/contractUtils';
 import { useGetCheddarMetadata } from '@/hooks/cheddar';
 import { useGetIsAllowedResponse } from '@/hooks/maze';
-import ModalWelcome from '../ModalWelcome';
-import { useToast } from '@chakra-ui/react';
-import { useGlobalContext } from '@/contexts/GlobalContext';
+import { useContext, useEffect, useState } from 'react';
 import { WeHaveMusicModal } from '../ModalWeHaveMusic';
+import ModalWelcome from '../ModalWelcome';
+import { GameboardContainer } from './GameboardContainer';
 
 export default function MazeContainer() {
   const {
@@ -29,13 +27,13 @@ export default function MazeContainer() {
   const { addresses, cheddarBalance, isCheddarBalanceLoading } =
     useGlobalContext();
 
-  const { isLoading: isLoadingCheddarMetadata } = useGetCheddarMetadata();
-
   const {
     data: isAllowedResponse,
     isLoading: isLoadingIsAllowed,
     error: userAllowedError,
   } = useGetIsAllowedResponse();
+
+  const { isLoading: isLoadingCheddarMetadata } = useGetCheddarMetadata();
 
   const [queriesLoaded, setQueriesLoaded] = useState(false);
   const [hasEnoughBalance, setHasEnoughBalance] = useState(false);
@@ -49,8 +47,6 @@ export default function MazeContainer() {
       setQueriesLoaded(true);
     }
   }
-
-  const toast = useToast();
 
   const minCheddarRequired = ntoy(555);
 
@@ -103,10 +99,8 @@ export default function MazeContainer() {
       <WeHaveMusicModal />
       {initialized() && ( // Replace `condition` with your actual condition
         <GameboardContainer
-          handlePowerUpClick={handlePowerUpClick}
           cellSize={cellSize}
           hasEnoughBalance={hasEnoughBalance}
-          minCheddarRequired={yton(minCheddarRequired.toString())}
           isAllowedResponse={isAllowedResponse}
         />
       )}

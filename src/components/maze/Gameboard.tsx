@@ -1,18 +1,10 @@
-import { MazeTileData } from '@/contexts/maze/GameContextProvider';
-import { useContext, useEffect, useRef } from 'react';
-import { GameContext } from '@/contexts/maze/GameContextProvider';
-import {
-  Image,
-  ListItem,
-  OrderedList,
-  useBreakpointValue,
-  useToast,
-} from '@chakra-ui/react';
+import { GameContext, MazeTileData } from '@/contexts/maze/GameContextProvider';
+import { Image, useBreakpointValue, useToast } from '@chakra-ui/react';
+import { useContext, useRef } from 'react';
 
-import styles from '@/styles/Gameboard.module.css';
-import { IsAllowedResponse } from '@/hooks/maze';
-import { useAccount } from 'wagmi';
 import { useGlobalContext } from '@/contexts/GlobalContext';
+import { IsAllowedResponse } from '@/hooks/maze';
+import styles from '@/styles/Gameboard.module.css';
 
 interface Props {
   isUserLoggedIn: boolean;
@@ -222,7 +214,8 @@ export function Gameboard({
                 )}
 
                 {/* Player icon */}
-                {playerPosition!.x === colIndex &&
+                {playerPosition &&
+                  playerPosition!.x === colIndex &&
                   playerPosition!.y === rowIndex && (
                     <div className={getPlayerTileClasses(cell)}></div>
                   )}

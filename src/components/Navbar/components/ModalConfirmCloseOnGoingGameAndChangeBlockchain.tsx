@@ -1,22 +1,20 @@
 import { ModalContainer } from '@/components/ModalContainer';
 import { localStorageSavedGameKey } from '@/constants/maze';
-import { Blockchain, useGlobalContext } from '@/contexts/GlobalContext';
+import { useGlobalContext } from '@/contexts/GlobalContext';
 import { GameContext } from '@/contexts/maze/GameContextProvider';
 import { Button, Text, VStack } from '@chakra-ui/react';
 import { useContext } from 'react';
 
 interface Props {
-  blockchain: Blockchain;
   onClose: () => void;
   isOpen: boolean;
 }
 
 export const ModalConfirmCloseOnGoingGameAndChangeBlockchain = ({
-  blockchain,
   isOpen,
   onClose,
 }: Props) => {
-  const { setBlockchain } = useGlobalContext();
+  const { blockchain, setBlockchain } = useGlobalContext();
   const {
     setTimerStarted,
     setGameOverFlag,
@@ -24,15 +22,14 @@ export const ModalConfirmCloseOnGoingGameAndChangeBlockchain = ({
     timeLimitInSeconds,
   } = useContext(GameContext);
 
-  function handleConfirmButton() {
-    // TODO call end game from back
+  async function handleConfirmButton() {
     localStorage.removeItem(localStorageSavedGameKey);
 
     setTimerStarted(false);
     setGameOverFlag(true);
     setRemainingTime(timeLimitInSeconds);
 
-    setBlockchain(blockchain);
+    setBlockchain(blockchain === 'near' ? 'base' : 'near');
     onClose();
   }
 

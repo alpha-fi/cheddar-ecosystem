@@ -15,6 +15,7 @@ import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
 import { setupBitteWallet } from '@near-wallet-selector/bitte-wallet';
 import { store } from '@/stores/walletSelector.store';
 import { getConfig } from '@/configs/config';
+import { useGlobalContext } from './GlobalContext';
 
 declare global {
   interface Window {
@@ -47,6 +48,7 @@ const WalletSelectorContext =
 
 export const WalletSelectorContextProvider: any = ({ children }: any) => {
   const { networkData } = getConfig();
+  const { blockchain } = useGlobalContext();
 
   const NETWORK_ID = networkData.networkId;
   const [selector, setSelector] = useState<WalletSelector | null>(null);
@@ -106,8 +108,9 @@ export const WalletSelectorContextProvider: any = ({ children }: any) => {
     });
 
     const _modal = setupModal(_selector, {
-      contractId: '',
+      contractId: getConfig().contracts.near.mazeBuyer,
     });
+
     const state = _selector.store.getState();
     setAccounts(state.accounts);
 

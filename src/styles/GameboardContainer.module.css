@@ -152,6 +152,12 @@
 .score {
   flex: 1;
   text-align: center;
+  cursor: default;
+}
+.games {
+  flex: 1;
+  text-align: center;
+  cursor: default;
 }
 .toolbar {
   display: flex;
@@ -209,6 +215,7 @@
 .time {
   flex: 1;
   text-align: center;
+  cursor: default;
 }
 .rulesButton {
   padding: 5px;

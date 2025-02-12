@@ -3,14 +3,19 @@ import React, {
   createContext,
   KeyboardEvent,
   ReactNode,
+  useCallback,
   useEffect,
   useRef,
   useState,
 } from 'react';
 
 import { localStorageSavedGameKey } from '@/constants/maze';
-import { NFT } from '@/contracts/nftCheddarContract';
+import { useWalletSelector } from '@/contexts/WalletSelectorContext';
+import { getSeedIdFromContract } from '@/contracts/maze/mazeBuyerCalls';
+import { getNFTs } from '@/contracts/tokenCheddarCalls';
 import { RNG } from '@/entities/maze/RNG';
+
+import { NFT } from '@/contracts/nftCheddarContract';
 import { useIsHolonymVerfified, useIsNadabotVerfified } from '@/hooks/cheddar';
 import {
   ScoreboardResponse,
@@ -18,11 +23,13 @@ import {
   useGetEarnedButNotMintedCheddar,
   useGetPendingCheddarToMint,
   useGetScoreboard,
+  useGetUserRemainingFreeGames,
+  useGetUserRemainingPaidGames,
 } from '@/hooks/maze';
 import { callEndGame, EndGameRequest, getSeedId } from '@/queries/maze/api';
+import { addEncodedDataToURL } from '@/utilities/exportableFunctions';
 import { useDisclosure, useToast } from '@chakra-ui/react';
 import { Blockchain, useGlobalContext } from '../GlobalContext';
-import { useFeeData } from 'wagmi';
 
 interface props {
   children: ReactNode;
@@ -54,9 +61,18 @@ const pointsOfActions = {
   plinkoGameFound: 2,
 };
 
-const isTestPlinko = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestWin = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
-const isTestCartel = process.env.NEXT_PUBLIC_NETWORK === 'local' && false;
+const isTestPlinko =
+  (process.env.NEXT_PUBLIC_NETWORK === 'local' ||
+    process.env.NEXT_PUBLIC_NETWORK === 'testnet') &&
+  false;
+const isTestWin =
+  (process.env.NEXT_PUBLIC_NETWORK === 'local' ||
+    process.env.NEXT_PUBLIC_NETWORK === 'testnet') &&
+  false;
+const isTestCartel =
+  (process.env.NEXT_PUBLIC_NETWORK === 'local' ||
+    process.env.NEXT_PUBLIC_NETWORK === 'testnet') &&
+  false;
 
 interface GameContextProps {
   isMobile: boolean;
@@ -143,7 +159,7 @@ interface GameContextProps {
     direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
   ): void;
 
-  restartGame(): void;
+  restartGame(urlSeedId?: number): void;
 
   calculateBlurRadius(cellX: number, cellY: number): number;
 
@@ -197,13 +213,26 @@ interface GameContextProps {
   isUserNadabotVerfied: boolean | undefined;
   isUserHolonymVerified: boolean | undefined;
 
+  freeMatchesLeft: number | undefined;
+  payedMatchesLeft: number | undefined;
+
+  freeMatchesLeftLoading: boolean;
+  payedMatchesLeftLoading: boolean;
+
+  startingGame: boolean;
+  setStartingGame: React.Dispatch<React.SetStateAction<boolean>>;
+
+  gameboardRef: React.RefObject<HTMLDivElement>;
+
   calculateRemainingTime: (
     propsTimestampStartStopTimerArray?: number[],
     propsTimestampEndStopTimerArray?: number[],
     propsStartTimestamp?: number | null
   ) => number;
 
-  setDeleteSavedGameOnReload: React.Dispatch<React.SetStateAction<boolean>>
+  setDeleteSavedGameOnReload: React.Dispatch<React.SetStateAction<boolean>>;
+
+  refreshAvailableGames: () => void;
 }
 
 export interface StoredGameInfo {
@@ -233,7 +262,21 @@ export const GameContext = createContext<GameContextProps>(
   {} as GameContextProps
 );
 
+function getRandomPathCell(mazeData: MazeTileData[][], rng: RNG) {
+  const pathCells: Coordinates[] = [];
+  mazeData.map((row: MazeTileData[], rowIndex: number) => {
+    row.map((cell: MazeTileData, colIndex: number) => {
+      if (cell.isPath) {
+        pathCells.push({ x: colIndex, y: rowIndex });
+      }
+    });
+  });
+
+  return pathCells[rng.nextRange(0, pathCells.length)];
+}
+
 export const GameContextProvider = ({ children }: props) => {
+  const { accountId, selector } = useWalletSelector();
   const gameOverRefSent = useRef(false);
   const isMobile = useRef(
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -253,47 +296,26 @@ export const GameContextProvider = ({ children }: props) => {
     (JSON.parse(storedGameInfo.current) as StoredGameInfo | null);
 
   const [timeLimitInSeconds, setTimeLimitInSeconds] = useState(120);
-  const [startTimestamp, setStartTimestamp] = useState<number | null>(
-    // getDefaultOrStoredValue('startTimestamp', null)
-    null
-  );
+  const [startTimestamp, setStartTimestamp] = useState<number | null>(null);
   const [timestampStartStopTimerArray, setTimestampStartStopTimerArray] =
-    useState<number[]>(
-      // getDefaultOrStoredValue('timestampStartStopTimerArray', [])
-      []
-    );
+    useState<number[]>([]);
 
   const [timestampEndStopTimerArray, setTimestampEndStopTimerArray] = useState<
     number[]
-  >(
-    // getDefaultOrStoredValue('timestampEndStopTimerArray', [])
-    []
-  );
+  >([]);
 
-  const [mazeData, setMazeData] = useState<MazeTileData[][]>(
-    // getDefaultOrStoredValue('mazeData', [[]])
-    []
-  );
-  const [pathLength, setPathLength] = useState<number>(
-    // getDefaultOrStoredValue('pathLength', 0)
-    0
-  );
-  const [playerPosition, setPlayerPosition] = useState<Coordinates>(
-    // getDefaultOrStoredValue('playerPosition', { x: 1, y: 1 })
-    { x: 1, y: 1 }
-  );
-  const [score, setScore] = useState<number>(
-    // getDefaultOrStoredValue('score', 0)
-    0
-  );
+  const [mazeData, setMazeData] = useState<MazeTileData[][]>([]);
+  const [pathLength, setPathLength] = useState<number>(0);
+  const [playerPosition, setPlayerPosition] = useState<Coordinates>({
+    x: 1,
+    y: 1,
+  });
+  const [score, setScore] = useState<number>(0);
   const [gameOverFlag, setGameOverFlag] = useState(false);
   const [fightingEnemyFlag, setFightingEnemyFlag] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState('');
   const [hasWon, setHasWon] = useState<undefined | boolean>(undefined);
-  const [timerStarted, setTimerStarted] = useState<boolean>(
-    // getDefaultOrStoredValue('timerStarted', false)
-    false
-  );
+  const [timerStarted, setTimerStarted] = useState<boolean>(false);
   const [direction, setDirection] = useState(
     'right' as 'right' | 'left' | 'down' | 'up'
   );
@@ -302,89 +324,65 @@ export const GameContextProvider = ({ children }: props) => {
   const [lastCellY, setLastCellY] = useState(-1);
   const [hasPowerUp, setHasPowerUp] = useState(false);
   const [isPowerUpOn, setIsPowerUpOn] = useState(false);
-  
-  const [remainingTime, setRemainingTime] = useState<number>(
-    // getDefaultOrStoredValue('remainingTime', timeLimitInSeconds)
-    timeLimitInSeconds
-  );
-  
+
+  const [remainingTime, setRemainingTime] =
+    useState<number>(timeLimitInSeconds);
+
   const [
     loadingRemainingMinutesAndSeconds,
     setLoadingRemainingMinutesAndSeconds,
   ] = useState<boolean>(!!storedGameInfoParsed);
   const [remainingMinutes, setRemainingMinutes] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
-  
-  const [cheeseCooldown, setCheeseCooldown] = useState<boolean>(
-    // getDefaultOrStoredValue('cheeseCooldown', false)
-    false
-  );
-  const [bagCooldown, setBagCooldown] = useState<boolean>(
-    // getDefaultOrStoredValue('bagCooldown', false)
-    false
-  );
+
+  const [cheeseCooldown, setCheeseCooldown] = useState<boolean>(false);
+  const [bagCooldown, setBagCooldown] = useState<boolean>(false);
   const [enemyCooldown, setEnemyCooldown] = useState(false);
-  const [moves, setMoves] = useState<number>(
-    // getDefaultOrStoredValue('moves', 0)
-    0
-  );
-  
+  const [moves, setMoves] = useState<number>(0);
+
   const [won, setWon] = useState(false);
   const [touchStart, setTouchStart] = useState({ x: -1, y: -1 });
   const [touchEnd, setTouchEnd] = useState({ x: -1, y: -1 });
-  const [coveredCells, setCoveredCells] = useState<string[]>(
-    // getDefaultOrStoredValue('coveredCells', false)
-    []
-  );
+  const [coveredCells, setCoveredCells] = useState<string[]>([]);
   const [playerPath, setPlayerPath] = useState<Coordinates[]>([]);
-  const [cellsWithItemAmount, setCellsWithItemAmount] = useState<number>(
-    // getDefaultOrStoredValue('cellsWithItemAmount', false)
-    0
-  );
-  
-  const [cheddarFound, setCheddarFound] = useState<number>(
-    // getDefaultOrStoredValue('cheddarFound', 0)
-    0
-  );
-  
-  const [seedId, setSeedId] = useState<number>(
-    // getDefaultOrStoredValue('seedId', 0)
-    0
-  );
-  
+  const [cellsWithItemAmount, setCellsWithItemAmount] = useState<number>(0);
+
+  const [startingGame, setStartingGame] = useState(false);
+
+  const [cheddarFound, setCheddarFound] = useState<number>(0);
+
+  const [seedId, setSeedId] = useState<number>(0);
+
   const [rng, setRng] = useState(new RNG(0));
-  
-  const [endGameResponseErrors, setEndGameResponseErrors] = useState();
+
+  const [endGameResponseErrors, setEndGameResponseErrors] =
+    useState<string[]>();
   const [endGameResponse, setEndGameResponse] = useState();
-  
+
   const [showMovementButtons, setShowMovementButtons] = useState(true);
   const [renderBoard, setRenderBoard] = useState(false); // to update board color on restart
-  
-  const [hasFoundPlinko, setHasFoundPlinko] = useState<boolean>(
-    // getDefaultOrStoredValue('seedId', false)
-    false
-  );
-  
+
+  const [hasFoundPlinko, setHasFoundPlinko] = useState<boolean>(false);
+
   const [isMouseDown, setIsMouseDown] = useState(false);
-  
+
   const [lastDivId, setLastDivId] = useState('');
-  
-  // const [backgroundImage, setBackgroundImage] = useState('');
-  // const [rarity, setRarity] = useState('');
-  
+
   const {
     isOpen: isVideoModalOpened,
     onOpen: onOpenVideoModal,
     onClose: onCloseVideoModal,
   } = useDisclosure();
-  
+
   const [mazeCols, setMazeCols] = useState(9);
   const [mazeRows, setMazeRows] = useState(10);
   const [totalCells, setTotalCells] = useState(0);
-  
+
   const [storedDataLoaded, setStoredDataLoaded] = useState(false);
   const [deleteSavedGameOnReload, setDeleteSavedGameOnReload] = useState(false);
-  
+
+  const gameboardRef = useRef<HTMLDivElement>(null);
+
   function handleErrorToast(title: string) {
     toast({
       title,
@@ -400,7 +398,7 @@ export const GameContextProvider = ({ children }: props) => {
     let mdParced;
     if (stored) mdParced = JSON.parse(stored);
   }, [mazeData]);
-  
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
     const handleMediaChange = (e: any) => {
@@ -456,6 +454,25 @@ export const GameContextProvider = ({ children }: props) => {
     error: mintedCheddarError,
   } = useGetEarnedAndMintedCheddar();
 
+  const {
+    data: freeMatchesLeft,
+    refetch: refeshUseGetUserRemainingFreeGames,
+    error: freeMatchesLeftError,
+    isLoading: freeMatchesLeftLoading,
+  } = useGetUserRemainingFreeGames(accountId);
+
+  const {
+    data: payedMatchesLeft,
+    refetch: refeshUseGetUserRemainingPayedGames,
+    error: payedMatchesLeftError,
+    isLoading: payedMatchesLeftLoading,
+  } = useGetUserRemainingPaidGames(accountId);
+
+  const refreshAvailableGames = useCallback(() => {
+    refeshUseGetUserRemainingFreeGames()
+    refeshUseGetUserRemainingPayedGames()
+  }, [])
+
   useEffect(() => {
     if (mintedCheddarError) {
       handleErrorToast("Error occured while retrieving user's minted cheddar!");
@@ -472,6 +489,7 @@ export const GameContextProvider = ({ children }: props) => {
           });
         });
       }
+      console.log('Count path', countPath);
       return countPath;
     }
 
@@ -495,6 +513,12 @@ export const GameContextProvider = ({ children }: props) => {
     };
   }, []);
 
+  const [nfts, setNFTs] = useState<NFT[]>([]);
+
+  // const { data: isUserNadabotVerfied } = useIsNadabotVerfified(accountId);
+
+  // const { data: isUserHolonymVerified } = useIsHolonymVerfified(accountId);
+
   const {
     blockchain,
     setBlockchain,
@@ -504,7 +528,18 @@ export const GameContextProvider = ({ children }: props) => {
     cheddarNFTsData,
     blockchainChangedOnLoad,
     setBlockchainChangedOnLoad,
+    urlParams,
   } = useGlobalContext();
+
+  useEffect(() => {
+    if (accountId) {
+      getNFTs(accountId).then((nfts) => {
+        setNFTs(nfts);
+      });
+    } else {
+      setNFTs([]);
+    }
+  }, [accountId]);
 
   const { data: isUserNadabotVerfied } = useIsNadabotVerfified(addresses.near);
 
@@ -523,105 +558,111 @@ export const GameContextProvider = ({ children }: props) => {
   };
   const toast = useToast();
 
-  function getRandomPathCell(mazeData: MazeTileData[][]) {
-    const pathCells: Coordinates[] = [];
-    mazeData.map((row: MazeTileData[], rowIndex: number) => {
-      row.map((cell: MazeTileData, colIndex: number) => {
-        if (cell.isPath) {
-          pathCells.push({ x: colIndex, y: rowIndex });
-        }
-      });
-    });
-
-    return pathCells[rng.nextRange(0, pathCells.length)];
-  }
-
   // Function to restart the game
-  async function restartGame() {
-    if (!selectedBlockchainAddress) {
-      return;
+  async function restartGame(urlSeedId?: any) {
+    try {
+      if (!selectedBlockchainAddress) {
+        return;
+      }
+
+      setStartingGame(true);
+      gameboardRef.current?.focus();
+
+      let seedId;
+      if (blockchain === 'near') {
+        if (urlSeedId) {
+          seedId = urlSeedId;
+        } else {
+          const wallet = await selector.wallet();
+
+          addEncodedDataToURL(blockchain, 'startMazeMatch', 'starting game');
+
+          seedId = await getSeedIdFromContract(wallet);
+        }
+      } else if (blockchain === 'base') {
+        seedId = await getSeedId(selectedBlockchainAddress);
+      } else {
+        throw new Error(`Invalid blockchain: ${blockchain}`);
+      }
+
+      await refetchPendingCheddarToMint();
+      await refetchEarnedButNotMintedCheddar();
+      setSeedId(seedId);
+
+      setHasWon(undefined);
+      setTimerStarted(true);
+      setStartTimestamp(Date.now());
+      setTimestampStartStopTimerArray([]);
+      setTimestampEndStopTimerArray([]);
+
+      // clearInterval(timerId);
+      setScore(0);
+      setTimeLimitInSeconds(120);
+      setRemainingTime(120);
+      setCheddarFound(0);
+      setCheeseCooldown(false);
+      setBagCooldown(false);
+      // setEnemyCooldown(false);
+      setMoves(0);
+      setGameOverFlag(false);
+      setWon(false);
+      setGameOverMessage('');
+      setDirection('right');
+      setCoveredCells([]);
+      setEndGameResponseErrors(undefined);
+      setEndGameResponse(undefined);
+      console.log(1);
+      setCellsWithItemAmount(0);
+      console.log(2);
+      setRenderBoard(!renderBoard);
+
+      gameOverRefSent.current = false;
+
+      // Regenerate maze data
+      const rng = new RNG(seedId);
+      setRng(rng);
+
+      const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
+
+      // Set the maze data with the new maze and player's starting position
+      setMazeData(newMazeData);
+
+      const playerStartCell = getRandomPathCell(newMazeData, rng);
+      setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
+      setLastCellX(-1);
+      setLastCellY(-1);
+
+      refeshUseGetUserRemainingPayedGames();
+      refeshUseGetUserRemainingFreeGames();
+      setCollapsableNavbarActivated(true);
+
+      const gameInfo: StoredGameInfo = {
+        mazeData: newMazeData,
+        pathLength,
+        playerPosition: playerStartCell,
+        score: 0,
+        startTimestamp: Date.now(),
+        cheeseCooldown: false,
+        bagCooldown: false,
+        cellsWithItemAmount: 0,
+        coveredCells: [],
+        cheddarFound: 0,
+        seedId: seedId,
+        hasFoundPlinko: false,
+        moves: 0,
+        accountId: selectedBlockchainAddress,
+        timestampStartStopTimerArray,
+        timestampEndStopTimerArray,
+        blockchain,
+        rngState: rng.state,
+        playerPath: [],
+        selectedColorSet,
+      };
+
+      localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
+    } catch (err: any) {
+      handleErrorToast(err.message);
     }
-
-    const newSeedIdResponse = await getSeedId(
-      selectedBlockchainAddress,
-      blockchain
-    );
-    if (!newSeedIdResponse.ok) {
-      handleErrorToast(newSeedIdResponse.message);
-
-      return;
-    }
-
-    await refetchPendingCheddarToMint();
-    await refetchEarnedButNotMintedCheddar();
-    setSeedId(newSeedIdResponse.seedId);
-
-    setHasWon(undefined);
-    setTimerStarted(true);
-    setStartTimestamp(Date.now());
-    setTimestampStartStopTimerArray([]);
-    setTimestampEndStopTimerArray([]);
-
-    // clearInterval(timerId);
-    setScore(0);
-    setTimeLimitInSeconds(120);
-    setRemainingTime(120);
-    setCheddarFound(0);
-    setCheeseCooldown(false);
-    setBagCooldown(false);
-    // setEnemyCooldown(false);
-    setMoves(0);
-    setGameOverFlag(false);
-    setWon(false);
-    setGameOverMessage('');
-    setDirection('right');
-    setCoveredCells([]);
-    setEndGameResponseErrors(undefined);
-    setEndGameResponse(undefined);
-    setCellsWithItemAmount(0);
-    setRenderBoard(!renderBoard);
-
-    gameOverRefSent.current = false;
-
-    // Regenerate maze data
-    const rng = new RNG(newSeedIdResponse.seedId);
-    setRng(rng);
-
-    const newMazeData = generateMazeData(mazeRows, mazeCols, rng);
-
-    // Set the maze data with the new maze and player's starting position
-    setMazeData(newMazeData);
-
-    const playerStartCell = getRandomPathCell(newMazeData);
-    setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
-    setLastCellX(-1);
-    setLastCellY(-1);
-    setCollapsableNavbarActivated(true);
-
-    const gameInfo: StoredGameInfo = {
-      mazeData: newMazeData,
-      pathLength,
-      playerPosition: playerStartCell,
-      score,
-      startTimestamp: Date.now(),
-      cheeseCooldown,
-      bagCooldown,
-      cellsWithItemAmount,
-      coveredCells,
-      cheddarFound,
-      seedId: newSeedIdResponse.seedId,
-      hasFoundPlinko,
-      moves,
-      accountId: selectedBlockchainAddress,
-      timestampStartStopTimerArray,
-      timestampEndStopTimerArray,
-      blockchain,
-      rngState: rng.state,
-      playerPath: [],
-      selectedColorSet,
-    };
-
-    localStorage.setItem(localStorageSavedGameKey, JSON.stringify(gameInfo));
   }
 
   // Function to generate maze data
@@ -750,7 +791,7 @@ export const GameContextProvider = ({ children }: props) => {
     const newMazeData = generateMazeData(mazeRows, mazeCols, new RNG(0));
     setMazeData(newMazeData);
 
-    const playerStartCell = getRandomPathCell(newMazeData);
+    const playerStartCell = getRandomPathCell(newMazeData, rng);
     setPlayerPosition({ x: playerStartCell.x, y: playerStartCell.y });
   }
 
@@ -784,7 +825,7 @@ export const GameContextProvider = ({ children }: props) => {
       }
     } else {
       setTimerStarted(false);
-      setGameOverFlag(true);
+      // setGameOverFlag(true);
       setRemainingTime(timeLimitInSeconds);
       restartMaze();
       return;
@@ -799,6 +840,7 @@ export const GameContextProvider = ({ children }: props) => {
       setBagCooldown(savedGameParsed.bagCooldown);
       setMoves(savedGameParsed.moves);
       setCoveredCells(savedGameParsed.coveredCells);
+      console.log(3, savedGameParsed.cellsWithItemAmount);
       setCellsWithItemAmount(savedGameParsed.cellsWithItemAmount);
       setCheddarFound(savedGameParsed.cheddarFound);
       setSeedId(savedGameParsed.seedId);
@@ -819,14 +861,14 @@ export const GameContextProvider = ({ children }: props) => {
       setGameOverFlag(false);
     } else {
       setTimerStarted(false);
-      setGameOverFlag(true);
+      // setGameOverFlag(true);
       setRemainingTime(timeLimitInSeconds);
       restartMaze();
       return;
     }
 
     setStoredDataLoaded(true);
-  }, [totalCells, renderBoard, blockchain]); // Empty dependency array to run this effect only once on component mount
+  }, [totalCells, renderBoard, blockchain]);
 
   useEffect(() => {
     if (storedDataLoaded) {
@@ -845,13 +887,14 @@ export const GameContextProvider = ({ children }: props) => {
     }
   }, [storedDataLoaded]);
 
-  function movePlayer(newX: number, newY: number) {
+  async function movePlayer(newX: number, newY: number) {
     if (
       !mazeData[newY] ||
       !mazeData[newY][newX] ||
-      !mazeData[newY][newX].isPath
+      !mazeData[newY][newX].isPath ||
+      gameOverFlag
     ) {
-      return; // Player cannot move to non-path cells
+      return; // Player cannot move if game is over or to non-path cells
     }
 
     const newMazeData = mazeData.map((row: MazeTileData[], rowIndex: number) =>
@@ -889,8 +932,9 @@ export const GameContextProvider = ({ children }: props) => {
     setLastCellY(playerPosition.y);
 
     // Periodically add artifacts to the board based on cooldowns and randomness
-    addArtifacts(newX, newY, newMazeData, moves);
+    await addArtifacts(newX, newY, newMazeData, moves);
 
+    // TODO encapsulate in a function
     //Store match info in local storage
     const gameInfo: StoredGameInfo = {
       mazeData: newMazeData,
@@ -1051,14 +1095,14 @@ export const GameContextProvider = ({ children }: props) => {
     setCellsWithItemAmount(cellsWithItemAmount + 1);
   }
 
-  function handleExitFound(
+  async function handleExitFound(
     clonedMazeData: MazeTileData[][],
     x: number,
     y: number
   ) {
     clonedMazeData[y][x].hasExit = true;
     setCellsWithItemAmount(cellsWithItemAmount + 1);
-    gameOver('Congrats! You found the Hidden Door.', true);
+    await gameOver('Congrats! You found the Hidden Door.', true);
   }
 
   const chancesOfFinding = {
@@ -1088,7 +1132,7 @@ export const GameContextProvider = ({ children }: props) => {
     return chancesOfFinding.exit;
   }
 
-  function addArtifacts(
+  async function addArtifacts(
     newX: number,
     newY: number,
     newMazeData: MazeTileData[][],
@@ -1107,7 +1151,7 @@ export const GameContextProvider = ({ children }: props) => {
         coveredCells.length >= 0.75 * pathLength) ||
       pathLength - cellsWithItemAmount === 1
     ) {
-      handleExitFound(clonedMazeData, newX, newY);
+      await handleExitFound(clonedMazeData, newX, newY);
     } else if (
       isTestPlinko ||
       (rng.nextFloat() < chancesOfFinding.plinko &&
@@ -1153,6 +1197,19 @@ export const GameContextProvider = ({ children }: props) => {
 
   // Function to handle game over
   async function gameOver(message: string, won: boolean) {
+    localStorage.removeItem(localStorageSavedGameKey);
+    setHasWon(won);
+    setCoveredCells([]);
+    setGameOverFlag(true);
+
+    setTimeout(() => {
+      stopTimer();
+      setGameOverMessage(message);
+      setHasFoundPlinko(false);
+    }, 800);
+
+    setCollapsableNavbarActivated(false);
+
     const referralAccount = localStorage.getItem('referrer_account');
 
     if (referralAccount) {
@@ -1184,27 +1241,30 @@ export const GameContextProvider = ({ children }: props) => {
       },
     };
 
-    setHasWon(won);
-    setCoveredCells([]);
-    setGameOverFlag(true);
-
-    setTimeout(() => {
-      stopTimer();
-      setGameOverMessage(message);
-      setHasFoundPlinko(false);
-    }, 800);
-
-    setCollapsableNavbarActivated(false);
-
-    const endGameResponse = await callEndGame(endGameRequestData).catch(
-      (error) => setEndGameResponseErrors(error.message.split('|||'))
+    toast.promise(
+      callEndGame(endGameRequestData).then(async (endGameResponse) => {
+        await refetchEarnedButNotMintedCheddar();
+        await refetchEarnedAndMintedCheddar();
+        setEndGameResponse(endGameResponse);
+        if (!endGameResponse.ok)
+          setEndGameResponseErrors(endGameResponse.errors);
+        return endGameResponse;
+      }),
+      {
+        loading: {
+          title: 'Processing',
+          description: 'We are processing your game',
+        },
+        success: {
+          title: 'Success',
+          description: 'Your game has been processed succesfully',
+        },
+        error: (error) => ({
+          title: 'Error',
+          description: error.message || 'Unexpected error processing the game',
+        }),
+      }
     );
-    await refetchEarnedButNotMintedCheddar();
-    await refetchEarnedAndMintedCheddar();
-
-    localStorage.removeItem(localStorageSavedGameKey);
-
-    setEndGameResponse(endGameResponse);
   }
 
   function calculateRemainingTime(
@@ -1300,8 +1360,8 @@ export const GameContextProvider = ({ children }: props) => {
     timeLimitInSeconds,
   ]);
 
-  function handleMoveByArrow(direction: string) {
-    if (gameOverFlag || fightingEnemyFlag) return; // If game over of fight animation is active, prevent further movement
+  async function handleMoveByArrow(direction: string) {
+    if (gameOverFlag || fightingEnemyFlag) return; // If game over or fight animation is active, prevent further movement
 
     let newX = playerPosition.x;
     let newY = playerPosition.y;
@@ -1326,23 +1386,46 @@ export const GameContextProvider = ({ children }: props) => {
       default:
         return;
     }
-
-    movePlayer(newX, newY);
+    await movePlayer(newX, newY);
     // Update last cell coordinates
     setLastCellX(playerPosition.x);
     setLastCellY(playerPosition.y);
   }
 
   // Function to handle key press events
-  function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
-    const key = event.key;
-    handleMoveByArrow(key);
+  async function handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
+    try {
+      const key = event.key;
+      await handleMoveByArrow(key);
+    } catch (err: any) {
+      console.error(err);
+      // handleErrorToast(err.message)
+      toast({
+        title: 'Error when handling key press',
+        description: Array.isArray(err) ? err.join(', ') : err.message,
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+    }
   }
 
-  function handleArrowPress(
+  async function handleArrowPress(
     direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
   ) {
-    handleMoveByArrow(direction);
+    try {
+      await handleMoveByArrow(direction);
+    } catch (err: any) {
+      toast({
+        title: 'Error when handling key press',
+        description: Array.isArray(err) ? err.join(', ') : err,
+        status: 'error',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true,
+      });
+    }
   }
 
   function calculateBlurRadius(cellX: number, cellY: number) {
@@ -1396,7 +1479,7 @@ export const GameContextProvider = ({ children }: props) => {
     return isPath && isNextToPlayer;
   }
 
-  function moveIfValid(id: string) {
+  async function moveIfValid(id: string) {
     if (fightingEnemyFlag) return;
     if (id) {
       const touchedCoordinate = getCoordinatesFromTileId(id);
@@ -1428,7 +1511,7 @@ export const GameContextProvider = ({ children }: props) => {
 
         setDirection(newDirection);
 
-        movePlayer(newX, newY);
+        await movePlayer(newX, newY);
         // Update last cell coordinates
         setLastCellX(playerPosition.x);
         setLastCellY(playerPosition.y);
@@ -1438,7 +1521,7 @@ export const GameContextProvider = ({ children }: props) => {
     }
   }
 
-  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+  const handleTouchStart = async (event: React.TouchEvent<HTMLDivElement>) => {
     if (!showMovementButtons) {
       // event.preventDefault(); // Prevent screen scroll
       const touches = event.touches;
@@ -1446,11 +1529,11 @@ export const GameContextProvider = ({ children }: props) => {
 
       const initialSquareId = getSquareIdFromTouch(initialTouch);
 
-      if (!gameOverFlag) moveIfValid(initialSquareId!);
+      if (!gameOverFlag) await moveIfValid(initialSquareId!);
     }
   };
 
-  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+  const handleTouchMove = async (event: React.TouchEvent<HTMLDivElement>) => {
     if (!showMovementButtons) {
       event.preventDefault(); // Prevent screen scroll
       const touches = event.touches;
@@ -1462,7 +1545,7 @@ export const GameContextProvider = ({ children }: props) => {
         const tileId = getSquareIdFromTouch(currentTouch);
 
         if (!gameOverFlag && tileId) {
-          moveIfValid(tileId);
+          await moveIfValid(tileId);
         }
       }
     }
@@ -1482,9 +1565,24 @@ export const GameContextProvider = ({ children }: props) => {
   };
 
   useEffect(() => {
-    if (!gameOverFlag && lastDivId) {
-      moveIfValid(lastDivId);
+    async function validateMove() {
+      try {
+        if (!gameOverFlag && lastDivId) {
+          await moveIfValid(lastDivId);
+        }
+      } catch (err: any) {
+        toast({
+          title: 'Error in validateMove',
+          description: err.message,
+          status: 'error',
+          duration: 9000,
+          position: 'bottom-right',
+          isClosable: true,
+        });
+      }
     }
+
+    validateMove();
   }, [lastDivId]);
 
   const handleOnMouseUp = () => {
@@ -1623,8 +1721,16 @@ export const GameContextProvider = ({ children }: props) => {
         isUserHolonymVerified,
         earnedButNotMintedCheddar,
         totalMintedCheddarToDate,
+        freeMatchesLeft,
+        payedMatchesLeft,
+        freeMatchesLeftLoading,
+        payedMatchesLeftLoading,
+        startingGame,
+        setStartingGame,
+        gameboardRef,
         calculateRemainingTime,
         setDeleteSavedGameOnReload,
+        refreshAvailableGames,
       }}
     >
       {children}
