@@ -489,7 +489,6 @@ export const GameContextProvider = ({ children }: props) => {
           });
         });
       }
-      console.log('Count path', countPath);
       return countPath;
     }
 
@@ -611,9 +610,7 @@ export const GameContextProvider = ({ children }: props) => {
       setCoveredCells([]);
       setEndGameResponseErrors(undefined);
       setEndGameResponse(undefined);
-      console.log(1);
       setCellsWithItemAmount(0);
-      console.log(2);
       setRenderBoard(!renderBoard);
 
       gameOverRefSent.current = false;
@@ -840,7 +837,6 @@ export const GameContextProvider = ({ children }: props) => {
       setBagCooldown(savedGameParsed.bagCooldown);
       setMoves(savedGameParsed.moves);
       setCoveredCells(savedGameParsed.coveredCells);
-      console.log(3, savedGameParsed.cellsWithItemAmount);
       setCellsWithItemAmount(savedGameParsed.cellsWithItemAmount);
       setCheddarFound(savedGameParsed.cheddarFound);
       setSeedId(savedGameParsed.seedId);
